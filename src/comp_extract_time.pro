@@ -56,6 +56,7 @@ function comp_extract_time, headers, day, month, year, hours, mins, secs
   endelse
 
   if (strupcase(time_label) eq 'PM' and hours ne 12) then hours += 12.0
+  if (strupcase(time_label) eq 'AM' and hours eq 12) then hours -= 12.0
 
   return, float(hours) + float(mins) / 60.0 + float(secs) / 3600.0
 end
