@@ -5,7 +5,7 @@
 ; setting) from a set of images and headers.
 ;
 ; :Uses:
-;   comp_inventory_header
+;   comp_inventory_header, sxpar, sxaddpar
 ;
 ; :Returns:
 ;   array of images at the specified polarization states, beam settings, and

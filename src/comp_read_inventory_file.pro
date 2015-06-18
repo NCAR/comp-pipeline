@@ -62,6 +62,7 @@ pro comp_read_inventory_file, filename, datafiles, exptimes, $
     npol = 0
     for i = 0L, npstates - 1L do npol += total(linesplit eq polstates[i])
     if (npol gt npsmax) then npsmax = npol
+
     ; elements from iwave0 to the end of linesplit will be wavelengths
     ; and polarizations, so the number of wavelengths are the following...
     nw = nls - npol - iwave0

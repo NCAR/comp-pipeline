@@ -4,6 +4,9 @@
 ; Function returning the time of day in correct format for `READ_FLATS`, among
 ; other things.
 ;
+; :Uses:
+;   sxpar
+;
 ; :Returns:
 ;   time of day in units of hours as a float
 ;

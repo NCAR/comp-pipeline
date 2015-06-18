@@ -5,6 +5,9 @@
 ; that the data headers start at extension 1 and index zero is primary header
 ; only).
 ;
+; :Uses:
+;   fits_open, fits_read, fits_close
+;
 ; :Params:
 ;   filename : in, required, type=string
 ;     the name of the CoMP FITS file to be read
@@ -26,7 +29,7 @@ pro comp_read_data, filename, images, headers, header0
 
   fits_open, filename, fcb
   nxt = fcb.nextend
-  
+
   if (nxt le 1) then message, filename + ' contains no data'
 
   ; get the primary header

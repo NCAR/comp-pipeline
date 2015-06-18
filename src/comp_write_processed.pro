@@ -1,12 +1,11 @@
 ; docformat = 'rst'
 
 ;+
-; comp_write_processed
-;
 ; Writes CoMP L1 processed data do the specified output file.
 ;
 ; :Uses:
-;   comp_inventory_header
+;   comp_inventory_header, fits_open, sxdelpar, sxaddpar, fits_write,
+;   fits_close
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"

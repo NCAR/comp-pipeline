@@ -5,6 +5,9 @@
 ; association, wavelength, polarization state, data type and exposure time are
 ; returned, one for each header in the array.
 ;
+; :Uses:
+;   sxpar
+;
 ; :Params:
 ;   headers : in, required, type="strarr(ntags, nimages)"
 ;     array of headers
