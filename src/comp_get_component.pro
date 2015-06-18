@@ -4,6 +4,9 @@
 ; Retrieves a specified CoMP component (i.e., polarization state and FG/BG beam
 ; setting) from a set of images and headers.
 ;
+; :Uses:
+;   comp_inventory_header
+;
 ; :Returns:
 ;   array of images at the specified polarization states, beam settings, and
 ;   (optionally) wavelengths

@@ -78,14 +78,14 @@ pro comp_read_inventory_file, filename, datafiles, exptimes, $
   endwhile
 
   ; set up output arrays...
-  nlines = n_elements(lines)
+  nlines    = n_elements(lines)
   datafiles = strarr(nlines)
-  exptimes = strarr(nlines)
-  ndata = lonarr(nlines)
-  ndark = lonarr(nlines)
-  nopal = lonarr(nlines)
-  open = strarr(nlines)
-  waves = strarr(nlines, nwmax)
+  exptimes  = strarr(nlines)
+  ndata     = lonarr(nlines)
+  ndark     = lonarr(nlines)
+  nopal     = lonarr(nlines)
+  open      = strarr(nlines)
+  waves     = strarr(nlines, nwmax)
   polstates = strarr(nlines, npsmax)
 
   ; go through the lines again and assign to output
@@ -98,8 +98,8 @@ pro comp_read_inventory_file, filename, datafiles, exptimes, $
     ndark[i] = long(linesplit[5])
     nopal[i] = long(linesplit[7])
     open[i] = linesplit[9]
-    waves[i, 0:nws[i] - 1] = linesplit[iwave0:iwave0+nws[i] - 1]
-    polstates[i, 0:npols[i] - 1] = linesplit[nls-npols[i]:nls - 1]
+    waves[i, 0:nws[i] - 1] = linesplit[iwave0:iwave0 + nws[i] - 1]
+    polstates[i, 0:npols[i] - 1] = linesplit[nls - npols[i]:nls - 1]
   endfor
 
   free_lun, lun
