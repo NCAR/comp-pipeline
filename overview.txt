@@ -1,0 +1,6 @@
+CoMP pipeline code.
+
+:Dirs:
+  .
+    main code
+
