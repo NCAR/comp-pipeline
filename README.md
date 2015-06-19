@@ -26,4 +26,4 @@ This requires an [IDLdoc] and [mglib] installation. The Makefile will look for I
 
 [mglib]: https://github.com/mgalloy/mglib "mgalloy/mglib"
 [IDLdoc]: https://github.com/mgalloy/idldoc "mgalloy/idldoc"
-[mgunit]: https://github.com/mgalloy/idldoc "mgalloy/mgunit"
+[mgunit]: https://github.com/mgalloy/mgunit "mgalloy/mgunit"
