@@ -5,7 +5,8 @@
 ; background-subtracted foreground and the background.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_extract_beams, sxpar, sxaddpar, sxdelpar
+;   comp_inventory_header, comp_get_component, comp_extract_beams, sxpar,
+;   sxaddpar, sxdelpar
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"
