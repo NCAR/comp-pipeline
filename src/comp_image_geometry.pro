@@ -49,6 +49,9 @@ pro comp_image_geometry, headers, date_dir, $
   nx = 620
   ny = nx
 
+  ; TODO: are the below correct? are we correcting for difference between
+  ; FITS and IDL standards (off by 1)?
+
   ; do once when using centers from flats
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2, $
                y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2, $
