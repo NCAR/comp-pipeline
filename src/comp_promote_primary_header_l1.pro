@@ -2,7 +2,14 @@
 
 ;+
 ; Updates a CoMP raw primary header to a level 1 header.
-; 
+;
+; :Common:
+;   mask_constants
+;
+; :Uses:
+;   comp_inventory_header, comp_extract_time, comp_image_geometry,
+;   comp_fix_header_time, tojd, ephem2, sxdelpar, sxaddpar, sxpar
+;
 ; :Params:
 ;   headers : in, required, type='strarr(ntags, nimg)'
 ;     the array of headers (with extensions included) read from the CoMP raw
@@ -94,9 +101,11 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir
   sxaddpar, primary_header, 'OVRLPANG', overlap_angle, ' [degrees] P Angle of field overlap'
 
   ; occulter ID and size
-  occ_id=sxpar(primary_header,'OCCULTER')
-  sxdelpar,primary_header,'OCCULTER'
+  occ_id = sxpar(primary_header, 'OCCULTER')
+  sxdelpar, primary_header, 'OCCULTER'
   sxaddpar, primary_header, 'OCC-ID', occ_id, ' Occulter Identification Number'
+
+  ; TODO: what is occulter_id? function, array? I don't see either
   occulter_size = occulter_id(occ_id)
   sxaddpar, primary_header, 'OCC-SIZE', occulter_size, ' [mm] Occulter size'
 
@@ -104,16 +113,16 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir
   sxaddpar, primary_header, 'RSUN', semi_diam, ' [arcsec] Solar Radius', format='(f8.2)'
   sxaddpar, primary_header, 'SOLAR_P0', p_angle, ' [degrees] P Angle', format='(f8.2)'
   sxaddpar, primary_header, 'SOLAR_B0', b0, ' [degrees] B Angle', format='(f8.2)'
-  ; TODO  sxaddpar, primary_header,'SOLAR_L0',l0, ' [degrees] L Angle'
+  ; TODO  sxaddpar, primary_header, 'SOLAR_L0', l0, ' [degrees] L Angle'
   sxaddpar, primary_header, 'SOLAR_RA', sol_ra, ' [HOURS] Solar Right Ascension', format='(f8.3)'
   sxaddpar, primary_header, 'SOLARDEC', sol_dec, ' [degrees] Solar Declination', format='(f8.2)'
 
   ; fix the date/time in UT
-  fix_header_time, primary_header
+  comp_fix_header_time, primary_header
 
   ; static I to Q and U crosstalk coefficients
-  i_to_q = -0.000581
-  i_to_u =  0.004841
+  i_to_q = - 0.000581
+  i_to_u =   0.004841
   sxaddpar, primary_header, 'i_to_q', i_to_q, ' Crosstalk coefficient from I to Q'
   sxaddpar, primary_header, 'i_to_u', i_to_u, ' Crosstalk coefficient from I to U'
 end
