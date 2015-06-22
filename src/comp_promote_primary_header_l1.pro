@@ -1,8 +1,6 @@
 ; docformat = 'rst'
 
 ;+
-; comp_promote_primary_header_l1
-;
 ; Updates a CoMP raw primary header to a level 1 header.
 ; 
 ; :Params:
