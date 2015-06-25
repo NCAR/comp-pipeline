@@ -8,7 +8,8 @@
 ;
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_image_geometry,
-;   comp_fix_header_time, tojd, ephem2, sxdelpar, sxaddpar, sxpar
+;   comp_fix_header_time, comp_occulter_id, tojd, ephem2, sxdelpar, sxaddpar,
+;   sxpar
 ;
 ; :Params:
 ;   headers : in, required, type='strarr(ntags, nimg)'
@@ -105,8 +106,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir
   sxdelpar, primary_header, 'OCCULTER'
   sxaddpar, primary_header, 'OCC-ID', occ_id, ' Occulter Identification Number'
 
-  ; TODO: what is occulter_id? function, array? I don't see either
-  occulter_size = occulter_id(occ_id)
+  occulter_size = comp_occulter_id(occ_id)
   sxaddpar, primary_header, 'OCC-SIZE', occulter_size, ' [mm] Occulter size'
 
   ; ephemeris information
