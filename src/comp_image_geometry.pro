@@ -52,6 +52,8 @@ pro comp_image_geometry, headers, date_dir, $
   ; TODO: are the below correct? are we correcting for difference between
   ; FITS and IDL standards (off by 1)?
 
+  ; TODO: (0, 0) is bottom left or top right?
+  
   ; do once when using centers from flats
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2, $
                y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2, $

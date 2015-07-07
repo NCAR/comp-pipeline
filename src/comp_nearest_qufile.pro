@@ -7,7 +7,8 @@
 ;   string with name of nearest Q and U raw file
 ;
 ; :Uses:
-;   comp_read_inventory_file
+;   comp_read_inventory_file, comp_constants_common, comp_paths_common,
+;   comp_mask_constants_common
 ;
 ; :Params:
 ;   date_dir : in, required, type=string

@@ -8,7 +8,8 @@
 ; :Uses:
 ;   comp_read_data, comp_flats_darks, comp_demodulate, comp_inventory_header,
 ;   comp_fix_vxtalk, comp_fix_quxtalk, comp_combine_beams,
-;   comp_promote_primary_header_l1, comp_write_processed
+;   comp_promote_primary_header_l1, comp_write_processed,
+;   comp_constants_common, comp_paths_common, comp_mask_constants_common
 ;
 ; :Params:
 ;   infile : in, required, type=string

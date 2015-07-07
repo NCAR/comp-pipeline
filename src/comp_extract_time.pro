@@ -10,7 +10,7 @@
 ; :Returns:
 ;   time of day in units of hours as a float
 ;
-; Inputs:
+; :Params:
 ;   headers : in, required, type="strarr(ntags, nimages)"
 ;     header array from which to take date and time (only first header in array
 ;     is used)

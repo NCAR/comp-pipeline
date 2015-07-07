@@ -3,13 +3,10 @@
 ;+
 ; Updates a CoMP raw primary header to a level 1 header.
 ;
-; :Common:
-;   mask_constants
-;
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_image_geometry,
-;   comp_fix_header_time, comp_occulter_id, tojd, ephem2, sxdelpar, sxaddpar,
-;   sxpar
+;   comp_fix_header_time, comp_occulter_id, comp_mask_constants_common,
+;   tojd, ephem2, sxdelpar, sxaddpar, sxpar
 ;
 ; :Params:
 ;   headers : in, required, type='strarr(ntags, nimg)'
