@@ -22,7 +22,7 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_process_file, infile, outfile, date_dir
+pro comp_l1_process_file, infile, outfile, date_dir
   compile_opt strictarr
 
   tstart = systime(1)
