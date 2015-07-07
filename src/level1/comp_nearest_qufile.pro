@@ -36,7 +36,9 @@ function comp_nearest_qufile, date_dir, headers, filename, line=line
   if (n_elements(line) eq 0L) then line = '1074'
 
   ; find the inventory file and read it
-  invenfile = filepath(line+'_files.txt', subdir=date_dir, root=process_basedir)
+  invenfile = filepath(line + '_files.txt', $
+                       subdir=date_dir, $
+                       root=process_basedir)
   comp_read_inventory_file, invenfile, datafiles, exptimes, $
                             ndata, ndark, nopal, open, waves, polstates
 
@@ -58,7 +60,7 @@ function comp_nearest_qufile, date_dir, headers, filename, line=line
   ; find where our input filename lies in the list of data files:
   vindex = where(datafiles eq file_basename(filename))
   vindex = vindex[0]
-  
+
   ; we want a Q and U file that has all the same wavelengths as our input file
   wavecheck = intarr(nfiles)
   for i = 0L, nfiles - 1L do begin
