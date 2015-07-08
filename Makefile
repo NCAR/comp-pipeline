@@ -24,23 +24,28 @@ MACHINE=$(shell comp_get_hostname.sh)
 CONFIG=config/comp.$(USER).$(MACHINE).cfg
 
 SSW_DIR=$(PWD)/ssw
+LIB_DIR=$(PWD)/lib
 COMP_SRC_DIR=$(PWD)/src
 
 MGLIB_DIR=+$(HOME)/software/mglib/lib
 MGUNIT_DIR=$(HOME)/software/mgunit/lib
 IDLDOC_DIR=+$(HOME)/projects/idldoc/src
 
-COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):"<IDL_DEFAULT>"
+COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
 help:
 	@echo "Targets:"
+	@echo " pipe             run the CoMP pipeline"
 	@echo " doc              generate the CoMP pipeline API documentation"
 	@echo " userdoc          generate the user-level CoMP pipeline API documentation"
 	@echo " opendoc          open the CoMP pipeline API docs in a web browser"
 	@echo " unit             run the CoMP pipeline unit tests"
 	@echo " clean            clean API documentation"
+
+pipe:
+	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, 'src/comp.cfg'"
 
 env:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH)

@@ -25,8 +25,6 @@
 pro comp_l1_process_file, infile, outfile, date_dir
   compile_opt strictarr
 
-  tstart = systime(1)
-
   @comp_constants_common
   @comp_mask_constants_common
 
@@ -56,6 +54,4 @@ pro comp_l1_process_file, infile, outfile, date_dir
   comp_promote_primary_header_l1, headers, header0, date_dir
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         outfile
-
-  print, systime(1) - tstart
 end

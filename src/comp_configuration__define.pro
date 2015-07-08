@@ -84,10 +84,10 @@ end
 ;   filename : in, required, type=string
 ;     configuration filename
 ;-
-function comp_configuration::init, filename=filename
+function comp_configuration::init, filename=filename, _extra=e
   compile_opt strictarr
 
-  self.config = mg_read_config(filename)
+  self.config = mg_read_config(filename, _extra=e)
 
   return, 1
 end
