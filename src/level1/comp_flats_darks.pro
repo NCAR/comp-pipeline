@@ -32,14 +32,14 @@ pro comp_flats_darks, images, headers, date_dir
   time = comp_extract_time(headers)
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
-  if (sxpar(headers[*,0], 'FLATFILE') eq 0) then ntags++
+  if (sxpar(headers[*, 0], 'FLATFILE') eq 0) then ntags++
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
-  flat *= expose/ flat_expose   ; modify for exposure times
+  flat *= expose / flat_expose   ; modify for exposure times
 
   for i = 0L, n_ext - 1L do begin   ; loop over the images...
     header = headers[*, i]

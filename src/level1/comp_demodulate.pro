@@ -53,8 +53,8 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   for i = 0L, np - 1L do begin
     for j = 0L, nb - 1L do begin
       ; pull out the plus and minus Stokes component at each wavelength
-      ipstokes = comp_get_component(rawimages,rawheaders,ps_all[wpc[i],0],beams[j],headersout=ipheads)
-      imstokes = comp_get_component(rawimages,rawheaders,ps_all[wpc[i],1],beams[j],headersout=imheads)
+      ipstokes = comp_get_component(rawimages, rawheaders, ps_all[wpc[i], 0], beams[j], headersout=ipheads)
+      imstokes = comp_get_component(rawimages, rawheaders, ps_all[wpc[i], 1], beams[j], headersout=imheads)
 
       ; form I and Q, U, or V and put them in the appropriate places in the
       ; image and header arrays:

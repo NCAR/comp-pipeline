@@ -50,12 +50,12 @@ pro comp_combine_beams, images, headers, date_dir, $
   headers_combine = strarr(ntags, 2 * np * nw)
 
   for i = 0L, np - 1L do begin   ; loop over unique polarizations
-    for j = 0, nw - 1 do begin   ; loop over unique wavelengths
+    for j = 0L, nw - 1L do begin   ; loop over unique wavelengths
       ; get the two beam states for this wavelength and polarization
       imgplus = comp_get_component(images, headers, upol[i], 1, uwave[j], $
                                    headersout=hplus, /noskip)
       imgminus = comp_get_component(images, headers, upol[i], -1, uwave[j], $
-                                   headersout=hminus, /noskip)
+                                    headersout=hminus, /noskip)
 
       ; extract the foreground and background subimages from both
       comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus
@@ -70,7 +70,7 @@ pro comp_combine_beams, images, headers, date_dir, $
       sxdelpar, hplus, 'BEAM'
       sxaddpar, hplus, 'NAVERAGE', $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
-      headers_combine[*,i*nw+j]=hplus
+      headers_combine[*, i * nw + j] = hplus
       sxaddpar, hplus, 'POLSTATE', 'B' + upol[i]
       headers_combine[*, np * nw + i * nw + j] = hplus
     endfor
