@@ -40,7 +40,7 @@ pro comp_combine_beams, images, headers, date_dir, $
   np = n_elements(upol)
 
   ntags = n_elements(headers[*, 0])
-  if (sxpar(headers[*,0],'BEAM') ne 0) then ntags--
+  if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
 
   nx = 620   ; these dimensions are typically hardwired in the CoMP pipeline
   ny = 620
