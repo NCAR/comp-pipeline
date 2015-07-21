@@ -43,21 +43,6 @@ function comp_extract_time, headers, day, month, year, hours, mins, secs
 
   if (year lt 2000) then year += 2000
 
-  if (strlen(time_str) eq 10) then begin
-    hours = fix(strmid(time_str, 0, 1))
-    mins = fix(strmid(time_str, 2, 2))
-    secs = fix(strmid(time_str, 5, 2))
-    time_label = strmid(time_str, 8, 2)
-  endif else begin
-    hours = fix(strmid(time_str, 0, 2))
-    mins = fix(strmid(time_str, 3, 2))
-    secs = fix(strmid(time_str, 6, 2))
-    time_label = strmid(time_str, 9, 2)
-  endelse
-
-  if (strupcase(time_label) eq 'PM' and hours ne 12) then hours += 12.0
-  if (strupcase(time_label) eq 'AM' and hours eq 12) then hours -= 12.0
-
-  return, float(hours) + float(mins) / 60.0 + float(secs) / 3600.0
+  return, comp_parse_time(time_str, hours=hours, minutes=mins, seconds=secs)
 end
 

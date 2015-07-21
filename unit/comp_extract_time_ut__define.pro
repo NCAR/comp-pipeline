@@ -72,7 +72,7 @@ function comp_extract_time_ut::init, _extra=e
 
   if (~self->CoMPutTestCase::init(_extra=e)) then return, 0
 
-  self->addTestingRoutine, 'comp_extract_time', /is_function
+  self->addTestingRoutine, ['comp_extract_time', 'comp_parse_time'], /is_function
 
   return, 1
 end
