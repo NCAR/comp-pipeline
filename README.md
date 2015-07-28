@@ -9,7 +9,7 @@ To run the unit tests:
 
 This requires an [mgunit] installation. The Makefile will look for mgunit in your `software` directory, but any location can be specified:
 
-    make doc MGUNIT_DIR=$HOME/projects/mgunit/src
+    make unit MGUNIT_DIR=$HOME/projects/mgunit/src
 
 
 ## Generate API documentation
