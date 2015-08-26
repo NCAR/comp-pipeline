@@ -25,8 +25,6 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   cd, process_dir  ; change directory to processing directory
 
-  ans = ' '
-
   ; file with list of file names
   infiles = filepath(wave_type + '_files.txt', root=process_dir)
   extens = wave_type   ; entension for files
