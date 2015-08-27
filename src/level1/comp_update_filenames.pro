@@ -26,7 +26,7 @@ pro comp_update_filenames, date_dir
   @comp_paths_common
 
   ; configure
-  comp_paths, date_dir
+  comp_paths
   process_dir = filepath(date_dir, root=process_basedir)
   cd, process_dir
 

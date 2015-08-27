@@ -29,7 +29,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
-  num_wave = n_elements(wave(uniq(wave, sort(wave))))
+  num_wave = n_elements(wave[uniq(wave, sort(wave))])
 
   ; Get the comp image geometry (field stop, occulter, etc):
   comp_image_geometry, headers, date_dir, $

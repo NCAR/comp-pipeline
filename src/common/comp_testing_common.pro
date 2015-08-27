@@ -1,0 +1,1 @@
+common comp_testing, l1_process_time

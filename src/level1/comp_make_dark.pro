@@ -43,7 +43,7 @@ pro comp_make_dark, date_dir, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths, date_dir
+  comp_paths
 
   mg_log, 'starting', name='comp', /info
 

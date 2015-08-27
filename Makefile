@@ -24,6 +24,7 @@ MACHINE=$(shell comp_get_hostname.sh)
 CONFIG=config/comp.$(USER).$(MACHINE).cfg
 
 SSW_DIR=$(PWD)/ssw
+GEN_DIR=$(PWD)/gen
 LIB_DIR=$(PWD)/lib
 COMP_SRC_DIR=$(PWD)/src
 
@@ -31,7 +32,7 @@ MGLIB_DIR=+$(HOME)/software/mglib/lib
 MGUNIT_DIR=$(HOME)/software/mgunit/lib
 IDLDOC_DIR=+$(HOME)/projects/idldoc/src
 
-COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
+COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR)::$(GEN_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
@@ -48,7 +49,7 @@ help:
 	@echo " clean            clean API documentation"
 
 pipe:
-	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, 'src/comp.cfg'"
+	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
 
 env:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH)

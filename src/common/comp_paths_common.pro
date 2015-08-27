@@ -17,7 +17,7 @@ common comp_paths, bias_dir, $
                    ffmpeg_dir, $
                    logo_dir, $
                    log_level, $
-                   demod_log_level, $
+                   l1_process_log_level, $
                    circfit_log_level, $
                    quick_invert_log_level, $
                    average_log_level, $

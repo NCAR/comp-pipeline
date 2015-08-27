@@ -43,7 +43,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths, date_dir
+  comp_paths
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 

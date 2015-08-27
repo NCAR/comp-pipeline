@@ -34,8 +34,8 @@ pro comp_combine_beams, images, headers, date_dir, $
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
-  uwave = wave(uniq(wave, sort(wave)))  ; unique waves
-  upol = pol(uniq(pol, sort(pol)))      ; unique polarizations
+  uwave = wave[uniq(wave, sort(wave))]  ; unique waves
+  upol = pol[uniq(pol, sort(pol))]      ; unique polarizations
   nw = n_elements(uwave)
   np = n_elements(upol)
 

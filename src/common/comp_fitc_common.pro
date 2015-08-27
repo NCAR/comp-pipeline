@@ -1,0 +1,1 @@
+common fitc, x, y

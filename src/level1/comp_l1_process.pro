@@ -23,7 +23,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths, date_dir
+  comp_paths
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
@@ -48,19 +48,20 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   openr, infiles_lun, infiles, /get_lun
 
-  name = ''
+  in_filename = ''
 
   for file_count = 0L, n_file_lines - 1L do begin
     readf, infiles_lun, in_filename, format='(a19)'
     mg_log, 'processing data file (%d/%d): %s', $
-            file_count + 1L, n_file_lines, name, $
-            name='comp/demod', /info
+            file_count + 1L, n_file_lines, in_filename, $
+            name='comp/l1_process', /info
     datetime = strmid(in_filename, 0, 15)
+    in_filename = filepath(in_filename, subdir=date_dir, root=raw_basedir)
     out_filename = filepath(string(comp_ut_filename(datetime), $
                                    extens, $
                                    format='(%"%s.comp.%s.fts")'), $
                             root=process_dir)
-    comp_l1_process_file, name, out_filename, date_dir
+    comp_l1_process_file, in_filename, out_filename, date_dir
   endfor
 
   free_lun, infiles_lun

@@ -19,7 +19,7 @@ pro comp_paths, config_filename=config_filename
   if (n_elements(bias_dir) gt 0L) then return
 
   _config_filename = n_elements(config_filename) eq 0L $  
-                       ? filepath('comp.cfg', root=mg_src_root())
+                       ? filepath('comp.cfg', root=mg_src_root()) $
                        : config_filename
 
   config = mg_read_config(_config_filename)

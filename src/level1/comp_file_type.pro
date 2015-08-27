@@ -54,7 +54,7 @@ pro comp_file_type, date_dir
 
   ; configure
   comp_initialize, date_dir
-  comp_paths, date_dir
+  comp_paths
 
   mg_log, 'starting', name='comp', /info
 

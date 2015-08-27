@@ -17,11 +17,11 @@ function comp_setup_loggers_loggers, levels=levels
   compile_opt strictarr
   @comp_paths_common
 
-  loggers = ['comp', 'comp/demod', 'comp/circfit', 'comp/quick_invert', $
+  loggers = ['comp', 'comp/l1_process', 'comp/circfit', 'comp/quick_invert', $
              'comp/average', 'comp/dark_interp', 'comp/fix_crosstalk', $
              'comp/find_image', 'comp/find_post']
   levels = [log_level, $
-            demod_log_level, $
+            l1_process_log_level, $
             circfit_log_level, $
             quick_invert_log_level, $
             average_log_level, $

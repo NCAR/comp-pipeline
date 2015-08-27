@@ -57,9 +57,9 @@ function comp_raw_mask, date_dir, headers, $
   if (n_elements(pad) eq 0L) then pad = 10
   if (n_elements(erodenum) eq 0L) then erodenum = 10
 
-  ul_mask = erode(mask0 * (xa lt ya + offset - pad), $
+  ul_mask = erode(mask * (xa lt ya + offset - pad), $
                 replicate(1, erodenum, erodenum))
-  lr_mask = erode(mask0 * (xa gt ya + offset + pad), $
+  lr_mask = erode(mask * (xa gt ya + offset + pad), $
                 replicate(1, erodenum, erodenum))
   ul_mask[265:325, 400:600] = 0
   lr_mask[680:740, 0:100] = 0

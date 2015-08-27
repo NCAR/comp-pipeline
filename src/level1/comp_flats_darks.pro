@@ -23,6 +23,7 @@
 ;-
 pro comp_flats_darks, images, headers, date_dir
   compile_opt strictarr
+  @comp_paths_common
 
   ; figure out what's in our image array
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
@@ -41,6 +42,9 @@ pro comp_flats_darks, images, headers, date_dir
                    flat_names, flat_expose
   flat *= expose / flat_expose   ; modify for exposure times
 
+  ; defines hot and adjacent variables
+  restore, filename=hot_file
+
   for i = 0L, n_ext - 1L do begin   ; loop over the images...
     header = headers[*, i]
 
@@ -48,7 +52,8 @@ pro comp_flats_darks, images, headers, date_dir
     iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
 
     ; subtract darks, fix sensor quirks, and divide by the flats
-    images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat])
+    images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
+                                   hot=hot, adjacent=adjacent)
 
     ; update the header with the flat information
     sxaddpar, header,'FLATFILE', flat_names[iflat[0]], $

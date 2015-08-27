@@ -40,7 +40,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths, date_dir
+  comp_paths
 
   debug = 0
 
