@@ -36,8 +36,11 @@ DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
 help:
+	@echo "Running on $(MACHINE) by $(USER), using $(CONFIG)"
+	@echo
 	@echo "Targets:"
 	@echo " pipe             run the CoMP pipeline"
+	@echo " env              start IDL with the CoMP pipeline paths"
 	@echo " doc              generate the CoMP pipeline API documentation"
 	@echo " userdoc          generate the user-level CoMP pipeline API documentation"
 	@echo " opendoc          open the CoMP pipeline API docs in a web browser"
