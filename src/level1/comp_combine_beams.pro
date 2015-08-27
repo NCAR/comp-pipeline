@@ -29,7 +29,7 @@
 ;-
 pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine
-  comppile_opt strictarr
+  compile_opt strictarr
 
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
