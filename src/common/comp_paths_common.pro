@@ -2,15 +2,31 @@ common comp_paths, bias_dir, $
                    flat_dir, $
                    mask_dir, $
                    binary_dir, $
-                   defered_file, $
+                   deferred_file, $
                    hot_file, $
                    ldm_basedir, $
                    raw_basedir, $
+                   date_pattern, $
                    process_basedir, $
+                   process_wavelengths, $
                    hpss_gateway, $
                    archive_dir, $
                    movie_dir, $
                    fullres_dir, $
                    log_dir, $
                    ffmpeg_dir, $
-                   logo_dir
+                   logo_dir, $
+                   log_level, $
+                   demod_log_level, $
+                   circfit_log_level, $
+                   quick_invert_log_level, $
+                   average_log_level, $
+                   dark_interp_log_level, $
+                   fix_crosstalk_log_level, $
+                   find_image_log_level, $
+                   find_post_log_level, $
+                   mail_warnings, $
+                   send_to_hpss, $
+                   validate, $
+                   code_version, $
+                   code_revision

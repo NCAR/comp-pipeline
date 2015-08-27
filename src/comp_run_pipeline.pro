@@ -1,13 +1,17 @@
-
-; ; docformat = 'rst'
+; docformat = 'rst'
 
 ;+
 ; Procedure to run all the routines in the CoMP pipeline.
 ;
 ; :Author:
 ;   Tomczyk modified by de Toma, Stanger, mgalloy
+;
+; :Keywords:
+;   config_filename, in, optional, type=string
+;     configuration filename to use, default is `comp.cfg` in the `src`
+;     directory
 ;-
-pro comp_run_pipeline
+pro comp_run_pipeline, config_filename=config_filename
   compile_opt strictarr
   @comp_paths_common
   @comp_testing_common
@@ -38,7 +42,7 @@ pro comp_run_pipeline
 
   start_memory = memory(/current)
 
-  comp_paths
+  comp_paths, config_filename=config_filename
   comp_setup_loggers
 
   candidate_dirs = file_search(filepath(date_pattern, root=raw_basedir), $
