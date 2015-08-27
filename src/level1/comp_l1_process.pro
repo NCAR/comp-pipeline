@@ -1,5 +1,19 @@
 ; docformat = 'rst'
 
+;+
+; Do the level 1 processing for all the files on a certain day of a specific
+; wavelength.
+;
+; :Params:
+;   date_dir : in, required, type=string
+;     date to process, in YYYYMMDD format
+;   wave_type : in, required, type=string
+;     wavelength to process, '1074', '1079', etc.
+;
+; :Keywords:
+;   error : out, optional, type=long
+;     set to a named variable to retrieve an error code; 0 indicates no error
+;-
 pro comp_l1_process, date_dir, wave_type, error=error
   compile_opt strictarr
 
