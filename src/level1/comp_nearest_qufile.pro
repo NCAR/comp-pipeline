@@ -16,31 +16,25 @@
 ;   headers : in, required, type="fltarr(ntags, nimg)"
 ;     the headers corresponding to the input filename
 ;   filename: in, required, type=string
-; 
-; :Keywords:
-;   line : in, optional, type=string
-;     which line to look for; currently defaults to '1074', but should probably
-;     update the code to determine it from the headers and/or filename
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-function comp_nearest_qufile, date_dir, headers, filename, line=line
+function comp_nearest_qufile, date_dir, headers, filename
   compile_opt strictarr
 
   @comp_constants_common
   @comp_paths_common
   @comp_mask_constants_common
 
-  ; TODO: is this right? am I finding from the header correctly?
-  regions = [1074.7, 1079.8, 1083.]
-  region_types = ['1074', '1079', '1083']
+  wave_regions = [1074.7, 1079.8, 1083.]
+  wave_types = ['1074', '1079', '1083']
   wl = sxpar(reform(headers[*, 0]), 'WAVELENG')
-  !null = min(abs(regions - wl), region_index)
-  _line = region_types[region_index]
+  !null = min(abs(wave_regions - wl), region_index)
+  line = wave_types[region_index]
 
   ; find the inventory file and read it
-  invenfile = filepath(_line + '_files.txt', $
+  invenfile = filepath(line + '_files.txt', $
                        subdir=date_dir, $
                        root=process_basedir)
   comp_read_inventory_file, invenfile, datafiles, exptimes, $
