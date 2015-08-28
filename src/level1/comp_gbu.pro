@@ -104,6 +104,11 @@ pro comp_gbu, date_dir, wave_type, error=error
   files = wave_type + '_files.txt'   ; file with list of filenames
   n_files = file_lines(files)        ; get number of filenames in file
 
+  if (n_files lt 1L) then begin
+    mg_log, 'no files for wave type %s', wave_type, /warning, name='comp'
+    return
+  endif
+
   filenames = strarr(n_files)
   ; array to collect good filenames (0 for good, >0 for bad)
   good_files = intarr(n_files)
