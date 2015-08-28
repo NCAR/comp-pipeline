@@ -19,7 +19,7 @@
 ; 
 ; :Keywords:
 ;   line : in, optional, type=string
-;     which line to look for. Currently defaults to '1074', but should probably
+;     which line to look for; currently defaults to '1074', but should probably
 ;     update the code to determine it from the headers and/or filename
 ;
 ; :Author:
@@ -32,11 +32,15 @@ function comp_nearest_qufile, date_dir, headers, filename, line=line
   @comp_paths_common
   @comp_mask_constants_common
 
-  ; should just find this from header
-  if (n_elements(line) eq 0L) then line = '1074'
+  ; TODO: is this right? am I finding from the header correctly?
+  regions = [1074.7, 1079.8, 1083.]
+  region_types = ['1074', '1079', '1083']
+  wl = sxpar(reform(headers[*, 0]), 'WAVELENG')
+  !null = min(abs(regions - wl), region_index)
+  _line = region_types[region_index]
 
   ; find the inventory file and read it
-  invenfile = filepath(line + '_files.txt', $
+  invenfile = filepath(_line + '_files.txt', $
                        subdir=date_dir, $
                        root=process_basedir)
   comp_read_inventory_file, invenfile, datafiles, exptimes, $
@@ -44,6 +48,11 @@ function comp_nearest_qufile, date_dir, headers, filename, line=line
 
   ; get the days and times from the filenames
   nfiles = n_elements(datafiles)
+  if (nfiles eq '') then begin
+    mg_log, 'no files in inventory file for wave type %s', _line, /warn, $
+            name='comp'
+    return, ''
+  endif
   files_split = strarr(nfiles, 3)
   for i = 0L, nfiles - 1L do begin
     files_split[i, *] = strsplit(datafiles[i], '.', /extract) 
