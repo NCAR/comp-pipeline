@@ -76,7 +76,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   destraying = 'no'   ; remove stray light
 
   ; fill ('yes' or 'no') to fill region outside flat with fit values?
-  fill = 'no'
+  fill = 'yes'
 
   ; spectral correction ('yes' or 'no') to normalize by solar spectrum
   spectral_correction = 'no'
