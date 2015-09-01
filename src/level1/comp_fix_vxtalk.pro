@@ -1,14 +1,11 @@
 ; docformat = 'rst'
+
 ;+
-; comp_fix_vxtalk
-;
-; Fix the crosstalk in a set of CoMP Stokes V images.
-; Will find and load the nearest (in time) set of Stokes 
-; Q and U images to use to estimate the crosstalk. The
-; Crosstalk is estimated by assuming the CoMP continuum
-; Stokes V is dominated by crosstalk and fit using the 
-; routine comp_find_vxtalk; See that routine for more details 
-; of the crosstalk estimation process.
+; Fix the crosstalk in a set of CoMP Stokes V images. Will find and load the
+; nearest (in time) set of Stokes Q and U images to use to estimate the
+; crosstalk. The crosstalk is estimated by assuming the CoMP continuum Stokes V
+; is dominated by crosstalk and fit using the routine comp_find_vxtalk; see
+; that routine for more details of the crosstalk estimation process.
 ;
 ; :Uses:
 ;   comp_inventory_header, comp_nearest_qufile, comp_read_data,
@@ -19,10 +16,10 @@
 ;   date_dir : in, required, type=string
 ;     the date directory for the Stokes V images being corrected; used to find
 ;     the nearest Q and U files and to find image masks
-;   vimages : in, required, type = real array (nx*ny*nimg)
+;   vimages : in, required, type="fltarr(nx, ny, nimg)"
 ;     the Stokes V images to correct; on output, will contain the corrected
 ;     images
-;   vheaders : in, required, type = string array (ntags*nimg)
+;   vheaders : in, required, type="strarr(ntags, nimg)"
 ;     the FITS headers corresponding to vimages
 ;   filename : in, required, type=string
 ;     the name of the file from which the Stokes V images were read; necessary

@@ -1,6 +1,9 @@
 ; docformat = 'rst'
 
 ;+
+; :Uses:
+;   comp_constants_common, comp_mask_constants_common
+;
 ; :Returns:
 ;   `fltarr(nx, nx)`
 ;

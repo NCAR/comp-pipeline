@@ -8,17 +8,13 @@
 ; y-offset of the image, and the image radius. The value of chi^2 (chisq) is
 ; optionally returned.
 ;
-; Routines called:
-;  comp_radial_der
-;    makes radial scans of the intensity and takes the derivative of these to
-;    locate the discontinuities associated with either the occulter or field stop.
-;  circfit
-;    fits the r theta coordinates returned by comp_radial_der
-;
 ; :Examples:
 ;   For example, call like::
 ;
 ;     comp_find_image, data, radius_guess=radius_guess, drad=drad, /neg_pol
+;
+; :Uses:
+;   comp_radial_der, comp_circfit
 ;
 ; :Params:
 ;   dat : in

@@ -37,9 +37,11 @@ pro comp_l1_process_file, infile, outfile, date_dir
   ; depending on which polarizations are present, call the appropriate
   ; cross-talk correction routines
   if (total(pol eq 'V') gt 0) then begin
+    mg_log, 'fixing V crosstalk', name='comp/l1_process', /debug
     comp_fix_vxtalk, date_dir, images_demod, headers_demod, infile
   endif
   if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
+    mg_log, 'fixing QU crosstalk', name='comp/l1_process', /debug
     comp_fix_quxtalk, date_dir, images_demod, headers_demod, infile
   endif
 

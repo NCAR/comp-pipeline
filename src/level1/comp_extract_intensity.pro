@@ -20,6 +20,10 @@
 ;
 ;     comp_extract_intensity, '20121209', '1074'
 ;
+; :Uses:
+;   comp_constants_common, comp_paths_common, comp_make_gif, fits_open,
+;   fits_read, fits_write, fits_close, sxaddpar
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format

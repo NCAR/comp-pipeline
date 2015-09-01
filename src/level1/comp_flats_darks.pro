@@ -5,8 +5,8 @@
 ; wavelengths and polarization states.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_dark_interp, comp_read_flats, sxpar, sgn,
-;   sxaddpar
+;   comp_paths_common, comp_inventory_header, comp_extract_time,
+;   comp_dark_interp, comp_read_flats, comp_fix_hot, sxpar, sgn, sxaddpar
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"

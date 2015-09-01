@@ -16,7 +16,7 @@
 ;     comp_update_filenames, '20121209'
 ;
 ; :Uses:
-;   strput
+;   comp_paths_common, comp_ut_filename, strput
 ;
 ; :Author:
 ;   sitongia

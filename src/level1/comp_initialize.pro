@@ -7,6 +7,9 @@
 ;
 ;   jd = julday(month, day, year, hour, minute, second)
 ;
+; :Uses:
+;   comp_constants_common, comp_mask_constants_common
+;
 ; :Params:
 ;    date_dir : in, required, type=string
 ;      date to process, in YYYYMMDD format

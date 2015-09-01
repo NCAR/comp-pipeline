@@ -7,6 +7,9 @@
 ;
 ; Groups are defind to be unique combinations of wavelength, beam and
 ; polarization state.
+;
+; :Uses:
+;   fits_read, sxpar
 ;-
 pro comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, $
                     cal_pol, cal_ret

@@ -5,6 +5,10 @@
 ; the occulting disk, field stop, occulter post and the overlap of the two
 ; sub-images in the 1024x1024 format.
 ;
+; :Uses:
+;   comp_constants_common, comp_mask_constants_common, comp_disk_mask,
+;   comp_field_mask, comp_post_mask
+;
 ; :Params:
 ;    occulter1    Structure for occulter in sub-image 1
 ;    occulter2    Structure for occulter in sub-image 2
@@ -64,12 +68,12 @@ function comp_mask_1024, occulter1, occulter2, $
   endelse
 
   ; occulter mask
-  radius = (occulter1.r + occulter2.r)*0.5
-  dmask1=comp_disk_mask(radius + local_o_offset, dx=occulter1.x, dy=occulter1.y)
-  dmask2=comp_disk_mask(radius + local_o_offset, dx=occulter2.x, dy=occulter2.y)
+  radius = (occulter1.r + occulter2.r) * 0.5
+  dmask1 = comp_disk_mask(radius + local_o_offset, dx=occulter1.x, dy=occulter1.y)
+  dmask2 = comp_disk_mask(radius + local_o_offset, dx=occulter2.x, dy=occulter2.y)
 
   ; field mask
-  fradius = (field1.r + field2.r)*0.5
+  fradius = (field1.r + field2.r) * 0.5
   field_mask_1 = comp_field_mask(fradius + local_f_offset, dx=field1.x, dy=field1.y)
   field_mask_2 = comp_field_mask(fradius + local_f_offset, dx=field2.x, dy=field2.y)
 

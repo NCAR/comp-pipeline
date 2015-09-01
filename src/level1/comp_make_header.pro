@@ -4,9 +4,9 @@
 ; Procedure to determine the location of the occulting disk and field stop in
 ; each beam of a comp large image and put them into a fits header.
 ;
-; Routines called:
-;   comp_find_annulus - routine to find the location of the occulting and field stop
-;   comp_find_post - routine to find the location of the occulter post
+; :Uses:
+;   comp_constants_common, comp_find_annulus, comp_find_post, comp_extract1,
+;   comp_extract2, mkhdr, sxaddpar
 ;
 ; :Params:
 ;   image : in

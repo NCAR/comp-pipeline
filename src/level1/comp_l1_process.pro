@@ -4,6 +4,10 @@
 ; Do the level 1 processing for all the files on a certain day of a specific
 ; wavelength.
 ;
+; :Uses:
+;   comp_constants_common, comp_paths_common, comp_mask_constants_common,
+;   comp_initialize, comp_paths, comp_l1_process_file, comp_ut_filename
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format

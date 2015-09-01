@@ -4,6 +4,9 @@
 ; Create a mask of the annular field of view for CoMP images in the 1024x1024
 ; spatial resolution. Include the occulting disk and field stop only.
 ;
+; :Uses:
+;   sxpar
+;
 ; :Params:
 ;   flat_header : in, required, type=strarr
 ;      header from flat image

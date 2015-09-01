@@ -3,6 +3,9 @@
 ;+
 ; Write a GIF file from the FITS file for CoMP.
 ;
+; :Uses:
+;   comp_make_mask, colorbar2, fits_open, fits_read, fits_close, sxpar
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format

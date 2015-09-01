@@ -5,6 +5,9 @@
 ; will be shifted by `dx`, `dy` due to the image being off-center in the
 ; detector.
 ;
+; :Uses:
+;   comp_constants_common
+;
 ; :Returns:
 ;   mask
 ;

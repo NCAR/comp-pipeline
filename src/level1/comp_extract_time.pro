@@ -5,7 +5,7 @@
 ; other things.
 ;
 ; :Uses:
-;   sxpar
+;   comp_parse_time, sxpar
 ;
 ; :Returns:
 ;   time of day in units of hours as a float

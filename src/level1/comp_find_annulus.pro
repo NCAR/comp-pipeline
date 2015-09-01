@@ -1,6 +1,10 @@
 ; docformat = 'rst'
 
 ;+
+;
+; :Uses:
+;   comp_find_image
+;
 ; :Params:
 ;   flat
 ;   occulter : out, optional, type=structure

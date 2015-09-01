@@ -1,12 +1,17 @@
 ; docformat = 'rst'
 
 ;+
+; :Uses:
+;   comp_dark_interp, comp_fixrock, comp_fix_image, comp_demultiplex,
+;   fits_read, fits_close, sxpar
+;
 ; :History:
 ;   used temporary and compound assignment operators to save memory
 ;     Oct 3 2014  GdT
 ;-
 pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
   compile_opt strictarr
+
   ; skip first image at each wavelength ('yes') or just first image in recipe ('no')
   skip_first = 'no'
 

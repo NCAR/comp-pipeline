@@ -6,6 +6,9 @@
 ; over `r` to find the intensity variation with theta which is then fit with a
 ; gaussian to determine the location of the occulter post.
 ;
+; :Uses:
+;   comp_constants_common, comp_paths_common
+;
 ; :Params:
 ;   image : in
 ;     the image in which to find the post angle

@@ -5,6 +5,9 @@
 ; will be shifted by `dx`, `dy` due to the field stop being off-center in the
 ; detector with respect to the occulter.
 ;
+; :Uses:
+;   comp_constants_common, comp_mask_constants_common
+
 ; :Returns:
 ;   mask
 ;

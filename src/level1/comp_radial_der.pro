@@ -17,6 +17,9 @@
 ;
 ;     cent = comp_radial_der(data, theta, radius, dr)
 ;
+; :Uses:
+;   parabola
+;
 ; :Params:
 ;   data : in
 ;     the data image to analyze

@@ -3,6 +3,9 @@
 ;+
 ; Validate files transferred from MLSO.
 ;
+; :Uses:
+;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths
+;
 ; :Returns:
 ;   1 if valid, 0 if not valid
 ;

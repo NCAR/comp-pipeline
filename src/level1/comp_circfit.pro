@@ -13,6 +13,9 @@
 ;
 ;     circfit, theta, r
 ;
+; :Uses:
+;   comp_fitc_common
+;
 ; :Params:
 ;   theta
 ;     the angle coordinates
@@ -69,7 +72,7 @@ function comp_circfit, theta, r, chisq=chisq
     endif
   endwhile
 
-  if (keyword_set(chisq)) then chisq=total((r[good] - rfit[good])^2)
+  if (keyword_set(chisq)) then chisq = total((r[good] - rfit[good])^2)
 
   return,a
 end

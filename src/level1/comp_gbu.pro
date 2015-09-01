@@ -60,6 +60,11 @@
 ;
 ;     comp_gbu, '20130531', '1074' 
 ;
+; :Uses:
+;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths,
+;   comp_get_time_from_filename, comp_make_mask, fits_open, fits_read,
+;   fits_close, sxpar
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format

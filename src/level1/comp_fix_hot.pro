@@ -4,6 +4,9 @@
 ; Procedure to fix hot pixels in CoMP images. Replaces data by mean of
 ; adjacent pixels.
 ;
+; :Uses:
+;   comp_paths_common
+;
 ; :Params:
 ;   data : in, required, type=fltarr
 ;

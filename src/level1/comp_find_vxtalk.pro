@@ -14,6 +14,9 @@
 ; dominated by crosstalk. Typically we use wavelength averaged offband CoMP
 ; images (which should have no actual Stokes V signal) for this reason.
 ;
+; :Uses:
+;   comp_raw_mask
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     name of directory containing the files for the date of the input image,
@@ -111,11 +114,11 @@ pro comp_find_vxtalk, date_dir, Iin, Qin, Uin, Vin, headers, $
   endfor
 
   ainv = invert(amat, /double)
-  xtparms = ainv#bvec
+  xtparms = ainv # bvec
 
   ; unpack the matrix of solved crosstalk parameters and assign
   ; it to the individual crosstalk arrays:
-  xtmat = dblarr(nx,ny,nxtalks)
+  xtmat = dblarr(nx, ny, nxtalks)
   for i = 0L, nxtalks - 1L do begin
     xtmat[*, *, i] = xtparms[i] + xmat * xtparms[i + nxtalks] $
                        + ymat * xtparms[i + 2 * nxtalks] $

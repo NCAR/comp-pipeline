@@ -16,6 +16,11 @@
 ;
 ;     comp_make_mask,'20130915',header,mask
 ;
+; :Uses:
+;   comp_constants_common, comp_mask_constants_common, comp_initialize,
+;   comp_disk_mask, comp_field_mask, comp_post_mask, comp_overlap_mask
+;
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format

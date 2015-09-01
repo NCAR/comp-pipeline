@@ -6,6 +6,9 @@
 ; detector with respect to the occulter changed x, y equation to save memory
 ; (GdT).
 ;
+; :Uses:
+;   comp_constants_common
+;
 ; :Returns:
 ;   mask
 ;

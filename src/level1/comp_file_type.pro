@@ -36,6 +36,10 @@
 ;
 ;     file_type, '20131119'
 ;
+; :Uses:
+;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths,
+;   comp_inventory, fits_open, fits_close
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
