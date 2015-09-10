@@ -42,7 +42,7 @@
 pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
   @comp_fit_common
 
   ; configure
@@ -74,21 +74,21 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   ; 'yes' will multiply beam times wavelength to get unique flats for
   ;   wavelength and beam
   ; 'no' will average flats for the two different beams
-  beam_multiplies_wave = 'yes'
+  beam_multiplies_wave = make_flat_beam_multiplies_wave
 
   ; detrending ('yes' or 'no') to remove spatial trends from flat images
-  detrending = 'no'
+  detrending = make_flat_detrending
 
   ; destraying ('yes' or 'no') to subtract stray light
-  destraying = 'no'   ; remove stray light
+  destraying = make_flat_destraying   ; remove stray light
 
   ; fill ('yes' or 'no') to fill region outside flat with fit values?
-  fill = 'yes'
+  fill = make_flat_fill
 
   ; spectral correction ('yes' or 'no') to normalize by solar spectrum
-  spectral_correction = 'no'
+  spectral_correction = make_flat_spectral_correction
 
-  norm = 84.     ;opal calibration of 84 millionths @ 1074 nm
+  norm = 84.     ; opal calibration of 84 millionths @ 1074 nm
 
   ; create arrays
   times = fltarr(5000)
@@ -108,7 +108,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
     fits_open, outfile, fcbout, /write
 
-    ; Make a FITS primary header for the flat file
+    ; make a FITS primary header for the flat file
     mkhdr, primary_header, '', /extend
 
     sxaddpar, primary_header, 'ORIGIN', 'HAO/NCAR'
@@ -117,8 +117,8 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
               ' CORONAL MULTICHANNEL POLARIMETER'
     sxaddpar, primary_header, 'LOCATION', 'Boulder, CO  USA'
     sxaddpar, primary_header, 'DATATYPE', 'FLAT', ' Flat field image'
-    sxaddpar, primary_header, 'DETREND', strupcase(detrending)
-    sxaddpar, primary_header, 'DESTRAY', strupcase(destraying)
+    sxaddpar, primary_header, 'DETREND', make_flat_detrending ? 'YES' : 'NO'
+    sxaddpar, primary_header, 'DESTRAY', make_flat_destraying ? 'YES' : 'NO'
     sxaddpar, primary_header, 'NORMALIZ', norm
     sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
 
@@ -182,7 +182,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
         threshold = 18.0
       endelse
 
-      if (beam_multiplies_wave eq 'yes') then begin
+      if (make_flat_beam_multiplies_wave) then begin
         ; multiply wavelength by beam sign to allow to find unique
         ; wavelengths/beams
         wave *= float(beam)
@@ -209,7 +209,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       sxaddpar, header, 'FILENAME', opalfile, ' Name of raw opal file'
       sxaddpar, header, 'EXPOSURE', exposure
 
-      if (spectral_correction eq 'no') then begin
+      if (make_flat_spectral_correction) then begin
         ; Mask is not wavelength dependent
         mask_full_fill = comp_annulus_1024(header, o_offset=0.0, f_offset=0.0)
       endif
@@ -243,20 +243,20 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
         sxaddpar, header, 'WAVELENG', abs(uniq_waves[i])
         sxaddpar, header, 'BEAM', fix(uniq_waves[i] / abs(uniq_waves[i]))
 
-        ; Corrections for stray light and trending
+        ; corrections for stray light and trending
 
-        ; Remove stray light
-        if (destraying eq 'yes') then begin
-          ; Doesn't have post and overlap in
+        ; remove stray light
+        if (make_flat_destraying) then begin
+          ; doesn't have post and overlap in
           comp_fix_stray_light, image, header, fit
-          ; Characterize the fit and save
+          ; characterize the fit and save
           fit_moment = moment(fit)
           sxaddpar, header, 'FITMNFLT', fit_moment[0], ' Stray Light Fit Mean for Flat'
           sxaddpar, header, 'FITVRFLT', fit_moment[1], ' Stray Light Fit Variance for Flat'
         endif
 
-        ; Detrend across large image
-        if (detrending eq 'yes') then begin
+        ; detrend across large image
+        if (make_flat_detrending) then begin
           ; TODO use post_angle1 for second post because second is in wrong position
           comp_fix_trend, image, occulter1, occulter2, field1, field2, post_angle1, post_angle1, fit
           fit_moment = moment(fit)
@@ -264,8 +264,8 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
           sxaddpar, header, 'DETVRFLT', fit_moment[1], ' Detrend Fit Variance for Flat'
         endif
 
-        ; Background correction for the solar spectrum
-        if (spectral_correction eq 'yes') then begin
+        ; background correction for the solar spectrum
+        if (make_flat_spectral_correction) then begin
           mg_log, 'background correction for the solar spectrum', $
                   name='comp', /info
           comp_flat_norm, abs(uniq_waves[i]), t_on, t_off
@@ -301,7 +301,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
           break
         endif
 
-        if (fill eq 'yes') then begin
+        if (make_flat_fill) then begin
           ; TODO: Steve's fill introduces median values into the annulus, where they look like hot pixels
 ;         tmp_image = mask_full_stray * image
 ;         bad = where(tmp_image lt 0.2 * medflat)

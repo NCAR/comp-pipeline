@@ -30,7 +30,7 @@
 pro comp_find_post, image, occulter, field, pa
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
 
   ans = ' '
   debug = 0   ; debug mode just for this routine (1=yes, 0=no)

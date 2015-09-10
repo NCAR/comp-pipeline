@@ -18,7 +18,7 @@
 ;-
 function comp_fix_hot, data, hot=hot, adjacent=adjacent
   compile_opt idl2
-  @comp_paths_common
+  @comp_config_common
 
   fixed = data
   ; TODO: should use /EVEN?

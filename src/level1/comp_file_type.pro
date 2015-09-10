@@ -54,7 +54,7 @@
 pro comp_file_type, date_dir
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
 
   ; configure
   comp_initialize, date_dir

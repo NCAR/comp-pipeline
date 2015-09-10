@@ -23,7 +23,7 @@
 ;-
 pro comp_update_filenames, date_dir
   compile_opt idl2
-  @comp_paths_common
+  @comp_config_common
 
   ; configure
   comp_paths

@@ -18,7 +18,7 @@
 pro comp_extract_intensity_cube, filename, images, waves
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
 
   fits_open, filename, fcbin  ; open input fits file
   

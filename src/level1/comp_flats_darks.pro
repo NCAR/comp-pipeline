@@ -23,7 +23,7 @@
 ;-
 pro comp_flats_darks, images, headers, date_dir
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
 
   ; figure out what's in our image array
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $

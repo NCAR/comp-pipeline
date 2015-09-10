@@ -13,7 +13,7 @@
 ;-
 pro comp_run_pipeline, config_filename=config_filename
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
   @comp_testing_common
 
   ;---------------  Initializing  --------------------------------

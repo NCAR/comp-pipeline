@@ -30,13 +30,14 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
                      flat_waves, flat_names, exposure, file=file
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
 
   process_dir = filepath(date_dir, root=process_basedir)
 
-  beam_multiplies_wave = 'yes'   ; multiply beam times wave to get unique waves
+  ; multiply beam times wave to get unique waves
+  beam_multiplies_wave = read_flats_beam_multiplies_wave
 
-  if (beam_multiplies_wave eq 'yes') then begin
+  if (beam_multiplies_wave) then begin
     wb = wave * beam
   endif else begin
     wb = wave

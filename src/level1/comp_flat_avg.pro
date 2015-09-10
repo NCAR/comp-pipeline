@@ -11,15 +11,16 @@
 ;-
 pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
   compile_opt strictarr
+  @comp_config_common
 
-  ; skip first image at each wavelength ('yes') or just first image in recipe ('no')
-  skip_first = 'no'
+  ; skip first image at each wavelength or just first image in recipe
+  skip_first = flat_avg_skip_first
 
   nwaves = n_elements(uniq_waves)
 
   ; do not use first image at each wavelength
   wave[0] = -1   ; do not use first image
-  if (skip_first eq 'yes') then begin
+  if (skip_first) then begin
     for i = 0L, nwaves - 1L do begin
       good = where(wave eq uniq_waves[i], count)
       if (count eq 0) then begin

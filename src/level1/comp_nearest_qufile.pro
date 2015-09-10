@@ -24,7 +24,7 @@ function comp_nearest_qufile, date_dir, headers, filename
   compile_opt strictarr
 
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
   @comp_mask_constants_common
 
   wave_regions = [1074.7, 1079.8, 1083.]

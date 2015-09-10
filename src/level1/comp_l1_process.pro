@@ -22,7 +22,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
   compile_opt strictarr
 
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
   @comp_mask_constants_common
 
   ; configure

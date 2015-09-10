@@ -86,7 +86,7 @@
 pro comp_gbu, date_dir, wave_type, error=error
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
 
   ; configure
   comp_initialize, date_dir

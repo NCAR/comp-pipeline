@@ -15,7 +15,7 @@
 ;-
 function comp_setup_loggers_loggers, levels=levels
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
 
   loggers = ['comp', 'comp/l1_process', 'comp/circfit', 'comp/quick_invert', $
              'comp/average', 'comp/dark_interp', 'comp/fix_crosstalk', $
@@ -43,7 +43,7 @@ end
 ;-
 pro comp_setup_loggers_date, date_dir
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
 
   loggers = comp_setup_loggers_loggers()
   for i = 0L, n_elements(loggers) - 1L do begin
@@ -61,7 +61,7 @@ end
 ;-
 pro comp_setup_loggers
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
 
   log_fmt = '%(time)s %(levelshortname)s: %(routine)s: %(message)s'
   log_time_fmt = '(C(CYI4, "-", CMOI2.2, "-", CDI2.2, " " CHI2.2, ":", CMI2.2, ":", CSI2.2))'

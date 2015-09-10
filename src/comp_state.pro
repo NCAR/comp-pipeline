@@ -20,7 +20,7 @@
 function comp_state, date_dir, lock=lock, unlock=unlock
   compile_opt strictarr, logical_predicate
   on_error, 2
-  @comp_paths_common
+  @comp_config_common
 
   raw_dir = filepath(date_dir, root=raw_basedir)
   lock_file = filepath('.lock', root=raw_dir)

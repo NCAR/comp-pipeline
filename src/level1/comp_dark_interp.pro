@@ -23,7 +23,7 @@
 function comp_dark_interp, date_dir, time, exposure
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
+  @comp_config_common
 
   process_dir = filepath(date_dir, root=process_basedir)
 

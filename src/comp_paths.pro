@@ -13,7 +13,7 @@
 ;-
 pro comp_paths, config_filename=config_filename
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
 
   ; return if paths have already been defined
   if (n_elements(bias_dir) gt 0L) then return
@@ -42,6 +42,15 @@ pro comp_paths, config_filename=config_filename
   process_basedir  = config->get('process_basedir', section='processing')
   process_wavelengths = config->get('wavelengths', section='processing', /extract)
 
+  ; flats
+  flat_avg_skip_first = config->get('skip_first', section='flats', /boolean, default=0B)
+  read_flats_beam_multiplies_wave = config->get('beam_multiplies_wave_on_read', section='flats', /boolean, default=1B)
+  make_flat_beam_multiplies_wave = config->get('beam_multiplies_wave', section='flats', /boolean, default=1B)
+  make_flat_detrending = config->get('detrending', section='flats', /boolean, default=0B)
+  make_flat_destraying = config->get('destraying', section='flats', /boolean, default=0B)
+  make_flat_fill = config->get('fill', section='flats', /boolean, default=1B)
+  make_flat_spectral_correction = config->get('spectral_correction', section='flats', /boolean, default=0B)
+
   ; distribution of results
   archive_dir  = config->get('archive_dir', section='results')
   movie_dir    = config->get('movie_dir', section='results')
@@ -62,7 +71,7 @@ pro comp_paths, config_filename=config_filename
   find_post_log_level = long(config->get('find_post', section='log', default=log_level))
 
   ; actions
-  mail_warnings = fix(config->get('mail_warnings', section='actions', default=1B))
-  send_to_hpss = fix(config->get('send_to_hpss', section='actions', default=1B))
-  validate = fix(config->get('validate', section='actions', default=1B))
+  mail_warnings = fix(config->get('mail_warnings', section='actions', /boolean, default=1B))
+  send_to_hpss = fix(config->get('send_to_hpss', section='actions', /boolean, default=1B))
+  validate = fix(config->get('validate', section='actions', /boolean, default=1B))
 end
