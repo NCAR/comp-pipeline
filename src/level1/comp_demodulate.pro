@@ -74,8 +74,14 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                   sxpar(headertemp, 'NAVERAGE') + sxpar(headers[*, j * nw + k], 'NAVERAGE')
 
         headers[*, j * nw + k] = headertemp
-        images[*, *, j * nw + k] += 0.5 * (ipstokes[*, *, k] + imstokes[ *, *, k])
+        images[*, *, j * nw + k] += 0.5 * (ipstokes[*, *, k] + imstokes[ *, *, k]) * sxpar(headers[*, j * nw + k], 'NAVERAGE')
       endfor
+    endfor
+  endfor
+
+  for j = 0L, nb - 1L do begin
+    for k = 0L, nw - 1L do begin
+      images[*, *, j * nw + k] /= sxpar(headers[*, j * nw + k], 'NAVERAGE')
     endfor
   endfor
 end
