@@ -45,13 +45,22 @@ pro comp_setup_loggers_date, date_dir
   compile_opt strictarr
   @comp_config_common
 
+  cidx_dir = filepath('', subdir='cidx', root=log_dir)
+  if (~file_test(cidx_dir, /directory)) then file_mkdir, cidx_dir
+
   loggers = comp_setup_loggers_loggers()
   for i = 0L, n_elements(loggers) - 1L do begin
     mg_log, name=loggers[i], logger=logger
-    cidx_dir = filepath('', subdir='cidx', root=log_dir)
-    if (~file_test(cidx_dir, /directory)) then file_mkdir, cidx_dir
     logger->setProperty, filename=filepath(date_dir + '.log', root=cidx_dir)
   endfor
+
+  year = strmid(date_dir, 0, 4)
+  eng_dir = filepath('', subdir=['engineering', year], root=log_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+
+  mg_log, name='comp/crosstalk', logger=logger
+  basename = date_dir + '.comp.crosstalk.txt'
+  logger->setProperty, filename=filepath(basename, root=eng_dir)
 end
 
 
@@ -72,4 +81,7 @@ pro comp_setup_loggers
                          time_format=log_time_fmt, $
                          level=levels[i]
    endfor
+
+  mg_log, name='comp/crosstalk', logger=logger
+  logger->setProperty, format='%(message)s', level=5
 end
