@@ -3,6 +3,7 @@
 QUIET=0
 
 REVISION:=$(shell git rev-parse --short HEAD)
+PHONE=$(shell cat $(HOME)/.phonenumber 2> /dev/null)
 
 ifeq ($(QUIET), 1)
   ECHO_PREFIX=@
@@ -10,7 +11,7 @@ else
   ECHO_PREFIX=
 endif
 
-IDL=idl
+IDL=idl82
 
 OS:=$(shell uname)
 
@@ -32,7 +33,7 @@ MGLIB_DIR=+$(HOME)/software/mglib/lib
 MGUNIT_DIR=$(HOME)/software/mgunit/lib
 IDLDOC_DIR=+$(HOME)/projects/idldoc/src
 
-COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR)::$(GEN_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
+COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(GEN_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
@@ -50,6 +51,12 @@ help:
 
 pipe:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
+	@if [ "$(PHONE)" ]; then \
+	echo "Sending message to $(PHONE)..."; \
+	sms -n $(PHONE) -m "Done processing new pipeline on $(MACHINE)"; \
+	else \
+	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
+	fi
 
 env:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH)
