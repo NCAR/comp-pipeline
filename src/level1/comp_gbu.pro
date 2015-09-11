@@ -321,41 +321,17 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   ; engineering plots
+  year = strmid(date_dir, 0, 4)
+  engineering_dir = filepath('', subdir=['engineering', year], root=log_dir)
+  if (~file_test(engineering_dir, /directory)) then file_mkdir, engineering_dir
 
-  ;year = strmid(date_dir, 0, 4)
-  ;engineering_dir = log_dir + 'engineering/' + year + "/"
-  ;FILE_MKDIR, engineering_dir
+  write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_sigma.txt', $
+                      root=engineering_dir), $
+             time, sigma
 
-  plot_handle = plot(time, sigma, $
-                     title='QA Sigma', $
-                     xtitle='Time (hours)', $
-                     ytitle='Normalized Sigma', $
-                     yrange=[-1.0, 5.0], $
-                     linestyle='none', $
-                     symbol='+', $
-                     /buffer)
-  t = text(.4, .8, string(date_dir), color='red')
-  plot_filename = date_dir + '.comp.' + wave_type + '.qa_sigma.pdf'
-  plot_handle.save, plot_filename
-  plot_handle.close
-  ;  file_copy, plot_filename, engineering_dir, /OVERWRITE
-
-  plot_handle = plot(time, back, $
-                     title='QA Background', $
-                     xtitle='Time (hours)', $
-                     ytitle='Background', $
-                     yrange=[-1.0,50.0], $
-                     /buffer)
-  t = text(.4, .8, string(date_dir), color='red')
-  t = text(.4, .75, string(format='("Median before 2100: ", f6.2)', med_back), $
-           color='red')
-  plot_filename = date_dir + '.comp.' + wave_type + '.qa_background.pdf'
-  plot_handle.symbol = 'Plus'
-  plot_handle.linestyle = 'none'
-  plot_handle.save, plot_filename
-  plot_handle.close
-
-  ; file_copy, plot_filename, engineering_dir, /OVERWRITE
+  write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_background.txt', $
+                      root=engineering_dir), $
+             time, back
 
   mg_log, 'done', name='comp', /info
 end
