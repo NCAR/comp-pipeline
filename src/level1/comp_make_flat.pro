@@ -209,7 +209,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       sxaddpar, header, 'FILENAME', opalfile, ' Name of raw opal file'
       sxaddpar, header, 'EXPOSURE', exposure
 
-      if (make_flat_spectral_correction) then begin
+      if (make_flat_spectral_correction eq 0B) then begin
         ; Mask is not wavelength dependent
         mask_full_fill = comp_annulus_1024(header, o_offset=0.0, f_offset=0.0)
       endif
