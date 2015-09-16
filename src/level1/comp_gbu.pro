@@ -180,7 +180,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     ; read three images around central wavelength
 
     ; read line center intensity
-    fits_read, fcb, dat,header, exten_no=n_waves[ifile] / 2 + 1
+    fits_read, fcb, dat, header, exten_no=n_waves[ifile] / 2 + 1
     ; read blue wing intensity
     fits_read, fcb, dat_b, header, exten_no=n_waves[ifile] / 2
     ; read red wing intensity
