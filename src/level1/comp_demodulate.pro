@@ -59,12 +59,14 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
       ; form I and Q, U, or V and put them in the appropriate places in the
       ; image and header arrays:
       for k = 0L, nw - 1L do begin
+        ; TODO: this code assumes NAVAERAGE is the same for ipheads and impheads
+        naverage = sxpar(ipheads[*, k], 'NAVERAGE') + sxpar(imheads[*, k], 'NAVERAGE')
+
         headertemp = ipheads[*, k]
 
         ; set Stokes Q/U/V headers and images
         sxaddpar, headertemp, 'POLSTATE', pols[wpc[i]]
-        sxaddpar, headertemp, 'NAVERAGE', $
-                  sxpar(ipheads[*, k], 'NAVERAGE') + sxpar(imheads[*, k], 'NAVERAGE')
+        sxaddpar, headertemp, 'NAVERAGE', naverage
         headers[*, (i + 1) * nb * nw + j * nw + k] = headertemp
         images[*, *, (i + 1) * nb * nw + j * nw + k] = 0.5 * (ipstokes[*, *, k] - imstokes[*, *, k])
 
@@ -74,7 +76,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                   sxpar(headertemp, 'NAVERAGE') + sxpar(headers[*, j * nw + k], 'NAVERAGE')
 
         headers[*, j * nw + k] = headertemp
-        images[*, *, j * nw + k] += 0.5 * (ipstokes[*, *, k] + imstokes[ *, *, k]) * sxpar(headers[*, j * nw + k], 'NAVERAGE')
+        images[*, *, j * nw + k] += 0.5 * (ipstokes[*, *, k] + imstokes[ *, *, k]) * naverage
       endfor
     endfor
   endfor
