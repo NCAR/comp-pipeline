@@ -64,7 +64,7 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
 
   mg_log, '%s,%s', $
           file_basename(filename, '.FTS'), strjoin(strtrim(xtparms, 2), ','), $
-          name='comp/crosstalk', /info
+          name='comp/crosstalk/' + comp_find_wavelength(waves), /info
 
   ; apply the estimated crosstalk correction to vimages (both on-band and
   ; continuum)

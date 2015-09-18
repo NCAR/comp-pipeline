@@ -58,9 +58,12 @@ pro comp_setup_loggers_date, date_dir
   eng_dir = filepath('', subdir=['engineering', year], root=log_dir)
   if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
-  mg_log, name='comp/crosstalk', logger=logger
-  basename = date_dir + '.comp.crosstalk.txt'
-  logger->setProperty, filename=filepath(basename, root=eng_dir)
+  for w = 0L, n_elements(process_wavelengths) - 1L do begin
+    wl = process_wavelengths[w]
+    mg_log, name='comp/crosstalk/' + wl, logger=logger
+    basename = date_dir + '.' + wl + '.comp.crosstalk.txt'
+    logger->setProperty, filename=filepath(basename, root=eng_dir)
+  endfor
 end
 
 
