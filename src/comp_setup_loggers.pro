@@ -61,7 +61,7 @@ pro comp_setup_loggers_date, date_dir
   for w = 0L, n_elements(process_wavelengths) - 1L do begin
     wl = process_wavelengths[w]
     mg_log, name='comp/crosstalk/' + wl, logger=logger
-    basename = date_dir + '.' + wl + '.comp.crosstalk.txt'
+    basename = date_dir + '.comp.' + wl + '.crosstalk.txt'
     logger->setProperty, format='%(message)s', $
                          level=5, $
                          filename=filepath(basename, root=eng_dir)
