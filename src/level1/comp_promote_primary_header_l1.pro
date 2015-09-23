@@ -6,7 +6,7 @@
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_image_geometry,
 ;   comp_fix_header_time, comp_occulter_id, comp_mask_constants_common,
-;   tojd, ephem2, sxdelpar, sxaddpar, sxpar
+;   tojd, sun, sxdelpar, sxaddpar, sxpar
 ;
 ; :Params:
 ;   headers : in, required, type='strarr(ntags, nimg)'
@@ -31,7 +31,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
 
-  ; Get the comp image geometry (field stop, occulter, etc):
+  ; get the comp image geometry (field stop, occulter, etc):
   comp_image_geometry, headers, date_dir, $
                        occulter1, occulter2, $
                        field1, field2, $
@@ -39,12 +39,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir
                        delta_x, delta_y, $
                        overlap_angle
 
-  ; TODO: we should use SUN for this
-
-  ; compute solar ephemeris quantities from date and time
-  jd = tojd(day, month, year, hours, mins, secs) + 10.0 / 24.0
-  ephem2, jd, sol_ra, sol_dec, b0, p_angle, semi_diam, sid_time, dist, $
-          xsun, ysun, zsun
+  sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
+       pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
+  sol_ra *= 15  ; convert from hours to degrees, 15 = 360 / 24
 
   nx = 620
   ny = nx
