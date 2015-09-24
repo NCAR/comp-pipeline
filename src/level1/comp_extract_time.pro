@@ -1,8 +1,7 @@
 ; docformat = 'rst'
 
 ;+
-; Function returning the time of day in correct format for `READ_FLATS`, among
-; other things.
+; Function returning the time of day in correct format for `COMP_READ_FLATS`.
 ;
 ; :Uses:
 ;   comp_parse_time, sxpar
