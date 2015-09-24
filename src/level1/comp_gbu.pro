@@ -335,3 +335,24 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   mg_log, 'done', name='comp', /info
 end
+
+
+; main-level program to run COMP_GBU outside of the pipeline
+
+date_dir = '20150624'
+mg_log, name='comp', logger=logger
+logger->setProperty, level=2
+
+; initialize comp_constants_common
+comp_initialize, date_dir
+
+; initialize comp_paths_common
+config_filename = filepath('comp.mgalloy.pike.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_paths, config_filename=config_filename
+ 
+comp_gbu, date_dir, '1074', error=error
+help, error
+
+end
