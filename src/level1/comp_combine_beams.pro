@@ -13,8 +13,6 @@
 ;     the array of images whos beams are to be combined
 ;   headers : in, required, type="strarr(ntags, nimg)"
 ;     headers corresponding to images
-;   primary_header : in, out, required, type=strarr(ntags)
-;     primary header
 ;   date_dir : in, required, type=string
 ;     the date directory for this data
 ;   images_combine : out, required, type="fltarr(620, 620, (2*np*nw))"
@@ -27,15 +25,18 @@
 ;     equal to `ntags - 1`
 ;
 ; :Keywords:
-;   background : out, optional, type=double
-;     background value for the image
+;   n_uniq_polstates : out, optional, type=long
+;     set to a named variable to retrieve the number of unique
+;     polarization states
+;   n_uniq_wavelengths : out, optional, type=long
+;     set to a named variable to retrieve the number of unique wavelengths
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_combine_beams, images, headers, primary_header, date_dir, $
+pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine, $
-                        background=background
+                        n_uniq_polstates=np, n_uniq_wavelengths=nw
   compile_opt strictarr
   @comp_constants_common
 
@@ -80,17 +81,4 @@ pro comp_combine_beams, images, headers, primary_header, date_dir, $
       headers_combine[*, np * nw + i * nw + j] = hplus
     endfor
   endfor
-
-  ; set BACKGRND for image
-  comp_make_mask, date_dir, primary_header, mask
-  center_wave_index = nw / 2
-
-  ; grab correct part of images_combine as background
-  temp_background = dblarr(nx, ny)
-  for i = 0L, np - 1L do begin
-    temp_background += images_combine[*, *, np * nw + i * nw + center_wave_index]
-  endfor
-  temp_background /= np
-
-  background = median(temp_background[where(mask eq 1.0)])
 end

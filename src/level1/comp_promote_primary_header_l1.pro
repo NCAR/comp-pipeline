@@ -18,10 +18,6 @@
 ;     the directory for containing the files for the date in question, used to
 ;     find the flat file.
 ;
-; :Keywords:
-;   background : in, required, type=float
-;     background to use as BACKGRND in primary header
-;
 ; :Author:
 ;   Joseph Plowman
 ;-
@@ -118,9 +114,6 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
 
   ; fix the date/time in UT
   comp_fix_header_time, primary_header
-
-  sxaddpar, primary_header, 'BACKGRND', background, $
-            ' Median of masked line center background', format='(F10.3)'
 
   ; static I to Q and U crosstalk coefficients
   i_to_q = - 0.000581
