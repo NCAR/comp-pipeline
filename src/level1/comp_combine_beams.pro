@@ -30,6 +30,7 @@
 pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine
   compile_opt strictarr
+  @comp_constants_common
 
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
@@ -41,9 +42,6 @@ pro comp_combine_beams, images, headers, date_dir, $
 
   ntags = n_elements(headers[*, 0])
   if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
-
-  nx = 620   ; these dimensions are typically hardwired in the CoMP pipeline
-  ny = 620
 
   ; output image and header array
   images_combine = dblarr(nx, ny, 2 * np * nw)
