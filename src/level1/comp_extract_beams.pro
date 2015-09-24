@@ -6,7 +6,7 @@
 ;
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_image_geometry,
-;   comp_extract1, comp_extract2
+;   comp_extract1, comp_extract2, sun
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"
@@ -31,12 +31,10 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2
                          cal_pol, cal_ret
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
 
-  ; TODO: should we use SUN here?
-
-  ; compute solar ephemeris quantities from date and time
-  jd = tojd(day, month, year, hours, mins, secs) + 10.0 / 24.0
-  ephem2, jd, sol_ra, sol_dec, b0, p_angle, semi_diam, sid_time, dist, $
-          xsun, ysun, zsun
+  ; compute solar ephemeris quantities from date and time (add 10 hours to
+  ; convert from Hawaii time to UTC)
+  sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
+       pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
 
   nx = 620
   ny = nx

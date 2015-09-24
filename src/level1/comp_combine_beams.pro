@@ -13,6 +13,8 @@
 ;     the array of images whos beams are to be combined
 ;   headers : in, required, type="strarr(ntags, nimg)"
 ;     headers corresponding to images
+;   primary_header : in, out, required, type=strarr(ntags)
+;     primary header
 ;   date_dir : in, required, type=string
 ;     the date directory for this data
 ;   images_combine : out, required, type="fltarr(620, 620, (2*np*nw))"
@@ -24,12 +26,18 @@
 ;     will be removed from the header; `ntags2` will therefore generally be
 ;     equal to `ntags - 1`
 ;
+; :Keywords:
+;   background : out, optional, type=double
+;     background value for the image
+;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_combine_beams, images, headers, date_dir, $
-                        images_combine, headers_combine
+pro comp_combine_beams, images, headers, primary_header, date_dir, $
+                        images_combine, headers_combine, $
+                        background=background
   compile_opt strictarr
+  @comp_constants_common
 
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
@@ -41,9 +49,6 @@ pro comp_combine_beams, images, headers, date_dir, $
 
   ntags = n_elements(headers[*, 0])
   if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
-
-  nx = 620   ; these dimensions are typically hardwired in the CoMP pipeline
-  ny = 620
 
   ; output image and header array
   images_combine = dblarr(nx, ny, 2 * np * nw)
@@ -75,4 +80,17 @@ pro comp_combine_beams, images, headers, date_dir, $
       headers_combine[*, np * nw + i * nw + j] = hplus
     endfor
   endfor
+
+  ; set BACKGRND for image
+  comp_make_mask, date_dir, primary_header, mask
+  center_wave_index = nw / 2
+
+  ; grab correct part of images_combine as background
+  temp_background = dblarr(nx, ny)
+  for i = 0L, np - 1L do begin
+    temp_background += images_combine[*, *, np * nw + i * nw + center_wave_index]
+  endfor
+  temp_background /= np
+
+  background = median(temp_background[where(mask eq 1.0)])
 end

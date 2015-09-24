@@ -147,24 +147,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       ; sxdelpar,header,'POLSTATE'
       ; sxdelpar,header,'SEQUENCE'
 
-      ;  convert time string to numerical time
-      time_str = sxpar(header, 'TIME_OBS')
-      if (strlen(time_str) eq 8) then begin
-        time = float(strmid(time_str, 0, 2)) $
-                 + float(strmid(time_str, 3, 2)) / 60. $
-                 + float(strmid(time_str, 6, 2)) / 3600.
-      endif
-      if (strlen(time_str) eq 10) then begin
-        time = float(strmid(time_str, 0, 1)) $
-                 + float(strmid(time_str, 2, 2)) / 60. $
-                 + float(strmid(time_str, 5, 2)) / 3600.
-      endif
-      if (strlen(time_str) eq 11) then begin
-        time = float(strmid(time_str, 0, 2)) $
-                 + float(strmid(time_str, 3, 2)) / 60. $
-                 + float(strmid(time_str, 6, 2)) / 3600.
-      endif
-      if (time lt 7.) then time += 12.
+      time = comp_parse_time(sxpar(header, 'TIME_OBS'))
 
       mg_log, '%d images in file', num, name='comp', /debug
 
@@ -307,10 +290,12 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 ;         bad = where(tmp_image lt 0.2 * medflat)
 ;         image[bad] = medflat
 
-          ; TODO my Fill outside mask
+          ; fill outside mask
           good = where(mask_full_fill eq 1.0, complement=bad)
           medflat = median(image[good])
           image[bad] = medflat
+          mg_log, 'filling flat values with %f outside annulus', medflat, $
+                  name='comp', /info
         endif
 
         ; make sure there aren't any zeros
