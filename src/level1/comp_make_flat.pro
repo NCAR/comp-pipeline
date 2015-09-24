@@ -307,10 +307,12 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 ;         bad = where(tmp_image lt 0.2 * medflat)
 ;         image[bad] = medflat
 
-          ; TODO my Fill outside mask
+          ; fill outside mask
           good = where(mask_full_fill eq 1.0, complement=bad)
           medflat = median(image[good])
           image[bad] = medflat
+          mg_log, 'filling flat values with %f outside annulus', medflat, $
+                  name='comp', /info
         endif
 
         ; make sure there aren't any zeros
