@@ -295,7 +295,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
           medflat = median(image[good])
           image[bad] = medflat
           mg_log, 'filling flat values with %f outside annulus', medflat, $
-                  name='comp', /info
+                  name='comp', /debug
         endif
 
         ; make sure there aren't any zeros
