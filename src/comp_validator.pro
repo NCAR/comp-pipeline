@@ -4,7 +4,8 @@
 ; Validate files transferred from MLSO.
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths
+;   comp_constants_common, comp_config_common, comp_initialize,
+;   comp_configuration
 ;
 ; :Returns:
 ;   1 if valid, 0 if not valid
@@ -36,7 +37,7 @@ function comp_validator, date_dir
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   mg_log, 'starting', name='comp', /info
 

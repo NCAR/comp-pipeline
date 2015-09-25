@@ -42,7 +42,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
   start_memory = memory(/current)
 
-  comp_paths, config_filename=config_filename
+  comp_configuration, config_filename=config_filename
   comp_setup_loggers
 
   candidate_dirs = file_search(filepath(date_pattern, root=raw_basedir), $

@@ -37,8 +37,8 @@
 ;     file_type, '20131119'
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths,
-;   comp_inventory, fits_open, fits_close
+;   comp_constants_common, comp_config_common, comp_initialize,
+;   comp_configuration, comp_inventory, fits_open, fits_close
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -58,7 +58,7 @@ pro comp_file_type, date_dir
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   mg_log, 'starting', name='comp', /info
 

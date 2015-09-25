@@ -7,7 +7,7 @@
 ; gaussian to determine the location of the occulter post.
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common
+;   comp_config_common, comp_constants_common
 ;
 ; :Params:
 ;   image : in

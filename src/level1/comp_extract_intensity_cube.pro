@@ -4,7 +4,7 @@
 ; Extract the cube of intensity images from a FITS file.
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, fits_open, fits_read, fits_close,
+;   comp_constants_common, comp_config_common, fits_open, fits_read, fits_close,
 ;   sxpar
 ;
 ; :Params:

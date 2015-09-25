@@ -5,8 +5,8 @@
 ; wavelength.
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_mask_constants_common,
-;   comp_initialize, comp_paths, comp_l1_process_file, comp_ut_filename
+;   comp_constants_common, comp_config_common, comp_mask_constants_common,
+;   comp_initialize, comp_configuration, comp_l1_process_file, comp_ut_filename
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -27,7 +27,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 

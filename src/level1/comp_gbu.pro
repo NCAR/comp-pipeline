@@ -61,9 +61,9 @@
 ;     comp_gbu, '20130531', '1074' 
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths,
-;   comp_get_time_from_filename, comp_make_mask, fits_open, fits_read,
-;   fits_close, sxpar
+;   comp_constants_common, comp_config_common, comp_initialize,
+;   comp_configuration, comp_get_time_from_filename, comp_make_mask, fits_open,
+;   fits_read, fits_close, sxpar
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -90,7 +90,7 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   mg_log, 'wave_type %s', wave_type, name='comp', /info
 
@@ -346,11 +346,11 @@ logger->setProperty, level=2
 ; initialize comp_constants_common
 comp_initialize, date_dir
 
-; initialize comp_paths_common
+; initialize comp_config_common
 config_filename = filepath('comp.mgalloy.pike.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
-comp_paths, config_filename=config_filename
+comp_configuration, config_filename=config_filename
  
 comp_gbu, date_dir, '1074', error=error
 help, error

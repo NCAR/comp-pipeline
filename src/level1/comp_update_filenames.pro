@@ -16,7 +16,7 @@
 ;     comp_update_filenames, '20121209'
 ;
 ; :Uses:
-;   comp_paths_common, comp_ut_filename, strput
+;   comp_config_common, comp_ut_filename, strput
 ;
 ; :Author:
 ;   sitongia
@@ -26,7 +26,7 @@ pro comp_update_filenames, date_dir
   @comp_config_common
 
   ; configure
-  comp_paths
+  comp_configuration
   process_dir = filepath(date_dir, root=process_basedir)
   cd, process_dir
 

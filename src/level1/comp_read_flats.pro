@@ -4,7 +4,7 @@
 ; Procedure to read flat images.
 ;
 ; :Uses:
-;   comp_uniq, comp_constants_common, comp_paths_common, fits_open, fits_read,
+;   comp_uniq, comp_constants_common, comp_config_common, fits_open, fits_read,
 ;   fits_close, sxpar, mg_log
 ;
 ; :Params:

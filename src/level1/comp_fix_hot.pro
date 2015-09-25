@@ -5,7 +5,7 @@
 ; adjacent pixels.
 ;
 ; :Uses:
-;   comp_paths_common
+;   comp_config_common
 ;
 ; :Params:
 ;   data : in, required, type=fltarr

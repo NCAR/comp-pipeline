@@ -19,8 +19,8 @@
 ;     comp_make_flat, '20130915'
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_fit_common, comp_initialize,
-;   comp_paths, comp_inventory, comp_mask_1024, comp_fix_stray_light,
+;   comp_constants_common, comp_config_common, comp_fit_common, comp_initialize,
+;   comp_configuration, comp_inventory, comp_mask_1024, comp_fix_stray_light,
 ;   comp_flat_norm, comp_fix_hot, comp_make_header, comp_annulus_1024,
 ;   comp_fix_trend, fits_open, fits_close, fits_read, fits_write, sxaddpar,
 ;   mkhdr, sxdelpar
@@ -47,7 +47,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   debug = 0
 

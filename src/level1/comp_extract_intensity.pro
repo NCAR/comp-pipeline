@@ -21,7 +21,7 @@
 ;     comp_extract_intensity, '20121209', '1074'
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_make_gif, fits_open,
+;   comp_constants_common, comp_config_common, comp_make_gif, fits_open,
 ;   fits_read, fits_write, fits_close, sxaddpar
 ;
 ; :Params:
@@ -47,7 +47,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 

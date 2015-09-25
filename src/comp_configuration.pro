@@ -1,7 +1,10 @@
 ; docformat = 'rst'
 
 ;+
-; Set up paths for CoMP pipeline.
+; Set up paths and other settings for a run of the CoMP pipeline.
+;
+; :Uses:
+;   comp_config_common, mg_read_config
 ;
 ; :Keywords:
 ;   config_filename, in, optional, type=string
@@ -11,7 +14,7 @@
 ; :Author:
 ;   sitongia
 ;-
-pro comp_paths, config_filename=config_filename
+pro comp_configuration, config_filename=config_filename
   compile_opt strictarr
   @comp_config_common
 

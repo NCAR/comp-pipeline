@@ -5,7 +5,7 @@
 ; containing all darks for that day is used.
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, fits_open, fits_read, fits_close,
+;   comp_config_common, comp_constants_common, fits_open, fits_read, fits_close,
 ;   sxpar, mglog
 ;
 ; :Returns:

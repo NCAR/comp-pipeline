@@ -22,9 +22,9 @@
 ;     make_dark, '20130915'
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths,
-;   comp_demultiplex, fits_open, fits_read, fits_close, fits_write, sxdelpar,
-;   sxpar
+;   comp_constants_common, comp_config_common, comp_initialize,
+;   comp_configuration, comp_demultiplex, fits_open, fits_read, fits_close,
+;   fits_write, sxdelpar, sxpar
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -48,7 +48,7 @@ pro comp_make_dark, date_dir, error=error
 
   ; configure
   comp_initialize, date_dir
-  comp_paths
+  comp_configuration
 
   mg_log, 'starting', name='comp', /info
 
