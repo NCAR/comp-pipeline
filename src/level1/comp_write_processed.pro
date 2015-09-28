@@ -26,6 +26,8 @@
 pro comp_write_processed, images, headers, primary_header, date_dir, outfile
   compile_opt strictarr
 
+  comp_set_background, date_dir, primary_header, images, headers
+
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 

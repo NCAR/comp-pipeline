@@ -1,32 +1,32 @@
 ; docformat = 'rst'
 
 ;+
-; :Keywords:
-;   n_uniq_polstates : in, required, type=long
-;     the number of unique polarization states
-;   n_uniq_wavelengths : in, required, type=long
-;     the number of unique wavelengths
+; Set the "BACKGRND" FITS keyword in the primary header.
+;
+; :Params:
+;   date_dir : in, required, type=string
+;     the date directory for this data
+;   images_combine : in, required, type="fltarr(620, 620, (2*np*nw))"
+;     the combined images, one foreground, one background for each wavelength
+;     and stokes component. The last index is sorted first by wavelength
+;     (successive wavelengths are adjacent), then by polarization
+;   headers_combine : in, required, type="strarr(ntags2, (2*np*nw))"
+;     headers corresponding to `images_combine`; the 'BEAM' tag, if present,
+;     will be removed from the header; `ntags2` will therefore generally be
+;     equal to `ntags - 1`
 ;-
-pro comp_set_background, date_dir, primary_header, images_combine, $
-                         n_uniq_polstates=np, n_uniq_wavelengths=nw
+pro comp_set_background, date_dir, primary_header, images_combine, headers_combine
   compile_opt strictarr
   @comp_constants_common
 
   ; set BACKGRND for image
   comp_make_mask, date_dir, primary_header, mask
-  center_wave_index = nw / 2
 
-  ; grab correct part of images_combine as background
-  temp_background = dblarr(nx, ny)
-  for i = 0L, np - 1L do begin
-    temp_background += images_combine[*, *, np * nw + i * nw + center_wave_index]
-  endfor
-  temp_background /= np
+  background = comp_get_component(images_combine, headers_combine, 'BI', 0, $
+                                  /noskip, /wavavg)
+  backgrnd = median(background[where(mask eq 1.0)])
 
-  background = median(temp_background[where(mask eq 1.0)])
-  sxaddpar, primary_header, 'BACKGRND', background, $
+  sxaddpar, primary_header, 'BACKGRND', backgrnd, $
             ' Median of masked line center background', format='(F10.3)', $
             after='TIME_HST'
-
-
 end

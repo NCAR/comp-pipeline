@@ -56,10 +56,6 @@ pro comp_l1_process_file, infile, outfile, date_dir
 
   ; update the primary header and write the processed data to the output file
   comp_promote_primary_header_l1, headers, header0, date_dir
-
-  comp_set_background, date_dir, header0, images_combine, $
-                       n_uniq_polstates=np, n_uniq_wavelengths=nw
-
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         outfile
 end
