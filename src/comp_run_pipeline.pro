@@ -104,6 +104,11 @@ pro comp_run_pipeline, config_filename=config_filename
             (memory(/highwater) - start_memory) / 1024. / 1024., $
             name='comp', /debug
 
+    ; copy configuration file to the process output directory
+    process_dir = filepath(date_dir, root=process_basedir)
+    file_mkdir, process_dir
+    file_copy, config_filename, process_dir
+
     mg_log, 'running file_type', name='comp', /info
     file_type_t0 = systime(/seconds)
     ; take inventory of the data for this day
