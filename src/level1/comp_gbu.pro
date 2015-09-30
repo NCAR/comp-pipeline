@@ -192,7 +192,7 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     ; read central background image
     ; TODO: check to make sure this *always* is correct
-    fits_read, fcb, dat_back, header, exten_no=num_ext / 2 + n_waves[ifile] / 2
+    fits_read, fcb, dat_back, header, exten_no=num_ext / 2 + n_waves[ifile] / 2 + 1
 
     ; reject file if there are more than 150 background pixels with a level of
     ; >150
