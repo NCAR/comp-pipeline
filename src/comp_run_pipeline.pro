@@ -16,6 +16,10 @@ pro comp_run_pipeline, config_filename=config_filename
   @comp_config_common
   @comp_testing_common
 
+  _config_filename = file_expand_path(n_elements(config_filename) eq 0L $
+                       ? filepath('comp.cfg', root=mg_src_root()) $
+                       : config_filename)
+
   ;---------------  Initializing  --------------------------------
 
   t0 = systime(/seconds)
@@ -42,7 +46,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
   start_memory = memory(/current)
 
-  comp_configuration, config_filename=config_filename
+  comp_configuration, config_filename=_config_filename
   comp_setup_loggers
 
   candidate_dirs = file_search(filepath(date_pattern, root=raw_basedir), $
@@ -107,7 +111,7 @@ pro comp_run_pipeline, config_filename=config_filename
     ; copy configuration file to the process output directory
     process_dir = filepath(date_dir, root=process_basedir)
     file_mkdir, process_dir
-    file_copy, config_filename, process_dir
+    file_copy, _config_filename, process_dir
 
     mg_log, 'running file_type', name='comp', /info
     file_type_t0 = systime(/seconds)
