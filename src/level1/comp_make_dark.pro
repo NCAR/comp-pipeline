@@ -148,23 +148,8 @@ pro comp_make_dark, date_dir, error=error
     sxaddpar, header, 'DATATYPE','DARK'
     sxaddpar, header, 'DEMULT', 1
 
-    if (strlen(time_str) eq 8) then begin
-      time[nout] = float(strmid(time_str, 0, 2)) $
-                     + float(strmid(time_str, 3, 2)) / 60. $
-                     + float(strmid(time_str, 6, 2)) / 3600.
-    endif
-    if (strlen(time_str) eq 10) then begin
-      time[nout] = float(strmid(time_str, 0, 1)) $
-                     + float(strmid(time_str, 2, 2)) / 60. $
-                     + float(strmid(time_str, 5, 2)) / 3600.
-    endif
-    if (strlen(time_str) eq 11) then begin
-      time[nout] = float(strmid(time_str, 0, 2)) $
-                     + float(strmid(time_str, 3, 2)) / 60. $
-                     + float(strmid(time_str, 6, 2)) / 3600.
-    endif
+    time[nout] = comp_parse_time(time_str)
 
-    if (time[nout] lt 6.0) then time[nout] += 12.
     exposure[nout] = sxpar(header, 'EXPOSURE')
     sxaddpar, header, 'TIME', time[nout]
     sxaddpar, header, 'MEAN', aver
