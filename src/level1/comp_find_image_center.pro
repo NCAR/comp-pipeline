@@ -2,40 +2,47 @@
 
 ;+
 ; Procedure to find either the edge of the occulting disk or the edge of the
-; field stop. The occulter or field stop is chosen by the keyword neg_pol which 
+; field stop. The occulter or field stop is chosen by the keyword `NEG_POL`. 
 ;
-; A 3-element array is returned containing: The x-offset of the image, the
-; y-offset of the image, and the image radius. The value of chi^2 (chisq) is
+; A 3-element array is returned containing: the x-offset of the image, the
+; y-offset of the image, and the image radius. The value of chi^2 (`CHISQ`) is
 ; optionally returned.
 ;
 ; :Examples:
 ;   For example, call like::
 ;
-;     comp_find_image, data, radius_guess=radius_guess, drad=drad, /neg_pol
+;     comp_find_image_center, data, radius_guess=radius_guess, drad=drad, $
+;                             /neg_pol
 ;
 ; :Uses:
 ;   comp_radial_der, comp_circfit
+;
+; :Returns:
+;   fltarr(3)
 ;
 ; :Params:
 ;   dat : in
 ;     the data array in which to locate the image
 ;
 ; :Keywords:
-;   radius_guess :
-;     the optional guess of the radius of the discontinuity. If not specified,
-;     the default value is used
+;   chisq : out, optional, type=float
+;     set to a named variable to retrieve the chi^2 of the fit
+;   radius_guess : in, optional, type=float, default=295. or 224.
+;     the optional guess of the radius of the discontinuity
 ;   drad : in, optional, type=float, default=40.0
-;     the +/- size of the radius which to scan. If not specified, a default
-;     value is used.
-;   neg_pol : 
+;     the +/- size of the radius which to scan
+;   neg_pol : in, optional, type=boolean
 ;     if set, negative discontinuities (field stop) will be found, of not set,
 ;     the default is for positive discontinuities (occulter)
 ;
 ; :Author:
 ;   Tomczyk, modified by Sitongia
 ;-
-function comp_find_image, dat, chisq=chisq, radius_guess=radius_guess, $
-                          drad=drad, neg_pol=neg_pol
+function comp_find_image_center, dat, $
+                                 chisq=chisq, $
+                                 radius_guess=radius_guess, $
+                                 drad=drad, $
+                                 neg_pol=neg_pol
   compile_opt strictarr
   @comp_fitc_common
 
@@ -57,12 +64,12 @@ function comp_find_image, dat, chisq=chisq, radius_guess=radius_guess, $
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol)
 
   c = comp_circfit(theta, r)   ; fit positions to a circle
-  mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), name='comp/find_image', /debug
+  mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), name='comp/find_image_center', /debug
 
   if (debug eq 1) then begin
     plot, theta, r, psym=3, yrange=[200, 340], ystyle=1, $
           xtitle='Angle', ytitle='Radial Position', charsize=1.5, $
-          title='find_image'
+          title='find_image_center'
     rfit = c[0] * cos(theta - c[1]) $
              + sqrt(c[0]^2 * cos(theta - c[1])^2 - c[0]^2 +c[2]^2)
     oplot, theta, rfit

@@ -70,7 +70,7 @@ pro comp_configuration, config_filename=config_filename
   average_log_level = long(config->get('average_level', section='log', default=log_level))
   dark_interp_log_level = long(config->get('dark_interp_level', section='log', default=log_level))
   fix_crosstalk_log_level = long(config->get('fix_crosstalk_level', section='log', default=log_level))
-  find_image_log_level = long(config->get('find_image', section='log', default=log_level))
+  find_image_center_log_level = long(config->get('find_image_center', section='log', default=log_level))
   find_post_log_level = long(config->get('find_post', section='log', default=log_level))
 
   ; actions

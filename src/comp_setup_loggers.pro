@@ -19,7 +19,7 @@ function comp_setup_loggers_loggers, levels=levels
 
   loggers = ['comp', 'comp/l1_process', 'comp/circfit', 'comp/quick_invert', $
              'comp/average', 'comp/dark_interp', 'comp/fix_crosstalk', $
-             'comp/find_image', 'comp/find_post']
+             'comp/find_image_center', 'comp/find_post']
   levels = [log_level, $
             l1_process_log_level, $
             circfit_log_level, $
@@ -27,7 +27,7 @@ function comp_setup_loggers_loggers, levels=levels
             average_log_level, $
             dark_interp_log_level, $
             fix_crosstalk_log_level, $
-            find_image_log_level, $
+            find_image_center_log_level, $
             find_post_log_level]
   return, loggers
 end

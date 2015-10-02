@@ -23,7 +23,7 @@ common comp_config, bias_dir, $
                     average_log_level, $
                     dark_interp_log_level, $
                     fix_crosstalk_log_level, $
-                    find_image_log_level, $
+                    find_image_center_log_level, $
                     find_post_log_level, $
                     mail_warnings, $
                     send_to_hpss, $
