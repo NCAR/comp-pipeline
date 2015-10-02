@@ -74,5 +74,5 @@ function comp_circfit, theta, r, chisq=chisq
 
   if (keyword_set(chisq)) then chisq = total((r[good] - rfit[good])^2)
 
-  return,a
+  return, a
 end
