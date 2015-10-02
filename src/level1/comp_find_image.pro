@@ -24,7 +24,7 @@
 ;   radius_guess :
 ;     the optional guess of the radius of the discontinuity. If not specified,
 ;     the default value is used
-;   drad :
+;   drad : in, optional, type=float, default=40.0
 ;     the +/- size of the radius which to scan. If not specified, a default
 ;     value is used.
 ;   neg_pol : 
@@ -51,7 +51,7 @@ function comp_find_image, dat, chisq=chisq, radius_guess=radius_guess, $
 
   ; if number of points around radius is input, use it, otherwise use default value
   ; number of points (+/-) around radius for determination
-  if (keyword_set(drad)) then drad = drad else drad=40.
+  if (keyword_set(drad)) then drad = drad else drad = 40.
 
   ; find limb positions, array of angles (theta) and limb positions (r) is returned
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol)
