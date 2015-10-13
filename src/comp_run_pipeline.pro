@@ -111,7 +111,7 @@ pro comp_run_pipeline, config_filename=config_filename
     ; copy configuration file to the process output directory
     process_dir = filepath(date_dir, root=process_basedir)
     file_mkdir, process_dir
-    file_copy, _config_filename, process_dir
+    file_copy, _config_filename, process_dir, /overwrite
 
     mg_log, 'running file_type', name='comp', /info
     file_type_t0 = systime(/seconds)
