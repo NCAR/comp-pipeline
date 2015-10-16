@@ -28,9 +28,9 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   @comp_constants_common
   @comp_mask_constants_common
 
-  comp_read_data, infile, images, headers, header0   ; read the input file
+  comp_read_data, filename, images, headers, header0
   comp_flats_darks, images, headers, date_dir        ; apply flats and darks
-  comp_demodulate, images, headers, images_demod, headers_demod   ; demodulate
+  comp_demodulate, images, headers, images_demod, headers_demod
   comp_inventory_header, headers_demod, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
