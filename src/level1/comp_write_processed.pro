@@ -41,15 +41,20 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
 
   unique_wavelengths = wavelengths[uniq(wavelengths, sort(wavelengths))]
   unique_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
+
+  unique_polarizations = unique_polarizations[where(strmid(unique_polarizations, 0, 1) ne 'B')]
+  polarization_tag = strlowcase(strjoin(unique_polarizations))
+
   n_wavelengths = n_elements(unique_wavelengths)
 
   datetime = strmid(file_basename(filename), 0, 15)
   output_filename = filepath(string(comp_ut_filename(datetime), $
                                     wave_type, $
-                                    strjoin(unique_polarizations), $
+                                    polarization_tag, $
                                     n_wavelengths, $
                                     format='(%"%s.comp.%s.%s.%d.fts")'), $
-                             root=process_dir)
+                             subdir=date_dir, $
+                             root=process_basedir)
 
   ; write the input primary header into the output:
   fits_open, output_filename, fcbout, /write
@@ -94,7 +99,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     sxaddpar, header, 'DATAMIN', min(images[*, *, i]), ' MINIMUM DATA VALUE'
     sxaddpar, header, 'DATAMAX', max(images[*, *, i]), ' MAXIMUM DATA VALUE'
 
-    ename = pol[i] + ', ' + string(format='(f7.2)', wave[i])
+    ename = polarizations[i] + ', ' + string(format='(f7.2)', wavelengths[i])
     
     fits_write, fcbout, images[*, *, i], header, extname=ename    
   endfor
