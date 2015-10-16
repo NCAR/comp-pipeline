@@ -6,9 +6,9 @@
 ; CoMP beams.
 ;
 ; :Uses:
-;   comp_read_data, comp_flats_darks, comp_demodulate, comp_inventory_header,
-;   comp_fix_vxtalk, comp_fix_quxtalk, comp_combine_beams,
-;   comp_promote_primary_header_l1, comp_write_processed,
+;   comp_read_data, comp_apply_flats_darks, comp_demodulate,
+;   comp_inventory_header, comp_fix_vxtalk, comp_fix_quxtalk,
+;   comp_combine_beams, comp_promote_primary_header_l1, comp_write_processed,
 ;   comp_constants_common, comp_mask_constants_common
 ;
 ; :Params:
@@ -29,7 +29,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   @comp_mask_constants_common
 
   comp_read_data, filename, images, headers, header0
-  comp_flats_darks, images, headers, date_dir        ; apply flats and darks
+  comp_apply_flats_darks, images, headers, date_dir
   comp_demodulate, images, headers, images_demod, headers_demod
   comp_inventory_header, headers_demod, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret

@@ -21,7 +21,7 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_flats_darks, images, headers, date_dir
+pro comp_apply_flats_darks, images, headers, date_dir
   compile_opt strictarr
   @comp_config_common
 

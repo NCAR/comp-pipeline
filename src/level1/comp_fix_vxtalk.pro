@@ -9,7 +9,7 @@
 ;
 ; :Uses:
 ;   comp_inventory_header, comp_nearest_qufile, comp_read_data,
-;   comp_flats_darks, comp_demodulate, comp_get_component, comp_raw_mask,
+;   comp_apply_flats_darks, comp_demodulate, comp_get_component, comp_raw_mask,
 ;   comp_find_vxtalk
 ;
 ; :Params:
@@ -37,7 +37,7 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   ; find the nearest Q and U file and prepare it for crosstalk estimation
   qufile = comp_nearest_qufile(date_dir, vheaders, filename)
   comp_read_data, qufile, quimages, quheaders, quheader0
-  comp_flats_darks, quimages, quheaders, date_dir
+  comp_apply_flats_darks, quimages, quheaders, date_dir
   comp_demodulate, quimages, quheaders, quimages_demod, quheaders_demod
 
   ; break out the various Stokes pieces and average them over wavelength
