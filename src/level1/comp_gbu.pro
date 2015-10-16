@@ -134,14 +134,20 @@ pro comp_gbu, date_dir, wave_type, error=error
     readf, lun, str
     good_lines[ifile] = str
 
-    name = strmid(str, 0, 15) + '.comp.' + wave_type + '.fts'
+    search_filter = strmid(str, 0, 15) + '.comp.' + wave_type + '.*.*.fits'
+    name = (file_search(search_filter, count=n_name_found))[0]
 
-    if (~file_test(name)) then begin
+    if (n_name_found lt 1L || ~file_test(name)) then begin
       mg_log, '%s doesn''t exist on disk but is in inventory file', name, $
               name='comp', /warn
       good_files[ifile] += 1
       continue
     endif
+    if (n_name_found gt 1L) then begin
+      mg_log, 'multiple files found for %s', search_filter, $
+              name='comp', /warn
+    endif
+
     filenames[ifile] = name
     time[ifile] = comp_get_time_from_filename(name)
 

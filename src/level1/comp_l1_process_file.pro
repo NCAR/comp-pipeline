@@ -12,17 +12,17 @@
 ;   comp_constants_common, comp_mask_constants_common
 ;
 ; :Params:
-;   infile : in, required, type=string
+;   filename : in, required, type=string
 ;     the input file to process
-;   outfile : in, required, type=string
-;     the output file where the processed level 1 data will be written
 ;   date_dir : in, required, type=string
 ;     the date directory of the input and output files
+;   wave_type : in, required, type=string
+;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_l1_process_file, infile, outfile, date_dir
+pro comp_l1_process_file, filename, date_dir, wave_type
   compile_opt strictarr
 
   @comp_constants_common
@@ -39,12 +39,12 @@ pro comp_l1_process_file, infile, outfile, date_dir
 
   if (total(pol eq 'V') gt 0) then begin
     mg_log, 'fixing V crosstalk', name='comp/l1_process', /info
-    comp_fix_vxtalk, date_dir, images_demod, headers_demod, infile
+    comp_fix_vxtalk, date_dir, images_demod, headers_demod, filename
   endif
 
   if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
     mg_log, 'fixing QU crosstalk', name='comp/l1_process', /info
-    comp_fix_quxtalk, date_dir, images_demod, headers_demod, infile
+    comp_fix_quxtalk, date_dir, images_demod, headers_demod, filename
   endif
 
   ; split the foreground (on-band) and background (continuum) beams into
@@ -57,5 +57,5 @@ pro comp_l1_process_file, infile, outfile, date_dir
   ; update the primary header and write the processed data to the output file
   comp_promote_primary_header_l1, headers, header0, date_dir
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
-                        outfile
+                        filename, wave_type
 end

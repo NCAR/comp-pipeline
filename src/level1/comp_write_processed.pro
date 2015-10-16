@@ -17,26 +17,46 @@
 ;   date_dir : in, required, type=string
 ;     the directory for containing the files for the date in question, used to
 ;     find the flat file
-;   outfile : in, required, type=string
-;     the image and header data are written to this file in fits format.
+;   filename : in, required, type=string
+;     filename of corresponding L0 file
+;   wave_type : in, required, type=string
+;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_write_processed, images, headers, primary_header, date_dir, outfile
+pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
+                          wave_type
   compile_opt strictarr
+  @comp_config_common
 
   comp_set_background, date_dir, primary_header, images, headers
 
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers, beam, group, wavelengths, polarizations, $
+                         type, expose, $
                          cover, cal_pol, cal_ret
 
+  ; create output filename of the form:
+  ;   [date].[time].comp.[central wavelength].[polarization states].[n wavelengths].fts
+
+  unique_wavelengths = wavelengths[uniq(wavelengths, sort(wavelengths))]
+  unique_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
+  n_wavelengths = n_elements(unique_wavelengths)
+
+  datetime = strmid(file_basename(filename), 0, 15)
+  output_filename = filepath(string(comp_ut_filename(datetime), $
+                                    wave_type, $
+                                    strjoin(unique_polarizations), $
+                                    n_wavelengths, $
+                                    format='(%"%s.comp.%s.%s.%d.fts")'), $
+                             root=process_dir)
+
   ; write the input primary header into the output:
-  fits_open, outfile, fcbout, /write
+  fits_open, output_filename, fcbout, /write
   fits_write, fcbout, 0, primary_header
 
   ; clean up the extension headers and write them to file, along with the
-  ; images...
+  ; images
   nexts = n_elements(headers[0, *])    ; number of images
   ntags0 = n_elements(headers[*, 0])   ; number of total tags
 
