@@ -134,7 +134,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     readf, lun, str
     good_lines[ifile] = str
 
-    search_filter = strmid(str, 0, 15) + '.comp.' + wave_type + '.*.*.fits'
+    search_filter = strmid(str, 0, 15) + '.comp.' + wave_type + '.*.*.fts'
     name = (file_search(search_filter, count=n_name_found))[0]
 
     if (n_name_found lt 1L || ~file_test(name)) then begin
@@ -288,7 +288,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; make new file for all good files (both 5 wave and 3 wave)
   openw, good_all_lun, 'good_all_' + files, /get_lun
 
-  printf, gbu_lun, 'Filename                          Quality     Back     Sigma   #waves  Reason'
+  printf, gbu_lun, 'Filename                                Quality     Back     Sigma   #waves  Reason'
   for i = 0L, n_files - 1L do begin
     ; stop saving to synoptic when obs switch to 3 waves
     if ((synoptic_flag eq 1) and (n_waves[i] lt 5)) then synoptic_flag = 0
@@ -303,11 +303,11 @@ pro comp_gbu, date_dir, wave_type, error=error
     endif
     if (good_files[i] eq 0) then printf, good_all_lun, good_lines[i]
     if (good_files[i] eq 0) then begin
-      printf, gbu_lun, format='(A32, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
+      printf, gbu_lun, format='(A38, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
               filenames[i], '  Good', back[i], sigma[i], n_waves[i], $
               good_files[i]
     endif else begin
-      printf, gbu_lun, format='(A32, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
+      printf, gbu_lun, format='(A38, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
               filenames[i], '   Bad', back[i], sigma[i], n_waves[i], $
               good_files[i]
     endelse
