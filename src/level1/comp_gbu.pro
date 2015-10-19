@@ -127,25 +127,33 @@ pro comp_gbu, date_dir, wave_type, error=error
   sigma = fltarr(n_files)
   n_waves = intarr(n_files)
 
-  str = ' '
+  str = ''
   openr, lun, files, /get_lun
 
   for ifile = 0L, n_files - 1L do begin
     readf, lun, str
     good_lines[ifile] = str
 
-    search_filter = strmid(str, 0, 15) + '.comp.' + wave_type + '.*.*.fts'
+    datetime = strmid(str, 0, 15)
+    ; search_filter is a glob, not a regular expression
+    search_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts'
     name = (file_search(search_filter, count=n_name_found))[0]
 
-    if (n_name_found lt 1L || ~file_test(name)) then begin
-      mg_log, '%s doesn''t exist on disk but is in inventory file', name, $
+    if (n_name_found lt 1L) then begin
+      mg_log, '%s doesn''t exist on disk but is in inventory file', search_filter, $
               name='comp', /warn
       good_files[ifile] += 1
       continue
     endif
-    if (n_name_found gt 1L) then begin
-      mg_log, 'multiple files found for %s', search_filter, $
+
+    back_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.bkg.fts'
+    back_name = (file_search(search_filter, count=n_name_found))[0]
+
+    if (n_name_found lt 1L || ~file_test(name)) then begin
+      mg_log, 'background %s doesn''t exist on disk but is in inventory file', $
+              back_filter, $
               name='comp', /warn
+      continue
     endif
 
     filenames[ifile] = name
@@ -153,6 +161,8 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     fits_open, name, fcb     ; open fits file
     num_ext = fcb.nextend    ; get number of fits extensions
+
+    fits_open, back_name, back_fcb
 
     ; read primary header
     fits_read, fcb, d, header, /header_only, exten_no=0
@@ -197,8 +207,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     data[*, *, ifile] = (dat + dat_b + dat_r) * mask / 2.
 
     ; read central background image
-    ; TODO: check to make sure this *always* is correct
-    fits_read, fcb, dat_back, header, exten_no=num_ext / 2 + n_waves[ifile] / 2 + 1
+    fits_read, back_fcb, dat_back, header, exten_no=n_waves[ifile] / 2 + 1
 
     ; reject file if there are more than 150 background pixels with a level of
     ; >150
@@ -210,6 +219,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     endif
 
     fits_close, fcb
+    fits_close, back_fcb
   endfor
 
   ; check for dirty O1 using the background level in the morning, as long as

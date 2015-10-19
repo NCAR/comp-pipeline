@@ -55,10 +55,20 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                                     format='(%"%s.comp.%s.%s.%d.fts")'), $
                              subdir=date_dir, $
                              root=process_basedir)
+  background_filename = filepath(string(comp_ut_filename(datetime), $
+                                        wave_type, $
+                                        polarization_tag, $
+                                        n_wavelengths, $
+                                        format='(%"%s.comp.%s.%s.%d.bkg.fts")'), $
+                                 subdir=date_dir, $
+                                 root=process_basedir)
 
-  ; write the input primary header into the output:
-  fits_open, output_filename, fcbout, /write
-  fits_write, fcbout, 0, primary_header
+  ; write the input primary header into the output
+  fits_open, output_filename, fcb_out, /write
+  fits_write, fcb_out, 0, primary_header
+
+  fits_open, background_filename, fcb_back, /write
+  fits_write, fcb_back, 0, primary_header
 
   ; clean up the extension headers and write them to file, along with the
   ; images
@@ -100,11 +110,15 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     sxaddpar, header, 'DATAMAX', max(images[*, *, i]), ' MAXIMUM DATA VALUE'
 
     ename = polarizations[i] + ', ' + string(format='(f7.2)', wavelengths[i])
-    
-    fits_write, fcbout, images[*, *, i], header, extname=ename    
+
+    ; this assumes that all the background extensions are last
+    if (i lt nexts / 2) then begin
+      fits_write, fcb_out, images[*, *, i], header, extname=ename
+    endif else begin
+      fits_write, fcb_back, images[*, *, i], header, extname=ename
+    endelse
   endfor
 
-  fits_close, fcbout
+  fits_close, fcb_out
+  fits_close, fcb_back
 end
-
-
