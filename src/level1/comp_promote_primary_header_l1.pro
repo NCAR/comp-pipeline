@@ -55,9 +55,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
   sxaddpar, primary_header, 'LEVEL','L1', ' Processing Level'
   sxaddpar, primary_header, 'DATE-CAL', datecal(), $
             ' Date of calibration processing'
-  sxaddpar, primary_header, 'CALVER', code_version, $
+  sxaddpar, primary_header, 'VERSION', code_version, $
             ' Calibration processing software version'
-  sxaddpar, primary_header, 'CALREV', code_revision, $
+  sxaddpar, primary_header, 'REVISION', code_revision, $
             ' Calibration processing software revision'
   sxaddpar, primary_header, 'NTUNE', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
