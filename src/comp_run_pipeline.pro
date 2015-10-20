@@ -85,9 +85,6 @@ pro comp_run_pipeline, config_filename=config_filename
             name='comp', /info
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 
-    code_version = comp_find_code_version(revision=revision)
-    code_revision = revision
-
     ;---------------  Prep  ----------------------------------------
 
     if (validate) then begin
