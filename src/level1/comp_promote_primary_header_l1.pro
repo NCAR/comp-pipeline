@@ -53,7 +53,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
   ; change the processing level
   sxaddpar, primary_header, 'LEVEL','L1', ' Processing Level'
   sxaddpar, primary_header, 'DATE-CAL', datecal(), ' Date of calibration processing'
-  sxaddpar, primary_header, 'VERSION', 'JEP 0.01', ' demod Software Version'
+  sxaddpar, primary_header, 'VERSION', code_version, ' processing software version'
+  sxaddpar, primary_header, 'REVISION', code_revision, ' processing software revision'
   sxaddpar, primary_header, 'NTUNE', num_wave, ' Number of wavelength tunings', before='TNELNGTH'
   sxaddpar, primary_header, 'OBJECT', 'corona', ' Coronal Emission', after='LOCATION'
   sxaddpar, primary_header, 'BUNIT', 'MILLIONTHS', ' Millions of brightness of solar disk'
