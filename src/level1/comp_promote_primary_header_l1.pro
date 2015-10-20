@@ -25,6 +25,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
                                     background=background
   compile_opt strictarr
 
+  @comp_config_common
   @comp_mask_constants_common
 
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
