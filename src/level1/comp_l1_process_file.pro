@@ -54,6 +54,9 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       images_combine, headers_combine, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw
 
+  ; double precision not required in output
+  images_combine = float(images_combine)
+
   ; update the primary header and write the processed data to the output file
   comp_promote_primary_header_l1, headers, header0, date_dir
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
