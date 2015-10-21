@@ -22,7 +22,7 @@ pro comp_set_background, date_dir, primary_header, images_combine, headers_combi
   ; set BACKGRND for image
   comp_make_mask, date_dir, primary_header, mask
 
-  background = comp_get_component(images_combine, headers_combine, 'BI', 0, $
+  background = comp_get_component(images_combine, headers_combine, 'BKGI', 0, $
                                   /noskip, /wavavg)
   backgrnd = median(background[where(mask eq 1.0)])
 

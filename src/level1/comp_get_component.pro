@@ -17,7 +17,7 @@
 ;   headers : in, required, type="strarr(ntag, nimg)"
 ;     the header array corresponding to images
 ;   polstate : in, required, type=string
-;     the desired polarization state (e.g., 'I+V' or 'Q')
+;     the desired polarization state, e.g., 'I+V', 'Q', 'BKGI'
 ;   beam : in, required, type=integer
 ;     the desired beam setting (+1 or -1); if this data has beams combined
 ;     (level 1 or greater), set beam to 0
