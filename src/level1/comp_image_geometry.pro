@@ -36,6 +36,7 @@ pro comp_image_geometry, headers, date_dir, $
                          pang1, pang2, $
                          dx, dy, $
                          overlap_angle
+  @comp_constants_common
 
   ; scan the headers to find out what observations the files contain
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
@@ -45,9 +46,6 @@ pro comp_image_geometry, headers, date_dir, $
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
-
-  nx = 620
-  ny = nx
 
   ; TODO: are the below correct? are we correcting for difference between
   ; FITS and IDL standards (off by 1)?
