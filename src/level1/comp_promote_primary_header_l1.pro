@@ -4,9 +4,9 @@
 ; Updates a CoMP raw primary header to a level 1 header.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_extract_time, comp_image_geometry,
-;   comp_fix_header_time, comp_occulter_id, comp_mask_constants_common,
-;   tojd, sun, sxdelpar, sxaddpar, sxpar
+;   comp_inventory_header, comp_extract_time, comp_fix_header_time,
+;   comp_occulter_id, comp_mask_constants_common, tojd, sun, sxdelpar,
+;   sxaddpar, sxpar
 ;
 ; :Params:
 ;   headers : in, required, type='strarr(ntags, nimg)'
@@ -18,13 +18,19 @@
 ;     the directory for containing the files for the date in question, used to
 ;     find the flat file.
 ;
+; :Keywords:
+;   image_geometry : in, required, type=structure
+;     image geometry specifications
+;
 ; :Author:
 ;   Joseph Plowman
 ;-
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
-                                    background=background
+                                    background=background, $
+                                    image_geometry=image_geometry
   compile_opt strictarr
 
+  @comp_constants_common
   @comp_config_common
   @comp_mask_constants_common
 
@@ -33,20 +39,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
 
-  ; get the comp image geometry (field stop, occulter, etc):
-  comp_image_geometry, headers, date_dir, $
-                       occulter1, occulter2, $
-                       field1, field2, $
-                       post_angle1, post_angle2, $
-                       delta_x, delta_y, $
-                       overlap_angle
-
   sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
        pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
   sol_ra *= 15  ; convert from hours to degrees, 15 = 360 / 24
-
-  nx = 620
-  ny = nx
 
   ; get rid of all the blank comments
   sxdelpar, primary_header, 'COMMENT'
@@ -74,17 +69,23 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
   sxaddpar, primary_header, 'CRVAL1', 0.0, ' X [EAST->WEST ] SUN CENTER [ARCSEC]'
   sxaddpar, primary_header, 'CDELT1', plate_scale, ' solar_X coord increment [arcsec/pixel]'
   sxaddpar, primary_header, 'CROTA1', 0.0, ' X [EAST->WEST ] ROTATION [DEG.] FROM REFERENCE'
-  sxaddpar, primary_header, 'ORADIUS', (occulter1.r+occulter2.r)/2., ' [pixels] Occulter Radius', format='(f8.2)'
+  sxaddpar, primary_header, 'ORADIUS', $
+            (image_geometry.occulter1.r + image_geometry.occulter2.r) / 2., $
+            ' [pixels] Occulter Radius', format='(f8.2)'
   sxaddpar, primary_header, 'CRPIX2', ny / 2 + 0.5, ' Y [SOUTH->NORTH] SUN CENTER [PIXELS]'
   sxaddpar, primary_header, 'CRVAL2', 0.0, ' Y [SOUTH->NORTH] SUN CENTER [ARCSEC]'
   sxaddpar, primary_header, 'CDELT2', plate_scale, ' solar_Y coord increment [arcsec/pixel]'
   sxaddpar, primary_header, 'CROTA2', 0.0, ' Y [SOUTH->NORTH] ROTATION [DEG.] FROM REFERENCE'
 
   ; field parameters
-  sxaddpar, primary_header, 'FRADIUS', (field1.r + field1.r) / 2., ' [pixels] Field Radius', format='(f8.2)'
+  sxaddpar, primary_header, 'FRADIUS', $
+            (image_geometry.field1.r + image_geometry.field1.r) / 2., $
+            ' [pixels] Field Radius', format='(f8.2)'
   ; Center of field, offset from center of occulter and rotated by angle
-  xoffset = (occulter1.x + occulter2.x) / 2.0 - (field1.x + field2.x) / 2.0
-  yoffset = (occulter1.y + occulter2.y) / 2.0 - (field1.y + field2.y) / 2.0
+  xoffset = (image_geometry.occulter1.x + image_geometry.occulter2.x) / 2.0 $
+              - (image_geometry.field1.x + image_geometry.field2.x) / 2.0
+  yoffset = (image_geometry.occulter1.y + image_geometry.occulter2.y) / 2.0 $
+              - (image_geometry.field1.y + image_geometry.field2.y) / 2.0
 
   fxcent = nx / 2.0 + 0.5 $
              + xoffset * cos(- p_angle * !pi / 180.0) $
@@ -96,10 +97,13 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
   sxaddpar, primary_header, 'FRPIX2', fycent, ' [pixels] Y [SOUTH->NORTH] FIELD CENTER [PIXELS]', format='(f8.2)'
 
   ; post P angle
-  sxaddpar, primary_header, 'POSTPANG', (post_angle1 + post_angle2) / 2.0, ' [degrees] P Angle of occulter post'
+  sxaddpar, primary_header, 'POSTPANG', $
+            (image_geometry.post_angle1 + image_geometry.post_angle2) / 2.0, $
+            ' [degrees] P Angle of occulter post'
 
   ; overlap P angle (from the field stop)
-  sxaddpar, primary_header, 'OVRLPANG', overlap_angle, ' [degrees] P Angle of field overlap'
+  sxaddpar, primary_header, 'OVRLPANG', image_geometry.overlap_angle, $
+            ' [degrees] P Angle of field overlap'
 
   ; occulter ID and size
   occ_id = sxpar(primary_header, 'OCCULTER')

@@ -5,8 +5,8 @@
 ; background-subtracted foreground and the background.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_get_component, comp_extract_beams, sxpar,
-;   sxaddpar, sxdelpar
+;   comp_inventory_header, comp_get_component, comp_image_geometry,
+;   comp_extract_beams, sxpar, sxaddpar, sxdelpar
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"
@@ -30,13 +30,16 @@
 ;     polarization states
 ;   n_uniq_wavelengths : out, optional, type=long
 ;     set to a named variable to retrieve the number of unique wavelengths
+;   image_geometry : out, required, type=structure
+;     image geometry specifications
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
 pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine, $
-                        n_uniq_polstates=np, n_uniq_wavelengths=nw
+                        n_uniq_polstates=np, n_uniq_wavelengths=nw, $
+                        image_geometry=plus_image_geometry
   compile_opt strictarr
   @comp_constants_common
 
@@ -55,6 +58,14 @@ pro comp_combine_beams, images, headers, date_dir, $
   images_combine = dblarr(nx, ny, 2 * np * nw)
   headers_combine = strarr(ntags, 2 * np * nw)
 
+  ; call comp_image_geometry
+  plus_images = comp_get_component(images, headers, 'I', 1, uwave[nw / 2], $
+                                   headersout=plus_headers, /noskip)
+  minus_images = comp_get_component(images, headers, 'I', -1, uwave[nw / 2], $
+                                    headersout=minus_headers, /noskip)
+  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
+  minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
+
   for i = 0L, np - 1L do begin   ; loop over unique polarizations
     for j = 0L, nw - 1L do begin   ; loop over unique wavelengths
       ; get the two beam states for this wavelength and polarization
@@ -64,8 +75,10 @@ pro comp_combine_beams, images, headers, date_dir, $
                                     headersout=hminus, /noskip)
 
       ; extract the foreground and background subimages from both
-      comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus
-      comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus
+      comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus, $
+                          image_geometry=plus_image_geometry
+      comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus, $
+                          image_geometry=minus_image_geometry
 
       ; foreground part (with background subtracted)
       images_combine[*, *, i * nw + j] = 0.5 * (fgplus - bgminus + fgminus - bgplus)

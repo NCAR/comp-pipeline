@@ -52,13 +52,15 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; each into its own set of images with updated headers.
   comp_combine_beams, images_demod, headers_demod, date_dir, $
                       images_combine, headers_combine, $
-                      n_uniq_polstates=np, n_uniq_wavelengths=nw
+                      n_uniq_polstates=np, n_uniq_wavelengths=nw, $
+                      image_geometry=image_geometry
 
   ; double precision not required in output
   images_combine = float(images_combine)
 
   ; update the primary header and write the processed data to the output file
-  comp_promote_primary_header_l1, headers, header0, date_dir
+  comp_promote_primary_header_l1, headers, header0, date_dir, $
+                                  image_geometry=image_geometry
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         filename, wave_type
 end

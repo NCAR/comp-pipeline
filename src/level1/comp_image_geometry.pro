@@ -6,36 +6,22 @@
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_read_flats, sxpar
 ;
+; :Returns:
+;   structure
+;
 ; :Params:
+;   images : in, required, type="fltarr(620, 620, nimg)"
+;     images to use to find field stop/occulter centers
 ;   headers : in, required, type="strarr(ntags, nimg)"
 ;     the fits headers from which we want the geometry
 ;   date_dir : in, required, type=string
 ;     the directory for containing the files for the date in question, used to
 ;     find the flat file
-;   occulter1 : out, required, type=structure
-;     structure with coordinates of the first occulter
-;   occulter2 : out, required, type=structure
-;     structure with coordinates of the second occulter
-;   field1 : out, required, type=structure
-;     structure with coordinates of first field stop
-;   field2 : out, required, type=structure
-;     structure with coordinates of second field stop
-;   pang1 : out, required, type=float
-;     angle of first post
-;   pang2 : out, required, type=float
-;     angle of second post
-;   overlap_angle : out, required, type=float
-;     overlap P angle (from the field stop)
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_image_geometry, headers, date_dir, $
-                         occulter1, occulter2, $
-                         field1, field2, $
-                         pang1, pang2, $
-                         dx, dy, $
-                         overlap_angle
+function comp_image_geometry, images, headers, date_dir
   @comp_constants_common
 
   ; scan the headers to find out what observations the files contain
@@ -52,7 +38,8 @@ pro comp_image_geometry, headers, date_dir, $
 
   ; TODO: (0, 0) is bottom left or top right?
   
-  ; do once when using centers from flats
+  ; TODO: actually use COMP_FIND_ANNULUS to find, don't just
+  ; read from flats
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2, $
                y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2, $
                r:sxpar(flat_header, 'ORADIUS1')}
@@ -76,4 +63,15 @@ pro comp_image_geometry, headers, date_dir, $
   delta_x = sxpar(flat_header, 'FXCNTER2') - sxpar(flat_header, 'FXCNTER1')
   delta_y = sxpar(flat_header, 'FYCNTER1') - sxpar(flat_header, 'FYCNTER2')
   overlap_angle = !radeg * atan(delta_y / delta_x)
+
+  return, { occulter1: occulter1, $
+            occulter2: occulter2, $
+            field1: field1, $
+            field2: field2, $
+            post_angle1: pang1, $
+            post_angle2: pang2, $
+            delta_x: delta_x, $
+            delta_y: delta_y, $
+            overlap_angle: overlap_angle $
+          }
 end

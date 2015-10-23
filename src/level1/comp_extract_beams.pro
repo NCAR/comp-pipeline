@@ -5,8 +5,7 @@
 ; (raw or close to raw) image set.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_extract_time, comp_image_geometry,
-;   comp_extract1, comp_extract2, sun
+;   comp_inventory_header, comp_extract_time, comp_extract1, comp_extract2, sun
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"
@@ -21,10 +20,15 @@
 ;   d2 : out, required, type="fltarr(620, 620, nimg)"
 ;     the images from the lower right beam
 ;
+; :Keywords:
+;   image_geometry : in, required, type=structure
+;     image geometry specifications
+;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_extract_beams, images, headers, date_dir, d1, d2
+pro comp_extract_beams, images, headers, date_dir, d1, d2, $
+                        image_geometry=image_geometry
   compile_opt strictarr
   @comp_constants_common
 
@@ -48,13 +52,6 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2
   x2new = x * 0.5 * (1.0 + k2) + y * 0.5 * (1.0 - k2)
   y2new = x * 0.5 * (1.0 - k2) + y * 0.5 * (1.0 + k2)
 
-  comp_image_geometry, headers, date_dir, $
-                       occulter1, occulter2, $
-                       field1, field2, $
-                       post_angle1, post_angle2, $
-                       delta_x, delta_y, $
-                       overlap_angle
-
   ; set up matrix for image rotation
   x0 = float(nx) / 2.0
   y0 = float(ny) / 2.0
@@ -67,10 +64,10 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2
   yp = x * sin(angle * !pi / 180.0) + y * cos(angle * !pi / 180.0)
 
   ; compute image offsets
-  xpp1 = xp + x0 + occulter1.x
-  ypp1 = yp + y0 + occulter1.y
-  xpp2 = xp + x0 + occulter2.x
-  ypp2 = yp + y0 + occulter2.y
+  xpp1 = xp + x0 + image_geometry.occulter1.x
+  ypp1 = yp + y0 + image_geometry.occulter1.y
+  xpp2 = xp + x0 + image_geometry.occulter2.x
+  ypp2 = yp + y0 + image_geometry.occulter2.y
 
   nimg = n_elements(images[0, 0, *])
   d1 = fltarr(nx, nx, nimg)
