@@ -26,6 +26,7 @@
 ;-
 pro comp_extract_beams, images, headers, date_dir, d1, d2
   compile_opt strictarr
+  @comp_constants_common
 
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, cover, $
                          cal_pol, cal_ret
@@ -35,9 +36,6 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2
   ; convert from Hawaii time to UTC)
   sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
        pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
-
-  nx = 620
-  ny = nx
 
   ; compute transformation arrays for distortion removal
   x = rebin(findgen(nx), nx, nx)
