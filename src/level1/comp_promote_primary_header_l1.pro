@@ -83,10 +83,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', (field1.r + field1.r) / 2., ' [pixels] Field Radius', format='(f8.2)'
   ; Center of field, offset from center of occulter and rotated by angle
-  xoffset = ((field1.x + field2.x) / 2.0 - (occulter1.x + occulter2.x) / 2.0)
-  yoffset = ((field1.y + field2.y) / 2.0 - (occulter1.y + occulter2.y) / 2.0)
+  xoffset = (occulter1.x + occulter2.x) / 2.0) - ((field1.x + field2.x) / 2.0
+  yoffset = (occulter1.y + occulter2.y) / 2.0) - ((field1.y + field2.y) / 2.0
 
-  ; TODO is the following right?
   fxcent = nx / 2.0 + 0.5 $
              + xoffset * cos(- p_angle * !pi / 180.0) $
              - yoffset * sin(- p_angle * !pi / 180.0)
