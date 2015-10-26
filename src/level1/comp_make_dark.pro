@@ -89,7 +89,10 @@ pro comp_make_dark, date_dir, error=error
     if (nout eq 0) then begin
       sxdelpar, primary_header, 'TIME_OBS'
       sxaddpar, primary_header, 'LEVEL','L1'
-      sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
+      sxaddpar, primary_header, 'VERSION', code_version, $
+                ' Calibration processing software version'
+      sxaddpar, primary_header, 'REVISION', code_revision, $
+                ' Calibration processing software revision'
       fits_write, fcbout, 0, primary_header
     endif
 
