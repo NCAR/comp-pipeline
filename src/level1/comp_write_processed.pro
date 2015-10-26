@@ -104,10 +104,6 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     ; extension headers merged:
     ;   http://fits.gsfc.nasa.gov/registry/inherit.html
     sxaddpar, header, 'INHERIT', 'T', after='XTENSION'
-    
-    ; data max and min tags
-    sxaddpar, header, 'DATAMIN', min(images[*, *, i]), ' MINIMUM DATA VALUE'
-    sxaddpar, header, 'DATAMAX', max(images[*, *, i]), ' MAXIMUM DATA VALUE'
 
     ename = polarizations[i] + ', ' + string(format='(f7.2)', wavelengths[i])
 
