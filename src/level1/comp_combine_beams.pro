@@ -91,6 +91,9 @@ pro comp_combine_beams, images, headers, date_dir, $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
       headers_combine[*, i * nw + j] = hplus
       sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i]
+      sxaddpar, hplus, 'WAVELENG', $
+                strjoin(strtrim(sxpar(hplus, 'WAVELENG') + 0.57 * [1, -1], 2), $
+                        ',')
       headers_combine[*, np * nw + i * nw + j] = hplus
     endfor
   endfor
