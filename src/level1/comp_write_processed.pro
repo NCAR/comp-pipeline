@@ -108,10 +108,10 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     ename = polarizations[i] + ', ' + string(format='(f7.2)', wavelengths[i])
 
     ; this assumes that all the background extensions are last
-    if (i lt nexts / 2) then begin
-      fits_write, fcb_out, images[*, *, i], header, extname=ename
-    endif else begin
+    if (strmid(ename, 0, 3) eq 'BKG') then begin
       fits_write, fcb_back, images[*, *, i], header, extname=ename
+    endif else begin
+      fits_write, fcb_out, images[*, *, i], header, extname=ename
     endelse
   endfor
 
