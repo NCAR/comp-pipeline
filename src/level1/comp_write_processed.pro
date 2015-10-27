@@ -111,8 +111,8 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     if (strmid(ename, 0, 3) eq 'BKG') then begin
       ; the foreground wavelength is not correct for the background
       sxaddpar, header, 'WAVELENG', $
-                string(sxpar(header, 'WAVELENG') + 0.57 * [1, -1], $
-                       format='(F0.2, ",", F0.2)'), $
+                strjoin(string(sxpar(header, 'WAVELENG'), format='(F0.2)') $
+                          + string(0.57 * [-1, 1], format='(F+0.2)'), ','), $
                 ' Blue and red continuum [nm]'
       fits_write, fcb_back, images[*, *, i], header, extname=ename
     endif else begin
