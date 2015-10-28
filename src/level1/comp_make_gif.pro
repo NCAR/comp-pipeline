@@ -9,8 +9,12 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
+;   image : in, required, type="fltarr(620, 620)"
+;     image to make a GIF of
+;   primary_header : in, required, type=strarr
+;     primary header corresponding to image data
 ;   filename : in, required, type=string
-;     input FITS file
+;     filename of output GIF file
 ;   size : in, required, type=long
 ;     output square image length in pixels
 ;   label : in, required, type=string
@@ -23,16 +27,9 @@
 ; :Author:
 ;   sitongia
 ;-
-pro comp_make_gif, date_dir, filename, size, label, wave, min, max
+pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
+                   wave, min, max
   compile_opt strictarr
-
-  newFilename = strmid(filename, 0, 35) + '.gif'
-
-  ; read the FITS images
-  fits_open, filename, fcbin 
-  fits_read, fcbin, d, primary_header, /header_only, exten_no=0
-  fits_read, fcbin, image, header, exten_no=1
-  fits_close, fcbin
 
   ; mask
   comp_make_mask, date_dir, primary_header, mask
@@ -56,7 +53,7 @@ pro comp_make_gif, date_dir, filename, size, label, wave, min, max
   endif
 
   ; configure the device
-  set_plot,'z'
+  set_plot, 'z'
   device, set_resolution=[size,size], set_colors=256, z_buffering=0, $
           decomposed=0
   loadct, 3, /silent
@@ -99,5 +96,5 @@ pro comp_make_gif, date_dir, filename, size, label, wave, min, max
   colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max + 0.5], $
              divisions=5, charsize=0.6
 
-  write_gif, newFilename, tvrd()
+  write_gif, filename, tvrd()
 end

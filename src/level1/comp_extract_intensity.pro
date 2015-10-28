@@ -113,30 +113,31 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
     ; clip intensity = 0 > intensity < scale_max; larger of 0 and
     ; image, then smaller of image and scale_max
 
-    ; set the processing level
-    sxaddpar, primary_header, 'LEVEL   ', 'L1'
+    ; only create 5 wavelength 1083 FITS files
+    dims = size(images, /dimensions)
+    if (wave_type eq '1083' && n_elements(waves) eq 5) then begin
+      ; set the processing level
+      sxaddpar, primary_header, 'LEVEL   ', 'L1'
 
-    ; write files
-    sxaddpar, primary_header, 'METHOD  ', 'EXTRACT', $
-              ' Method used: extract filtergram at line center'
+      ; write files
+      sxaddpar, primary_header, 'METHOD  ', 'EXTRACT', $
+                ' Method used: extract filtergram at line center'
 
-    fits_open, string(strmid(files[f], 0, 15), wave_type, $
-                      format='(%"%s.comp.%s.intensity.fts")'), $
-               fcbout, /write
-    fits_write, fcbout, 0, primary_header
-    sxaddpar, header, 'WAVELENG', waves[line_center_index]
-    fits_write, fcbout, intensity, header, $
-                extname=string(waves[line_center_index], format='(f7.2)')
-    fits_close, fcbout
-  endfor
+      fits_open, string(strmid(files[f], 0, 15), wave_type, $
+                        format='(%"%s.comp.%s.intensity.fts")'), $
+                 fcbout, /write
+      fits_write, fcbout, 0, primary_header
+      sxaddpar, header, 'WAVELENG', waves[line_center_index]
+      fits_write, fcbout, intensity, header, $
+                  extname=string(waves[line_center_index], format='(f7.2)')
+      fits_close, fcbout
+    endif
 
-  ; make GIF files from Intensity
-  files = file_search('*.comp.' + wave_type + '.intensity.fts', count=n_files)
-  mg_log, 'make GIFs', name='comp', /debug
-  for f = 0L, n_files - 1L do begin
-    ; make GIF from I file
-    comp_make_gif, date_dir, files[f], nx, 'Intensity', wave_type, $
-                   display_min, display_max
+    ; make GIF from I
+    output_filename = string(strmid(files[f], 0, 15), wave_type, $
+                             format='(%"%s.comp.%s.intensity.gif")')
+    comp_make_gif, date_dir, intensity, primary_header, output_filename, $
+                   nx, 'Intensity', wave_type, display_min, display_max
   endfor
 
   mg_log, 'done', name='comp', /info
