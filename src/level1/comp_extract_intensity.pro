@@ -51,8 +51,8 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
-  ; Establish error handler. When errors occur, the index of the
-  ; error is returned in the variable Error_status:
+  ; establish error handler; when errors occur, the index of the
+  ; error is returned in the variable error
   catch, error
   if (error ne 0L) then begin
     catch, /cancel
@@ -61,8 +61,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
   endif
 
   ; check keywords
-  uselist = 0
-  if n_elements(list_file) eq 1 then uselist = 1
+  uselist = n_elements(list_file) eq 1L
 
   process_dir = filepath(date_dir, root=process_basedir)
   cd, process_dir
@@ -70,73 +69,74 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
   ; line center
   case wave_type of
     '1074' : begin
-        lineCenter = center1074
-        ScaleMax = 20.0
-        gifMin = 0.0
-        gifMax = 5.0
+        line_center = center1074
+        scale_max = 20.0
+        display_min = 0.0
+        display_max = 5.0
       end
     '1079' : begin
-        lineCenter = center1079
-        ScaleMax = 20.0
-        gifMin = 0
-        gifMax = 3.5
+        line_center = center1079
+        scale_max = 20.0
+        display_min = 0
+        display_max = 3.5
       end
     '1083' : begin
-        lineCenter = center1083
-        ScaleMax = 200000.0
-        gifMin = 0
-        gifMax = 12.0
+        line_center = center1083
+        scale_max = 200000.0
+        display_min = 0
+        display_max = 12.0
       end
   endcase
 
-  ; the FITS image files
-  files = file_search('*.comp.' + wave_type + '.fts', COUNT=count)
+  ; the FITS image file
+  search_filter = '*.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts'
+  files = file_search(search_filter, count=n_files)
+  mg_log, 'found %d files for %s', n_files, wave_type, name='comp', /info
 
-  for filesIndex = 0L, count - 1L do begin
-    mg_log, 'file %s', files[filesIndex], name='comp', /debug
+  for f = 0L, n_files - 1L do begin
+    mg_log, 'file %s', files[f], name='comp', /debug
 
-    fits_read, files[filesIndex], data, primary_header, exten_no=0
-    fits_read, files[filesIndex], data, header, exten_no=1
+    fits_read, files[f], data, primary_header, exten_no=0
+    fits_read, files[f], data, header, exten_no=1
 
-    comp_extract_intensity_cube, files[filesIndex], images, waves
+    comp_extract_intensity_cube, files[f], images, waves
 
     ; determine index of wavelength closest to line center
-    waveDiff = abs(waves - lineCenter)
-    lineCenterIndex = where(waveDiff eq min(waveDiff))
-    lineCenterIndex = lineCenterIndex[0]
-    mg_log, 'using wavelength %f', waves[lineCenterIndex], name='comp', /debug
+    wave_diff = abs(waves - line_center)
+    line_center_index = where(wave_diff eq min(wave_diff))
+    line_center_index = line_center_index[0]
+    mg_log, 'using wavelength %f', waves[line_center_index], name='comp', /debug
 
     ; intensity simple by extracting image near line center
-    intensity = images[*, *, lineCenterIndex]
-    ; clip
-    ; intensity = 0 > intensity < ScaleMax ; larger of 0 and image, then smaller of image and ScaleMax.
+    intensity = images[*, *, line_center_index]
+
+    ; clip intensity = 0 > intensity < scale_max; larger of 0 and
+    ; image, then smaller of image and scale_max
+
     ; set the processing level
     sxaddpar, primary_header, 'LEVEL   ', 'L1'
+
     ; write files
     sxaddpar, primary_header, 'METHOD  ', 'EXTRACT', $
               ' Method used: extract filtergram at line center'
 
-    fits_open, string(strmid(files[filesIndex], 0, 15), wave_type, $
+    fits_open, string(strmid(files[f], 0, 15), wave_type, $
                       format='(%"%s.comp.%s.intensity.fts")'), $
                fcbout, /write
     fits_write, fcbout, 0, primary_header
-    sxaddpar, header, 'WAVELENG', waves[lineCenterIndex]
+    sxaddpar, header, 'WAVELENG', waves[line_center_index]
     fits_write, fcbout, intensity, header, $
-                extname=string(waves[lineCenterIndex], format='(f7.2)')
+                extname=string(waves[line_center_index], format='(f7.2)')
     fits_close, fcbout
   endfor
 
-  ; compress files
-  ;if debug eq 1 then print, "Compressing FITS files."
-  ;spawn, 'gzip -f *.comp.' + wave_type + '.intensity.fts'
-
   ; make GIF files from Intensity
-  files = file_search('*.comp.' + wave_type + '.intensity.fts', count=count)
+  files = file_search('*.comp.' + wave_type + '.intensity.fts', count=n_files)
   mg_log, 'make GIFs', name='comp', /debug
-  for filesIndex = 0L, count - 1L do begin
+  for f = 0L, n_files - 1L do begin
     ; make GIF from I file
-    comp_make_gif, date_dir, files[filesIndex], nx, 'Intensity', wave_type, $
-                   gifMin, gifMax
+    comp_make_gif, date_dir, files[f], nx, 'Intensity', wave_type, $
+                   display_min, display_max
   endfor
 
   mg_log, 'done', name='comp', /info
