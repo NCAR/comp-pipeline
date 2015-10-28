@@ -8,9 +8,12 @@
 ;   sxpar
 ;
 ; :Params:
-;   filename
-;   images
-;   waves
+;   filename : in, required, type=string
+;     filename for a level 1 FITS file
+;   images : out, optional, type="fltarr(620, 620, n_waves)"
+;     intensity images
+;   waves : out, optional, type=fltarr(n_waves)
+;     wavelengths of returned images
 ;
 ; :Author:
 ;   sitongia
