@@ -96,16 +96,17 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
   for f = 0L, n_files - 1L do begin
     mg_log, 'file %s', files[f], name='comp', /debug
 
-    fits_read, files[f], data, primary_header, exten_no=0
-    fits_read, files[f], data, header, exten_no=1
-
-    comp_extract_intensity_cube, files[f], images, waves
+    comp_extract_intensity_cube, files[f], $
+                                 images=images, $
+                                 wavelengths=wavelengths, $
+                                 primary_header=primary_header, $
+                                 headers=headers
 
     ; determine index of wavelength closest to line center
-    wave_diff = abs(waves - line_center)
-    line_center_index = where(wave_diff eq min(wave_diff))
-    line_center_index = line_center_index[0]
-    mg_log, 'using wavelength %f', waves[line_center_index], name='comp', /debug
+    wave_diff = abs(wavelengths - line_center)
+    !null = min(wave_diff, line_center_index)
+    mg_log, 'using wavelength %f', wavelengths[line_center_index], $
+            name='comp', /debug
 
     ; intensity simple by extracting image near line center
     intensity = images[*, *, line_center_index]
@@ -115,21 +116,17 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
 
     ; only create 5 wavelength 1083 FITS files
     dims = size(images, /dimensions)
-    if (wave_type eq '1083' && n_elements(waves) eq 5) then begin
-      ; set the processing level
-      sxaddpar, primary_header, 'LEVEL   ', 'L1'
-
-      ; write files
-      sxaddpar, primary_header, 'METHOD  ', 'EXTRACT', $
-                ' Method used: extract filtergram at line center'
-
+    if (wave_type eq '1083') then begin
       fits_open, string(strmid(files[f], 0, 15), wave_type, $
-                        format='(%"%s.comp.%s.intensity.fts")'), $
+                        n_elements(wavelengths), $
+                        format='(%"%s.comp.%s.i.%d.fts")'), $
                  fcbout, /write
       fits_write, fcbout, 0, primary_header
-      sxaddpar, header, 'WAVELENG', waves[line_center_index]
-      fits_write, fcbout, intensity, header, $
-                  extname=string(waves[line_center_index], format='(f7.2)')
+      for w = 0L, n_elements(wavelengths) - 1L do begin
+        extname = string(wavelengths[w], format='(%"I, %7.2f")')
+        fits_write, fcbout, reform(images[*, *, w]), reform(headers[*, w]), $
+                    extname=extname
+      endfor
       fits_close, fcbout
     endif
 
