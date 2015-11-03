@@ -1,5 +1,6 @@
-.PHONY: env doc userdoc opendoc unit help clean
+.PHONY: pipe env doc userdoc opendoc unit help clean
 
+FLAGS=
 QUIET=0
 
 REVISION:=$(shell git rev-parse --short HEAD)
@@ -21,8 +22,9 @@ else
   OPEN=firefox
 endif
 
+
 MACHINE=$(shell comp_get_hostname.sh)
-CONFIG=config/comp.$(USER).$(MACHINE).cfg
+CONFIG=config/comp.$(USER).$(MACHINE)$(FLAGS).cfg
 
 SSW_DIR=$(PWD)/ssw
 GEN_DIR=$(PWD)/gen
