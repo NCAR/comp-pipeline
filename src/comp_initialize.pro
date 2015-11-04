@@ -1,5 +1,58 @@
 ; docformat = 'rst'
 
+
+;+
+; Lookup a value for a single parameter based on the date in the `epochs.cfg`
+; configuration file.
+;
+; :Returns:
+;   by default returns a string, unless `FLOAT`, `INTEGER`, or `BOOLEAN` is set
+;
+; :Params:
+;   option : in, required, type=string
+;     option name
+;   date : in, required, type=string
+;     date on which to check for the value in the form "YYYYMMDD"
+;   options : in, required, type=MGffOptions
+;     options to check for value in
+;
+; :Keywords:
+;   found : out, optional, type=boolean
+;     set to a named variable to retrieve whether the option was found
+;   float : in, optional, type=boolean
+;     set to convert value to a float
+;   integer : in, optional, type=integer
+;     set to convert value to a integer
+;   _extra : in, optional, type=keywords
+;     keywords to `MGffOptions::get` such as `BOOLEAN` and `EXTRACT`
+;-
+function comp_initialize_readconfig, option, date, options, $
+                                     found=found, $
+                                     float=float, integer=integer, $
+                                     _extra=e
+  compile_opt strictarr
+
+  found = 1B
+  dates = options->sections()
+  dates = dates[sort(dates)]
+  date_index = value_locate(dates, date)
+  for d = date_index, 0L, -1L do begin
+    option_value = options->get(option, section=dates[d], $
+                                found=option_found, _extra=e)
+    if (option_found) then begin
+      case 1 of
+        keyword_set(float): return, float(option_value)
+        keyword_set(integer): return, long(option_value)
+        else: return, option_value
+      endcase
+    endif
+  endfor
+
+  found = 0B
+  return, !null
+end
+
+
 ;+
 ; Initialize constants for CoMP pipeline for a running on data from a specific
 ; date.
@@ -23,27 +76,34 @@ pro comp_initialize, date_dir
   @comp_constants_common
   @comp_mask_constants_common
 
-  debug = 0
+  options = mg_read_config(filepath('epochs.cfg', root=mg_src_root()))
+
+  debug = comp_initialize_readconfig('debug', date_dir, options, /boolean)
 
   ; level 1 image dimensions
-  nx = 620
-  ny = 620
+  nx = comp_initialize_readconfig('nx', date_dir, options, /integer)
+  ny = comp_initialize_readconfig('ny', date_dir, options, /integer)
+
 
   ; thresholds for cutting out bad data in the L2 products
-  int_thresh  = 1 ; millionths of solar disk intensity
-  diff_thresh = 4 ; difference between measured and calculated line center intensity
+
+  ; millionths of solar disk intensity
+  int_thresh  = comp_initialize_readconfig('int_thresh', date_dir, options, /integer)
+  ; difference between measured and calculated line center intensity
+  diff_thresh = comp_initialize_readconfig('diff_thresh', date_dir, options, /integer)
 
   ; line center wavelengths
-  center1074 = 1074.62 ; was 1074.7
-  center1079 = 1079.8
-  center1083 = 1083.0
+  center1074 = comp_initialize_readconfig('center_1074', date_dir, options, /float)
+  center1079 = comp_initialize_readconfig('center_1079', date_dir, options, /float)
+  center1083 = comp_initialize_readconfig('center_1083', date_dir, options, /float)
 
-  stokes = ['I', 'Q', 'U', 'V']
-  n_stokes = 4     ; number of stokes parameters
+  ; number of stokes parameters
+  stokes = comp_initialize_readconfig('stokes', date_dir, options, /extract)
+  n_stokes = n_elements(stokes)
 
   ; distortion coefficients
-  k1 = 0.99353
-  k2 = 1.00973
+  k1 = comp_initialize_readconfig('k1', date_dir, options, /float)
+  k2 = comp_initialize_readconfig('k2', date_dir, options, /float)
 
   ; parse the date_dir to find the Julian date to use to switch era of constants
   year  = fix(strmid(date_dir, 0, 4))
@@ -52,54 +112,21 @@ pro comp_initialize, date_dir
   jd    = julday(month, day, year, 0, 0, 0)
 
   ; Era-specific correction factors
-  ; post_rotation: offset in post position in telescope
-  ;                positive shifts post clockwise in mask
 
-  case 1 of
-    ; plate scale changed with installation of new reimaging lens on 2012-12-7
-    jd gt 2456270.5 : begin
-      ; Current values
-      post_rotation = 0.0        ; offset of occulter post (pixels)
-      occulter_offset = 3.0      ; over or undersize occulter mask
-      field_offset = -2.0        ; over or undersize field mask
-      field_overlap = 16.0       ; overlap of two beams, creating "ears"
-      plate_scale = 4.35         ; arcsec per pixel
-    end
+  ; offset of occulter post (pixels), positive shifts post clockwise in mask
+  post_rotation = comp_initialize_readconfig('post_rotation', date_dir, options, /float)
 
-    ; something changed in field, arbitrarily starting anew at 2012-6-1
-    jd gt 2456079.5 : begin
-      post_rotation = 2.0
-      occulter_offset = 4.0
-      field_offset = -2.0
-      field_overlap = 16.0
-      plate_scale = 4.46
-    end
+  ; over or undersize occulter mask
+  occulter_offset = comp_initialize_readconfig('occulter_offset', date_dir, options, /float)
 
-    ; changed occulter, going from existing #31 to #35, 2012-1-10
-    jd gt 2455936.5 : begin
-      post_rotation = 1.0
-      occulter_offset = 4.0
-      field_offset = -6.0
-      field_overlap = 24.0
-      plate_scale = 4.46
-    end
+  ; over or undersize field mask
+  field_offset = comp_initialize_readconfig('field_offset', date_dir, options, /float)
 
-    ; prior to occulter change on September 29, 2011
-    jd gt 2455832.5 : begin
-      post_rotation = 1.0
-      occulter_offset = 4.0
-      field_offset = -6.0
-      field_overlap = 6.0
-      plate_scale = 4.46
-    end
+  ; overlap of two beams, creating "ears"
+  field_overlap = comp_initialize_readconfig('field_overlap', date_dir, options, /float)
 
-    else : begin
-      ; beginning values
-      post_rotation = -2.5
-      occulter_offset = 4.0
-      field_offset = -6.0
-      field_overlap = 6.0
-      plate_scale = 4.46
-    end
-  endcase
+  ; arcsec per pixel
+  plate_scale = comp_initialize_readconfig('plate_scale', date_dir, options, /float)
+
+  obj_destroy, options
 end
