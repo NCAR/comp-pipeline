@@ -50,6 +50,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
                              count=count, $
                              headersout=headersout, $
                              average_wavelengths=average_wave, $
+                             n_wavelengths=n_wavelengths, $
                              noskip=noskip
   compile_opt strictarr
   on_error, 2
