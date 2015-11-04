@@ -45,10 +45,9 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   x = rebin(findgen(nx), nx, nx)
   y = transpose(x)
 
-  k1 = 0.99353
   x1new = x * 0.5 * (1.0 + k1) + y * 0.5 * (1.0 - k1)
   y1new = x * 0.5 * (1.0 - k1) + y * 0.5 * (1.0 + k1)
-  k2 = 1.00973
+
   x2new = x * 0.5 * (1.0 + k2) + y * 0.5 * (1.0 - k2)
   y2new = x * 0.5 * (1.0 - k2) + y * 0.5 * (1.0 + k2)
 

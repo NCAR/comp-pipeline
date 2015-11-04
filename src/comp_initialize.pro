@@ -41,6 +41,10 @@ pro comp_initialize, date_dir
   stokes = ['I', 'Q', 'U', 'V']
   n_stokes = 4     ; number of stokes parameters
 
+  ; distortion coefficients
+  k1 = 0.99353
+  k2 = 1.00973
+
   ; parse the date_dir to find the Julian date to use to switch era of constants
   year  = fix(strmid(date_dir, 0, 4))
   month = fix(strmid(date_dir, 4, 2))

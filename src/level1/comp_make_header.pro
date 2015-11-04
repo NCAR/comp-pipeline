@@ -48,11 +48,9 @@ pro comp_make_header, image, header, $
   x = rebin(findgen(nx), nx, nx)
   y = transpose(x)
 
-  k1 = 0.99353
   x1new = x * .5 * (1. + k1) + y * .5 * (1. - k1)
   y1new = x * .5 * (1. - k1) + y * .5 * (1. + k1)
 
-  k2 = 1.00973
   x2new = x * .5 * (1. + k2) + y * .5 * (1. - k2)
   y2new = x * .5 * (1. - k2) + y * .5 * (1. + k2)
 
