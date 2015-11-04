@@ -33,7 +33,7 @@
 ;     the number of images averaged at each wavelength
 ;   headersout : out, optional, type="strarr(varies, nimg)"
 ;     an updated set of headers (adds or updates the 'NAVERAGE' flag)
-;   wavavg : in, optional, type=boolean
+;   average_wavelengths : in, optional, type=boolean
 ;     average over wavelengths
 ;   noskip : in, optional, type=boolean
 ;     don't skip the very first image (due to an instrument issue, the very
@@ -43,8 +43,10 @@
 ;   Joseph Plowman
 ;-
 function comp_get_component, images, headers, polstate, beam, wave, $
-                             skipall=skipall, count=count, $
-                             headersout=headersout, wavavg=wavavg, $
+                             skipall=skipall, $
+                             count=count, $
+                             headersout=headersout, $
+                             average_wavelengths=average_wave, $
                              noskip=noskip
   compile_opt strictarr
   on_error, 2
@@ -104,8 +106,8 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     headersout[*, i] = headertemp
   endfor
 
-  ; average over all wavelengths if wavavg is set:
-  if (keyword_set(wavavg) and nw gt 1L) then begin
+  ; average over all wavelengths if AVERAGE_WAVELENGTHS is set:
+  if (keyword_set(average_wavelengths) and nw gt 1L) then begin
     imgout = mean(imgout, dimension=3L)
     count = total(count)
     headersout = headersout[*, 0L]

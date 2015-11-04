@@ -41,14 +41,22 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   comp_demodulate, quimages, quheaders, quimages_demod, quheaders_demod
 
   ; break out the various Stokes pieces and average them over wavelength
-  V1 = comp_get_component(vimages, vheaders, 'V', 1, /noskip, /wavavg)
-  V2 = comp_get_component(vimages, vheaders, 'V', -1, /noskip, /wavavg)
-  I1 = comp_get_component(quimages_demod, quheaders_demod, 'I', 1, /noskip, /wavavg)
-  I2 = comp_get_component(quimages_demod, quheaders_demod, 'I', -1, /noskip, /wavavg)
-  Q1 = comp_get_component(quimages_demod, quheaders_demod, 'Q', 1, /noskip, /wavavg)
-  Q2 = comp_get_component(quimages_demod, quheaders_demod, 'Q', -1, /noskip, /wavavg)
-  U1 = comp_get_component(quimages_demod, quheaders_demod, 'U', 1, /noskip, /wavavg)
-  U2 = comp_get_component(quimages_demod, quheaders_demod, 'U', -1, /noskip, /wavavg)
+  V1 = comp_get_component(vimages, vheaders, 'V', 1, $
+                          /noskip, /average_wavelengths)
+  V2 = comp_get_component(vimages, vheaders, 'V', -1, $
+                          /noskip, /average_wavelengths)
+  I1 = comp_get_component(quimages_demod, quheaders_demod, 'I', 1, $
+                          /noskip, /average_wavelengths)
+  I2 = comp_get_component(quimages_demod, quheaders_demod, 'I', -1, $
+                          /noskip, /average_wavelengths)
+  Q1 = comp_get_component(quimages_demod, quheaders_demod, 'Q', 1, $
+                          /noskip, /average_wavelengths)
+  Q2 = comp_get_component(quimages_demod, quheaders_demod, 'Q', -1, $
+                          /noskip, /average_wavelengths)
+  U1 = comp_get_component(quimages_demod, quheaders_demod, 'U', 1, $
+                          /noskip, /average_wavelengths)
+  U2 = comp_get_component(quimages_demod, quheaders_demod, 'U', -1, $
+                          /noskip, /average_wavelengths)
 
   ; mask out the on-band beams and combine the continuum beams
   mask0 = comp_raw_mask(date_dir, vheaders, $
