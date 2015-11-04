@@ -35,6 +35,9 @@
 ;     an updated set of headers (adds or updates the 'NAVERAGE' flag)
 ;   average_wavelengths : in, optional, type=boolean
 ;     average over wavelengths
+;   n_wavelengths : in, optional, type=integer, default=all
+;     number of wavelengths to average over if `AVERAGE_WAVELENGTHS`
+;     is set
 ;   noskip : in, optional, type=boolean
 ;     don't skip the very first image (due to an instrument issue, the very
 ;     first image in each raw file is bad)
@@ -108,7 +111,14 @@ function comp_get_component, images, headers, polstate, beam, wave, $
 
   ; average over all wavelengths if AVERAGE_WAVELENGTHS is set:
   if (keyword_set(average_wavelengths) and nw gt 1L) then begin
-    imgout = mean(imgout, dimension=3L)
+    if (n_elements(n_wavelengths) eq 0L) then begin
+      start_index = 0L
+      end_index = nw - 1L
+    endif else begin
+      start_index = (nw - n_wavelengths) / 2 > 0
+      end_index = (start_index + n_wavelengths - 1L) < (nw - 1L)
+    endelse
+    imgout = mean(imgout[*, *, start_index:end_index], dimension=3L)
     count = total(count)
     headersout = headersout[*, 0L]
     sxaddpar, headersout, 'NAVERAGE', count, $

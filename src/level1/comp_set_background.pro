@@ -23,7 +23,7 @@ pro comp_set_background, date_dir, primary_header, images_combine, headers_combi
   comp_make_mask, date_dir, primary_header, mask
 
   background = comp_get_component(images_combine, headers_combine, 'BKGI', 0, $
-                                  /noskip, /average_wavelengths)
+                                  /noskip, /average_wavelengths, n_wavelengths=3)
   backgrnd = median(background[where(mask eq 1.0)])
 
   sxaddpar, primary_header, 'BACKGRND', backgrnd, $
