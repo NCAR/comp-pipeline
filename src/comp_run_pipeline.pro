@@ -60,7 +60,9 @@ pro comp_run_pipeline, config_filename=config_filename
 
   if (n_candidate_dirs eq 0 || n_dirs eq 0) then begin
     t1 = systime(/seconds)
-    mg_log, 'no days to process found in raw directory', name='comp', /error
+    mg_log, 'no days to process found in raw directory %s', $
+            raw_basedir, $
+            name='comp', /error
     mg_log, 'Total running time: %0.2f sec', t1 - t0, name='comp', /info
     mg_log, /quit
     return
