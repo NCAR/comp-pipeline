@@ -4,8 +4,8 @@
 ; Writes CoMP L1 processed data do the specified output file.
 ;
 ; :Uses:
-;   comp_inventory_header, fits_open, sxdelpar, sxaddpar, fits_write,
-;   fits_close
+;   comp_set_background, comp_inventory_header, comp_make_mask,
+;   fits_open, sxdelpar, sxaddpar, fits_write, fits_close
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(nx, ny, nimg)"
@@ -31,6 +31,9 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
   @comp_config_common
 
   comp_set_background, date_dir, primary_header, images, headers
+
+  ; will need mask for BACKGRND in extensions
+  comp_make_mask, date_dir, primary_header, mask
 
   comp_inventory_header, headers, beam, group, wavelengths, polarizations, $
                          type, expose, $
@@ -116,6 +119,16 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                 ' Blue and red continuum [nm]'
       fits_write, fcb_back, images[*, *, i], header, extname=ename
     endif else begin
+      ; give a median background for each extension
+      background = comp_get_component(images, headers, $
+                                      'BKG' + polarizations[i], $
+                                      0, $
+                                      wavelengths[i])
+      extension_background = median(background[where(mask eq 1.0)])
+      sxaddpar, header, 'BACKGRND', extension_background, $
+                ' Median of masked line center background', format='(F10.3)', $
+                after='NDFILTER'
+
       fits_write, fcb_out, images[*, *, i], header, extname=ename
     endelse
   endfor

@@ -49,6 +49,8 @@ pro comp_apply_flats_darks, images, headers, date_dir
     header = headers[*, i]
 
     ; select the correct flat for this image
+    ; NOTE: comparing both wavelengths and sign of beam is equivalent
+    ; to old BEAM_MULTIPLIES_WAVE option
     iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
 
     ; subtract darks, fix sensor quirks, and divide by the flats

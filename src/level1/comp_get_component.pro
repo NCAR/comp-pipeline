@@ -33,8 +33,11 @@
 ;     the number of images averaged at each wavelength
 ;   headersout : out, optional, type="strarr(varies, nimg)"
 ;     an updated set of headers (adds or updates the 'NAVERAGE' flag)
-;   wavavg : in, optional, type=boolean
+;   average_wavelengths : in, optional, type=boolean
 ;     average over wavelengths
+;   n_wavelengths : in, optional, type=integer, default=all
+;     number of wavelengths to average over if `AVERAGE_WAVELENGTHS`
+;     is set
 ;   noskip : in, optional, type=boolean
 ;     don't skip the very first image (due to an instrument issue, the very
 ;     first image in each raw file is bad)
@@ -43,8 +46,11 @@
 ;   Joseph Plowman
 ;-
 function comp_get_component, images, headers, polstate, beam, wave, $
-                             skipall=skipall, count=count, $
-                             headersout=headersout, wavavg=wavavg, $
+                             skipall=skipall, $
+                             count=count, $
+                             headersout=headersout, $
+                             average_wavelengths=average_wave, $
+                             n_wavelengths=n_wavelengths, $
                              noskip=noskip
   compile_opt strictarr
   on_error, 2
@@ -104,9 +110,16 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     headersout[*, i] = headertemp
   endfor
 
-  ; average over all wavelengths if wavavg is set:
-  if (keyword_set(wavavg) and nw gt 1L) then begin
-    imgout = mean(imgout, dimension=3L)
+  ; average over all wavelengths if AVERAGE_WAVELENGTHS is set:
+  if (keyword_set(average_wavelengths) and nw gt 1L) then begin
+    if (n_elements(n_wavelengths) eq 0L) then begin
+      start_index = 0L
+      end_index = nw - 1L
+    endif else begin
+      start_index = (nw - n_wavelengths) / 2 > 0
+      end_index = (start_index + n_wavelengths - 1L) < (nw - 1L)
+    endelse
+    imgout = mean(imgout[*, *, start_index:end_index], dimension=3L)
     count = total(count)
     headersout = headersout[*, 0L]
     sxaddpar, headersout, 'NAVERAGE', count, $
