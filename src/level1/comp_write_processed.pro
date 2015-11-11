@@ -43,12 +43,11 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
   ;   [date].[time].comp.[central wavelength].[polarization states].[n wavelengths].fts
 
   unique_wavelengths = wavelengths[uniq(wavelengths, sort(wavelengths))]
-  unique_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
+  n_wavelengths = n_elements(unique_wavelengths)
 
+  unique_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
   unique_polarizations = unique_polarizations[where(strmid(unique_polarizations, 0, 3) ne 'BKG')]
   polarization_tag = strlowcase(strjoin(unique_polarizations))
-
-  n_wavelengths = n_elements(unique_wavelengths)
 
   datetime = strmid(file_basename(filename), 0, 15)
   output_filename = filepath(string(comp_ut_filename(datetime), $

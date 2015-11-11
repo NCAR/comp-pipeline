@@ -12,11 +12,13 @@
 ;   headers : in, required, type='strarr(ntags, nimg)'
 ;     the array of headers (with extensions included) read from the CoMP raw
 ;     data file
-;   primary_header : in, required, type=strarr(nptags)
+;   primary_header : in, required, type=strarr(ntags)
 ;     the primary header from the raw data file; updated to L1 on output
 ;   date_dir : in, required, type = string
 ;     the directory for containing the files for the date in question, used to
 ;     find the flat file.
+;   wave_type : in, required, type=string
+;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Keywords:
 ;   image_geometry : in, required, type=structure
@@ -25,7 +27,7 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
+pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
                                     background=background, $
                                     image_geometry=image_geometry
   compile_opt strictarr
@@ -36,6 +38,11 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
 
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
+
+  unique_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
+  unique_polarizations = unique_polarizations[where(strmid(unique_polarizations, 0, 3) ne 'BKG')]
+  polarization_tag = strupcase(strjoin(unique_polarizations))
+
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
 
@@ -45,6 +52,18 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, $
 
   ; get rid of all the blank comments
   sxdelpar, primary_header, 'COMMENT'
+
+  ; basics
+
+  nonbkg_ind = where(strmid(polarizations, 0, 3) ne 'BKG', n_ext)
+
+  ; TODO: change location of these tags
+  sxaddpar, primary_header, 'N_EXT', n_ext, $
+            ' Number of extensions'
+  sxaddpar, primary_header, 'WAVELENG', wave_type, $
+            ' Wavelength type'
+  sxaddpar, primary_header, 'POLSTATE', polarization_tag, $
+            ' Unique polarization states'
 
   ; change the processing level
   sxaddpar, primary_header, 'LEVEL','L1', ' Processing Level'
