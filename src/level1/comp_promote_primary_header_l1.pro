@@ -73,7 +73,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Calibration processing software version'
   sxaddpar, primary_header, 'REVISION', code_revision, $
             ' Calibration processing software revision'
-  sxaddpar, primary_header, 'NTUNE', num_wave, $
+  sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
   sxaddpar, primary_header, 'OBJECT', 'corona', ' Coronal Emission', after='LOCATION'
   sxaddpar, primary_header, 'BUNIT', 'MILLIONTHS', ' Millions of brightness of solar disk'
