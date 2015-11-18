@@ -57,13 +57,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
 
   nonbkg_ind = where(strmid(polarizations, 0, 3) ne 'BKG', n_ext)
 
-  ; TODO: change location of these tags
   sxaddpar, primary_header, 'N_EXT', n_ext, $
-            ' Number of extensions'
-  sxaddpar, primary_header, 'WAVELENG', wave_type, $
-            ' Wavelength type'
-  sxaddpar, primary_header, 'POLSTATE', polarization_tag, $
-            ' Unique polarization states'
+            ' Number of extensions', after='EXTEND'
 
   ; change the processing level
   sxaddpar, primary_header, 'LEVEL','L1', ' Processing Level'
@@ -75,6 +70,10 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Calibration processing software revision'
   sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
+  sxaddpar, primary_header, 'WAVELENG', wave_type, $
+            ' Wavelength type', after='NTUNES'
+  sxaddpar, primary_header, 'POLSTATE', polarization_tag, $
+            ' Unique polarization states', after='WAVELENG'
   sxaddpar, primary_header, 'OBJECT', 'corona', ' Coronal Emission', after='LOCATION'
   sxaddpar, primary_header, 'BUNIT', 'MILLIONTHS', ' Millions of brightness of solar disk'
   sxaddpar, primary_header, 'METHOD', 'mean', ' Averaging method'
