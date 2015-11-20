@@ -39,7 +39,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
-  unique_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
+  unique_polarizations = pol[uniq(pol, sort(pol))]
   unique_polarizations = unique_polarizations[where(strmid(unique_polarizations, 0, 3) ne 'BKG')]
   polarization_tag = strupcase(strjoin(unique_polarizations))
 
@@ -55,7 +55,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
 
   ; basics
 
-  nonbkg_ind = where(strmid(polarizations, 0, 3) ne 'BKG', n_ext)
+  nonbkg_ind = where(strmid(pol, 0, 3) ne 'BKG', n_ext)
 
   sxaddpar, primary_header, 'N_EXT', n_ext, $
             ' Number of extensions', after='EXTEND'
