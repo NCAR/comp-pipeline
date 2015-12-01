@@ -97,6 +97,19 @@ pro comp_initialize, date_dir
   center1079 = comp_initialize_readconfig('center_1079', date_dir, options, /float)
   center1083 = comp_initialize_readconfig('center_1083', date_dir, options, /float)
 
+  ; display values
+  dispmin1074 = comp_initialize_readconfig('display_min_1074', date_dir, options, /float)
+  dispmin1079 = comp_initialize_readconfig('display_min_1079', date_dir, options, /float)
+  dispmin1083 = comp_initialize_readconfig('display_min_1083', date_dir, options, /float)
+
+  dispmax1074 = comp_initialize_readconfig('display_max_1074', date_dir, options, /float)
+  dispmax1079 = comp_initialize_readconfig('display_max_1079', date_dir, options, /float)
+  dispmax1083 = comp_initialize_readconfig('display_max_1083', date_dir, options, /float)
+
+  dispexp1074 = comp_initialize_readconfig('display_exp_1074', date_dir, options, /float)
+  dispexp1079 = comp_initialize_readconfig('display_exp_1079', date_dir, options, /float)
+  dispexp1083 = comp_initialize_readconfig('display_exp_1083', date_dir, options, /float)
+
   ; number of stokes parameters
   stokes = comp_initialize_readconfig('stokes', date_dir, options, /extract)
   n_stokes = n_elements(stokes)

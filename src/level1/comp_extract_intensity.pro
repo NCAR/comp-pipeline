@@ -71,20 +71,14 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
     '1074' : begin
         line_center = center1074
         scale_max = 20.0
-        display_min = 0.0
-        display_max = 5.0
       end
     '1079' : begin
         line_center = center1079
         scale_max = 20.0
-        display_min = 0
-        display_max = 3.5
       end
     '1083' : begin
         line_center = center1083
         scale_max = 200000.0
-        display_min = 0
-        display_max = 12.0
       end
   endcase
 
@@ -134,7 +128,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
     output_filename = string(strmid(files[f], 0, 15), wave_type, $
                              format='(%"%s.comp.%s.intensity.gif")')
     comp_make_gif, date_dir, intensity, primary_header, output_filename, $
-                   nx, 'Intensity', wave_type, display_min, display_max
+                   nx, 'Intensity', wave_type
   endfor
 
   mg_log, 'done', name='comp', /info

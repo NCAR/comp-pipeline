@@ -19,17 +19,14 @@
 ;     output square image length in pixels
 ;   label : in, required, type=string
 ;     text annotation to go in lower left
-;   min : in, required, type=float
-;     minimum in data for byte scaling
-;   max : in, required, type=float
-;     maximum in data for byte scaling
 ;
 ; :Author:
 ;   sitongia
 ;-
 pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
-                   wave, min, max
+                   wave
   compile_opt strictarr
+  @comp_constants_common
 
   ; mask
   comp_make_mask, date_dir, primary_header, mask
@@ -37,11 +34,25 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   image *= mask
 
   ; square root stretch
-  if (wave eq '1083') then begin
-    image = image ^ 0.3
-  endif else begin
-    image = sqrt(image)
-  endelse
+  case wave of
+    '1074': begin
+        min = dispmin1074
+        max = dispmax1074
+        dispexp = dispexp1074
+      end
+    '1079': begin
+        min = dispmin1079
+        max = dispmax1079
+        dispexp = dispexp1079
+      end
+    '1083': begin
+        min = dispmin1083
+        max = dispmax1083
+        dispexp = dispexp1083
+      end
+  endcase
+
+  image = image ^ dispexp
 
   top = 250
   image = bytscl(image, min=min, max=max, top=top)

@@ -74,7 +74,7 @@ pro comp_fix_header_time, header
   sxdelpar, header, 'TIME_OBS'
 
   carr = fix(tim2carr(date_str + ' ' + time_str, /dc))
-  sxaddpar, header, 'CARR_ROT', carr[0], ' Carrington Rotation Number'
+  sxaddpar, header, 'CARR_ROT', carr[0], ' Carrington Rotation Number', 'END'
 
   sxaddpar, header, 'DATE_HST', hst_date_str, ' [HST] DATE OF OBSERVATION', 'END'
   sxaddpar, header, 'TIME_HST', hst_time_str, ' [HST] TIME OF OBSERVATION', 'END'

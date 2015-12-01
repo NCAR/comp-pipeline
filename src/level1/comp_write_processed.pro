@@ -29,6 +29,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                           wave_type
   compile_opt strictarr
   @comp_config_common
+  @comp_constants_common
 
   comp_set_background, date_dir, primary_header, images, headers
 
@@ -67,10 +68,10 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
 
   ; write the input primary header into the output
   fits_open, output_filename, fcb_out, /write
-  fits_write, fcb_out, 0, primary_header
+  fits_write, fcb_out, 0.0, primary_header
 
   fits_open, background_filename, fcb_back, /write
-  fits_write, fcb_back, 0, primary_header
+  fits_write, fcb_back, 0.0, primary_header
 
   ; clean up the extension headers and write them to file, along with the
   ; images
@@ -95,12 +96,33 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     sxdelpar, header, 'LCVR4VOL'
     sxdelpar, header, 'LCVR5VOL'
     sxdelpar, header, 'LCVR6VOL'
-    sxdelpar, header, 'LCVR1TMP'
-    sxdelpar, header, 'LCVR2TMP'
-    sxdelpar, header, 'LCVR3TMP'
-    sxdelpar, header, 'LCVR4TMP'
-    sxdelpar, header, 'LCVR5TMP'
-    sxdelpar, header, 'LCVR6TMP'
+
+    sxaddpar, header, 'NAXIS1', sxpar(header, 'NAXIS1'), ' (pixels) x dimension'
+    sxaddpar, header, 'NAXIS2', sxpar(header, 'NAXIS2'), ' (pixels) y dimension'
+
+    sxaddpar, header, 'PCOUNT', sxpar(header, 'PCOUNT'), $
+              ' FITS definition: an integer = num. parameters preceding each array'
+    sxaddpar, header, 'GCOUNT', sxpar(header, 'GCOUNT'), $
+              ' FITS definition: an integer = num. of random groups present.'
+
+    sxaddpar, header, 'EXPOSURE', sxpar(header, 'EXPOSURE'), $
+              format='(F0.2)'
+    sxaddpar, header, 'BODYTEMP', sxpar(header, 'BODYTEMP'), $
+              format='(F0.3)'
+    sxaddpar, header, 'BASETEMP', sxpar(header, 'BASETEMP'), $
+              format='(F0.3)'
+    sxaddpar, header, 'RACKTEMP', sxpar(header, 'RACKTEMP'), $
+              format='(F0.3)'
+    sxaddpar, header, 'OPTRTEMP', sxpar(header, 'OPTRTEMP'), $
+              format='(F0.3)'
+    sxaddpar, header, 'FILTTEMP', sxpar(header, 'FILTTEMP'), $
+              format='(F0.3)'
+
+    ndfilter = sxpar(header, 'NDFILTER', count=n_ndfilter)
+    if (n_ndfilter eq 0) then begin
+      sxaddpar, header, 'NDFILTER', 8, $
+                ' ND 1=.1, 2=.3, 3=.3, 4=1, 5=2, 6=3, 7=4, 8=cle', after='LCVR6TMP'
+    endif
 
     ; add inherit keyword to extension so that readers will get primary and
     ; extension headers merged:
@@ -108,6 +130,28 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     sxaddpar, header, 'INHERIT', 'T', after='XTENSION'
 
     ename = polarizations[i] + ', ' + string(format='(f7.2)', wavelengths[i])
+
+    case wave_type of
+      '1074': begin
+          dispmin = dispmin1074
+          dispmax = dispmax1074
+          dispexp = dispexp1074
+        end
+      '1079': begin
+          dispmin = dispmin1079
+          dispmax = dispmax1079
+          dispexp = dispexp1079
+        end
+      '1083': begin
+          dispmin = dispmin1083
+          dispmax = dispmax1083
+          dispexp = dispexp1083
+        end
+    endcase
+
+    sxaddpar, header, 'DISPMIN', dispmin, ' Minimum data value', format='(F0.2)'
+    sxaddpar, header, 'DISPMAX', dispmax, ' Maximum data value', format='(F0.2)'
+    sxaddpar, header, 'DISPEXP', dispexp, ' Exponent value for scaling', format='(F0.2)'
 
     ; this assumes that all the background extensions are last
     if (strmid(ename, 0, 3) eq 'BKG') then begin

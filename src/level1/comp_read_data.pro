@@ -58,4 +58,3 @@ pro comp_read_data, filename, images, headers, header0
 
   fits_close, fcb
 end
-      

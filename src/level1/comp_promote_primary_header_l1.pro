@@ -41,7 +41,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
 
   unique_polarizations = pol[uniq(pol, sort(pol))]
   unique_polarizations = unique_polarizations[where(strmid(unique_polarizations, 0, 3) ne 'BKG')]
-  polarization_tag = strupcase(strjoin(unique_polarizations))
+  polarization_tag = strupcase(strjoin(unique_polarizations, ','))
 
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
@@ -53,12 +53,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   ; get rid of all the blank comments
   sxdelpar, primary_header, 'COMMENT'
 
-  ; basics
-
-  nonbkg_ind = where(strmid(pol, 0, 3) ne 'BKG', n_ext)
-
-  sxaddpar, primary_header, 'N_EXT', n_ext, $
-            ' Number of extensions', after='EXTEND'
+  sxaddpar, primary_header, 'BITPIX', -32
+  sxdelpar, primary_header, 'OBSERVER'
 
   ; change the processing level
   sxaddpar, primary_header, 'LEVEL','L1', ' Processing Level'
@@ -68,32 +64,74 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Calibration processing software version'
   sxaddpar, primary_header, 'REVISION', code_revision, $
             ' Calibration processing software revision'
+
   sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
-  sxaddpar, primary_header, 'WAVELENG', wave_type, $
+  sxaddpar, primary_header, 'WAVENAME', wave_type, $
             ' Wavelength type', after='NTUNES'
-  sxaddpar, primary_header, 'POLSTATE', polarization_tag, $
-            ' Unique polarization states', after='WAVELENG'
+  sxaddpar, primary_header, 'WAVEFWHM', 0.12, $
+            ' [nm] full width half max of bandpass filter', after='WAVENAME'
+  sxaddpar, primary_header, 'POLLIST', polarization_tag, $
+            ' Unique polarization states', after='WAVEFWHM'
+  sxaddpar, primary_header, 'TNELNGTH', sxpar(primary_header, 'TNELNGTH'), $
+            ' Duration of Transient Pneumatic Effect Puls (ms)'
+
+  sxaddpar, primary_header, 'POLANGLE', sxpar(primary_header, 'POLANGLE'), $
+            format='(F0.3)'
+
+  obs_id = sxpar(primary_header, 'OBS_ID', count=n_obs_id)
+  comment = ' Name of Current Observing Seq.'
+  if (n_obs_id gt 0) then begin
+    obs_id = strtrim(obs_id, 2)
+    sxaddpar, primary_header, 'OBS_ID', obs_id, $
+              strmid(comment, 0, 80 - strlen(obs_id) - 2 - 8 - 1 - 1)
+  endif else begin
+    sxaddpar, primary_header, 'OBS_ID', '', comment, after='RETARDER'
+  endelse
+
+  obs_plan = sxpar(primary_header, 'OBS_PLAN', count=n_obs_plan)
+  comment = ' Name of Current Observing Observing program'
+  if (n_obs_plan gt 0) then begin
+    obs_plan = strtrim(obs_plan, 2)
+    sxaddpar, primary_header, 'OBS_PLAN', obs_plan, $
+              strmid(comment, 0, 80 - strlen(obs_plan) - 2 - 8 - 1 - 1)
+  endif else begin
+    sxaddpar, primary_header, 'OBS_PLAN', '', comment, after='OBS_ID'
+  endelse
+
   sxaddpar, primary_header, 'OBJECT', 'corona', ' Coronal Emission', after='LOCATION'
-  sxaddpar, primary_header, 'BUNIT', 'MILLIONTHS', ' Millions of brightness of solar disk'
+  sxaddpar, primary_header, 'BUNIT', '1.E-06 B/Bsun', $
+            ' Intensity of Millionths of solar disk brightness'
+  sxaddpar, primary_header, 'BZERO', 0, ' offset for unsigned integer data', after='BUNIT'
+  sxaddpar, primary_header, 'BSCALE', 1.00, ' physical = data * BSCALE + BZERO', $
+            after='BZERO', format='(F0.2)'
+
   sxaddpar, primary_header, 'METHOD', 'mean', ' Averaging method'
-  sxaddpar, primary_header, 'DESTRAY', 'NO', ' Destraying Applied'
   sxaddpar, primary_header, 'COORDNAM', ' HELIOCENTRIC', 'COORDINATE SYSTEM NAME'
-  sxaddpar, primary_header, 'CTYPE1', 'X', ' AXIS 1 TYPE: X [EAST->WEST ] GEOCENTRIC'
-  sxaddpar, primary_header, 'CTYPE2', 'Y', ' AXIS 2 TYPE: Y [SOUTH->NORTH] GEOCENTRIC'
+  sxaddpar, primary_header, 'CTYPE1', 'X', ' AXIS 1 TYPE: X [EAST->WEST ] HELIOCENTRIC'
+  sxaddpar, primary_header, 'CTYPE2', 'Y', ' AXIS 2 TYPE: Y [SOUTH->NORTH] HELIOCENTRIC'
 
   ; occulter (Sun center) parameters
-  sxaddpar, primary_header, 'CRPIX1', nx / 2 + 0.5, ' X [EAST->WEST ] SUN CENTER [PIXELS]'
-  sxaddpar, primary_header, 'CRVAL1', 0.0, ' X [EAST->WEST ] SUN CENTER [ARCSEC]'
-  sxaddpar, primary_header, 'CDELT1', plate_scale, ' solar_X coord increment [arcsec/pixel]'
-  sxaddpar, primary_header, 'CROTA1', 0.0, ' X [EAST->WEST ] ROTATION [DEG.] FROM REFERENCE'
+  sxaddpar, primary_header, 'CRPIX1', nx / 2 + 0.5, $
+            ' X [EAST->WEST ] SUN CENTER [PIXELS]', format='(F0.2)'
+  sxaddpar, primary_header, 'CRVAL1', 0.0, $
+            ' X [EAST->WEST ] SUN CENTER [ARCSEC]', format='(F0.3)'
+  sxaddpar, primary_header, 'CDELT1', plate_scale, $
+            ' solar_X coord increment [arcsec/pixel]', format='(F0.2)'
+  sxaddpar, primary_header, 'CROTA1', 0.0, $
+            ' X [EAST->WEST ] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
   sxaddpar, primary_header, 'ORADIUS', $
             (image_geometry.occulter1.r + image_geometry.occulter2.r) / 2., $
             ' [pixels] Occulter Radius', format='(f8.2)'
-  sxaddpar, primary_header, 'CRPIX2', ny / 2 + 0.5, ' Y [SOUTH->NORTH] SUN CENTER [PIXELS]'
-  sxaddpar, primary_header, 'CRVAL2', 0.0, ' Y [SOUTH->NORTH] SUN CENTER [ARCSEC]'
-  sxaddpar, primary_header, 'CDELT2', plate_scale, ' solar_Y coord increment [arcsec/pixel]'
-  sxaddpar, primary_header, 'CROTA2', 0.0, ' Y [SOUTH->NORTH] ROTATION [DEG.] FROM REFERENCE'
+
+  sxaddpar, primary_header, 'CRPIX2', ny / 2 + 0.5, $
+            ' Y [SOUTH->NORTH] SUN CENTER [PIXELS]', format='(F0.2)'
+  sxaddpar, primary_header, 'CRVAL2', 0.0, $
+            ' Y [SOUTH->NORTH] SUN CENTER [ARCSEC]', format='(F0.3)'
+  sxaddpar, primary_header, 'CDELT2', plate_scale, $
+            ' solar_Y coord increment [arcsec/pixel]', format='(F0.2)'
+  sxaddpar, primary_header, 'CROTA2', 0.0, $
+            ' Y [SOUTH->NORTH] ROTATION [DEG.] FROM REFERENCE', format='(F0.2)'
 
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
@@ -121,7 +159,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
 
   ; overlap P angle (from the field stop)
   sxaddpar, primary_header, 'OVRLPANG', image_geometry.overlap_angle, $
-            ' [degrees] P Angle of field overlap'
+            ' [deg] Ang. of img. separation between camera diag. and optic plane', format='(F0.2)'
 
   ; occulter ID and size
   occ_id = sxpar(primary_header, 'OCCULTER')
@@ -129,7 +167,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'OCC-ID', occ_id, ' Occulter Identification Number'
 
   occulter_size = comp_occulter_id(occ_id)
-  sxaddpar, primary_header, 'OCC-SIZE', occulter_size, ' [mm] Occulter size'
+  sxaddpar, primary_header, 'OCC-SIZE', occulter_size, $
+            ' [mm] Occulter size', format='(F0.3)'
 
   ; ephemeris information
   sxaddpar, primary_header, 'RSUN', semi_diam, ' [arcsec] Solar Radius', format='(f8.2)'
@@ -147,4 +186,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   i_to_u =   0.004841
   sxaddpar, primary_header, 'i_to_q', i_to_q, ' Crosstalk coefficient from I to Q'
   sxaddpar, primary_header, 'i_to_u', i_to_u, ' Crosstalk coefficient from I to U'
+
+  ; N_EXT
+  n_extensions = n_elements(headers[0, *]) / 2L  ; half are background
+  sxaddpar, primary_header, 'N_EXT', n_extensions, $
+            ' Number of extensions', after='EXTEND'
 end
