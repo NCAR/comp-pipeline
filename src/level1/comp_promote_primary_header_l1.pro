@@ -42,7 +42,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   comp_inventory_header, headers_combine, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
-  unique_pol = pol_combine[uniq(pol, sort(pol))]
+  unique_pol = pol[uniq(pol, sort(pol))]
   unique_pol = unique_pol[where(strmid(unique_pol, 0, 3) ne 'BKG')]
   pol_tag = strupcase(strjoin(unique_pol, ','))
 
