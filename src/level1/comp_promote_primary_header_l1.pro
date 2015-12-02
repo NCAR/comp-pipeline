@@ -23,8 +23,8 @@
 ; :Keywords:
 ;   image_geometry : in, required, type=structure
 ;     image geometry specifications
-;   n_extensions : in, required, type=long
-;     number of extensions
+;   headers_combine : in, required, type=strarr
+;     temporary headers L1 extension headers
 ;
 ; :Author:
 ;   Joseph Plowman
@@ -32,19 +32,19 @@
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
                                     background=background, $
                                     image_geometry=image_geometry, $
-                                    n_extensions=n_extensions
+                                    headers_combine=headers_combine
   compile_opt strictarr
 
   @comp_constants_common
   @comp_config_common
   @comp_mask_constants_common
 
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers_combine, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
-  unique_polarizations = pol[uniq(pol, sort(pol))]
-  unique_polarizations = unique_polarizations[where(strmid(unique_polarizations, 0, 3) ne 'BKG')]
-  polarization_tag = strupcase(strjoin(unique_polarizations, ','))
+  unique_pol = pol_combine[uniq(pol, sort(pol))]
+  unique_pol = unique_pol[where(strmid(unique_pol, 0, 3) ne 'BKG')]
+  pol_tag = strupcase(strjoin(unique_pol, ','))
 
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
@@ -75,7 +75,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'WAVEFWHM', wavefwhm, $
             ' [nm] full width half max of bandpass filter', after='WAVETYPE', $
             format='(F0.2)'
-  sxaddpar, primary_header, 'POLTYPE', polarization_tag, $
+  sxaddpar, primary_header, 'POLTYPE', pol_tag, $
             ' Unique polarization states', after='WAVEFWHM'
   sxaddpar, primary_header, 'TNELNGTH', sxpar(primary_header, 'TNELNGTH'), $
             ' Duration of Transient Pneumatic Effect Puls (ms)'
@@ -192,6 +192,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'i_to_u', i_to_u, ' Crosstalk coefficient from I to U'
 
   ; N_EXT
+  n_extensions = n_elements(headers_combine[0, *]) / 2
   sxaddpar, primary_header, 'N_EXT', n_extensions, $
             ' Number of extensions', after='EXTEND'
 end
