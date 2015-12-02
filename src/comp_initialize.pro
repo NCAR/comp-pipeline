@@ -118,6 +118,8 @@ pro comp_initialize, date_dir
   k1 = comp_initialize_readconfig('k1', date_dir, options, /float)
   k2 = comp_initialize_readconfig('k2', date_dir, options, /float)
 
+  wavefwhm = comp_initialize_readconfig('wavefwhm', date_dir, options, /float)
+
   ; parse the date_dir to find the Julian date to use to switch era of constants
   year  = fix(strmid(date_dir, 0, 4))
   month = fix(strmid(date_dir, 4, 2))

@@ -23,13 +23,16 @@
 ; :Keywords:
 ;   image_geometry : in, required, type=structure
 ;     image geometry specifications
+;   n_extensions : in, required, type=long
+;     number of extensions
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
                                     background=background, $
-                                    image_geometry=image_geometry
+                                    image_geometry=image_geometry, $
+                                    n_extensions=n_extensions
   compile_opt strictarr
 
   @comp_constants_common
@@ -67,11 +70,12 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
 
   sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
-  sxaddpar, primary_header, 'WAVENAME', wave_type, $
+  sxaddpar, primary_header, 'WAVETYPE', wave_type, $
             ' Wavelength type', after='NTUNES'
-  sxaddpar, primary_header, 'WAVEFWHM', 0.12, $
-            ' [nm] full width half max of bandpass filter', after='WAVENAME'
-  sxaddpar, primary_header, 'POLLIST', polarization_tag, $
+  sxaddpar, primary_header, 'WAVEFWHM', wavefwhm, $
+            ' [nm] full width half max of bandpass filter', after='WAVETYPE', $
+            format='(F0.2)'
+  sxaddpar, primary_header, 'POLTYPE', polarization_tag, $
             ' Unique polarization states', after='WAVEFWHM'
   sxaddpar, primary_header, 'TNELNGTH', sxpar(primary_header, 'TNELNGTH'), $
             ' Duration of Transient Pneumatic Effect Puls (ms)'
@@ -119,7 +123,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CDELT1', plate_scale, $
             ' solar_X coord increment [arcsec/pixel]', format='(F0.2)'
   sxaddpar, primary_header, 'CROTA1', 0.0, $
-            ' X [EAST->WEST ] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
+            ' X [EAST->WEST ] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.3)'
   sxaddpar, primary_header, 'ORADIUS', $
             (image_geometry.occulter1.r + image_geometry.occulter2.r) / 2., $
             ' [pixels] Occulter Radius', format='(f8.2)'
@@ -131,7 +135,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CDELT2', plate_scale, $
             ' solar_Y coord increment [arcsec/pixel]', format='(F0.2)'
   sxaddpar, primary_header, 'CROTA2', 0.0, $
-            ' Y [SOUTH->NORTH] ROTATION [DEG.] FROM REFERENCE', format='(F0.2)'
+            ' Y [SOUTH->NORTH] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.3)'
 
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
@@ -188,7 +192,6 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'i_to_u', i_to_u, ' Crosstalk coefficient from I to U'
 
   ; N_EXT
-  n_extensions = n_elements(headers[0, *]) / 2L  ; half are background
   sxaddpar, primary_header, 'N_EXT', n_extensions, $
             ' Number of extensions', after='EXTEND'
 end

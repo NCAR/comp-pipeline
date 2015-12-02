@@ -60,7 +60,8 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   ; update the primary header and write the processed data to the output file
   comp_promote_primary_header_l1, headers, header0, date_dir, wave_type, $
-                                  image_geometry=image_geometry
+                                  image_geometry=image_geometry, $
+                                  n_extensions=n_elements(headers_combine[0, *]) / 2
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         filename, wave_type
 end
