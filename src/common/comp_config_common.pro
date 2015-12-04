@@ -28,6 +28,8 @@ common comp_config, bias_dir, $
                     mail_warnings, $
                     send_to_hpss, $
                     validate, $
+                    lock_raw, $
+                    update_database, $
                     code_version, $
                     code_revision, $
                     flat_avg_skip_first, $

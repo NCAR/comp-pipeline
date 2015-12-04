@@ -68,6 +68,8 @@ pro comp_configuration, config_filename=config_filename
   mail_warnings = fix(config->get('mail_warnings', section='actions', /boolean, default=1B))
   send_to_hpss = fix(config->get('send_to_hpss', section='actions', /boolean, default=1B))
   validate = fix(config->get('validate', section='actions', /boolean, default=1B))
+  lock_raw = fix(config->get('lock_raw', section='actions', /boolean, default=1B))
+  update_database = fix(config->get('update_database', section='actions', /boolean, default=1B))
 
   ; processing code version
   code_version = comp_find_code_version(revision=revision)

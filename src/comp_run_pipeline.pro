@@ -31,10 +31,12 @@ pro comp_run_pipeline, config_filename=config_filename
     mg_log, 'Total running time: %0.2f sec', t1 - t0, name='comp', /info
 
     if (n_elements(date_dir) gt 0) then begin
-      unlocked = comp_state(date_dir, /unlock)
-      if (unlocked) then begin
-        mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-                name='comp', /info
+      if (lock_raw) then begin
+        unlocked = comp_state(date_dir, /unlock)
+        if (unlocked) then begin
+          mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
+        endif
       endif
     endif
 
@@ -75,9 +77,11 @@ pro comp_run_pipeline, config_filename=config_filename
 
     date_dir = dirs[d]
 
-    available = comp_state(date_dir, /lock)
-    if (available ne 1) then begin
-      continue
+    if (lock_raw) then begin
+      available = comp_state(date_dir, /lock)
+      if (available ne 1) then begin
+        continue
+      endif
     endif
 
     comp_initialize, date_dir
@@ -93,9 +97,11 @@ pro comp_run_pipeline, config_filename=config_filename
       valid = comp_validator(date_dir)
       if (~valid) then begin
         mg_log, 'skipping %s...', date_dir, name='comp', /info
-        unlocked = comp_state(date_dir, /unlock)
-        mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-                name='comp', /info
+        if (lock_raw) then begin
+          unlocked = comp_state(date_dir, /unlock)
+          mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
+        endif
         continue
       endif
     endif
@@ -130,9 +136,11 @@ pro comp_run_pipeline, config_filename=config_filename
     ; reduce bias images for this day
     comp_make_dark, date_dir, error=error
     if (error ne 0) then begin
-      unlocked = comp_state(date_dir, /unlock)
-      mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-              name='comp', /info
+      if (lock_raw) then begin
+        unlocked = comp_state(date_dir, /unlock)
+        mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                name='comp', /info
+      endif
       continue
     endif
     mg_log, 'memory usage: %0.1fM', $
@@ -148,9 +156,11 @@ pro comp_run_pipeline, config_filename=config_filename
             make_flat_t1 - make_flat_t0, $
             name='comp', /debug
     if (error ne 0) then begin
-      unlocked = comp_state(date_dir, /unlock)
-      mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-              name='comp', /info
+      if (lock_raw) then begin
+        unlocked = comp_state(date_dir, /unlock)
+        mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                name='comp', /info
+      endif
       continue
     endif
     mg_log, 'memory usage: %0.1fM', $
@@ -330,12 +340,27 @@ pro comp_run_pipeline, config_filename=config_filename
     ;         name='comp', /debug
     ; ;comp_infofile_and_tarballs,  date_dir, '1079'
 
+    if (update_database) then begin
+      mg_log, 'running comp_update_database', name='comp', /info
+      db_t0 = systime(/seconds)
+      comp_update_database, date_dir, process_wavelengths[w]
+      db_t1 = systime(/seconds)
+      mg_log, 'Total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
+              db_t1 - db_t0, $
+              name='comp', /debug
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif
+
     t1 = systime(/seconds)
     mg_log, 'Total running time: %0.2f sec', t1 - t0, name='comp', /info
 
-    unlocked = comp_state(date_dir, /unlock)
-    mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-            name='comp', /info
+    if (lock_raw) then begin
+      unlocked = comp_state(date_dir, /unlock)
+      mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+              name='comp', /info
+    endif
   endfor
 
   mg_log, /quit
