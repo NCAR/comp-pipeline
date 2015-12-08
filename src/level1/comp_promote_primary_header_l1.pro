@@ -44,7 +44,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
 
   unique_pol = pol[uniq(pol, sort(pol))]
   unique_pol = unique_pol[where(strmid(unique_pol, 0, 3) ne 'BKG')]
-  pol_tag = strupcase(strjoin(unique_pol, ','))
+  pol_tag = strupcase(strjoin(unique_pol))
 
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
@@ -75,7 +75,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'WAVEFWHM', wavefwhm, $
             ' [nm] full width half max of bandpass filter', after='WAVETYPE', $
             format='(F0.2)'
-  sxaddpar, primary_header, 'POLTYPE', pol_tag, $
+  sxaddpar, primary_header, 'POL_LIST', pol_tag, $
             ' Unique polarization states', after='WAVEFWHM'
   sxaddpar, primary_header, 'TNELNGTH', sxpar(primary_header, 'TNELNGTH'), $
             ' Duration of Transient Pneumatic Effect Puls (ms)'
