@@ -121,7 +121,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
     ndfilter = sxpar(header, 'NDFILTER', count=n_ndfilter)
     if (n_ndfilter eq 0) then begin
       sxaddpar, header, 'NDFILTER', 8, $
-                ' ND 1=.1, 2=.3, 3=.3, 4=1, 5=2, 6=3, 7=4, 8=cle', after='LCVR6TMP'
+                ' ND 1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=4, 8=cle', after='LCVR6TMP'
     endif
 
     ; add inherit keyword to extension so that readers will get primary and
