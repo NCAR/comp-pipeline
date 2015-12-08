@@ -123,7 +123,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CDELT1', plate_scale, $
             ' solar_X coord increment [arcsec/pixel]', format='(F0.2)'
   sxaddpar, primary_header, 'CROTA1', 0.0, $
-            ' X [EAST->WEST ] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.3)'
+            ' X [EAST->WEST ] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
   sxaddpar, primary_header, 'ORADIUS', $
             (image_geometry.occulter1.r + image_geometry.occulter2.r) / 2., $
             ' [pixels] Occulter Radius', format='(f8.2)'
@@ -135,7 +135,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CDELT2', plate_scale, $
             ' solar_Y coord increment [arcsec/pixel]', format='(F0.2)'
   sxaddpar, primary_header, 'CROTA2', 0.0, $
-            ' Y [SOUTH->NORTH] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.3)'
+            ' Y [SOUTH->NORTH] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
 
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
