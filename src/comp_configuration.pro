@@ -65,6 +65,8 @@ pro comp_configuration, config_filename=config_filename
   find_post_log_level = long(config->get('find_post', section='log', default=log_level))
 
   ; actions
+  create_l1 = fix(config->get('create_l1', section='actions', /boolean, default=1B))
+  create_l2 = fix(config->get('create_l2', section='actions', /boolean, default=1B))
   mail_warnings = fix(config->get('mail_warnings', section='actions', /boolean, default=1B))
   send_to_hpss = fix(config->get('send_to_hpss', section='actions', /boolean, default=1B))
   validate = fix(config->get('validate', section='actions', /boolean, default=1B))

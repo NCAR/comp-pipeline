@@ -108,124 +108,129 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Level_1 data processing  ---------------------
 
-    mg_log, 'starting processing for %s', date_dir, name='comp', /info
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
+    if (create_l1) then begin
+      mg_log, 'starting processing for %s', date_dir, name='comp', /info
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
 
-    ; copy configuration file to the process output directory
-    process_dir = filepath(date_dir, root=process_basedir)
-    file_mkdir, process_dir
-    process_config_filename = filepath('comp.cfg', root=process_dir)
-    file_copy, _config_filename, process_config_filename, /overwrite
+      ; copy configuration file to the process output directory
+      process_dir = filepath(date_dir, root=process_basedir)
+      file_mkdir, process_dir
+      process_config_filename = filepath('comp.cfg', root=process_dir)
+      file_copy, _config_filename, process_config_filename, /overwrite
 
-    mg_log, 'running file_type', name='comp', /info
-    file_type_t0 = systime(/seconds)
-    ; take inventory of the data for this day
-    comp_file_type, date_dir
-    file_type_t1 = systime(/seconds)
-    mg_log, 'Total time for COMP_FILE_TYPE: %0.1f seconds', $
-            file_type_t1 - file_type_t0, $
-            name='comp', /debug
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
+      mg_log, 'running file_type', name='comp', /info
+      file_type_t0 = systime(/seconds)
+      ; take inventory of the data for this day
+      comp_file_type, date_dir
+      file_type_t1 = systime(/seconds)
+      mg_log, 'Total time for COMP_FILE_TYPE: %0.1f seconds', $
+              file_type_t1 - file_type_t0, $
+              name='comp', /debug
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
 
-    mg_log, 'running dark mode', name='comp', /info
+      mg_log, 'running dark mode', name='comp', /info
 
-    ; reduce bias images for this day
-    comp_make_dark, date_dir, error=error
-    if (error ne 0) then begin
-      if (lock_raw) then begin
-        unlocked = comp_state(date_dir, /unlock)
-        mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-                name='comp', /info
+      ; reduce bias images for this day
+      comp_make_dark, date_dir, error=error
+      if (error ne 0) then begin
+        if (lock_raw) then begin
+          unlocked = comp_state(date_dir, /unlock)
+          mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
+        endif
+        continue
       endif
-      continue
-    endif
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
 
-    mg_log, 'running comp_make_flat', name='comp', /info
-    make_flat_t0 = systime(/seconds)
-    ; reduce opal images for this day
-    comp_make_flat, date_dir, error=error
-    make_flat_t1 = systime(/seconds)
-    mg_log, 'Total time for COMP_MAKE_FLAT: %0.1f seconds', $
-            make_flat_t1 - make_flat_t0, $
-            name='comp', /debug
-    if (error ne 0) then begin
-      if (lock_raw) then begin
-        unlocked = comp_state(date_dir, /unlock)
-        mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
-                name='comp', /info
+      mg_log, 'running comp_make_flat', name='comp', /info
+      make_flat_t0 = systime(/seconds)
+      ; reduce opal images for this day
+      comp_make_flat, date_dir, error=error
+      make_flat_t1 = systime(/seconds)
+      mg_log, 'Total time for COMP_MAKE_FLAT: %0.1f seconds', $
+              make_flat_t1 - make_flat_t0, $
+              name='comp', /debug
+      if (error ne 0) then begin
+        if (lock_raw) then begin
+          unlocked = comp_state(date_dir, /unlock)
+          mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
+        endif
+        continue
       endif
-      continue
-    endif
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
-
-    mg_log, 'running l1_process', name='comp', /info
-    for w = 0L, n_elements(process_wavelengths) - 1L do begin
-      l1_process_t0 = systime(/seconds)
-      comp_l1_process, date_dir, process_wavelengths[w], error=error
-      l1_process_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_L1_PROCESS: %0.1f seconds', $
-              l1_process_t1 - l1_process_t0, $
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-      if (error ne 0L) then continue
-    endfor
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
 
-    ; convert HST time in inventory files to UT; cannot be run before
-    ; COMP_L1_PROCESS
-    mg_log, 'running comp_update_filenames', name='comp', /info
-    update_filenames_t0 = systime(/seconds)
-    comp_update_filenames, date_dir
-    update_filenames_t1 = systime(/seconds)
-    mg_log, 'Total time for COMP_UPDATE_FILENAMES: %0.1f seconds', $
-            update_filenames_t1 - update_filenames_t0, $
-            name='comp', /debug
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
-
-    mg_log, 'running comp_extract_intensity', name='comp', /info
-    ; extract intensity images from Level_1 files
-    for w = 0L, n_elements(process_wavelengths) - 1L do begin
-      extract_intensity_t0 = systime(/seconds)
-      comp_extract_intensity, date_dir, process_wavelengths[w], error=error
-      extract_intensity_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_EXTRACT_INTENSITY: %0.1f seconds', $
-              extract_intensity_t1 - extract_intensity_t0, $
+      mg_log, 'running l1_process', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        l1_process_t0 = systime(/seconds)
+        comp_l1_process, date_dir, process_wavelengths[w], error=error
+        l1_process_t1 = systime(/seconds)
+        mg_log, 'Total time for COMP_L1_PROCESS: %0.1f seconds', $
+                l1_process_t1 - l1_process_t0, $
+                name='comp', /debug
+        if (error ne 0L) then continue
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-      if (error ne 0) then continue
-    endfor
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
 
-    mg_log, 'running comp_gbu', name='comp', /info
-    ; identify good data
-    for w = 0L, n_elements(process_wavelengths) - 1L do begin
-      gbu_t0 = systime(/seconds)
-      comp_gbu, date_dir, process_wavelengths[w], error=error
-      gbu_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_GBU: %0.1f seconds', $
-              gbu_t1 - gbu_t0, $
+      ; convert HST time in inventory files to UT; cannot be run before
+      ; COMP_L1_PROCESS
+      mg_log, 'running comp_update_filenames', name='comp', /info
+      update_filenames_t0 = systime(/seconds)
+      comp_update_filenames, date_dir
+      update_filenames_t1 = systime(/seconds)
+      mg_log, 'Total time for COMP_UPDATE_FILENAMES: %0.1f seconds', $
+              update_filenames_t1 - update_filenames_t0, $
               name='comp', /debug
-      if (error ne 0) then continue
-    endfor
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      mg_log, 'running comp_extract_intensity', name='comp', /info
+      ; extract intensity images from Level_1 files
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        extract_intensity_t0 = systime(/seconds)
+        comp_extract_intensity, date_dir, process_wavelengths[w], error=error
+        extract_intensity_t1 = systime(/seconds)
+        mg_log, 'Total time for COMP_EXTRACT_INTENSITY: %0.1f seconds', $
+                extract_intensity_t1 - extract_intensity_t0, $
+                name='comp', /debug
+        if (error ne 0) then continue
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      mg_log, 'running comp_gbu', name='comp', /info
+      ; identify good data
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        gbu_t0 = systime(/seconds)
+        comp_gbu, date_dir, process_wavelengths[w], error=error
+        gbu_t1 = systime(/seconds)
+        mg_log, 'Total time for COMP_GBU: %0.1f seconds', $
+                gbu_t1 - gbu_t0, $
+                name='comp', /debug
+        if (error ne 0) then continue
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif else begin
+      mg_log, 'skipping L1 processing', name='comp', /info
+    endelse
 
     ;---------------  Level_2 data processing  ---------------
 
+    ; if (create_l2) then begin
     ; mg_log, 'running comp_average', name='comp', /info
     ; ; compute the mean, median and standard deviation of Level_1 data
     ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -339,6 +344,9 @@ pro comp_run_pipeline, config_filename=config_filename
     ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
     ;         name='comp', /debug
     ; ;comp_infofile_and_tarballs,  date_dir, '1079'
+    ; endif else begin
+    ;   mg_log, 'skipping L2 processing', name='comp', /info
+    ; endelse
 
     if (update_database) then begin
       mg_log, 'running comp_update_database', name='comp', /info
