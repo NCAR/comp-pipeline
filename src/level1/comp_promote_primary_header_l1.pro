@@ -75,9 +75,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'WAVETYPE', wave_type, $
             ' Wavelength type', after='NTUNES'
   sxaddpar, primary_header, 'WAVE_REF', unique_wave[n_elements(unique_wave) / 2], $
-            ' [nm] Center wavelength', after='WAVETYPE'
+            ' [nm] Center wavelength', after='WAVETYPE', format='(F0.2)'
   sxaddpar, primary_header, 'WAVESTEP', unique_wave[1] - unique_wave[0], $
-            ' [nm] Spacing between wavelengths', after='WAVE_REF'
+            ' [nm] Spacing between wavelengths', after='WAVE_REF', format='(F0.2)'
   sxaddpar, primary_header, 'WAVEFWHM', wavefwhm, $
             ' [nm] full width half max of bandpass filter', after='WAVESTEP', $
             format='(F0.2)'
