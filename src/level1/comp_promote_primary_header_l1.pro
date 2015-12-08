@@ -42,6 +42,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   comp_inventory_header, headers_combine, beam, group, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
+  unique_wave = wave[uniq(wave, sort(wave))]
+
   unique_pol = pol[uniq(pol, sort(pol))]
   unique_pol = unique_pol[where(strmid(unique_pol, 0, 3) ne 'BKG')]
   pol_tag = strupcase(strjoin(unique_pol))
@@ -72,8 +74,12 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Number of wavelength tunings', before='TNELNGTH'
   sxaddpar, primary_header, 'WAVETYPE', wave_type, $
             ' Wavelength type', after='NTUNES'
+  sxaddpar, primary_header, 'WAVE_REF', unique_wave[n_elements(unique_wave) / 2], $
+            ' [nm] Center wavelength', after='WAVETYPE'
+  sxaddpar, primary_header, 'WAVESTEP', unique_wave[1] - unique_wave[0], $
+            ' [nm] Spacing between wavelengths', after='WAVE_REF'
   sxaddpar, primary_header, 'WAVEFWHM', wavefwhm, $
-            ' [nm] full width half max of bandpass filter', after='WAVETYPE', $
+            ' [nm] full width half max of bandpass filter', after='WAVESTEP', $
             format='(F0.2)'
   sxaddpar, primary_header, 'POL_LIST', pol_tag, $
             ' Unique polarization states', after='WAVEFWHM'
