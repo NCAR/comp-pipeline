@@ -13,9 +13,9 @@
 ; :Keywords:
 ;   hours : out, required, type=integer
 ;     hour of day
-;   mins : out, required, type=integer
+;   minutes : out, required, type=integer
 ;     minute of hour
-;   secs : out, optional, type=integer
+;   seconds : out, optional, type=integer
 ;     second of minute
 ;-
 function comp_parse_time, time_str, hours=hours, minutes=mins, seconds=secs
