@@ -32,8 +32,8 @@
 ;   drad : in, optional, type=float, default=40.0
 ;     the +/- size of the radius which to scan
 ;   neg_pol : in, optional, type=boolean
-;     if set, negative discontinuities (field stop) will be found, of not set,
-;     the default is for positive discontinuities (occulter)
+;     if set, negative discontinuities (field stop) will be found; of
+;     not set, the default is for positive discontinuities (occulter)
 ;
 ; :Author:
 ;   Tomczyk, modified by Sitongia
