@@ -80,10 +80,9 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   comp_find_vxtalk, date_dir, Ibg2, Qbg2, Ubg2, Vbg2, vheaders, $
                     IVxtalk2, QVxtalk2, UVxtalk2, xtparms
 
-  Ibg = Ibg1 * mask1 + Ibg2 * mask2
-  Qbg = Qbg1 * mask1 + Qbg2 * mask2
-  Ubg = Ubg1 * mask1 + Ubg2 * mask2
-  Vbg = Vbg1 * mask1 + Vbg2 * mask2
+  IVxtalk = IVxtalk1 * mask1 + IVxtalk2 * mask2
+  QVxtalk = QVxtalk1 * mask1 + QVxtalk2 * mask2
+  UVxtalk = UVxtalk1 * mask1 + UVxtalk2 * mask2
 
   mg_log, '%s,%s', $
           file_basename(filename, '.FTS'), strjoin(strtrim(xtparms, 2), ','), $
