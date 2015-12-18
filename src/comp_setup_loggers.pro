@@ -66,6 +66,11 @@ pro comp_setup_loggers_date, date_dir
                          level=5, $
                          filename=filepath(basename, root=eng_dir)
   endfor
+
+  mg_log, name='test', logger=logger
+  logger->setProperty, format='%(message)s', $
+                       level=5, $
+                       filename=filepath('pointing.txt', root=eng_dir)
 end
 
 

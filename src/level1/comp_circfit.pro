@@ -63,7 +63,7 @@ function comp_circfit, theta, r, chisq=chisq
     if count gt 0 then begin
       x = x[good]
       y = y[good]
-      mg_log, '%d bad points:', count, name='comp/circfit', /debug
+      mg_log, '%d bad points', count, name='comp/circfit', /debug
       if (debug eq 1) then begin
         plot, x, y, title='circfit'
         oplot, x, rfit

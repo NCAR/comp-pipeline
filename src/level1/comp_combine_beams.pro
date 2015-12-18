@@ -59,10 +59,15 @@ pro comp_combine_beams, images, headers, date_dir, $
   headers_combine = strarr(ntags, 2 * np * nw)
 
   ; call comp_image_geometry
-  plus_images = comp_get_component(images, headers, 'I', 1, uwave[nw / 2], $
-                                   headersout=plus_headers, /noskip)
-  minus_images = comp_get_component(images, headers, 'I', -1, uwave[nw / 2], $
-                                    headersout=minus_headers, /noskip)
+  plus_indices = where(beam gt 0, n_plus_images, $
+                       complement=minus_indices, $
+                       ncomplement=n_minus_images)
+
+  plus_images = images[*, *, plus_indices]
+  plus_headers = headers[*, plus_indices]
+  minus_images = images[*, *, minus_indices]
+  minus_headers = headers[*, minus_indices]
+
   plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
   minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
 
