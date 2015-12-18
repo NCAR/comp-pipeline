@@ -61,14 +61,29 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   ; mask out the on-band beams and combine the continuum beams
   mask0 = comp_raw_mask(date_dir, vheaders, $
                         upper_left_mask=mask1, lower_right_mask=mask2)
-  Ibg = I1 * mask1 + I2 * mask2
-  Qbg = Q1 * mask1 + Q2 * mask2
-  Ubg = U1 * mask1 + U2 * mask2
-  Vbg = V1 * mask1 + V2 * mask2
+
+  Ibg1 = I1 * mask1
+  Ibg2 = I2 * mask2
+
+  Qbg1 = Q1 * mask1
+  Qbg2 = Q2 * mask2
+
+  Ubg1 = U1 * mask1
+  Ubg2 = U2 * mask2
+
+  Vbg1 = V1 * mask1
+  Vbg2 = V2 * mask2
 
   ; find the v crosstalk in the combined continuum beams
-  comp_find_vxtalk, date_dir, Ibg, Qbg, Ubg, Vbg, vheaders, $
-                    IVxtalk, QVxtalk, UVxtalk, xtparms
+  comp_find_vxtalk, date_dir, Ibg1, Qbg1, Ubg1, Vbg1, vheaders, $
+                    IVxtalk1, QVxtalk1, UVxtalk1, xtparm
+  comp_find_vxtalk, date_dir, Ibg2, Qbg2, Ubg2, Vbg2, vheaders, $
+                    IVxtalk2, QVxtalk2, UVxtalk2, xtparms
+
+  Ibg = Ibg1 * mask1 + Ibg2 * mask2
+  Qbg = Qbg1 * mask1 + Qbg2 * mask2
+  Ubg = Ubg1 * mask1 + Ubg2 * mask2
+  Vbg = Vbg1 * mask1 + Vbg2 * mask2
 
   mg_log, '%s,%s', $
           file_basename(filename, '.FTS'), strjoin(strtrim(xtparms, 2), ','), $
