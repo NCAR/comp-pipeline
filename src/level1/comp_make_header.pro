@@ -61,7 +61,8 @@ pro comp_make_header, image, header, $
   ; remove distortion (NOTE: these images will not be saved!)
   flat1 = interpolate(flat1, x1new, y1new, cubic=-0.5, missing=0.)
 
-  comp_find_annulus, flat1, occulter1, field1
+  comp_find_annulus, flat1, occulter1, field1, error=error
+  if (error ne 0L) then message, 'error finding image center'
 
   comp_find_post, flat1, occulter1, field1, post_angle1
 
@@ -72,7 +73,8 @@ pro comp_make_header, image, header, $
   ; remove distortion (NOTE: these images will not be saved!)
   flat2 = interpolate(flat2, x2new, y2new, cubic=-0.5, missing=0.)
 
-  comp_find_annulus, flat2, occulter2, field2
+  comp_find_annulus, flat2, occulter2, field2, error=error
+  if (error ne 0L) then message, 'error finding image center'
 
   comp_find_post, flat2, occulter2, field2, post_angle2
 

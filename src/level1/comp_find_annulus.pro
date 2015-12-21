@@ -12,21 +12,29 @@
 ;     structure of the form `{x:0., y:0., r:0.}`
 ;   field : out, optional, type=structure
 ;     structure of the form `{x:0., y:0., r:0.}`
+;
+; :Keywords:
+;   error : out, optional, type=long
+;     0 if no error
 ;-
-pro comp_find_annulus, im, occulter, field
+pro comp_find_annulus, im, occulter, field, error=error
   compile_opt idl2
 
   occulter_radius_guess = 226.
   field_radius_guess = 297.
 
-  c_occulter = comp_find_image_center(im, radius_guess=occulter_radius_guess)
+  c_occulter = comp_find_image_center(im, radius_guess=occulter_radius_guess, error=error)
+  if (error ne 0L) then return
+
   ; set result if too far from guess
   if (c_occulter[2] gt 1.1 * occulter_radius_guess) then begin
     mg_log, 'c_occulter radius off', name='comp', /warn
     c_occulter[2] = occulter_radius_guess
   endif
 
-  c_field = comp_find_image_center(im, radius_guess=field_radius_guess, /neg_pol)
+  c_field = comp_find_image_center(im, radius_guess=field_radius_guess, /neg_pol, error=error)
+  if (error ne 0L) then return
+
   ; set result if too far from guess
   if (c_field[2] gt 1.1 * field_radius_guess) then begin
     mg_log, 'c_field radius off', name='comp', /warn

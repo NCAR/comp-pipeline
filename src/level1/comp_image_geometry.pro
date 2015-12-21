@@ -71,10 +71,15 @@ function comp_image_geometry, images, headers, date_dir
     endif else begin
       background = comp_extract2(images[*, *, i])
     endelse
-    comp_find_annulus, background, occulter, field
-    mg_log, strjoin(strtrim([beam[i], $
-                            occulter.x, occulter.y, occulter.r, $
-                            field.x, field.y, field.r], 2), ', '), name='test', /info
+    comp_find_annulus, background, occulter, field, error=error
+    if (error eq 0L) then begin
+      mg_log, 'unable to find center', name='test', /info
+    endif else begin
+      mg_log, strjoin(strtrim([beam[i], $
+                              occulter.x, occulter.y, occulter.r, $
+                              field.x, field.y, field.r], 2), ', '), $
+              name='test', /info
+    endfor
   endfor
 
   return, { occulter1: occulter1, $
