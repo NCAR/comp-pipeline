@@ -64,6 +64,24 @@ function comp_image_geometry, images, headers, date_dir
   delta_y = sxpar(flat_header, 'FYCNTER1') - sxpar(flat_header, 'FYCNTER2')
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
+  dims = size(images, /dimensions)
+  for i = 0L, dims[2] - 1L do begin
+    if (beam[i] gt 0L) then begin
+      background = comp_extract1(images[*, *, i])
+    endif else begin
+      background = comp_extract2(images[*, *, i])
+    endelse
+    comp_find_annulus, background, occulter, field, error=error
+    if (error eq 0L) then begin
+      mg_log, 'unable to find center', name='test', /info
+    endif else begin
+      mg_log, strjoin(strtrim([beam[i], $
+                              occulter.x, occulter.y, occulter.r, $
+                              field.x, field.y, field.r], 2), ', '), $
+              name='test', /info
+    endfor
+  endfor
+
   return, { occulter1: occulter1, $
             occulter2: occulter2, $
             field1: field1, $

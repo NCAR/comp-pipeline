@@ -32,8 +32,10 @@
 ;   drad : in, optional, type=float, default=40.0
 ;     the +/- size of the radius which to scan
 ;   neg_pol : in, optional, type=boolean
-;     if set, negative discontinuities (field stop) will be found, of not set,
-;     the default is for positive discontinuities (occulter)
+;     if set, negative discontinuities (field stop) will be found; of
+;     not set, the default is for positive discontinuities (occulter)
+;   error : out, optional, type=long
+;     0 if no error
 ;
 ; :Author:
 ;   Tomczyk, modified by Sitongia
@@ -42,7 +44,8 @@ function comp_find_image_center, dat, $
                                  chisq=chisq, $
                                  radius_guess=radius_guess, $
                                  drad=drad, $
-                                 neg_pol=neg_pol
+                                 neg_pol=neg_pol, $
+                                 error=error
   compile_opt strictarr
   @comp_fitc_common
 
@@ -63,8 +66,11 @@ function comp_find_image_center, dat, $
   ; find limb positions, array of angles (theta) and limb positions (r) is returned
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol)
 
-  c = comp_circfit(theta, r)   ; fit positions to a circle
-  mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), name='comp/find_image_center', /debug
+  c = comp_circfit(theta, r, error=error)
+  if (error ne 0L) then return
+
+  mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), $
+          name='comp/find_image_center', /debug
 
   if (debug eq 1) then begin
     plot, theta, r, psym=3, yrange=[200, 340], ystyle=1, $

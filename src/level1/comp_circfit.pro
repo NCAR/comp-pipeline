@@ -11,10 +11,13 @@
 ; :Examples:
 ;   For example, call like::
 ;
-;     circfit, theta, r
+;     a = circfit(theta, r)
 ;
 ; :Uses:
 ;   comp_fitc_common
+;
+; :Returns:
+;   coefficients for circle
 ;
 ; :Params:
 ;   theta
@@ -23,18 +26,21 @@
 ;     the radius coordinates
 ;
 ; :Keywords:
-;   chisq
+;   chisq : out, optional, type=float
 ;     the optional value of the chisq
+;   error : out, optional, type=long
+;     0 if no error
 ;
 ; :Author:
 ;   Tomczyk, modified by Sitongia
 ;-
-function comp_circfit, theta, r, chisq=chisq
+function comp_circfit, theta, r, chisq=chisq, error=error
   compile_opt strictarr
   @comp_fitc_common
 
   ans = ' '
   debug = 0
+  error = 0L
 
   x = theta
   y = r
@@ -48,10 +54,10 @@ function comp_circfit, theta, r, chisq=chisq
 
     ; check if amoeba failed: it returns -1 but usually returns an array, so
     ; use following hack rather than directly checking return value!
-    s = size(a)
-    if (s[0] eq 0) then begin
-      message, 'circfit: amoeba failed.'
-      break
+    if (size(a, /n_dimensions) eq 0) then begin
+      error = 1L
+      mg_log, 'AMOEBA failed', name='comp/circfit', /debug
+      return, -1
     endif
 
     rfit = a[0] * cos(x - a[1]) $
@@ -60,10 +66,10 @@ function comp_circfit, theta, r, chisq=chisq
     diff = y - rfit
     rms = stdev(diff)
     bad = where(abs(diff) ge 3. * rms, count, complement=good)
-    if count gt 0 then begin
+    if (count gt 0L) then begin
       x = x[good]
       y = y[good]
-      mg_log, '%d bad points:', count, name='comp/circfit', /debug
+      mg_log, '%d bad points', count, name='comp/circfit', /debug
       if (debug eq 1) then begin
         plot, x, y, title='circfit'
         oplot, x, rfit
