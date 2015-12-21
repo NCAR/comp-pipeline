@@ -39,7 +39,7 @@ function comp_mask_1024, occulter1, occulter2, $
                          nopost=nopost, $
                          nooverlap=nooverlap, $
                          nullcolumns=nullcolumns
-  compile_opt strictar
+  compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
 

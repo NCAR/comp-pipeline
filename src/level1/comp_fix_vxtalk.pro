@@ -17,13 +17,10 @@
 ;   lower_right_mask : out, optional, type="bytarr(nx, ny)"
 ;     mask of the lower right portion of the image
 ;-
-pro comp_fix_vxtalk_getmasks, data_dir, headers, $
+pro comp_fix_vxtalk_getmasks, date_dir, I1, I2, headers, $
                               upper_left_mask=upper_left_mask, $
                               lower_right_mask=lower_right_mask
   compile_opt strictarr
-
-  xmat = (dindgen(nx)) # transpose(1.0D + dblarr(ny)) - 0.5D * (nx - 1.0D)
-  ymat = (1.0D + dblarr(nx)) # transpose(dindgen(ny)) - 0.5D * (ny - 1.0D)
 
   ; get the flat
   comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
@@ -32,18 +29,26 @@ pro comp_fix_vxtalk_getmasks, data_dir, headers, $
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
 
-  comp_make_mask, date_dir, flat_header, mask0 ; Compute the mask for this file.
+  ; compute the mask for this file
+  comp_make_mask_1024, date_dir, flat_header, mask0
 
   ; pad the file's mask using erode
   s = lonarr(5, 5) + 1L
   mask = erode(mask0, s)
 
-  ; remove outlier pixels via median filtering.
-  mask *= abs(datai / median(datai, 3) - 1.0) lt 0.25
+  nx = 1024L
+  ny = 1024L
+  xmat = (dindgen(nx)) # transpose(1.0D + dblarr(ny)) - 0.5D * (nx - 1.0D)
+  ymat = (1.0D + dblarr(nx)) # transpose(dindgen(ny)) - 0.5D * (ny - 1.0D)
 
-  ; mask for pixels above the diagonal
+  tmp_Ibkg = I1 * (ymat gt xmat) + I2 * (xmat gt ymat)
+
+  ; remove outlier pixels via median filtering.
+  mask *= abs(tmp_Ibkg / median(tmp_Ibkg, 3) - 1.0) lt 0.25
+
+  ; mask for pixels above the diagonal...
   upper_left_mask = mask * (ymat gt xmat)
-  ; mask for pixels below the diagonal
+  ; ...and below the diagonal
   lower_right_mask = mask * (xmat gt ymat)
 
   upper_left_mask[265:325, 400:600] = 0B
@@ -81,7 +86,7 @@ end
 ;-
 pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   compile_opt strictarr
-  @comp_constants_common
+  @comp_config_common
 
   comp_inventory_header, vheaders, beams, groups, waves, pols, type, expose, $
                          cover, cal_pol, cal_ret
@@ -111,7 +116,7 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
                           /noskip, /average_wavelengths)
 
   ; mask out the on-band beams and combine the continuum beams
-  comp_fix_vxtalk_getmasks, date_dir, vheaders, $
+  comp_fix_vxtalk_getmasks, date_dir, I1, I2, vheaders, $
                             upper_left_mask=mask1, lower_right_mask=mask2
 
   Ibg1 = I1 * mask1
@@ -133,9 +138,25 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
                     IVxtalk2, QVxtalk2, UVxtalk2, xtparms
 
   IVxtalk = IVxtalk1 * mask1 + IVxtalk2 * mask2
-  QVxtalk = QVxtalk1 * mask1 + QVxtalk2 * mask2
-  UVxtalk = UVxtalk1 * mask1 + UVxtalk2 * mask2
+  basename = file_basename(filename)
+  save, mask1, filename=filepath(basename + '.mask1.sav', $
+                                   subdir=['engineering', strmid(basename, 0, 4)], $
+                                   root=log_dir)
+  save, mask2, filename=filepath(basename + '.mask2.sav', $
+                                   subdir=['engineering', strmid(basename, 0, 4)], $
+                                   root=log_dir)
 
+  save, IVxtalk, filename=filepath(basename + '.ivxtalk.sav', $
+                                   subdir=['engineering', strmid(basename, 0, 4)], $
+                                   root=log_dir)
+  QVxtalk = QVxtalk1 * mask1 + QVxtalk2 * mask2
+  save, QVxtalk, filename=filepath(basename + '.qvxtalk.sav', $
+                                   subdir=['engineering', strmid(basename, 0, 4)], $
+                                   root=log_dir)
+  UVxtalk = UVxtalk1 * mask1 + UVxtalk2 * mask2
+  save, UVxtalk, filename=filepath(basename + '.uvxtalk.sav', $
+                                   subdir=['engineering', strmid(basename, 0, 4)], $
+                                   root=log_dir)
   mg_log, '%s,%s', $
           file_basename(filename, '.FTS'), strjoin(strtrim(xtparms, 2), ','), $
           name='comp/crosstalk/' + comp_find_wavelength(waves, /name), /info
