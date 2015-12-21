@@ -1,5 +1,56 @@
 ; docformat = 'rst'
 
+
+;+
+; Find the appropriate upper left and lower right masks.
+;
+; :Params:
+;   date_dir : in, required, type=string
+;     the date directory for the Stokes V images being corrected; used to find
+;     the nearest Q and U files and to find image masks
+;   headers : in, required, type="strarr(ntags, nimg)"
+;     the FITS headers corresponding to images
+;
+; :Keywords:
+;   upper_left_mask : out, optional, type="bytarr(nx, ny)"
+;     mask of the upper left portion of the image
+;   lower_right_mask : out, optional, type="bytarr(nx, ny)"
+;     mask of the lower right portion of the image
+;-
+pro comp_fix_vxtalk_getmasks, data_dir, headers, $
+                              upper_left_mask=upper_left_mask, $
+                              lower_right_mask=lower_right_mask
+  compile_opt strictarr
+
+  xmat = (dindgen(nx)) # transpose(1.0D + dblarr(ny)) - 0.5D * (nx - 1.0D)
+  ymat = (1.0D + dblarr(nx)) # transpose(dindgen(ny)) - 0.5D * (ny - 1.0D)
+
+  ; get the flat
+  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+                         cover, cal_pol, cal_ret
+  time = comp_extract_time(headers, day, month, year, hours, mins, secs)
+  comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
+                   flat_names, flat_expose
+
+  comp_make_mask, date_dir, flat_header, mask0 ; Compute the mask for this file.
+
+  ; pad the file's mask using erode
+  s = lonarr(5, 5) + 1L
+  mask = erode(mask0, s)
+
+  ; remove outlier pixels via median filtering.
+  mask *= abs(datai / median(datai, 3) - 1.0) lt 0.25
+
+  ; mask for pixels above the diagonal
+  upper_left_mask = mask * (ymat gt xmat)
+  ; mask for pixels below the diagonal
+  lower_right_mask = mask * (xmat gt ymat)
+
+  upper_left_mask[265:325, 400:600] = 0B
+  lower_right_mask[680:740, 0:100] = 0B
+end
+
+
 ;+
 ; Fix the crosstalk in a set of CoMP Stokes V images. Will find and load the
 ; nearest (in time) set of Stokes Q and U images to use to estimate the
@@ -30,6 +81,7 @@
 ;-
 pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   compile_opt strictarr
+  @comp_constants_common
 
   comp_inventory_header, vheaders, beams, groups, waves, pols, type, expose, $
                          cover, cal_pol, cal_ret
@@ -59,8 +111,8 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
                           /noskip, /average_wavelengths)
 
   ; mask out the on-band beams and combine the continuum beams
-  mask0 = comp_raw_mask(date_dir, vheaders, $
-                        upper_left_mask=mask1, lower_right_mask=mask2)
+  comp_fix_vxtalk_getmasks, date_dir, vheaders, $
+                            upper_left_mask=mask1, lower_right_mask=mask2
 
   Ibg1 = I1 * mask1
   Ibg2 = I2 * mask2
@@ -93,10 +145,15 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   nimg = n_elements(vimages[0, 0, *])
   for i = 0L, nimg - 1L do begin
     if (pols[i] eq 'V') then begin
-      stokesI = comp_get_component(quimages_demod, quheaders_demod, 'I', beams[i], waves[i], /noskip)
-      stokesQ = comp_get_component(quimages_demod, quheaders_demod, 'Q', beams[i], waves[i], /noskip)
-      stokesU = comp_get_component(quimages_demod, quheaders_demod, 'U', beams[i], waves[i], /noskip)
-      vimages[*, *, i] -= IVxtalk * stokesI + QVxtalk * stokesQ + UVxtalk * stokesU
+      stokesI = comp_get_component(quimages_demod, quheaders_demod, 'I', $
+                                   beams[i], waves[i], /noskip)
+      stokesQ = comp_get_component(quimages_demod, quheaders_demod, 'Q', $
+                                   beams[i], waves[i], /noskip)
+      stokesU = comp_get_component(quimages_demod, quheaders_demod, 'U', $
+                                   beams[i], waves[i], /noskip)
+      vimages[*, *, i] -= IVxtalk * stokesI $
+                            + QVxtalk * stokesQ $
+                            + UVxtalk * stokesU
     endif
   endfor
 end

@@ -15,11 +15,11 @@
 ;     name of date directory containing the files corresponding to the headers
 ;
 ; :Keywords:
-;   upper_left_mask :  out, optional, type="fltarr(nx, ny)"
+;   upper_left_mask : out, optional, type="fltarr(nx, ny)"
 ;     mask of the upper left portion of the image
-;   lower_right_mask :  out, optional, type="fltarr(nx, ny)"
+;   lower_right_mask : out, optional, type="fltarr(nx, ny)"
 ;     mask of the lower right portion of the image
-;   threshold: in, optional, type=float, default=15
+;   threshold : in, optional, type=float, default=15
 ;     value for thresholding flats
 ;
 ; :Author:
