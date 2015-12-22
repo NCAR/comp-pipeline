@@ -67,7 +67,7 @@ function comp_find_image_center, dat, $
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol)
 
   c = comp_circfit(theta, r, error=error)
-  if (error ne 0L) then return
+  if (error ne 0L) then return, -1L
 
   mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), $
           name='comp/find_image_center', /debug
