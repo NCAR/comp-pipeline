@@ -341,7 +341,7 @@ end
 ;
 ; Author: Joseph Plowman
 ;-
-pro init_powfunc_comblk, cal_directory, wave, beam
+pro init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
 
 	common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, varsupper, varslower, $
 			xmat, ymat, cpols, pangs, crets, upols, datapols, datacals, cal_data, uppercoefs, $
@@ -353,7 +353,7 @@ pro init_powfunc_comblk, cal_directory, wave, beam
 
 	; Initialize the paths and common blocks for CoMP pipeline routines
 	date_dir = file_basename(cal_directory)	
-	comp_paths
+	comp_configuration, config_filename=config_filename
 	comp_initialize,  date_dir
 
 	; Standard CoMP images are 1k by 1k, before beam combining:
@@ -414,7 +414,7 @@ pro init_powfunc_comblk, cal_directory, wave, beam
 	for i=0,nfiles-1 do begin
 		ii=calfiles[i] ; Select the next cal file.
 		comp_read_data, cal_info.files[ii], images, headers, header0 ; Read the file...
-		comp_flats_darks,images,headers,date_dir, flats=flats, flat_header=flat_header; Apply flats & darks.
+		comp_apply_flats_darks,images,headers,date_dir, flat_header=flat_header; Apply flats & darks.
 		cal = cal_info.ctags[ii] ; Cal optics state for this file (assumes only one per file).
 		
 		; Loop over the measured polarizations in the file:
@@ -424,7 +424,9 @@ pro init_powfunc_comblk, cal_directory, wave, beam
 			idata = where(datapols eq pol and datacals eq cal)
 
 			; Get the current file's data for this polarization analyzer state:
-			datai = get_comp_component(images, headers, pol, beam, /wavavg, headersout=headersout)
+			datai = comp_get_component(images, headers, pol, beam, $
+                                                   /average_wavelengths, $
+                                                   headersout=headersout)
 			; Add it do the data and variance arrays (weighting by the number of exposures):
 			data[*,*,idata] += datai*sxpar(headersout,'NAVERAGE')
 			vars[*,*,idata] += photfac*abs(datai)*sxpar(headersout,'NAVERAGE')

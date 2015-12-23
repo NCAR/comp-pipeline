@@ -1,4 +1,4 @@
-.PHONY: pipe env doc userdoc opendoc unit help clean
+.PHONY: pipe cal env doc userdoc opendoc unit help clean
 
 FLAGS=
 QUIET=0
@@ -59,6 +59,9 @@ pipe:
 	else \
 	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
 	fi
+
+cal:
+	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH) comp_cal_example_script
 
 env:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH)

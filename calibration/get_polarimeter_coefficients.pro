@@ -6,11 +6,11 @@
 ; given configuration parameters) - there must be at least 4 linearly independent
 ; Stokes vectors (and corresponding data) for a well-constrained solution to exist.
 ; Inputs:
-; 	data[nx,ny,n_states] - The calibration data for one state of the polarization analyzer,
+; 	data[nx,ny,nstates] - The calibration data for one state of the polarization analyzer,
 ;			one image for each stokes state measured.
-; 	vars[nx,ny,n_states] - The variances corresponding to data.
+; 	vars[nx,ny,nstates] - The variances corresponding to data.
 ; 	mask[nx,ny] - Mask specifying which points are good (1=good, 0=bad).
-; 	pols[n_states,n_stokes] - The input calibration Stokes vectors for each stokes state measured.
+; 	pols[nstates,nstokes] - The input calibration Stokes vectors for each stokes state measured.
 ; 	xybasis - optional keyword giving basis functions for spatial crosstalk variation. If not
 ;			defined, will be computed (and returned) using comp_cal_xybasis.
 ;
@@ -34,26 +34,26 @@ function get_polarimeter_coefficients_slow, data, vars, mask, pols, xybasis=xyba
 
 	nx = n_elements(data[*,0,0])
 	ny = n_elements(data[0,*,0])
-	n_states = n_elements(data[0,0,*])
-	n_stokes = n_elements(pols[0,*])
+	nstates = n_elements(data[0,0,*])
+	nstokes = n_elements(pols[0,*])
 	
 	; Set up the spatial variation basis if it's not already defined:
 	if(n_elements(xybasis) eq 0) then xybasis = comp_cal_xybasis(nx,ny)
 	nc_spatial = n_elements(xybasis[0,0,*])
-	n_coef = n_stokes*nc_spatial
+	n_coef = nstokes*nc_spatial
 
 	; Problem to be solved is of the form A*x=b, where x is the solution vector of coefficients
 	; determining the crosstalk into this channel. The solution vector collapses crosstalk
 	; and spatial variation onto a single index; jlvec reverses this mapping:
-	jlvec = lonarr(n_coef,2) ; This array gives the mapping from n_coef to n_stokes*nc_spatial
-	for j=0,n_stokes-1 do for l=0,nc_spatial-1 do jlvec[j*n_stokes+l,*]=[j,l]
+	jlvec = lonarr(n_coef,2) ; This array gives the mapping from n_coef to nstokes*nc_spatial
+	for j=0,nstokes-1 do for l=0,nc_spatial-1 do jlvec[j*nstokes+l,*]=[j,l]
 
 	bvec = dblarr(n_coef)
 	amat = dblarr(n_coef,n_coef)
 	for i=0,n_coef-1 do begin
 		j=jlvec[i,0]
 		l=jlvec[i,1]
-		for k=0,n_states-1 do begin
+		for k=0,nstates-1 do begin
 			bvec[i]+=total(mask*data[*,*,k]*xybasis[*,*,l]/vars[*,*,k])*pols[k,j]
 			for i2=0,n_coef-1 do begin
 				j2=jlvec[i2,0]
@@ -75,11 +75,11 @@ end
 ; given configuration parameters) - there must be at least 4 linearly independent
 ; Stokes vectors (and corresponding data) for a well-constrained solution to exist.
 ; Inputs:
-; 	data[npix,n_states] - The calibration data for one state of the polarization analyzer,
+; 	data[npix,nstates] - The calibration data for one state of the polarization analyzer,
 ;			one image (previously flattened using where(mask)) for each calibration optics
 ;			configuration measured.
-; 	vars[npix,n_states] - The variances corresponding to data.
-; 	pols[n_states,n_stokes] - The input calibration Stokes vectors for each calibration optics
+; 	vars[npix,nstates] - The variances corresponding to data.
+; 	pols[nstates,nstokes] - The input calibration Stokes vectors for each calibration optics
 ;			configuration.
 ; 	xybasis[npix,nbasis] - Basis specifying the varying sensitivity of each pixel; created
 ;			from comp_cal_xybasis, but flattened using where(mask).
@@ -99,24 +99,24 @@ end
 ;-
 function get_polarimeter_coefficients, data, vars, pols, xybasis
 
-	n_states = n_elements(data[0,*])
-	n_stokes = n_elements(pols[0,*])
+	nstates = n_elements(data[0,*])
+	nstokes = n_elements(pols[0,*])
 	
 	nc_spatial = n_elements(xybasis[0,*])
-	n_coef = n_stokes*nc_spatial	
+	n_coef = nstokes*nc_spatial	
 
 	; Problem to be solved is of the form A*x=b, where x is the solution vector of coefficients
 	; determining the crosstalk into this channel. The solution vector collapses crosstalk
 	; and spatial variation onto a single index; jlvec reverses this mapping:
-	jlvec = lonarr(n_coef,2) ; This array gives the mapping from n_coef to n_stokes*nc_spatial
-	for j=0,n_stokes-1 do for l=0,nc_spatial-1 do jlvec[j*n_stokes+l,*]=[j,l]
+	jlvec = lonarr(n_coef,2) ; This array gives the mapping from n_coef to nstokes*nc_spatial
+	for j=0,nstokes-1 do for l=0,nc_spatial-1 do jlvec[j*nstokes+l,*]=[j,l]
 
 	bvec = dblarr(n_coef)
 	amat = dblarr(n_coef,n_coef)
 	for i=0,n_coef-1 do begin
 		j=jlvec[i,0]
 		l=jlvec[i,1]
-		for k=0,n_states-1 do begin
+		for k=0,nstates-1 do begin
 			bvec[i]+=total(data[*,k]*xybasis[*,l]/vars[*,k])*pols[k,j]
 			for i2=0,n_coef-1 do begin
 				j2=jlvec[i2,0]
@@ -139,11 +139,11 @@ end
 ; given configuration parameters) - there must be at least 4 linearly independent
 ; Stokes vectors (and corresponding data) for a well-constrained solution to exist.
 ; Inputs:
-; 	data[npix,n_states] - The calibration data for one state of the polarization analyzer,
+; 	data[npix,nstates] - The calibration data for one state of the polarization analyzer,
 ;			one image (previously flattened using where(mask)) for each calibration optics
 ;			configuration measured.
-; 	vars[npix,n_states] - The variances corresponding to data.
-; 	pols[n_states,n_stokes] - The input calibration Stokes vectors for each calibration optics
+; 	vars[npix,nstates] - The variances corresponding to data.
+; 	pols[nstates,nstokes] - The input calibration Stokes vectors for each calibration optics
 ;			configuration.
 ; 	xybasis[npix,nbasis] - Basis specifying the varying sensitivity of each pixel; created
 ;			from comp_cal_xybasis, but flattened using where(mask).
@@ -163,25 +163,25 @@ end
 ;-
 function get_polarimeter_coefficients_ifixed, data, vars, pols, xybasis, c0=c0
 
-	n_states = n_elements(data[0,*])
-	n_stokes = n_elements(pols[0,*])-1
+	nstates = n_elements(data[0,*])
+	nstokes = n_elements(pols[0,*])-1
 	if(n_elements(c0) eq 0) then c0 = 1.0
 	
 	nc_spatial = n_elements(xybasis[0,*])
-	n_coef = n_stokes*nc_spatial	
+	n_coef = nstokes*nc_spatial	
 
 	; Problem to be solved is of the form A*x=b, where x is the solution vector of coefficients
 	; determining the crosstalk into this channel. The solution vector collapses crosstalk
 	; and spatial variation onto a single index; jlvec reverses this mapping:
-	jlvec = lonarr(n_coef,2) ; This array gives the mapping from n_coef to n_stokes*nc_spatial
-	for j=0,n_stokes-1 do for l=0,nc_spatial-1 do jlvec[j*n_stokes+l,*]=[j,l]
+	jlvec = lonarr(n_coef,2) ; This array gives the mapping from n_coef to nstokes*nc_spatial
+	for j=0,nstokes-1 do for l=0,nc_spatial-1 do jlvec[j*nstokes+l,*]=[j,l]
 
 	bvec = dblarr(n_coef)
 	amat = dblarr(n_coef,n_coef)
 	for i=0,n_coef-1 do begin
 		j=jlvec[i,0]
 		l=jlvec[i,1]
-		for k=0,n_states-1 do begin
+		for k=0,nstates-1 do begin
 			bvec[i]+=total((data[*,k]-c0*pols[k,0])*xybasis[*,l]/vars[*,k])*pols[k,j]
 			for i2=0,n_coef-1 do begin
 				j2=jlvec[i2,0]

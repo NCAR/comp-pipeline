@@ -18,10 +18,14 @@
 ;     name of directory containing the files for the date of the input images,
 ;     used to find the appropriate dark and flat files
 ;
+; :Keywords:
+;   flat_header : out, optional, type=strarr
+;     flat header
+;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_apply_flats_darks, images, headers, date_dir
+pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   compile_opt strictarr
   @comp_config_common
 

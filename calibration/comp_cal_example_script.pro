@@ -4,17 +4,19 @@
 
 beam=-1
 wave=1075
-cal_directory = '/hao/solar4/plowman/CoMP/raw/20150729/'
-plot_dir = '/hao/solar4/plowman/CoMP/calibration_plots2/'
-coef_plot_dir = '/hao/solar4/plowman/CoMP/calibration_coef_plots2/'
-if(n_elements(reload) eq 0 or keyword_set(reload)) then init_powfunc_comblk, cal_directory, wave, beam
+;cal_directory = '/hao/solar4/plowman/CoMP/raw/20150729/'
+cal_directory = '/export/data1/Data/CoMP/raw.calibration/20150729/'
+plot_dir = '/export/data1/Data/CoMP/calibration_plots2_wtrans/'
+coef_plot_dir = '/export/data1/Data/CoMP/calibration_coef_plots2_wtrans/'
+config_filename = 'config/comp.mgalloy.compdata.calibration.cfg'
+if(n_elements(reload) eq 0 or keyword_set(reload)) then init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
 reload=0
 
 common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, varsupper, varslower, $
 		xmat, ymat, cpols, pangs, crets, upols, datapols, datacals, cal_data, uppercoefs, $
 		lowercoefs, uppermask, lowermask, data, vars, mask, nstokes, ucals, calvars, calvar_solve
 
-calvar_labels = ['I in','Q in','U in','V in','Pol trans','P ang err','Ret tran','Retardance','Ret ang']
+calvar_labels = ['I in','Q in','U in','V in','Pol trans','P ang err','Ret trans','Retardance','Ret ang']
 
 ; This vector holds the calibration optics variables:
 calvars = dblarr(9)
@@ -37,9 +39,9 @@ scales[8] = 5.0 ; Calibration retarder angle (in degrees).
 ; Flags for which calibration variables the amoeba should search for:
 solve_flags = intarr(9)
 solve_flags[0:3] = [0,0,0,0] ; The input Stokes vector.
-solve_flags[4] = 0 ; Calibration polarizer transmission.
+solve_flags[4] = 1 ; Calibration polarizer transmission.
 solve_flags[5] = 0 ; Systematic offset error in the polarizer angle.
-solve_flags[6] = 0 ; Calibration retarder transmission.
+solve_flags[6] = 1 ; Calibration retarder transmission.
 solve_flags[7] = 1 ; Calibration retarder retardance.
 solve_flags[8] = 1 ; Calibration retarder angle.
 
@@ -48,13 +50,15 @@ guess = calvars[calvar_solve]
 scale = scales[calvar_solve]
 res=amoeba(1.0e-5,function_name='comp_cal_powfunc',p0=guess,scale=scale)
 
-print, 'Final chi squared = ', comp_cal_powfunc(res,diag_plot_dir = plot_dir)
+chi2 = comp_cal_powfunc(res,diag_plot_dir = plot_dir)
+print, 'Final chi squared = ', chi2
 for i=0,8 do print,calvar_labels[i],'= ',calvars[i]
 
 ; This structure holds the essential calibration information:
 cal_struct = {xybasis:xybasis, xmat:xmat, ymat:ymat, cpols:cpols, pangs:pangs, crets:crets, upols:upols, $
-		datapols:datapols, datacals:datacals, uppercoefs:uppercoefs, uppermask:uppermask, mask:mask, $
-		ucals:ucals, calvars:calvars, calvar_solve:calvar_solve, calvar_labels:calvar_labels}
-save, cal_struct, filename = cal_directory+'calibration_structure.sav'
+		datapols:datapols, datacals:datacals, uppercoefs:uppercoefs, lowercoefs:lowercoefs, $
+		uppermask:uppermask, lowermask:lowermask, mask:mask, ucals:ucals, calvars:calvars, $
+		calvar_solve:calvar_solve, calvar_labels:calvar_labels, chi2:chi2}
+save, cal_struct, filename = cal_directory+'calibration_structure_wtrans.sav'
 
 make_coef_plots, coef_plot_dir

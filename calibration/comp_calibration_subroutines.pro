@@ -262,15 +262,15 @@ function compute_cal_image, coefs, stokes
 
 	nx=n_elements(coefs_upper[*,0,0])
 	ny=n_elements(coefs_upper[0,*,0])
-	n_stokes=n_elements(coefs_upper[0,0,*])
+	nstokes=n_elements(coefs_upper[0,0,*])
 	image=dblarr(nx,ny)
 	
 	if(size(reform(stokes),/n_dimensions) eq 1) then begin ; Stokes is a single vector:
-		for i=0,n_stokes-1 do begin
+		for i=0,nstokes-1 do begin
 			image += stokes[i]*(coefs_upper[*,*,i]*coefs.uppermask+coefs_lower[*,*,i]*coefs.lowermask)
 		endfor
 	endif else begin ; Stokes consists of a 2-dimensional image with a Stokes vector at each position:
-		for i=0,n_stokes-1 do begin
+		for i=0,nstokes-1 do begin
 			image += stokes[*,*,i]*(coefs_upper[*,*,i]*coefs.uppermask+coefs_lower[*,*,i]*coefs.lowermask)
 		endfor
 	endelse

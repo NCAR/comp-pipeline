@@ -16,7 +16,8 @@
 ;     array of beam values for data images
 ;   time
 ;     time of data image
-;   flat
+;   flat : out, required, type="fltarr(1024, 1024, nwave)"
+;   flat_header : out, required, type=strarr
 ;   flat_waves
 ;   exposure
 ;
