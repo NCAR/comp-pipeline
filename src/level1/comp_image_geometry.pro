@@ -79,7 +79,7 @@ function comp_image_geometry, images, headers, date_dir
                               occulter.x, occulter.y, occulter.r, $
                               field.x, field.y, field.r], 2), ', '), $
               name='test', /info
-    endfor
+    endelse
   endfor
 
   return, { occulter1: occulter1, $

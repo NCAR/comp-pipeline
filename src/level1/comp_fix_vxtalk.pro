@@ -33,7 +33,7 @@ pro comp_fix_vxtalk_getmasks, date_dir, I1, I2, headers, $
   comp_make_mask_1024, date_dir, flat_header, mask0
 
   ; pad the file's mask using erode
-  s = lonarr(5, 5) + 1L
+  s = lonarr(9, 9) + 1L
   mask = erode(mask0, s)
 
   nx = 1024L
