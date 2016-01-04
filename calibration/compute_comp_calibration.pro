@@ -7,52 +7,52 @@
 ; Joseph Plowman
 ;-
 pro make_coef_plots, plot_directory
-
-	common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, varsupper, varslower, $
-			xmat, ymat, cpols, pangs, crets, upols, datapols, datacals, cal_data, uppercoefs, $
-			lowercoefs, uppermask, lowermask, data, vars, mask, nstokes, ucals, calvars, calvar_solve
+  common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, varsupper, varslower, $
+      xmat, ymat, cpols, pangs, crets, upols, datapols, datacals, cal_data, uppercoefs, $
+      lowercoefs, uppermask, lowermask, data, vars, mask, nstokes, ucals, calvars, calvar_solve
 	
-	; Numbers of unique polarizations, x and y pixels, and spatial basis elements:
-	nupols = n_elements(upols)
-	nx = n_elements(xybasis[*,0,0])
-	ny = n_elements(xybasis[0,*,0])
-	n_basis = n_elements(xybasis[0,0,*])
+  ; Numbers of unique polarizations, x and y pixels, and spatial basis elements:
+  nupols = n_elements(upols)
+  nx = n_elements(xybasis[*,0,0])
+  ny = n_elements(xybasis[0,*,0])
+  n_basis = n_elements(xybasis[0,0,*])
 	
-	stokeslabels = ['I','Q','U','V'] ; The usual names for the Stokes vector components
+  stokeslabels = ['I','Q','U','V'] ; The usual names for the Stokes vector components
 
-	coef_image = dblarr(nx,ny) ; Array to hold the images
+  coef_image = dblarr(nx,ny) ; Array to hold the images
 
-	; Set up the plotting device:
-	set_plot,'ps'
-	device,color=1,bits_per_pixel=8,/inches,/encapsulated,xsize=10,ysize=10,decomposed=0
-	!p.multi=[0,2,2]
+  ; Set up the plotting device:
+  set_plot,'ps'
+  device,color=1,bits_per_pixel=8,/inches,/encapsulated,xsize=10,ysize=10,decomposed=0
+  !p.multi=[0,2,2]
 
-	; Color table which goes from purple to black to green:
-	r=[0,reverse(dindgen(127)),dblarr(127),255]
-	b=[0,dblarr(127),dindgen(127),255]
-	tvlct,r,b,r
+  ; Color table which goes from purple to black to green:
+  r=[0,reverse(dindgen(127)),dblarr(127),255]
+  b=[0,dblarr(127),dindgen(127),255]
+  tvlct,r,b,r
 	
-	; Loop over unique polarizations (i.e., analyzer states; nominally I+Q, I+U, etc):
-	for i=0,nupols-1 do begin
-		device,filename=plot_directory+'cal_coef_'+upols[i]+'.eps' ; Set the plot file name.
-		for j=0,nstokes-1 do begin ; Loop over Stokes vector components.
-			coef_image *= 0.0 ; Zero out the image to start.
-			; Loop over the basis elements, adding up the components of the image:
-			for k=0,n_basis-1 do begin
-				upperimage = mask*(uppercoefs[i,j*n_basis+k]*uppermask)*xybasis[*,*,k]
-				lowerimage = mask*(lowercoefs[i,j*n_basis+k]*lowermask)*xybasis[*,*,k]
-				coef_image += upperimage+lowerimage
-			endfor
-			; Make the plot, with intensity range centered on zero:
-			min_str=strtrim(string(min(coef_image[where(mask)])),2)
-			max_str=strtrim(string(max(coef_image[where(mask)])),2)
-			pmax = max(abs(coef_image[where(mask)]))
-			plot_image,coef_image,title=stokeslabels[j]+', min='+min_str+', max=' $
-					+max_str,top=254,bottom=1,min=-pmax,max=pmax
-		endfor
-		device,/close
-	endfor
-	
+  if (~file_test(file_directory)) then file_mkdir, plot_directory
+  ; Loop over unique polarizations (i.e., analyzer states; nominally I+Q, I+U, etc):
+  for i=0,nupols-1 do begin
+    ; Set the plot file name.
+    device, filename=filepath('cal_coef_'+upols[i]+'.eps', root=plot_directory)
+    for j=0,nstokes-1 do begin ; Loop over Stokes vector components.
+      coef_image *= 0.0        ; Zero out the image to start.
+      ; Loop over the basis elements, adding up the components of the image:
+      for k=0,n_basis-1 do begin
+        upperimage = mask*(uppercoefs[i,j*n_basis+k]*uppermask)*xybasis[*,*,k]
+        lowerimage = mask*(lowercoefs[i,j*n_basis+k]*lowermask)*xybasis[*,*,k]
+        coef_image += upperimage+lowerimage
+      endfor
+      ; Make the plot, with intensity range centered on zero:
+      min_str=strtrim(string(min(coef_image[where(mask)])),2)
+      max_str=strtrim(string(max(coef_image[where(mask)])),2)
+      pmax = max(abs(coef_image[where(mask)]))
+      plot_image,coef_image,title=stokeslabels[j]+', min='+min_str+', max=' $
+                 +max_str,top=254,bottom=1,min=-pmax,max=pmax
+    endfor
+    device,/close
+  endfor
 end
 		
 	
@@ -135,9 +135,10 @@ pro plot_cal_comblk_data, plot_dir
 	; for the data and (if present) the calibration fit to the data. IDL multi-plot ordering goes left 
 	; to right, then down to the next row, so we make the plots in the following order: I, Q, fitted I,
 	; fitted Q, U, V, fitted U, fitted V. If there are no calibration fits, the order is just I, Q, U, V.
+        if (~file_test(plot_dir)) then file_mkdir, plot_dir
 	for i=0,ncals-1 do begin
 		; File name for this optics configuration:
-		filename = plot_dir+'calplot_'+strjoin(strtrim(strsplit(ucals[i],' ',/extract),2))+'.eps'
+                filename = filepath('calplot_'+strjoin(strtrim(strsplit(ucals[i],' ',/extract),2))+'.eps', root=plot_dir)
 		print,filename
 		device,filename = filename
 
@@ -427,11 +428,18 @@ pro init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filen
 			datai = comp_get_component(images, headers, pol, beam, $
                                                    /average_wavelengths, $
                                                    headersout=headersout)
-			; Add it do the data and variance arrays (weighting by the number of exposures):
-			data[*,*,idata] += datai*sxpar(headersout,'NAVERAGE')
-			vars[*,*,idata] += photfac*abs(datai)*sxpar(headersout,'NAVERAGE')
-			; Increment the total number of exposures (so we can renormalize later):
-			navgs[idata] += sxpar(headersout,'NAVERAGE')
+                        ; Add it do the data and variance arrays (weighting by
+                        ; the number of exposures):
+                        ; TODO: not sure this is correct
+                        dims = size(headersout, /dimensions)
+                        for d = 0L, dims[1] - 1L do begin
+                          h = headersout[*, d]
+                          data[*, *, idata] += datai * sxpar(h, 'NAVERAGE')
+                          vars[*, *, idata] += photfac * abs(datai) * sxpar(h, 'NAVERAGE')
+                          ; increment the total number of exposures (so we can
+                          ; renormalize later)
+                          navgs[idata] += sxpar(h, 'NAVERAGE')
+                        endfor
 			datacount[idata] += 1
 			
 			; Make sure we've recorded book keeping data for this index:
@@ -441,7 +449,12 @@ pro init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filen
 			
 			comp_make_mask_1024, date_dir, flat_header, mask0 ; Compute the mask for this file.
 			mask *= erode(mask0,s) ; Pad the file's mask and combine it with the main mask.
-			mask *= abs(datai/median(datai,3)-1.0) lt 0.25 ; Remove outlier pixels via median filtering.
+                        ; TODO: also not sure about this
+                        dims = size(datai, /dimensions)
+                        for d = 0L, dims[2] - 1L do begin
+                          ; remove outlier pixels via median filtering
+                          mask *= abs(datai[*, *, d] / median(datai[*, *, d], 3) - 1.0) lt 0.25
+                        endfor
 		endfor
 	endfor
 	

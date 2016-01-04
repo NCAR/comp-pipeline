@@ -44,6 +44,7 @@ help:
 	@echo
 	@echo "Targets:"
 	@echo " pipe             run the CoMP pipeline"
+	@echo " cal              run the example calibration"
 	@echo " env              start IDL with the CoMP pipeline paths"
 	@echo " doc              generate the CoMP pipeline API documentation"
 	@echo " userdoc          generate the user-level CoMP pipeline API documentation"
