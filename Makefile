@@ -34,6 +34,7 @@ COMP_SRC_DIR=$(PWD)/src
 MGLIB_DIR=+$(HOME)/software/mglib/lib
 MGUNIT_DIR=$(HOME)/software/mgunit/lib
 IDLDOC_DIR=+$(HOME)/projects/idldoc/src
+FULL_SSW_DIR=/hao/contrib/ssw
 
 COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(GEN_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
@@ -62,7 +63,7 @@ pipe:
 	fi
 
 cal:
-	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH) comp_cal_example_script
+	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH):"+$(FULL_SSW_DIR)" comp_cal_example_script
 
 env:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH)
