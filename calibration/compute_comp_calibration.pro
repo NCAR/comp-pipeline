@@ -31,7 +31,7 @@ pro make_coef_plots, plot_directory
   b=[0,dblarr(127),dindgen(127),255]
   tvlct,r,b,r
 	
-  if (~file_test(file_directory)) then file_mkdir, plot_directory
+  if (~file_test(plot_directory)) then file_mkdir, plot_directory
   ; Loop over unique polarizations (i.e., analyzer states; nominally I+Q, I+U, etc):
   for i=0,nupols-1 do begin
     ; Set the plot file name.
