@@ -2,6 +2,9 @@
 .compile get_polarimeter_coefficients.pro
 .compile compute_comp_calibration.pro
 
+devicelib
+imagelib
+
 beam=-1
 wave=1075
 ;cal_directory = '/hao/solar4/plowman/CoMP/raw/20150729/'
