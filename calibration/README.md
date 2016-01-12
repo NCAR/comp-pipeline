@@ -1,15 +1,25 @@
-comp_cal_example_script.pro is a script showing how the code is run
-and producing some plots.
+## Contents
 
-comp_calibration_subroutines.pro contains the various ancillary
-subroutines used in the process of computing the calibration. Note
-that get_crosstalk_xybasis has been renamed to comp_cal_xybasis and
-moved to this file.
+`comp_cal_example_script.pro` is a script showing how the code is run and
+producing some plots.
 
-get_polarimeter_coefficients.pro contains only the core linear
-inversion routines for the polarimeter coefficients.
+`comp_calibration_subroutines.pro` contains the various ancillary subroutines
+used in the process of computing the calibration. Note that
+`get_crosstalk_xybasis` has been renamed to `comp_cal_xybasis` and moved to this
+file.
 
-compute_comp_calibration.pro contains the top-level routines called in
+`get_polarimeter_coefficients.pro` contains only the core linear inversion
+routines for the polarimeter coefficients.
+
+`compute_comp_calibration.pro` contains the top-level routines called in
 the process of computing the CoMP calibration (setting up the common
-block, the function called by amoeba, plotting routines), as well as
-any routine that uses the comp_cal_comblk common block.
+block, the function called by `amoeba`, plotting routines), as well as
+any routine that uses the `comp_cal_comblk` common block.
+
+
+## Running the calibration code
+
+1. Run the regular pipeline, i.e., `make pipe` on the data to be calibrated. It
+needs to produce the flats and darks files.
+
+2. Run `make cal` from the top-level Makefile to run the calibration code.
