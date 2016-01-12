@@ -430,31 +430,24 @@ pro init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filen
                                                    headersout=headersout)
                         ; Add it do the data and variance arrays (weighting by
                         ; the number of exposures):
-                        ; TODO: not sure this is correct
-                        dims = size(headersout, /dimensions)
-                        for d = 0L, dims[1] - 1L do begin
-                          h = headersout[*, d]
-                          data[*, *, idata] += datai * sxpar(h, 'NAVERAGE')
-                          vars[*, *, idata] += photfac * abs(datai) * sxpar(h, 'NAVERAGE')
-                          ; increment the total number of exposures (so we can
-                          ; renormalize later)
-                          navgs[idata] += sxpar(h, 'NAVERAGE')
-                        endfor
+                        data[*, *, idata] += datai * sxpar(headersout, 'NAVERAGE')
+                        vars[*, *, idata] += photfac * abs(datai) * sxpar(headersout, 'NAVERAGE')
+                        ; increment the total number of exposures (so we can
+                        ; renormalize later)
+                        navgs[idata] += sxpar(headersout, 'NAVERAGE')
 			datacount[idata] += 1
 			
-			; Make sure we've recorded book keeping data for this index:
+			; make sure we've recorded book keeping data for this index
 			cpols[idata]=cal_info.cpols[ii]
 			crets[idata]=cal_info.crets[ii]
 			pangs[idata]=cal_info.cangs[ii]
 			
-			comp_make_mask_1024, date_dir, flat_header, mask0 ; Compute the mask for this file.
-			mask *= erode(mask0,s) ; Pad the file's mask and combine it with the main mask.
-                        ; TODO: also not sure about this
-                        dims = size(datai, /dimensions)
-                        for d = 0L, dims[2] - 1L do begin
-                          ; remove outlier pixels via median filtering
-                          mask *= abs(datai[*, *, d] / median(datai[*, *, d], 3) - 1.0) lt 0.25
-                        endfor
+                        ; compute the mask for this file
+			comp_make_mask_1024, date_dir, flat_header, mask0
+                        ; pad the file's mask and combine it with the main mask
+			mask *= erode(mask0,s)
+                        ; remove outlier pixels via median filtering
+                        mask *= abs(datai / median(datai, 3) - 1.0) lt 0.25
 		endfor
 	endfor
 	
