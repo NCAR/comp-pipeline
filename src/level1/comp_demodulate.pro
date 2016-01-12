@@ -43,7 +43,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
 
   nx = n_elements(rawimages[*, 0, 0])
   ny = n_elements(rawimages[0, *, 0])
-  ntags = n_elements(rawheaders[*, 0]) 
+  ntags = n_elements(rawheaders[*, 0])
 
   ; output images are ordered polarization->beam->wavelength (wavelength tightest)
   ; one new tag for number of exposures in average
@@ -59,7 +59,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
       ; form I and Q, U, or V and put them in the appropriate places in the
       ; image and header arrays:
       for k = 0L, nw - 1L do begin
-        ; TODO: this code assumes NAVAERAGE is the same for ipheads and impheads
+        ; TODO: this code assumes NAVERAGE is the same for ipheads and impheads
         naverage = sxpar(ipheads[*, k], 'NAVERAGE') + sxpar(imheads[*, k], 'NAVERAGE')
 
         headertemp = ipheads[*, k]

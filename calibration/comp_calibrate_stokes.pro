@@ -12,7 +12,7 @@
 ; Joseph Plowman
 ;-
 function comp_compute_calibrated_stokes, coef_images, data, vars
-	
+
 	nx = n_elements(data[*,0,0])
 	ny = n_elements(data[0,*,0])
 	nstates = n_elements(data[0,0,*])
@@ -20,26 +20,29 @@ function comp_compute_calibrated_stokes, coef_images, data, vars
 	amat = dblarr(nstokes,nstokes)
 	bvec = dblarr(nstokes)
 	stokes_images = dblarr(nx,ny,nstokes)
-	
+
 	for x=0,nx-1 do begin
 		for y=0,ny-1 do begin
 			for j=0,nstokes-1 do begin
 				for k=0,nstokes-1 do begin
+				    ; equation 30 from writeup
 					amat[j,k] = total(coef_images[x,y,*,j]*coef_images[x,y,*,k]/vars[x,y,*])
 				endfor
+				; equation 31 from writeup
 				bvec[j] = total(data[x,y,*]*coef_images[x,y,*,j]/vars[x,y,*])
 			endfor
+			; equation 32 from writeup
 			stokes_images[x,y,*] = invert(amat,/double)#bvec
 		endfor
 	endfor
-	
+
 	return,stokes_images
-	
+
 end
 
 ;+
 ; Compute calibration coefficient images, as used by comp_compute_calibrated_stokes.
-; This assumes we want the full 4-dimensional Stokes vector - modifying to do the 
+; This assumes we want the full 4-dimensional Stokes vector - modifying to do the
 ; reduced rank inversion is left as an exercise...
 ;
 ; Inputs:
@@ -62,7 +65,7 @@ function comp_compute_coef_images, cal_struct, data_labels
 	n_basis = n_elements(cal_struct.xybasis[0,0,*])
 	nlabels = n_elements(data_labels)
 	coef_images = dblarr(nx,ny,nlabels,nstokes)
-	
+
 	for i=0,nlabels-1 do begin
 		ical = where(data_labels[i] eq cal_struct.upols)
 		for j=0,nstokes-1 do begin
@@ -73,9 +76,9 @@ function comp_compute_coef_images, cal_struct, data_labels
 			endfor
 		endfor
 	endfor
-	
+
 	return,coef_images
-	
+
 end
 
 ;+
@@ -103,5 +106,5 @@ function comp_calibrate_stokes, data, vars, labels, cal_struct, stokeslabels=sto
 	stokeslabels=['I','Q','U','V']
 	coef_images = comp_compute_coef_images(cal_struct, labels)
 	return, comp_compute_calibrated_stokes(coef_images, data, vars)
-	
+
 end
