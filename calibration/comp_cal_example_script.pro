@@ -1,12 +1,11 @@
-.compile comp_calibration_subroutines.pro
-.compile comp_get_polarimeter_coefficients
-.compile compute_comp_calibration.pro
+.compile comp_calibration_subroutines
+.compile comp_compute_calibration
 
 devicelib
 imagelib
 
-beam=-1
-wave=1075
+beam = -1
+wave = 1075
 ;cal_directory = '/hao/solar4/plowman/CoMP/raw/20150729/'
 cal_directory = '/export/data1/Data/CoMP/raw.calibration/20150729/'
 plot_dir = '/export/data1/Data/CoMP/calibration_plots2_wtrans/'
@@ -23,7 +22,7 @@ endif
 
 ; initialize as well as apply flats/darks
 if(n_elements(reload) eq 0 or keyword_set(reload)) then begin
-  init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
+  comp_init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
 endif
 
 reload=0
@@ -31,7 +30,7 @@ reload=0
 common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, $
                         varsupper, varslower, xmat, ymat, cpols, pangs, crets, $
                         upols, datapols, datacals, cal_data, uppercoefs, $
-		        lowercoefs, uppermask, lowermask, data, vars, mask, $
+                        lowercoefs, uppermask, lowermask, data, vars, mask, $
                         nstokes, ucals, calvars, calvar_solve
 
 calvar_labels = ['I in', 'Q in', 'U in', 'V in', 'Pol trans', 'P ang err', $
@@ -70,7 +69,7 @@ scale = scales[calvar_solve]
 res = amoeba(1.0e-5, function_name='comp_cal_powfunc', p0=guess, scale=scale)
 chi2 = comp_cal_powfunc(res, diag_plot_dir=plot_dir)
 print, 'Final chi squared = ', chi2
-for i=0,8 do print,calvar_labels[i],'= ',calvars[i]
+for i = 0, 8 do print, calvar_labels[i], '= ', calvars[i]
 
 ; This structure holds the essential calibration information:
 cal_struct = {xybasis:xybasis, $
@@ -94,6 +93,6 @@ cal_struct = {xybasis:xybasis, $
               chi2:chi2}
 save, cal_struct, filename=filepath('calibration_structure_wtrans.sav', root=cal_directory)
 
-make_coef_plots, coef_plot_dir
+comp_make_coef_plots, coef_plot_dir
 
 end
