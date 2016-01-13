@@ -1,5 +1,5 @@
 .compile comp_calibration_subroutines.pro
-.compile get_polarimeter_coefficients.pro
+.compile comp_get_polarimeter_coefficients
 .compile compute_comp_calibration.pro
 
 devicelib
