@@ -13,8 +13,19 @@ plot_dir = '/export/data1/Data/CoMP/calibration_plots2_wtrans/'
 coef_plot_dir = '/export/data1/Data/CoMP/calibration_coef_plots2_wtrans/'
 config_filename = 'config/comp.mgalloy.compdata.calibration.cfg'
 
+if (~file_test(cal_directory, /directory)) then begin
+  message, 'cal directory not found: ' + cal_directory
+endif
+
+if (~file_test(config_filename, /directory)) then begin
+  message, 'configure file not found: ' + config_filename
+endif
+
 ; initialize as well as apply flats/darks
-if(n_elements(reload) eq 0 or keyword_set(reload)) then init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
+if(n_elements(reload) eq 0 or keyword_set(reload)) then begin
+  init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
+endif
+
 reload=0
 
 common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, $
@@ -84,3 +95,5 @@ cal_struct = {xybasis:xybasis, $
 save, cal_struct, filename=filepath('calibration_structure_wtrans.sav', root=cal_directory)
 
 make_coef_plots, coef_plot_dir
+
+end
