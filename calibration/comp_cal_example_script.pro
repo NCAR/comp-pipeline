@@ -1,6 +1,3 @@
-.compile comp_calibration_subroutines
-.compile comp_compute_calibration
-
 devicelib
 imagelib
 

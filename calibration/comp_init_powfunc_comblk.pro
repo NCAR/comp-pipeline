@@ -94,7 +94,7 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_
 
 	; Find the calibration files in the cal directory:
 	files = file_search(cal_directory+'*.FTS')
-	cal_info = get_cal_info(files)
+	cal_info = comp_get_cal_info(files)
 
 	; The files which have the correct line ('wave'), are not darks ('cvers') and are labeled as cal data:
 	calfiles = where(cal_info.waves eq wave and cal_info.cvers and cal_info.cpols)

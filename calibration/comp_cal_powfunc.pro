@@ -58,7 +58,7 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir
 		; the current polarization analyzer state:
 		pols = dblarr(ncurrent,nstokes)
 		for j=0,ncurrent-1 do begin
-			pols[j,*] = get_cal_stokes_vector(crets[icurrent[j]], pangs[icurrent[j]]+pangerr, ret=ret,$
+			pols[j,*] = comp_get_cal_stokes_vector(crets[icurrent[j]], pangs[icurrent[j]]+pangerr, ret=ret,$
 					r_ang=r_ang, stokes=stokesin, ptrans=ptrans, rtrans=rtrans, cpol=cpols[icurrent[j]])
 		endfor
 
@@ -72,7 +72,7 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir
 		; Compute the calibration data corresponding to these coefficients:
 		coefscurrent={uppercoefs:uppercoefs[i,*], lowercoefs:lowercoefs[i,*], xmat:xmat, ymat:ymat, $
 				mask:mask, uppermask:uppermask, lowermask:lowermask, pols:pols, xybasis:xybasis}
-		for j=0,ncurrent-1 do cal_data[*,*,icurrent[j]] = compute_cal_image(coefscurrent,pols[j,*])
+		for j=0,ncurrent-1 do cal_data[*,*,icurrent[j]] = comp_compute_cal_image(coefscurrent,pols[j,*])
 	endfor
 
 	; Compute chi squared between cal_data and data:
