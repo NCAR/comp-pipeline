@@ -13,7 +13,7 @@ if (~file_test(cal_directory, /directory)) then begin
   message, 'cal directory not found: ' + cal_directory
 endif
 
-if (~file_test(config_filename, /directory)) then begin
+if (~file_test(config_filename)) then begin
   message, 'configure file not found: ' + config_filename
 endif
 
