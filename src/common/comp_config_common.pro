@@ -4,6 +4,7 @@ common comp_config, bias_dir, $
                     binary_dir, $
                     deferred_file, $
                     hot_file, $
+                    cal_file, $
                     ldm_basedir, $
                     raw_basedir, $
                     date_pattern, $
