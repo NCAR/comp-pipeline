@@ -92,7 +92,10 @@ cal_struct = {xybasis:xybasis, $
               calvar_solve:calvar_solve, $
               calvar_labels:calvar_labels, $
               chi2:chi2}
-save, cal_struct, filename=filepath('calibration_structure_wtrans.sav', root=cal_directory)
+
+common comp_config_common
+save, cal_struct, $
+      filename=filepath('calibration_structure_wtrans.sav', root=process_basedir)
 
 make_coef_plots, coef_plot_dir
 
