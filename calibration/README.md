@@ -8,7 +8,7 @@ used in the process of computing the calibration. Note that
 `get_crosstalk_xybasis` has been renamed to `comp_cal_xybasis` and moved to this
 file.
 
-`get_polarimeter_coefficients.pro` contains only the core linear inversion
+`comp_get_polarimeter_coefficients.pro` contains only the core linear inversion
 routines for the polarimeter coefficients.
 
 `compute_comp_calibration.pro` contains the top-level routines called in
