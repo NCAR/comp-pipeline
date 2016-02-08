@@ -30,6 +30,15 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   nb = 2   ; always 2 beams for CoMP
   nw = n_elements(uniq(waves, sort(waves)))
 
+  ; .sav file should define cal_struct variable
+  restore, filename=cal_file
+  ; TODO: where should vars come from?                                                              
+  images_demod = comp_calibrate_stokes(images_demod, vars, pol, cal_struct, $
+                                       stokeslabels=stokeslabels)
+
+  ; TODO: use COMP_GET_COMPONENT to get average for each pol/beam/wavelength state
+  ; TODO: compute NAVERAGE
+
   pols = ['Q', 'U', 'V']   ; polarization labels
   np0 = n_elements(pols)   ; The number of possible polarizations
   ; strings for each possible polarization state (I+Q, I-Q, etc)
