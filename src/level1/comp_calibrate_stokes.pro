@@ -5,6 +5,9 @@
 ; using the calibration information information in an input calibration
 ; structure.
 ;
+; :Returns:
+;   the `[nx, ny, nstokes]` image array of the inverted Stokes vector
+;
 ; :Params:
 ;   data : in, required, type="fltarr(nx, ny, nstates)"
 ;     Data images, one for each observed polarimeter state
@@ -22,9 +25,8 @@
 ;     4 element string containing the labels of the inverted Stokes images
 ;     ('I', 'Q', 'U', and/or 'V')
 ;
-; Returns the [nx,ny,nstokes] image array of the inverted Stokes vector.
-;
-; Joseph Plowman
+; :Author:
+;   Joseph Plowman
 ;-
 function comp_calibrate_stokes, data, vars, labels, cal_struct, $
                                 stokeslabels=stokeslabels
