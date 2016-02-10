@@ -12,9 +12,9 @@
 ;     an array of images to be demodulated
 ;   rawheaders : in, required, type="strarr(n_tags, n_images)"
 ;     the fits headers corresponding to `rawimages`
-;   images : out, required, type="fltarr(nx, ny, n_waves*n_beams*np)"
+;   images : out, required, type="fltarr(nx, ny, n_waves*n_beams*n_polstates)"
 ;     the demodulated (Stokes I/Q/U/V) images
-;   headers : out, required, type="strarr(n_tags+1, n_waves*n_beams*np)"
+;   headers : out, required, type="strarr(n_tags+1, n_waves*n_beams*n_polstates)"
 ;     headers corresponding to images
 ;
 ; :Author:
@@ -35,8 +35,6 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   beams = [-1, 1]
   n_beams = 2
 
-  uniq_polstates = polstates[uniq[polstates, sort(polstates)]]
-
   uniq_waves = waves[uniq[waves, sort(waves)]]
   n_waves = n_elements(uniq_waves)
 
@@ -48,45 +46,64 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   np0 = n_elements(pol_labels)
   all_polarizations = [['I+' + pol_labels], $
                        ['I-' + pol_labels]]
-  polstate_available = intarr(np0)
+  polstates_available = intarr(np0)
   for p = 0L, np0 - 1L do begin
-    polstate_available[p] = (total(polstates eq all_polarizations[p, 0]) gt 0) $
+    polstates_available[p] = (total(polstates eq all_polarizations[p, 0]) gt 0) $
               and (total(polstates eq all_polarizations[p, 1]) gt 0)
   endfor
-  polstate_available_ind = where(polstate_available)
-  np = total(polstate_available, /integer)
+  polstates_available_ind = where(polstates_available)
+  n_polstates = total(polstates_available, /integer)
 
   ; .sav file defines cal_struct variable
   restore, filename=cal_file
 
   for w = 0L, n_elements(uniq_waves) - 1L do begin
     for b = 0L, n_elements(beams) - 1L do begin
-      for p = 0L, n_elements(uniq_polstates) - 1L do begin
+      for p = 0L, n_elements(n_polstates) - 1L do begin
+        pluspol = all_polarizations[polstates_available_ind[p], 0]
+        minuspol = all_polarizations[polstates_available_ind[p], 1]
+
         ; get average for each pol/beam/wavelength state
-        datai = comp_get_component(rawimages, rawheaders, $
-                                   uniq_polstates[p], $
-                                   beams[b], $
-                                   uniq_waves[w], $
-                                   headersout=headersout)
+        pluspol_datai = comp_get_component(rawimages, rawheaders, $
+                                           pluspol, $
+                                           beams[b], $
+                                           uniq_waves[w], $
+                                           headersout=pluspol_headers)
+        minus_dataipol = comp_get_component(rawimages, rawheaders, $
+                                            minuspol, $
+                                            beams[b], $
+                                            uniq_waves[w], $
+                                            headersout=minuspol_headers)
+
         ; TODO: divide by exposure time
-        vars = photfac * abs(datai) * sxpar(headersout, 'NAVERAGE')
+
+        pluspol_vars = photfac * abs(pluspol_datai) * sxpar(pluspol_headers, 'NAVERAGE')
+        minuspol_vars = photfac * abs(minuspol_datai) * sxpar(minuspol_headers, 'NAVERAGE')
+
         ; TODO: compute NAVERAGE
-        images_demod = comp_calibrate_stokes(datai, $
-                                             vars, $
-                                             pol, $
+
+        images_demod = comp_calibrate_stokes(pluspol_datai, $
+                                             pluspol_vars, $
+                                             pluspol, $
                                              cal_struct, $
                                              stokeslabels=stokeslabels)
+        images_demod = comp_calibrate_stokes(minuspol_datai, $
+                                             minuspol_vars, $
+                                             minuspol, $
+                                             cal_struct, $
+                                             stokeslabels=stokeslabels)
+        ; TODO: update images and headers
       endfor
     endfor
   endfor
 
-  ; np + 1 since 0th polarization is Stokes I
+  ; n_polstates + 1 since 0th polarization is Stokes I
   ; one new tag (ntags + 1) for number of exposures in average
-  headers = strarr(ntags + 1, (np + 1) * n_beams * n_waves)
+  headers = strarr(ntags + 1, (n_polstates + 1) * n_beams * n_waves)
   ; output images ordered by polarization-beam-wavelength (wavelength tightest)
-  images = dblarr(nx, ny, (np + 1) * n_beams * n_waves)
+  images = dblarr(nx, ny, (n_polstates + 1) * n_beams * n_waves)
 
-  for i = 0L, np - 1L do begin
+  for i = 0L, n_polstates - 1L do begin
     for j = 0L, n_beams - 1L do begin
       ; pull out the plus and minus Stokes component at each wavelength
       ipstokes = comp_get_component(rawimages, rawheaders, ps_all[polstate_available_ind[i], 0], beams[j], headersout=ipheads)
