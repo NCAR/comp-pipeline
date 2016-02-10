@@ -14,7 +14,7 @@
 ;   vars : in, required, type="fltarr(nx, ny, nstates)"
 ;     Variances corresponding to data
 ;   labels : in, required, type=strarr(nstates)
-;     Strings labeling each image in the data. must have same name format as
+;     Strings labeling each image in the data, must have same name format as
 ;     cal_struct.upols
 ;   cal_struct : in, required, type=structure
 ;     Structure containing calibration information, as produced by
