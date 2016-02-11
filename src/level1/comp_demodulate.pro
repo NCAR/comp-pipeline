@@ -5,7 +5,8 @@
 ; into Stokes I and Q, etc.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_get_component, sxaddpar, sxpar
+;   comp_inventory_header, comp_get_component, comp_calibrate_stokes,
+;   sxaddpar, sxpar
 ;
 ; :Params:
 ;   rawimages : in, required, type="float(nx, ny, n_images)"
@@ -57,9 +58,15 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   ; .sav file defines cal_struct variable
   restore, filename=cal_file
 
-  for w = 0L, n_elements(uniq_waves) - 1L do begin
+  ; n_polstates + 1 since 0th polarization is Stokes I
+  ; one new tag (ntags + 1) for number of exposures in average
+  headers = strarr(ntags + 1, (n_polstates + 1) * n_beams * n_waves)
+  ; output images ordered by polarization-beam-wavelength (wavelength tightest)
+  images = dblarr(nx, ny, (n_polstates + 1) * n_beams * n_waves)
+
+  for p = 0L, n_elements(n_polstates) - 1L do begin
     for b = 0L, n_elements(beams) - 1L do begin
-      for p = 0L, n_elements(n_polstates) - 1L do begin
+      for w = 0L, n_elements(uniq_waves) - 1L do begin
         pluspol = all_polarizations[polstates_available_ind[p], 0]
         minuspol = all_polarizations[polstates_available_ind[p], 1]
 
@@ -80,63 +87,49 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
         pluspol_vars = photfac * abs(pluspol_datai) * sxpar(pluspol_headers, 'NAVERAGE')
         minuspol_vars = photfac * abs(minuspol_datai) * sxpar(minuspol_headers, 'NAVERAGE')
 
-        ; TODO: compute NAVERAGE
+        pluspol_images = comp_calibrate_stokes(pluspol_datai, $
+                                               pluspol_vars, $
+                                               pluspol, $
+                                               cal_struct, $
+                                               stokeslabels=stokeslabels)
+        minuspol_images = comp_calibrate_stokes(minuspol_datai, $
+                                                minuspol_vars, $
+                                                minuspol, $
+                                                cal_struct, $
+                                                stokeslabels=stokeslabels)
+        ; compute NAVERAGE
+        ; TODO: this code assumes NAVERAGE is the same for pluspol_headers and
+        ; minuspol_headers
+        naverage = sxpar(pluspol_headers, 'NAVERAGE') + sxpar(minuspol_headers, 'NAVERAGE')
 
-        images_demod = comp_calibrate_stokes(pluspol_datai, $
-                                             pluspol_vars, $
-                                             pluspol, $
-                                             cal_struct, $
-                                             stokeslabels=stokeslabels)
-        images_demod = comp_calibrate_stokes(minuspol_datai, $
-                                             minuspol_vars, $
-                                             minuspol, $
-                                             cal_struct, $
-                                             stokeslabels=stokeslabels)
-        ; TODO: update images and headers
-      endfor
-    endfor
-  endfor
+        ; update images and headers
 
-  ; n_polstates + 1 since 0th polarization is Stokes I
-  ; one new tag (ntags + 1) for number of exposures in average
-  headers = strarr(ntags + 1, (n_polstates + 1) * n_beams * n_waves)
-  ; output images ordered by polarization-beam-wavelength (wavelength tightest)
-  images = dblarr(nx, ny, (n_polstates + 1) * n_beams * n_waves)
-
-  for i = 0L, n_polstates - 1L do begin
-    for j = 0L, n_beams - 1L do begin
-      ; pull out the plus and minus Stokes component at each wavelength
-      ipstokes = comp_get_component(rawimages, rawheaders, ps_all[polstate_available_ind[i], 0], beams[j], headersout=ipheads)
-      imstokes = comp_get_component(rawimages, rawheaders, ps_all[polstate_available_ind[i], 1], beams[j], headersout=imheads)
-
-      ; form I and Q, U, or V and put them in the appropriate places in the
-      ; image and header arrays:
-      for k = 0L, n_waves - 1L do begin
-        ; TODO: this code assumes NAVERAGE is the same for ipheads and imheads
-        naverage = sxpar(ipheads[*, k], 'NAVERAGE') + sxpar(imheads[*, k], 'NAVERAGE')
-
-        headertemp = ipheads[*, k]
+        temp_headers = pluspol_headers
 
         ; set Stokes Q/U/V headers and images
-        sxaddpar, headertemp, 'POLSTATE', pol_labels[polstate_available_ind[i]]
-        sxaddpar, headertemp, 'NAVERAGE', naverage
-        headers[*, (i + 1) * n_beams * n_waves + j * n_waves + k] = headertemp
-        images[*, *, (i + 1) * n_beams * n_waves + j * n_waves + k] = 0.5 * (ipstokes[*, *, k] - imstokes[*, *, k])
+        sxaddpar, temp_headers, 'POLSTATE', pol_labels[polstate_available_ind[i]]
+        sxaddpar, temp_headers, 'NAVERAGE', naverage
+        headers[*, (p + 1) * n_beams * n_waves + b * n_waves + w] = temp_headers
+        images[*, *, (p + 1) * n_beams * n_waves + b * n_waves + w] $
+          = 0.5 * (pluspol_images[*, *, k] - minuspol_images[*, *, w])
 
         ; update Stokes I headers and images
-        sxaddpar, headertemp, 'POLSTATE', 'I'
-        sxaddpar, headertemp, 'NAVERAGE', $
-                  sxpar(headertemp, 'NAVERAGE') + sxpar(headers[*, j * n_waves + k], 'NAVERAGE')
+        sxaddpar, temp_headers, 'POLSTATE', 'I'
+        sxaddpar, temp_headers, 'NAVERAGE', $
+                  sxpar(temp_headers, 'NAVERAGE') $
+                    + sxpar(headers[*, b * n_waves + w], 'NAVERAGE')
 
-        headers[*, j * n_waves + k] = headertemp
-        images[*, *, j * n_waves + k] += 0.5 * (ipstokes[*, *, k] + imstokes[ *, *, k]) * naverage
+        headers[*, b * n_waves + w] = temp_headers
+        images[*, *, b * n_waves + w] $
+          += 0.5 * (pluspol_images[*, *, w] + minuspol_images[ *, *, w]) * naverage
+
       endfor
     endfor
   endfor
 
-  for j = 0L, n_beams - 1L do begin
-    for k = 0L, n_waves - 1L do begin
-      images[*, *, j * n_waves + k] /= sxpar(headers[*, j * n_waves + k], 'NAVERAGE')
+  for b = 0L, n_beams - 1L do begin
+    for w = 0L, n_waves - 1L do begin
+      images[*, *, b * n_waves + w] /= sxpar(headers[*, b * n_waves + w], 'NAVERAGE')
     endfor
   endfor
 end
