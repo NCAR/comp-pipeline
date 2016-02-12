@@ -37,6 +37,7 @@ function comp_compute_coef_images, cal_struct, data_labels
       for k = 0, n_basis - 1 do begin
         upper = cal_struct.uppercoefs[ical, j * n_basis + k] * cal_struct.uppermask
         lower = cal_struct.lowercoefs[ical, j * n_basis + k] * cal_struct.lowermask
+        ; equation #11, coef_images = r^i_j(x, y)
         coef_images[*, *, i, j] += (upper + lower) * cal_struct.mask * cal_struct.xybasis[*, *, k]
       endfor
     endfor

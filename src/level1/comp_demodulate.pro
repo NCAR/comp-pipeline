@@ -75,25 +75,24 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
         ; to COMP_COMPUTE_COEF_IMAGES)
       endif
 
-        pols = [all_polarizations[polstates_available_ind, 0], $
-                all_polarizations[polstates_available_ind, 1]]
+      pols = [all_polarizations[polstates_available_ind, 0], $
+              all_polarizations[polstates_available_ind, 1]]
 
-        ; get average for each beam/wavelength state
-        pols_data = comp_get_component(rawimages, rawheaders, $
-                                       pols, $
-                                       beams[b], $
-                                       uniq_waves[w], $
-                                       headersout=pols_headers)
+      ; get average for each beam/wavelength state
+      ; TODO: divide by exposure time
+      pols_data = comp_get_component(rawimages, rawheaders, $
+                                     pols, $
+                                     beams[b], $
+                                     uniq_waves[w], $
+                                     headersout=pols_headers)
 
-        ; TODO: divide by exposure time
+      pols_vars = photfac * abs(pols_data) * sxpar(pols_headers, 'NAVERAGE')
 
-        pols_vars = photfac * abs(pols_data) * sxpar(pols_headers, 'NAVERAGE')
-
-        pols_images = comp_calibrate_stokes(pols_data, $
-                                            pols_vars, $
-                                            pols, $
-                                            cal_struct, $
-                                            stokeslabels=stokeslabels)
+      pols_images = comp_calibrate_stokes(pols_data, $
+                                          pols_vars, $
+                                          pols, $
+                                          cal_struct, $
+                                          stokeslabels=stokeslabels)
 
       ; update images and headers
       for p = 0L, n_polstates - 1L do begin
@@ -109,4 +108,12 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
       endfor
     endfor
   endfor
+end
+
+
+; main-level program
+
+; run COMP_DEMODULATE on calibration code
+
+
 end
