@@ -69,7 +69,10 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   if (sxpar(headers[*, 0L], 'NAVERAGE') eq 0L) then ntags++
 
   ; flags to check if polarization states and beams match...
-  check1 = polstates eq polstate and beams eq beam
+  check1 = bytarr(n_elements(polstates))
+  for p = 0L, n_elements(polstate) - 1L do check1 or= polstates eq polstate[p]
+  check1 and= beams eq beam
+  ;check1 = polstates eq polstate and beams eq beam
 
   ; skip very first image, which is bad due to instrument issue...
   if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then check1[0] = 0
