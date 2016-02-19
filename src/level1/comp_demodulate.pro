@@ -52,7 +52,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   polstates_available = intarr(np0)
   for p = 0L, np0 - 1L do begin
     polstates_available[p] = (total(polstates eq all_polarizations[p, 0]) gt 0) $
-              and (total(polstates eq all_polarizations[p, 1]) gt 0)
+                               and (total(polstates eq all_polarizations[p, 1]) gt 0)
   endfor
   polstates_available_ind = where(polstates_available)
   n_polstates = total(polstates_available, /integer)
@@ -68,11 +68,11 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
 
   for w = 0L, n_elements(uniq_waves) - 1L do begin
     for b = 0L, n_elements(beams) - 1L do begin
-      if (total(pol eq 'V') gt 0) then begin
+      if (total(polstates eq 'V') gt 0) then begin
         ; TODO: get nearest QU file (see COMP_FIX_VXTALK for how)
       endif
 
-      if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
+      if (total(polstates eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
         ; TODO: remove Stokes V col/row (from COMP_CALIBRATE_STOKES
         ; to COMP_COMPUTE_COEF_IMAGES)
       endif
