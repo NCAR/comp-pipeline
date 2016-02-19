@@ -72,7 +72,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
         ; TODO: get nearest QU file (see COMP_FIX_VXTALK for how)
       endif
 
-      if (total(polstates eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
+      if (total(polstates eq 'Q') gt 0 or total(polstates eq 'U') gt 0) then begin
         ; TODO: remove Stokes V col/row (from COMP_CALIBRATE_STOKES
         ; to COMP_COMPUTE_COEF_IMAGES)
       endif
@@ -82,6 +82,8 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
 
       ; get average for each beam/wavelength state
       ; TODO: divide by exposure time
+      print, strjoin(strtrim(pols, 2), ', '), beams[b], uniq_waves[w], $
+             format='(%"pols: %s, beam: %d, wave: %0.2f")'
       pols_data = comp_get_component(rawimages, rawheaders, $
                                      pols, $
                                      beams[b], $
@@ -98,13 +100,17 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                                           stokeslabels=stokeslabels)
 
       ; save coef_images and pols_images (equation #32)
+      basename = '20150729.105218.FTS'
+      date_dir = '20150729'
       save, coef_images, $
-            filename=filepath(string(filename, uniq_waves[w], b, $
-                                     format='(%"%s-coef-%s-%d.sav")'), $
+            filename=filepath(string(basename, uniq_waves[w], b, $
+                                     format='(%"%s-coef-%0.2f-%d.sav")'), $
+                              subdir=date_dir, $
                               root=process_basedir)
       save, pols_images, $
-            filename=filepath(string(filename, uniq_waves[w], b, $
-                                     format='(%"%s-pols-%s-%d.sav")'), $
+            filename=filepath(string(basename, uniq_waves[w], b, $
+                                     format='(%"%s-pols-%0.2f-%d.sav")'), $
+                              subdir=date_dir, $                              
                               root=process_basedir)
 
 
@@ -116,7 +122,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
 
         ; set Stokes I/Q/U/V headers and images
         sxaddpar, pols_headers, 'POLSTATE', stokeslabels[p]
-        sxaddpar, pols_headers, 'NAVERAGE', naverage
+        ;sxaddpar, pols_headers, 'NAVERAGE', naverage
         headers[*, (p + 1) * n_beams * n_waves + b * n_waves + w] = pols_headers
         images[*, *, (p + 1) * n_beams * n_waves + b * n_waves + w] = pols_images[*, *, p]
       endfor
