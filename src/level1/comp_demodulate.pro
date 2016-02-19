@@ -137,6 +137,7 @@ comp_initialize, date_dir
 
 ; configure with calibration config file
 comp_configuration, config_filename=config_filename
+comp_setup_loggers
 comp_setup_loggers_date, date_dir
 
 comp_file_type, date_dir
