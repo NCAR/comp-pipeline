@@ -18,10 +18,17 @@
 ;   headers : out, required, type="strarr(n_tags+1, n_waves*n_beams*n_polstates)"
 ;     headers corresponding to images
 ;
+; :Keywords:
+;   coef_images : out, optional, type="dblarr(nx, ny, nlabels, nstokes)"
+;     coefficient images
+;   pols_images : out, optional, type="dblarr(nx, ny, nstokes)"
+;     calibrated stokes images
+;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_demodulate, rawimages, rawheaders, images, headers
+pro comp_demodulate, rawimages, rawheaders, images, headers, $
+                     coef_images=coef_images
   compile_opt strictarr
 
   ; set some constants from the inputs
@@ -92,13 +99,14 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                                           pols_vars, $
                                           pols, $
                                           cal_struct, $
+                                          coef_images=coef_images, $
                                           stokeslabels=stokeslabels)
 
       ; update images and headers
       for p = 0L, n_polstates - 1L do begin
         ; compute NAVERAGE
         ; TODO: how to do this?
-        naverage =
+        ;naverage =
 
         ; set Stokes I/Q/U/V headers and images
         sxaddpar, pols_headers, 'POLSTATE', stokeslabels[p]
@@ -115,5 +123,38 @@ end
 
 ; run COMP_DEMODULATE on calibration code
 
+@comp_config_common
+
+; set some configuration variables
+filename = '20150729.105218.FTS'
+date_dir = '20150729'
+config_filename = filepath('comp.mgalloy.compdata.calibration.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+; initialize
+comp_initialize, date_dir
+
+; configure with calibration config file
+comp_configuration, config_filename=config_filename
+comp_setup_loggers_date, date_dir
+
+comp_file_type, date_dir
+
+; apply darks/flats
+comp_make_dark, date_dir, error=error
+comp_make_flat, date_dir, error=error
+comp_read_data, filename, images, headers, header0
+comp_apply_flats_darks, images, headers, date_dir
+
+; call COMP_DEMODULATE
+comp_demodulate, images, headers, images_demod, headers_demod, $
+                 coef_images=coef_images, pols_images=pols_images
+
+; save coef_images and pols_images (equation #32)
+save, coef_images, $
+      filename=filepath(filename + '-coef_images.sav', root=process_basedir)
+save, pols_images, $
+      filename=filepath(filename + '-pols_images.sav', root=process_basedir)
 
 end

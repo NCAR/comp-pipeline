@@ -21,6 +21,8 @@
 ;     `comp_cal_example_script.pro`
 ;
 ; :Keywords:
+;   coef_images : out, optional, type="dblarr(nx, ny, nlabels, nstokes)"
+;     coefficient images
 ;   stokeslabels : out, optional, type=strarr
 ;     4 element string containing the labels of the inverted Stokes images
 ;     ('I', 'Q', 'U', and/or 'V')
@@ -29,6 +31,7 @@
 ;   Joseph Plowman
 ;-
 function comp_calibrate_stokes, data, vars, labels, cal_struct, $
+                                coef_images=coef_images, $
                                 stokeslabels=stokeslabels
   compile_opt strictarr
 
