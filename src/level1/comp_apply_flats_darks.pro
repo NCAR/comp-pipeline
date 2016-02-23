@@ -9,7 +9,7 @@
 ;   comp_dark_interp, comp_read_flats, comp_fix_hot, sxpar, sgn, sxaddpar
 ;
 ; :Params:
-;   images : in, required, type="fltarr(nx, ny, nimg)"
+;   images : in, out, required, type="fltarr(nx, ny, nimg)"
 ;     the array of CoMP images. Will be dark and flat corrected on output
 ;   headers : in, out, required, type="strarr(ntags, nimg)"
 ;     FITS headers for each of the images; the name of the flat file will be
