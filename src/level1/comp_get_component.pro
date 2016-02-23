@@ -16,7 +16,7 @@
 ;     the array of images from which to retrieve the desired component
 ;   headers : in, required, type="strarr(ntag, nimg)"
 ;     the header array corresponding to images
-;   polstate : in, required, type=string
+;   polstate : in, required, type=string/strarr
 ;     the desired polarization state, e.g., 'I+V', 'Q', 'BKGI'
 ;   beam : in, required, type=integer
 ;     the desired beam setting (+1 or -1); if this data has beams combined
@@ -34,7 +34,7 @@
 ;   headersout : out, optional, type="strarr(varies, nimg)"
 ;     an updated set of headers (adds or updates the 'NAVERAGE' flag)
 ;   average_wavelengths : in, optional, type=boolean
-;     average over wavelengths
+;     average over wavelengths; don't set if `polstate` is an array
 ;   n_wavelengths : in, optional, type=integer, default=all
 ;     number of wavelengths to average over if `AVERAGE_WAVELENGTHS`
 ;     is set
@@ -69,52 +69,57 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   if (sxpar(headers[*, 0L], 'NAVERAGE') eq 0L) then ntags++
 
   ; flags to check if polarization states and beams match...
-  check1 = bytarr(n_elements(polstates))
-  for p = 0L, n_elements(polstate) - 1L do check1 or= polstates eq polstate[p]
-  check1 and= beams eq beam
-  ;check1 = polstates eq polstate and beams eq beam
+  beam_check = beams eq beam
 
   ; skip very first image, which is bad due to instrument issue...
-  if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then check1[0] = 0
+  if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then beam_check[0] = 0
 
-  count = lonarr(nw)
-  imgout = images[*, *, 0L:nw - 1L]
-  headersout = strarr(ntags, nw)
+  count = lonarr(nw, n_elements(polstate))
+  dims = size(images, /dimensions)
+  imgout = make_array(dimension=[dims[0:1], nw, n_elements(polstate)], $
+                      type=size(image, /type))
+  headersout = strarr(ntags, nw, n_elements(polstate))
 
   ; loop over unique wavelengths...
-  for i = 0L, nw - 1L do begin
-    ; find which indices have matching wavelength, polstate, and beam...
-    checki = where(check1 and waves eq wave[i], counti)
-    imagei = images[*, *, checki]
-    if (counti lt 1) then begin
-      message, 'no image at specified polarization/beam/wave'
-    endif
-    if (keyword_set(skipall)) then begin
-      imagei = imagei[*,*,1:counti-1]   ; skip first image at all wavelengths...
-      --counti
-    endif
+  for w = 0L, nw - 1L do begin
+    for p = 0L, n_elements(polstate) - 1L do begin
+      ; find which indices have matching wavelength, polstate, and beam...
+      checkwp = where(beam_check and polstate[p] eq polstates and waves eq wave[w], $
+                      countwp)
+      imagewp = images[*, *, checkwp]
+      if (countwp lt 1) then begin
+        message, 'no image at specified polarization/beam/wave'
+      endif
+      if (keyword_set(skipall)) then begin
+        imagewp = imagewp[*, *, 1:countwp - 1]   ; skip first image at all wavelengths...
+        --countwp
+      endif
 
-    ; average over images with same wavelengths, polstate, and beam:
-    if (counti gt 1) then imagei = mean(imagei, dimension=3)
-    imgout[*, *, i] = imagei
+      ; average over images with same wavelengths, polstate, and beam:
+      if (countwp gt 1) then imagewp = mean(imagewp, dimension=3)
+      imgout[*, *, w, p] = imagewp
 
-    ; update headers...
-    if (sxpar(headers[*, 0L], 'NAVERAGE') eq 0) then begin
-      count[i] = counti
-    endif else begin
-      for j = 0L, n_elements(checki) - 1L do begin
-        count[i] += sxpar(headers[*, checki[j]], 'NAVERAGE')
-      endfor
-    endelse
-    headertemp = headers[*, checki[0]]
-    sxaddpar, headertemp, 'NAVERAGE', count[i], $
-              ' Number of images averaged together', $
-              after='EXPOSURE'
-    headersout[*, i] = headertemp
+      ; update headers...
+      if (sxpar(headers[*, 0L], 'NAVERAGE') eq 0) then begin
+        count[w, p] = countwp
+      endif else begin
+        for j = 0L, n_elements(checkwp) - 1L do begin
+          count[w, p] += sxpar(headers[*, checki[j]], 'NAVERAGE')
+        endfor
+      endelse
+      headertemp = headers[*, checkwp[0]]
+      sxaddpar, headertemp, 'NAVERAGE', count[w, p], $
+                ' Number of images averaged together', $
+                after='EXPOSURE'
+      headersout[*, w, p] = headertemp
+    endfor
   endfor
 
   ; average over all wavelengths if AVERAGE_WAVELENGTHS is set
   if (keyword_set(average_wavelengths) and nw gt 1L) then begin
+    if (n_elements(polstate) gt 1L) then begin
+      message, 'AVERAGE_WAVELENGTHS cannot be set if polstate is an array'
+    endif
     if (n_elements(n_wavelengths) eq 0L) then begin
       start_index = 0L
       end_index = nw - 1L
@@ -124,11 +129,13 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     endelse
     imgout = mean(imgout[*, *, start_index:end_index], dimension=3L)
     count = total(count)
-    headersout = headersout[*, 0L]
+    headersout = headersout[*, 0, 0]
     sxaddpar, headersout, 'NAVERAGE', count, $
               ' Number of images averaged together', $
               after='EXPOSURE'
   endif
 
-  return, imgout
+  headersout = reform(headersout)
+
+  return, reform(imgout)
 end
