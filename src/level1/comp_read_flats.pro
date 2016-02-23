@@ -53,7 +53,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   flat_names = strarr(nwave)
 
   ; flat field filename
-  if (keyword_set(file)) then begin
+  if (n_elements(file) gt 0L) then begin
     flatfile = filepath(file, root=process_dir)
   endif else begin
     flatfile = filepath('flat.fts', root=process_dir)
