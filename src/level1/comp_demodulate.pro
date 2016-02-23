@@ -90,7 +90,11 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                                      uniq_waves[w], $
                                      headersout=pols_headers)
 
-      pols_vars = photfac * abs(pols_data) * sxpar(pols_headers, 'NAVERAGE')
+      
+      pols_vars = photfac * abs(pols_data)
+      for p = 0L, n_elements(pols) -1L do begin
+        pols_vars[*, *, p] = sxpar(pols_headers[*, p], 'NAVERAGE')
+      endfor
 
       pols_images = comp_calibrate_stokes(pols_data, $
                                           pols_vars, $
@@ -100,16 +104,11 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                                           stokeslabels=stokeslabels)
 
       ; save coef_images and pols_images (equation #32)
-      basename = '20150729.105218.FTS'
+      basename = '20150729.090641-090722.FTS'
       date_dir = '20150729'
-      save, coef_images, $
+      save, coef_images, pols_images, pols_data, $
             filename=filepath(string(basename, uniq_waves[w], b, $
-                                     format='(%"%s-coef-%0.2f-%d.sav")'), $
-                              subdir=date_dir, $
-                              root=process_basedir)
-      save, pols_images, $
-            filename=filepath(string(basename, uniq_waves[w], b, $
-                                     format='(%"%s-pols-%0.2f-%d.sav")'), $
+                                     format='(%"%s-%0.2f-%d.sav")'), $
                               subdir=date_dir, $                              
                               root=process_basedir)
 
@@ -121,10 +120,10 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
         ;naverage =
 
         ; set Stokes I/Q/U/V headers and images
-        sxaddpar, pols_headers, 'POLSTATE', stokeslabels[p]
+        sxaddpar, pols_headers[*, p], 'POLSTATE', stokeslabels[p]
         ;sxaddpar, pols_headers, 'NAVERAGE', naverage
-        headers[*, (p + 1) * n_beams * n_waves + b * n_waves + w] = pols_headers
-        images[*, *, (p + 1) * n_beams * n_waves + b * n_waves + w] = pols_images[*, *, p]
+        ;headers[*, (p + 1) * n_beams * n_waves + b * n_waves + w] = pols_headers
+        ;images[*, *, (p + 1) * n_beams * n_waves + b * n_waves + w] = pols_images[*, *, p]
       endfor
     endfor
   endfor
@@ -138,7 +137,9 @@ end
 @comp_config_common
 
 ; set some configuration variables
-basename = '20150729.105218.FTS'
+basenameQU = '20150729.090641.FTS'
+basenameV = '20150729.090722.FTS'
+
 date_dir = '20150729'
 config_filename = filepath('comp.mgalloy.compdata.calibration.cfg', $
                            subdir=['..', '..', 'config'], $
@@ -155,18 +156,25 @@ comp_configuration, config_filename=config_filename
 comp_file_type, date_dir
 
 ; apply darks/flats
-if (~file_test(filepath('dark.fts', root=process_basedir))) then begin
+if (~file_test(filepath('dark.fts', subdir=date_dir, root=process_basedir))) then begin
   comp_make_dark, date_dir, error=error
 endif
-if (~file_test(filepath('flat.fts', root=process_basedir))) then begin
+if (~file_test(filepath('flat.fts', subdir=date_dir, root=process_basedir))) then begin
   comp_make_flat, date_dir, error=error
 endif
 
-filename = filepath(basename, subdir=date_dir, root=raw_basedir)
-comp_read_data, filename, images, headers, header0
-comp_apply_flats_darks, images, headers, date_dir
+filenameQU = filepath(basenameQU, subdir=date_dir, root=raw_basedir)
+filenameV = filepath(basenameV, subdir=date_dir, root=raw_basedir)
+
+comp_read_data, filenameQU, imagesQU, headersQU, header0QU
+comp_read_data, filenameV, imagesV, headersV, header0V
+
+comp_apply_flats_darks, imagesQU, headersQU, date_dir
+comp_apply_flats_darks, imagesV, headersV, date_dir
 
 ; call COMP_DEMODULATE
+images = [[[imagesQU]], [[imagesV]]]
+headers = [[headersQU], [headersV]]
 comp_demodulate, images, headers, images_demod, headers_demod
 
 end
