@@ -48,7 +48,7 @@ function comp_get_cal_info, files, npchans=npchans, whichwave=whichwave
   compile_opt strictarr
 
   if (n_elements(npchans) eq 0) then npchans = 6
-  if (n_elements(wave) eq 0) then whichwave = 1075
+  if (n_elements(whichwave) eq 0) then whichwave = 1075
 
   nfiles = n_elements(files)
   filesout = strarr(nfiles)
