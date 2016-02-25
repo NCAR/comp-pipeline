@@ -90,10 +90,10 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                                      uniq_waves[w], $
                                      headersout=pols_headers)
 
-      
-      pols_vars = photfac * abs(pols_data)
-      for p = 0L, n_elements(pols) -1L do begin
-        pols_vars[*, *, p] = sxpar(pols_headers[*, p], 'NAVERAGE')
+
+      pols_vars = 0.0 * pols_data   ; pols_vars needs to be same size/type as pols_data
+      for p = 0L, n_elements(pols) - 1L do begin
+        pols_vars[*, *, p] += photfac * abs(pols_data) * sxpar(pols_headers[*, p], 'NAVERAGE')
       endfor
 
       pols_images = comp_calibrate_stokes(pols_data, $
@@ -109,7 +109,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
       save, coef_images, pols_images, pols_data, $
             filename=filepath(string(basename, uniq_waves[w], b, $
                                      format='(%"%s-%0.2f-%d.sav")'), $
-                              subdir=date_dir, $                              
+                              subdir=date_dir, $
                               root=process_basedir)
 
 
