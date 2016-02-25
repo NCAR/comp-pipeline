@@ -63,8 +63,8 @@ solve_flags[8] = 1 ; Calibration retarder angle.
 calvar_solve = where(solve_flags)
 guess = calvars[calvar_solve]
 scale = scales[calvar_solve]
-res = amoeba(1.0e-5, function_name='comp_cal_powfunc', p0=guess, scale=scale)
-chi2 = comp_cal_powfunc(res, diag_plot_dir=plot_dir)
+params = amoeba(1.0e-5, function_name='comp_cal_powfunc', p0=guess, scale=scale)
+chi2 = comp_cal_powfunc(params, diag_plot_dir=plot_dir)
 print, 'Final chi squared = ', chi2
 for i = 0, 8 do print, calvar_labels[i], '= ', calvars[i]
 
@@ -90,7 +90,7 @@ cal_struct = {xybasis:xybasis, $
               chi2:chi2}
 
 common comp_config_common
-save, cal_struct, $
+save, cal_struct, params, $
       filename=filepath('calibration_structure_wtrans.sav', root=process_basedir)
 
 comp_make_coef_plots, coef_plot_dir
