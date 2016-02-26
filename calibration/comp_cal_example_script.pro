@@ -91,7 +91,7 @@ cal_struct = {xybasis:xybasis, $
 
 common comp_config_common
 save, cal_struct, params, $
-      filename=filepath('calibration_structure_wtrans.sav', root=process_basedir)
+      filename=filepath('calibration_structure_wtrans.sav', root=cal_directory)
 
 comp_make_coef_plots, coef_plot_dir
 
