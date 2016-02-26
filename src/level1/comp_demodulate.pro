@@ -137,8 +137,39 @@ end
 @comp_config_common
 
 ; set some configuration variables
+
+; 0 degrees, retarder out
 basenameQU = '20150729.090641.FTS'
 basenameV = '20150729.090722.FTS'
+
+; 45 degrees, retarder out
+;basenameQU = '20150729.091059.FTS'
+;basenameV = '20150729.091140.FTS'
+
+; 90 degrees, retarder out
+;basenameQU = '20150729.091517.FTS'
+;basenameV = '20150729.091558.FTS'
+
+; 135 degrees, retarder out
+;basenameQU = '20150729.091935.FTS'
+;basenameV = '20150729.092016.FTS'
+
+; 0 degrees, retarder in
+;basenameQU = '20150729.093506.FTS'
+;basenameV = '20150729.093547.FTS'
+
+; 45 degrees, retarder in
+;basenameQU = '20150729.093926.FTS'
+;basenameV = '20150729.094007.FTS'
+
+; 90 degrees, retarder in
+;basenameQU = '20150729.094344.FTS'
+;basenameV = '20150729.094425.FTS'
+
+; 135 degrees, retarder in
+;basenameQU = '20150729.094802.FTS'
+;basenameV = '20150729.094843.FTS'
+
 
 date_dir = '20150729'
 config_filename = filepath('comp.mgalloy.compdata.calibration.cfg', $
