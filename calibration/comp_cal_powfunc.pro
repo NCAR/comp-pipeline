@@ -43,24 +43,24 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir
   uppercoefs = dblarr(nupols, nstokes * nbasis)
   lowercoefs = dblarr(nupols, nstokes * nbasis)
 
-  ; update the non-fixed calibration variables with the most recent input:
+  ; update the non-fixed calibration variables with the most recent input
   calvars[calvar_solve] = input
 
   ; set up the variables for the calibration optics
-  stokesin = calvars[0:3] ; The input Stokes vector
-  ptrans   = calvars[4]   ; Calibration polarizer transmission
-  pangerr  = calvars[5]   ; Systematic offset error in polarizer angle (degrees)
-  rtrans   = calvars[6]   ; Calibration retarder transmission
-  ret      = calvars[7]   ; Calibration retarder retardance (degrees)
-  r_ang    = calvars[8]   ; Calibration retarder angle (degrees)
+  stokesin = calvars[0:3] ; input Stokes vector
+  ptrans   = calvars[4]   ; calibration polarizer transmission
+  pangerr  = calvars[5]   ; systematic offset error in polarizer angle (degrees)
+  rtrans   = calvars[6]   ; calibration retarder transmission
+  ret      = calvars[7]   ; calibration retarder retardance (degrees)
+  r_ang    = calvars[8]   ; calibration retarder angle (degrees)
 
   ; Chi squared penalty on transmissions greater than 1
-  penalty = exp(((rtrans-1 > 0)+(ptrans-1 > 0))/.01)
+  penalty = exp(((rtrans - 1 > 0) + (ptrans - 1 > 0)) / 0.01)
 
   ; loop over unique polarization analyzer states (nominal 'I+Q', 'I+U', etc)
   for i = 0, nupols - 1 do begin
-    ; Find which calibration optics configurations for which we have data in
-    ; the current polarization analyzer state:
+    ; find which calibration optics configurations for which we have data in
+    ; the current polarization analyzer state
     icurrent = where(datapols eq upols[i])
     ncurrent = n_elements(icurrent)
 
@@ -105,7 +105,7 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir
   endfor
 
   ; compute chi squared between cal_data and data
-  chi2 = 0.0 ; Initialize chi squared.
+  chi2 = 0.0   ; initialize chi squared
   for i = 0, ndata - 1 do begin
     resids = reform((cal_data[*, *, i] - data[*, *, i])^2.0 / vars[*, *, i])
     chi2 += total(mask * resids, /nan)

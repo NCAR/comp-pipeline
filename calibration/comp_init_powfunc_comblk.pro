@@ -198,7 +198,7 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, $
     cal = cal_info.ctags[ii] ; cal optics state for this file (assumes only one per file)
 
     ; loop over the measured polarizations in the file
-    for j =0, n_mpols[ii] - 1 do begin
+    for j = 0, n_mpols[ii] - 1 do begin
       pol = cal_info.mpols[ii, j]   ; the current measured polarization
       ; where this polarization and calibration combo lands in the data array
       ; (which index)

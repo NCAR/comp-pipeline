@@ -35,25 +35,25 @@ calvar_labels = ['I in', 'Q in', 'U in', 'V in', 'Pol trans', 'P ang err', $
 
 ; This vector holds the calibration optics variables:
 calvars = dblarr(9)
-calvars[0:3] = [1.,0.,0.,0.] ; The input Stokes vector.
-calvars[4] = 0.45 ; Calibration polarizer transmission.
-calvars[5] = 0.0 ; Systematic offset error in the polarizer angle (in degrees).
-calvars[6] = 0.99 ; Calibration retarder transmission.
+calvars[0:3] = [1., 0., 0., 0.] ; The input Stokes vector.
+calvars[4] = 0.45   ; Calibration polarizer transmission.
+calvars[5] = 0.0    ; Systematic offset error in the polarizer angle (in degrees).
+calvars[6] = 0.99   ; Calibration retarder transmission.
 calvars[7] = 94.438 ; Calibration retarder retardance (in degrees).
-calvars[8] = 0.0 ; Calibration retarder angle (in degrees).
+calvars[8] = 0.0    ; Calibration retarder angle (in degrees).
 
 ; Scales for initial guesses:
 scales = dblarr(9)
-scales[0:3] = [0.05,0.05,0.05,0.05] ; The input Stokes vector.
-scales[4] = 0.05 ; Calibration polarizer transmission.
-scales[5] = 5.0 ; Systematic offset error in the polarizer angle (in degrees).
-scales[6] = 0.01 ; Calibration retarder transmission.
-scales[7] = 5.0 ; Calibration retarder retardance (in degrees).
-scales[8] = 5.0 ; Calibration retarder angle (in degrees).
+scales[0:3] = [0.05, 0.05, 0.05, 0.05] ; The input Stokes vector.
+scales[4] = 0.05  ; Calibration polarizer transmission.
+scales[5] = 5.0   ; Systematic offset error in the polarizer angle (in degrees).
+scales[6] = 0.01  ; Calibration retarder transmission.
+scales[7] = 5.0   ; Calibration retarder retardance (in degrees).
+scales[8] = 5.0   ; Calibration retarder angle (in degrees).
 
 ; Flags for which calibration variables the amoeba should search for:
 solve_flags = intarr(9)
-solve_flags[0:3] = [0,0,0,0] ; The input Stokes vector.
+solve_flags[0:3] = [0, 0, 0, 0] ; The input Stokes vector.
 solve_flags[4] = 1 ; Calibration polarizer transmission.
 solve_flags[5] = 0 ; Systematic offset error in the polarizer angle.
 solve_flags[6] = 1 ; Calibration retarder transmission.
