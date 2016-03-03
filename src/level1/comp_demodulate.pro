@@ -93,7 +93,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
 
       pols_vars = 0.0 * pols_data   ; pols_vars needs to be same size/type as pols_data
       for p = 0L, n_elements(pols) - 1L do begin
-        pols_vars[*, *, p] += photfac * abs(pols_data) * sxpar(pols_headers[*, p], 'NAVERAGE')
+        pols_vars[*, *, p] += photfac * abs(pols_data[*, *, p]) * sxpar(pols_headers[*, p], 'NAVERAGE')
       endfor
 
       pols_images = comp_calibrate_stokes(pols_data, $
@@ -106,7 +106,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
       ; save coef_images and pols_images (equation #32)
       basename = '20150729.090641-090722.FTS'
       date_dir = '20150729'
-      save, coef_images, pols_images, pols_data, $
+      save, coef_images, pols_images, pols_data, pols_vars, $
             filename=filepath(string(basename, uniq_waves[w], b, $
                                      format='(%"%s-%0.2f-%d.sav")'), $
                               subdir=date_dir, $
