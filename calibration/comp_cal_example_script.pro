@@ -17,9 +17,22 @@ if (~file_test(config_filename)) then begin
   message, 'configure file not found: ' + config_filename
 endif
 
+basename = 'cal-x2-y2'
+mg_log, name='cal', logger=logger
+logger->setProperty, format='%(time)s %(levelshortname)s: %(message)s', $
+                     level=5, $
+                     filename=basename + '.log'
+
+; initialize the paths and common blocks for CoMP pipeline routines                        
+date_dir = file_basename(cal_directory)
+comp_configuration, config_filename=config_filename
+comp_initialize, date_dir
+comp_setup_loggers
+comp_setup_loggers_date, date_dir
+
 ; initialize as well as apply flats/darks
-if(n_elements(reload) eq 0 or keyword_set(reload)) then begin
-  comp_init_powfunc_comblk, cal_directory, wave, beam, config_filename=config_filename
+if (n_elements(reload) eq 0 or keyword_set(reload)) then begin
+  comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
 endif
 
 reload=0
@@ -39,7 +52,7 @@ calvars[0:3] = [1., 0., 0., 0.] ; The input Stokes vector.
 calvars[4] = 0.45   ; Calibration polarizer transmission.
 calvars[5] = 0.0    ; Systematic offset error in the polarizer angle (in degrees).
 calvars[6] = 0.99   ; Calibration retarder transmission.
-calvars[7] = 94.438 ; Calibration retarder retardance (in degrees).
+calvars[7] = 90.0   ; Calibration retarder retardance (in degrees).
 calvars[8] = 0.0    ; Calibration retarder angle (in degrees).
 
 ; Scales for initial guesses:
@@ -64,10 +77,12 @@ calvar_solve = where(solve_flags)
 guess = calvars[calvar_solve]
 scale = scales[calvar_solve]
 params = amoeba(1.0e-5, function_name='comp_cal_powfunc', p0=guess, scale=scale, ncalls=ncalls)
-print, ncalls, format='(%"Number of function evaluations in AMOEBA: %d")'
-chi2 = comp_cal_powfunc(params, diag_plot_dir=plot_dir)
-print, 'Final chi squared = ', chi2
-for i = 0, 8 do print, calvar_labels[i], '= ', calvars[i]
+chi2 = comp_cal_powfunc(params, diag_plot_dir=plot_dir, $
+                        model_filename=basename + '.sav')
+mg_log, 'Number of function evaluations in AMOEBA: %d', ncalls, name='cal', /info
+mg_log, 'Params: %s', strjoin(strtrim(params, 2), ', '), name='cal', /info
+mg_log, 'Final chi^2: %f', chi2, name='cal', /info
+for i = 0, 8 do mg_log, '%s = %f', calvar_labels[i], calvars[i], name='cal', /info
 
 ; This structure holds the essential calibration information:
 cal_struct = {xybasis:xybasis, $
@@ -92,7 +107,9 @@ cal_struct = {xybasis:xybasis, $
 
 @comp_config_common
 save, cal_struct, params, $
-      filename=filepath('calibration_structure_wtrans.sav', root=cal_directory)
+      filename=filepath('calibration_structure_wtrans.sav', $
+                        subdir=date_dir, $
+                        root=process_basedir)
 
 comp_make_coef_plots, coef_plot_dir
 
