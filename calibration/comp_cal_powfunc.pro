@@ -19,12 +19,15 @@
 ; :Params:
 ;   diag_plot_dir : in, optional, type=string
 ;     specifies a directory for diagnostic plots of the data and fit (see
-;     `comp_plot_cal_comblk_data`).
+;     `comp_plot_cal_comblk_data`)
+;   model_filename : in, optional, type=string
+;     if present, save model data to `.sav` file
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir
+function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
+                           model_filename=model_filename
   compile_opt strictarr
   common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, $
                           datalower, varsupper, varslower, xmat, ymat, cpols, $
@@ -108,12 +111,18 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir
   chi2 = 0.0   ; initialize chi squared
   for i = 0, ndata - 1 do begin
     resids = reform((cal_data[*, *, i] - data[*, *, i])^2.0 / vars[*, *, i])
+    ;resids = reform((cal_data[*, *, i] - data[*, *, i])^2.0)
     chi2 += total(mask * resids, /nan)
   endfor
   chi2 /= total(mask) * ndata
 
   ; plot diagnostic data if the plot directory parameter is set
   if (n_elements(diag_plot_dir) gt 0) then comp_plot_cal_comblk_data, diag_plot_dir
+
+  ; compare model to data
+  if (n_elements(model_filename) gt 0L) then begin
+    save, cal_data, data, datacals, datapols, filename=model_filename
+  endif
 
   print, chi2 * penalty, input ; printout to show progress of inversion
   return, chi2 * penalty
