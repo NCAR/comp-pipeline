@@ -36,7 +36,7 @@ function comp_get_response_images, coefs, xybasis
   images = dblarr(nx, ny, nstokes)
   for i = 0, nstokes - 1 do begin
     for j = 0, n_basis - 1 do begin
-      images[*, *, i] += coefs[i * nstokes + j] * xybasis[*, *, j]
+      images[*, *, i] += coefs[i * n_basis + j] * xybasis[*, *, j]
     endfor
   endfor
 

@@ -57,7 +57,7 @@ function comp_get_polarimeter_coefficients, data, vars, pols, xybasis
   ; this array gives the mapping from n_coef to nstokes*nc_spatial
   jlvec = lonarr(n_coef,2)
   for j = 0, nstokes - 1 do begin
-    for l = 0, nc_spatial - 1 do jlvec[j * nstokes + l, *] = [j, l]
+    for l = 0, nc_spatial - 1 do jlvec[j * nc_spatial + l, *] = [j, l]
   endfor
 
   bvec = dblarr(n_coef)
@@ -74,5 +74,6 @@ function comp_get_polarimeter_coefficients, data, vars, pols, xybasis
       endfor
     endfor
   endfor
+
   return, invert(amat, /double) # bvec
 end
