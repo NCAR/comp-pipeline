@@ -102,18 +102,17 @@
 ;      this is only placed here to clean up the code a bit).
 ;
 ; :Params:
-;  cal_directory : in, required, type=string
-;    the directory containing the cal files
-;  wave :  in, required, type=string
-;    which line to use (median wavelength rounded to nearest nm)
-;  beam : in, required, type=integer
-;    which beam splitter setting to use (+1 or -1)
+;   cal_directory : in, required, type=string
+;     the directory containing the cal files
+;   wave :  in, required, type=string
+;     which line to use (median wavelength rounded to nearest nm)
+;   beam : in, required, type=integer
+;     which beam splitter setting to use (+1 or -1)
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_init_powfunc_comblk, cal_directory, wave, beam, $
-                              config_filename=config_filename
+pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
   compile_opt strictarr
   common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, $
                           varsupper, varslower, xmat, ymat, cpols, pangs, $
@@ -126,11 +125,6 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, $
   nstokes = 4   ; Stokes vector has 4 components
   ; conversion factor from disk intensity to photons (for 250ms exposures)
   photfac = double(1.0 / sqrt(875.0))
-
-  ; initialize the paths and common blocks for CoMP pipeline routines
-  date_dir = file_basename(cal_directory)
-  comp_configuration, config_filename=config_filename
-  comp_initialize, date_dir
 
   ; standard CoMP images are 1k by 1k, before beam combining
   if (n_elements(nx) eq 0) then nx = 1024
@@ -193,6 +187,7 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, $
 
   for i = 0, nfiles - 1 do begin
     ii = calfiles[i]   ; select the next cal file
+    mg_log, 'reading %s...', cal_info.files[ii], name='comp', /debug
     comp_read_data, cal_info.files[ii], images, headers, header0
     comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     cal = cal_info.ctags[ii] ; cal optics state for this file (assumes only one per file)
