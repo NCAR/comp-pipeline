@@ -181,7 +181,7 @@ With these in hand, it is trivial to solve for the coefficients by inverting Equ
 	\mathbf{c} = A^{-1}\cdot\mathbf{b}
 \end{equation}
 
-This gives us the coefficients which define the response vector for a single state of the polarimeter (e.g., $c^{\mathrm{I+Q}}_{ij})$, and for a single beam (and beam setting) on the detector. The codes treats the two beams on the detector by performing the calculation twice, once for the upper annulus (above the diagonal) and once for the lower one, computing independent coefficients for each. The overall $chi^2$ of the fit to this polarimeter state and beam setting is then computed by patching the two sections together and computing the difference with the data in the usual way. We the proceed to do the same thing for each polarimeter state, producing a set of best fit coefficients and $chi^2$ values for each, given the Stokes vector produced by the calibration optics (which depend on the calibrator variables from Equation \ref{eq:calvariables}). Note that this assumes that the Stokes responses of each polarimeter state are completely independent and unknown a priori.
+This gives us the coefficients which define the response vector for a single state of the polarimeter (e.g., $c^{\mathrm{I+Q}}_{ij})$, and for a single beam (and beam setting) on the detector. The codes treats the two beams on the detector by performing the calculation twice, once for the upper annulus (above the diagonal) and once for the lower one, computing independent coefficients for each. The overall $\chi^2$ of the fit to this polarimeter state and beam setting is then computed by patching the two sections together and computing the difference with the data in the usual way. We the proceed to do the same thing for each polarimeter state, producing a set of best fit coefficients and $\chi^2$ values for each, given the Stokes vector produced by the calibration optics (which depend on the calibrator variables from Equation \ref{eq:calvariables}). Note that this assumes that the Stokes responses of each polarimeter state are completely independent and unknown a priori.
 
 \section{Searching for the Calibrator Variables}
 
@@ -233,7 +233,7 @@ There is more software to be written before a calibrated set of data can be prod
 	\item Standardize on data format for storing the calibration coefficients. The example script writes a structure with the necessary information to an IDL save file, but we should probably move to something more portable.
 	\item Write the core code to do the demodulation and correction of Section \ref{sec:demodulation}. I will attempt this tomorrow, but will not have time to test this code (that depends on the next point).
 	\item Incorporate into pipeline code which reads the calibration files, as well as all of the data necessary to do the demodulation/correction (e.g., I+-Q/U data if this is a Stokes V file), and puts them into the correct data structures for the demodulation/correction code to run. It will also need to check and see if a reduced rank solution should be carried out instead, and rearrange the data and calibration information accordingly.
-	\item Once these new demodulated data have been produced, the rest of the pipeline *should* be able to proceed as usual.
+	\item Once these new demodulated data have been produced, the rest of the pipeline {\em should} be able to proceed as usual.
 \end{enumerate}
 
 
