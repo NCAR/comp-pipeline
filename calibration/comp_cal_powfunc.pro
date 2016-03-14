@@ -27,7 +27,7 @@
 ;   Joseph Plowman
 ;-
 function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
-                           model_filename=model_filename
+                           model_basename=model_basename
   compile_opt strictarr
   common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, $
                           datalower, varsupper, varslower, xmat, ymat, cpols, $
@@ -102,6 +102,9 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
                     lowermask:lowermask, $
                     pols:pols, $
                     xybasis:xybasis}
+    if (n_elements(model_basename) gt 0L) then begin
+      save, coefscurrent, filename=model_basename + '-' + upols[i] + '.sav'
+    endif
     for j = 0, ncurrent - 1 do begin
       cal_data[*, *, icurrent[j]] = comp_compute_cal_image(coefscurrent, pols[j, *])
     endfor
@@ -120,8 +123,8 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
   if (n_elements(diag_plot_dir) gt 0) then comp_plot_cal_comblk_data, diag_plot_dir
 
   ; compare model to data
-  if (n_elements(model_filename) gt 0L) then begin
-    save, cal_data, data, datacals, datapols, filename=model_filename
+  if (n_elements(model_basename) gt 0L) then begin
+    save, cal_data, data, datacals, datapols, filename=model_basename + '.sav'
   endif
 
   print, chi2 * penalty, input ; printout to show progress of inversion
