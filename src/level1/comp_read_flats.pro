@@ -10,19 +10,21 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;   wave
+;   wave : in, required, type=fltarr(n_extensions)
 ;     array of wavelengths of data images
-;   beam
+;   beam : in, required, type=fltarr(n_extensions)
 ;     array of beam values for data images
-;   time
+;   time : in, required, type=fltarr(n_extensions)
 ;     time of data image
 ;   flat : out, required, type="fltarr(1024, 1024, nwave)"
+;     set to a named variable to retrieve the flat images
 ;   flat_header : out, required, type=strarr
 ;   flat_waves
 ;   exposure
 ;
 ; :Keywords:
-;    file
+;   file : in, optional, type=string, default=flat.fts
+;     filename of FITS file containing flats
 ;
 ; :Author:
 ;   Tomczyk
