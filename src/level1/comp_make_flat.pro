@@ -94,6 +94,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   times = fltarr(5000)
   wavelengths = fltarr(5000)
   exposures = fltarr(5000)
+  polstates = fltarr(5000)
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
@@ -101,7 +102,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   ; open file for flats
   ; optionally get older flat from flat directory
   if (keyword_set(replace_flat)) then begin
-    mg_log, 'replacing flat file with older one'
+    mg_log, 'replacing flat file with older one', name='comp', /warning
     file_copy, filepath('flat.fts', root=flat_dir), process_dir, /overwrite
   endif else begin
     outfile = 'flat.fts'
@@ -176,10 +177,16 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
       ; find unique wavelengths/beams
       uniq_waves = wave[comp_uniq(wave, sort(wave))]
-      nwaves = n_elements(uniq_waves)
+      n_uniq_waves = n_elements(uniq_waves)
+      
+      ; find unique polarization states
+      uniq_pols = pol[comp_uniq(pol, sort(pol))]
+      n_uniq_pols = n_elements(uniq_pols)
 
-      ; perform averaging
-      comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
+      ; perform averaging by wavelength/beam state and polarization state
+      comp_flat_avg, date_dir, time, $
+                     wave, uniq_waves, pol, uniq_pols, $
+                     exposure, fcbin, flats
 
       ; extract masking information from second flat image (don't use first)
       image = flats[*, *, 1]
@@ -201,123 +208,135 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       endif
 
       ; Process by wavelength
-      for i = 0L, nwaves - 1L do begin
+      for w = 0L, n_uniq_waves - 1L do begin
+        for p = 0L, n_uniq_pols - 1L do begin
+          i = w * n_uniq_pols + p
 
-        ; any error will go on to the next image
-        catch, error_status
-        if (error_status ne 0L) then begin
-          ;catch, /cancel
-          mg_log, 'error making flat, skipping this opal image', $
-                  name='comp', /warn
-          mg_log, /last_error, name='comp'
-          continue
-        endif
+          ; any error will log a warning with stack trace and go on to the next
+          ; image
+          catch, error_status
+          if (error_status ne 0L) then begin
+            mg_log, 'error making flat, skipping this opal image', $
+                    name='comp', /warn
+            mg_log, /last_error, name='comp'
+            continue
+          endif
 
-        image = flats[*, *, i]
+          image = flats[*, *, i]
 
-        ; fix hot pixels
-        image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
+          ; fix hot pixels
+          image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
 
-        mg_log, 'uniq_waves: %s', strjoin(strtrim(uniq_waves, 2), ', '), $
-                name='comp', /debug
-        if (debug eq 1) then begin
-          tvwin, image
-          profiles, image
-          wait, 0.5
-        endif
-
-        sxaddpar, header, 'WAVELENG', abs(uniq_waves[i])
-        sxaddpar, header, 'BEAM', fix(uniq_waves[i] / abs(uniq_waves[i]))
-
-        ; corrections for stray light and trending
-
-        ; remove stray light
-        if (make_flat_destraying) then begin
-          ; doesn't have post and overlap in
-          comp_fix_stray_light, image, header, fit
-          ; characterize the fit and save
-          fit_moment = moment(fit)
-          sxaddpar, header, 'FITMNFLT', fit_moment[0], ' Stray Light Fit Mean for Flat'
-          sxaddpar, header, 'FITVRFLT', fit_moment[1], ' Stray Light Fit Variance for Flat'
-        endif
-
-        ; detrend across large image
-        if (make_flat_detrending) then begin
-          ; TODO use post_angle1 for second post because second is in wrong position
-          comp_fix_trend, image, occulter1, occulter2, field1, field2, post_angle1, post_angle1, fit
-          fit_moment = moment(fit)
-          sxaddpar, header, 'DETMNFLT', fit_moment[0], ' Detrend Fit Mean for Flat'
-          sxaddpar, header, 'DETVRFLT', fit_moment[1], ' Detrend Fit Variance for Flat'
-        endif
-
-        ; background correction for the solar spectrum
-        if (make_flat_spectral_correction) then begin
-          mg_log, 'background correction for the solar spectrum', $
-                  name='comp', /info
-          comp_flat_norm, abs(uniq_waves[i]), t_on, t_off
-          if (uniq_waves[i] lt 0) then begin
-            background_correction_1 = t_on
-            background_correction_2 = t_off
-          endif else begin
-            background_correction_1 = t_off
-            background_correction_2 = t_on
-          endelse
-
-          mask_full_fill = comp_mask_1024(occulter1, occulter2, $
-                                          field1, field2, $
-                                          post_angle1, post_angle2, $
-                                          o_offset=0.0, f_offset=0.0, $
-                                          bc1=background_correction_1, $
-                                          bc2=background_correction_2, $
-                                          /nopost, /nooverlap, /nullcolumns)
-        endif
-
-        ;  normalize flats so that they normalize intensity into units of millionths
-        image /= norm
-
-        ; Check signal
-        ; A mask with only occulter and field, but right at edges
-        tmp_image = mask_full_fill * image
-        medflat = median(tmp_image[where(tmp_image ne 0.)])
-
-        ; Test medflat for scenario where opal didn't go in after a power failure
-        if (medflat lt threshold) then begin
-          mg_log, 'flat median too low', name='comp', /warn
-          mg_log, 'is the opal failing to go back in?', name='comp', /warn
-          break
-        endif
-
-        if (make_flat_fill) then begin
-          ; TODO: Steve's fill introduces median values into the annulus, where they look like hot pixels
-;         tmp_image = mask_full_stray * image
-;         bad = where(tmp_image lt 0.2 * medflat)
-;         image[bad] = medflat
-
-          ; fill outside mask
-          good = where(mask_full_fill eq 1.0, complement=bad)
-          medflat = median(image[good])
-          image[bad] = medflat
-          mg_log, 'filling flat values with %f outside annulus', medflat, $
+          mg_log, 'uniq_waves: %s', strjoin(strtrim(uniq_waves, 2), ', '), $
                   name='comp', /debug
-        endif
+          if (debug eq 1) then begin
+            tvwin, image
+            profiles, image
+            wait, 0.5
+          endif
 
-        ; make sure there aren't any zeros
-        bad = where(image eq 0.0, count)
-        if (count gt 0L) then begin
-          mg_log, 'zeros in flat %s at pixels %s', opalfile, $
-                  strjoin(strtrim(bad, 2), ', '), $
-                  name='comp', /warn
-          image[bad] = medflat
-        endif
+          sxaddpar, header, 'WAVELENG', abs(uniq_waves[w])
+          sxaddpar, header, 'BEAM', fix(uniq_waves[w] / abs(uniq_waves[w]))
+          sxaddpar, header, 'POLSTATE', uniq_pols[p]
 
-        ename = string(format='(f8.2)', uniq_waves[i])
+          ; corrections for stray light and trending
 
-        fits_write, fcbout, image, header, extname=ename
+          ; remove stray light
+          if (make_flat_destraying) then begin
+            ; doesn't have post and overlap in
+            comp_fix_stray_light, image, header, fit
+            ; characterize the fit and save
+            fit_moment = moment(fit)
+            sxaddpar, header, 'FITMNFLT', fit_moment[0], $
+                      ' Stray Light Fit Mean for Flat'
+            sxaddpar, header, 'FITVRFLT', fit_moment[1], $
+                      ' Stray Light Fit Variance for Flat'
+          endif
 
-        times[nflat] = time
-        wavelengths[nflat] = uniq_waves[i]
-        exposures[nflat] = exposure
-        ++nflat
+          ; detrend across large image
+          if (make_flat_detrending) then begin
+            ; TODO use post_angle1 for second post because second is in wrong
+            ; position
+            comp_fix_trend, image, $
+                            occulter1, occulter2, $
+                            field1, field2, $
+                            post_angle1, post_angle1, fit
+            fit_moment = moment(fit)
+            sxaddpar, header, 'DETMNFLT', fit_moment[0], ' Detrend Fit Mean for Flat'
+            sxaddpar, header, 'DETVRFLT', fit_moment[1], ' Detrend Fit Variance for Flat'
+          endif
+
+          ; background correction for the solar spectrum
+          if (make_flat_spectral_correction) then begin
+            mg_log, 'background correction for the solar spectrum', $
+                    name='comp', /info
+            comp_flat_norm, abs(uniq_waves[w]), t_on, t_off
+            if (uniq_waves[w] lt 0) then begin
+              background_correction_1 = t_on
+              background_correction_2 = t_off
+            endif else begin
+              background_correction_1 = t_off
+              background_correction_2 = t_on
+            endelse
+
+            mask_full_fill = comp_mask_1024(occulter1, occulter2, $
+                                            field1, field2, $
+                                            post_angle1, post_angle2, $
+                                            o_offset=0.0, f_offset=0.0, $
+                                            bc1=background_correction_1, $
+                                            bc2=background_correction_2, $
+                                            /nopost, /nooverlap, /nullcolumns)
+          endif
+
+          ;  normalize flats so that they normalize intensity into units of millionths
+          image /= norm
+
+          ; Check signal
+          ; A mask with only occulter and field, but right at edges
+          tmp_image = mask_full_fill * image
+          medflat = median(tmp_image[where(tmp_image ne 0.)])
+
+          ; Test medflat for scenario where opal didn't go in after a power failure
+          if (medflat lt threshold) then begin
+            mg_log, 'flat median too low', name='comp', /warn
+            mg_log, 'is the opal failing to go back in?', name='comp', /warn
+            break
+          endif
+
+          if (make_flat_fill) then begin
+            ; TODO: Steve's fill introduces median values into the annulus, where
+            ; they look like hot pixels
+            ;         tmp_image = mask_full_stray * image
+            ;         bad = where(tmp_image lt 0.2 * medflat)
+            ;         image[bad] = medflat
+
+            ; fill outside mask
+            good = where(mask_full_fill eq 1.0, complement=bad)
+            medflat = median(image[good])
+            image[bad] = medflat
+            mg_log, 'filling flat values with %f outside annulus', medflat, $
+                    name='comp', /debug
+          endif
+
+          ; make sure there aren't any zeros
+          bad = where(image eq 0.0, count)
+          if (count gt 0L) then begin
+            mg_log, 'zeros in flat %s at pixels %s', opalfile, $
+                    strjoin(strtrim(bad, 2), ', '), $
+                    name='comp', /warn
+            image[bad] = medflat
+          endif
+
+          ename = string(uniq_waves[w], uniq_pols[p], format='(f8.2, " ", A)')
+
+          fits_write, fcbout, image, header, extname=ename
+
+          times[nflat] = time
+          wavelengths[nflat] = uniq_waves[w]
+          exposures[nflat] = exposure
+          polstates[nflat] = uniq_pols[p]
+          ++nflat
+        endfor
       endfor
     endwhile
 
@@ -329,9 +348,11 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
     times = times[0L:nflat - 1L]
     wavelengths = wavelengths[0L:nflat - 1L]
     exposures = exposures[0L:nflat - 1L]
+    polstates = polstates[0L:nflat - 1L]
 
     sxdelpar, header, 'BEAM'
     sxdelpar, header, 'WAVELENG'
+    sxdelpar, header, 'POLSTATE'
     sxdelpar, header, 'OXCNTER1'
     sxdelpar, header, 'OYCNTER1'
     sxdelpar, header, 'ORADIUS1'
@@ -353,6 +374,9 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
     sxaddpar, header, 'DATATYPE', 'EXPOSURES'
     fits_write, fcbout, exposures, header, extname='Exposure'
+
+    sxaddpar, header, 'DATATYPE', 'POLSTATES'
+    fits_write, fcbout, polstates, header, extname='Pol state'
 
     fits_close, fcbout
   endelse
