@@ -94,7 +94,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   times = fltarr(5000)
   wavelengths = fltarr(5000)
   exposures = fltarr(5000)
-  polstates = fltarr(5000)
+  polstates = strarr(5000)
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
@@ -375,8 +375,17 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
     sxaddpar, header, 'DATATYPE', 'EXPOSURES'
     fits_write, fcbout, exposures, header, extname='Exposure'
 
+    pol_names = 'I' + ['+Q', '-Q', '+U', '-U', '+V', '-V']
+    pol_indices = lonarr(n_elements(polstates))
+    for p = 0L, n_elements(pol_names) - 1L do begin
+      ind = where(polstates eq pol_names[p], count)
+      if (count gt 0) then begin
+        pol_indices[ind] = p
+      endif
+    endfor
+
     sxaddpar, header, 'DATATYPE', 'POLSTATES'
-    fits_write, fcbout, polstates, header, extname='Pol state'
+    fits_write, fcbout, pol_indices, header, extname='Pol state'
 
     fits_close, fcbout
   endelse

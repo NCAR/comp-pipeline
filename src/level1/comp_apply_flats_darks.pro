@@ -42,7 +42,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
 
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
-  comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
+  comp_read_flats, date_dir, wave, beam, pol, time, $
+                   flat, flat_header, flat_waves, flat_pols, n_uniq_pols, $
                    flat_names, flat_expose
   flat *= expose / flat_expose   ; modify for exposure times
 
@@ -55,14 +56,22 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     ; select the correct flat for this image
     ; NOTE: comparing both wavelengths and sign of beam is equivalent
     ; to old BEAM_MULTIPLIES_WAVE option
-    iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
+    w = where(beam[i] * wave[i] eq flat_waves)
+    p = where(pol[i] eq flat_pols)
+    iflat = w[0] * n_uniq_pols + p[0]
+
+    mg_log, 'Using flat %d in %s', iflat, flat_names[iflat], name='comp', /debug
 
     ; subtract darks, fix sensor quirks, and divide by the flats
-    images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
-                                   hot=hot, adjacent=adjacent)
+    im = images[*, *, i] - dark
+    im = comp_fixrock(temporary(im), 0.030)
+    im = comp_fix_image(temporary(im))
+    im = comp_fix_hot(temporary(im) / flat[*, *, iflat], $
+                      hot=hot, adjacent=adjacent)
+    images[*, *, i] = temporary(im)
 
     ; update the header with the flat information
-    sxaddpar, header,'FLATFILE', flat_names[iflat[0]], $
+    sxaddpar, header,'FLATFILE', flat_names[iflat], $
               ' Name of flat field file'
     headersout[*, i] = header
   endfor
