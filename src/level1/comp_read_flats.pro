@@ -117,7 +117,7 @@ pro comp_read_flats, date_dir, wave, beam, pol, time, flat, flat_header, $
       exposure = exposures[iflat - 1L]
       mg_log, 'iflat = %d, flat_waves[iw] = %f, times[iflat - 1] = %f, ' $
               + ' wavelengths[iflat - 1] = %f, exposures[iflat - 1] = %f', $
-              iflat, flat_waves[iw], times[iflat - 1], wavelengths[iflat - 1], $
+              iflat, flat_waves[w], times[iflat - 1], wavelengths[iflat - 1], $
               exposures[iflat - 1], $
               name='comp', /debug
     endfor
