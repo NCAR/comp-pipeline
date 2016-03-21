@@ -33,8 +33,12 @@
 ;   flats : out, optional, type="fltarr(1024, 1024, nflats)"
 ;     set to a named variable to retrieve the flats averaged by wavelength-beam
 ;     and polarization state for the file
+;   ext_used : out, optional, type=strarr(nflats)
+;     set to a named variable to retrieve a string with a comma separated list
+;     of the extensions in the flat file averaged to create the flat
 ;-
-pro comp_flat_avg, date_dir, time, wave, uniq_waves, pol, uniq_pols, exposure, fcbin, flats
+pro comp_flat_avg, date_dir, time, wave, uniq_waves, pol, uniq_pols, $
+                   exposure, fcbin, flats, ext_used
   compile_opt strictarr
   @comp_config_common
 
@@ -58,6 +62,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, pol, uniq_pols, exposure, f
   endif
 
   flats = fltarr(1024, 1024, n_uniq_waves * n_uniq_pols)
+  ext_used = strarr(n_uniq_waves * n_uniq_pols)
   for w = 0L, n_uniq_waves - 1L do begin
     for p = 0L, n_uniq_pols - 1L do begin
       i = w * n_uniq_pols + p
@@ -69,6 +74,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, pol, uniq_pols, exposure, f
 
       for j = 0L, count - 1L do begin
         fits_read, fcbin, dat, header, exten_no=good[j] + 1
+        ext_used[i] += (ext_used[i] eq '' ? '' : ',') + strtrim(good[j] + 1, 2)
         exposure = sxpar(header, 'EXPOSURE')
 
         if (sxpar(header, 'DEMULT') eq 0) then dat = comp_demultiplex(temporary(dat))

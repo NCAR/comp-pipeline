@@ -186,7 +186,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       ; perform averaging by wavelength/beam state and polarization state
       comp_flat_avg, date_dir, time, $
                      wave, uniq_waves, pol, uniq_pols, $
-                     exposure, fcbin, flats
+                     exposure, fcbin, flats, ext_used
 
       ; extract masking information from second flat image (don't use first)
       image = flats[*, *, 1]
@@ -238,6 +238,9 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
           sxaddpar, header, 'WAVELENG', abs(uniq_waves[w])
           sxaddpar, header, 'BEAM', fix(uniq_waves[w] / abs(uniq_waves[w]))
           sxaddpar, header, 'POLSTATE', uniq_pols[p]
+          sxaddpar, header, 'EXT_USED', ext_used[i], $
+                    ' Extensions averaged together', $
+                    after='FILENAME'
 
           ; corrections for stray light and trending
 
@@ -353,6 +356,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
     sxdelpar, header, 'BEAM'
     sxdelpar, header, 'WAVELENG'
     sxdelpar, header, 'POLSTATE'
+    sxdelpar, header, 'EXT_USED'
     sxdelpar, header, 'OXCNTER1'
     sxdelpar, header, 'OYCNTER1'
     sxdelpar, header, 'ORADIUS1'
