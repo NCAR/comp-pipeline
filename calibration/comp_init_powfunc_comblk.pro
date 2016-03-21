@@ -156,13 +156,13 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
   ndata = total(n_upols * n_ucals)
 
   ; arrays which will label the polarization analyzer and calibration optics
-  ; states for each image in the data array:
+  ; states for each image in the data array
   datapols = strarr(ndata)
   datacals = strarr(ndata)
   for i = 0, n_upols - 1 do begin
     for j = 0, n_ucals - 1 do begin
-      datapols[i * n_ucals - j] = upols[i]
-      datacals[i * n_ucals - j] = ucals[j]
+      datapols[i * n_ucals + j] = upols[i]
+      datacals[i * n_ucals + j] = ucals[j]
     endfor
   endfor
 
@@ -198,13 +198,14 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
       ; where this polarization and calibration combo lands in the data array
       ; (which index)
       idata = where(datapols eq pol and datacals eq cal)
+      idata = idata[0]
 
       ; get the current file's data for this polarization analyzer state
       datai = comp_get_component(images, headers, pol, beam, $
                                  /average_wavelengths, $
                                  headersout=headersout)
       ; add it do the data and variance arrays (weighting by the number of
-      ; exposures):
+      ; exposures)
       data[*, *, idata] += datai * sxpar(headersout, 'NAVERAGE')
       vars[*, *, idata] += photfac * abs(datai) * sxpar(headersout, 'NAVERAGE')
       ; increment the total number of exposures (so we can

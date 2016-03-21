@@ -17,7 +17,7 @@ if (~file_test(config_filename)) then begin
   message, 'configure file not found: ' + config_filename
 endif
 
-basename = 'cal-x2-y2'
+basename = 'cal-flatbypol-ret83'
 mg_log, name='cal', logger=logger
 logger->setProperty, format='%(time)s %(levelshortname)s: %(message)s', $
                      level=5, $
@@ -66,7 +66,7 @@ scales[8] = 5.0   ; Calibration retarder angle (in degrees).
 
 ; Flags for which calibration variables the amoeba should search for:
 solve_flags = intarr(9)
-solve_flags[0:3] = [0, 0, 0, 0] ; The input Stokes vector.
+solve_flags[0:3] = [0, 1, 1, 0] ; The input Stokes vector.
 solve_flags[4] = 1 ; Calibration polarizer transmission.
 solve_flags[5] = 0 ; Systematic offset error in the polarizer angle.
 solve_flags[6] = 1 ; Calibration retarder transmission.
@@ -78,7 +78,7 @@ guess = calvars[calvar_solve]
 scale = scales[calvar_solve]
 params = amoeba(1.0e-5, function_name='comp_cal_powfunc', p0=guess, scale=scale, ncalls=ncalls)
 chi2 = comp_cal_powfunc(params, diag_plot_dir=plot_dir, $
-                        model_filename=basename + '.sav')
+                        model_basename=basename)
 mg_log, 'Number of function evaluations in AMOEBA: %d', ncalls, name='cal', /info
 mg_log, 'Params: %s', strjoin(strtrim(params, 2), ', '), name='cal', /info
 mg_log, 'Final chi^2: %f', chi2, name='cal', /info
