@@ -104,7 +104,9 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                                           stokeslabels=stokeslabels)
 
       ; save coef_images and pols_images (equation #32)
-      basename = '20150729.090641-090722.FTS'
+      ;basename = '20150729.090641-090722.FTS'
+      ;basename = '20150729.105303-105344.FTS'
+      basename = '20150729.110414-110455.FTS'
       date_dir = '20150729'
       save, coef_images, pols_images, pols_data, pols_vars, $
             filename=filepath(string(basename, uniq_waves[w], b, $
@@ -139,8 +141,8 @@ end
 ; set some configuration variables
 
 ; 0 degrees, retarder out
-basenameQU = '20150729.090641.FTS'
-basenameV = '20150729.090722.FTS'
+;basenameQU = '20150729.090641.FTS'
+;basenameV = '20150729.090722.FTS'
 
 ; 45 degrees, retarder out
 ;basenameQU = '20150729.091059.FTS'
@@ -170,6 +172,13 @@ basenameV = '20150729.090722.FTS'
 ;basenameQU = '20150729.094802.FTS'
 ;basenameV = '20150729.094843.FTS'
 
+; science image 1074
+;basenameQU = '20150729.105303.FTS
+;basenameV = '20150729.105344.FTS
+
+; science image 1074
+basenameQU = '20150729.110414.FTS
+basenameV = '20150729.110455.FTS
 
 date_dir = '20150729'
 config_filename = filepath('comp.mgalloy.compdata.calibration.cfg', $
