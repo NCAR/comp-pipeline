@@ -1,0 +1,70 @@
+20150729.084755.FTS 1075 POL        0.0 I+Q I+U I-Q I-U             
+20150729.084836.FTS 1075 POL        0.0 I+V I-V                     
+20150729.084923.FTS 1080 POL        0.0 I+Q I+U I-Q I-U             
+20150729.085004.FTS 1080 POL        0.0 I+V I-V                     
+20150729.085052.FTS 1083 POL        0.0 I+Q I+U I+V I-Q I-U I-V     
+20150729.085837.FTS 1075 POL       -1.4 I+Q I+U I-Q I-U             
+20150729.085918.FTS 1075 POL       -1.4 I+V I-V                     
+20150729.090006.FTS 1080 POL       -1.4 I+Q I+U I-Q I-U             
+20150729.090047.FTS 1080 POL       -1.4 I+V I-V                     
+20150729.090135.FTS 1083 POL       -1.4 I+Q I+U I+V I-Q I-U I-V     
+20150729.090641.FTS 1075 POL       -1.4 I+Q I+U I-Q I-U             
+20150729.090722.FTS 1075 POL       -1.4 I+V I-V                     
+20150729.090810.FTS 1080 POL       -1.4 I+Q I+U I-Q I-U             
+20150729.090851.FTS 1080 POL       -1.4 I+V I-V                     
+20150729.090939.FTS 1083 POL       -1.4 I+Q I+U I+V I-Q I-U I-V     
+20150729.091059.FTS 1075 POL       43.6 I+Q I+U I-Q I-U             
+20150729.091140.FTS 1075 POL       43.6 I+V I-V                     
+20150729.091228.FTS 1080 POL       43.6 I+Q I+U I-Q I-U             
+20150729.091309.FTS 1080 POL       43.6 I+V I-V                     
+20150729.091357.FTS 1083 POL       43.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.091517.FTS 1075 POL       88.6 I+Q I+U I-Q I-U             
+20150729.091558.FTS 1075 POL       88.6 I+V I-V                     
+20150729.091646.FTS 1080 POL       88.6 I+Q I+U I-Q I-U             
+20150729.091727.FTS 1080 POL       88.6 I+V I-V                     
+20150729.091815.FTS 1083 POL       88.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.091935.FTS 1075 POL      133.6 I+Q I+U I-Q I-U             
+20150729.092016.FTS 1075 POL      133.6 I+V I-V                     
+20150729.092104.FTS 1080 POL      133.6 I+Q I+U I-Q I-U             
+20150729.092145.FTS 1080 POL      133.6 I+V I-V                     
+20150729.092233.FTS 1083 POL      133.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.093506.FTS 1075 POL RET   -1.4 I+Q I+U I-Q I-U             
+20150729.093547.FTS 1075 POL RET   -1.4 I+V I-V                     
+20150729.093635.FTS 1080 POL RET   -1.4 I+Q I+U I-Q I-U             
+20150729.093717.FTS 1080 POL RET   -1.4 I+V I-V                     
+20150729.093805.FTS 1083 POL RET   -1.4 I+Q I+U I+V I-Q I-U I-V     
+20150729.093926.FTS 1075 POL RET   43.6 I+Q I+U I-Q I-U             
+20150729.094007.FTS 1075 POL RET   43.6 I+V I-V                     
+20150729.094054.FTS 1080 POL RET   43.6 I+Q I+U I-Q I-U             
+20150729.094135.FTS 1080 POL RET   43.6 I+V I-V                     
+20150729.094224.FTS 1083 POL RET   43.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.094344.FTS 1075 POL RET   88.6 I+Q I+U I-Q I-U             
+20150729.094425.FTS 1075 POL RET   88.6 I+V I-V                     
+20150729.094513.FTS 1080 POL RET   88.6 I+Q I+U I-Q I-U             
+20150729.094554.FTS 1080 POL RET   88.6 I+V I-V                     
+20150729.094642.FTS 1083 POL RET   88.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.094802.FTS 1075 POL RET  133.6 I+Q I+U I-Q I-U             
+20150729.094843.FTS 1075 POL RET  133.6 I+V I-V                     
+20150729.094931.FTS 1080 POL RET  133.6 I+Q I+U I-Q I-U             
+20150729.095012.FTS 1080 POL RET  133.6 I+V I-V                     
+20150729.095101.FTS 1083 POL RET  133.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.095858.FTS 1075 POL       -1.4 I+Q I+U I-Q I-U             
+20150729.095940.FTS 1075 POL       -1.4 I+V I-V                     
+20150729.100027.FTS 1080 POL       -1.4 I+Q I+U I-Q I-U             
+20150729.100108.FTS 1080 POL       -1.4 I+V I-V                     
+20150729.100157.FTS 1083 POL       -1.4 I+Q I+U I+V I-Q I-U I-V     
+20150729.100317.FTS 1075 POL       43.6 I+Q I+U I-Q I-U             
+20150729.100358.FTS 1075 POL       43.6 I+V I-V                     
+20150729.100446.FTS 1080 POL       43.6 I+Q I+U I-Q I-U             
+20150729.100527.FTS 1080 POL       43.6 I+V I-V                     
+20150729.100615.FTS 1083 POL       43.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.100735.FTS 1075 POL       88.6 I+Q I+U I-Q I-U             
+20150729.100816.FTS 1075 POL       88.6 I+V I-V                     
+20150729.100904.FTS 1080 POL       88.6 I+Q I+U I-Q I-U             
+20150729.100945.FTS 1080 POL       88.6 I+V I-V                     
+20150729.101033.FTS 1083 POL       88.6 I+Q I+U I+V I-Q I-U I-V     
+20150729.101153.FTS 1075 POL      133.6 I+Q I+U I-Q I-U             
+20150729.101234.FTS 1075 POL      133.6 I+V I-V                     
+20150729.101322.FTS 1080 POL      133.6 I+Q I+U I-Q I-U             
+20150729.101403.FTS 1080 POL      133.6 I+V I-V                     
+20150729.101452.FTS 1083 POL      133.6 I+Q I+U I+V I-Q I-U I-V     
