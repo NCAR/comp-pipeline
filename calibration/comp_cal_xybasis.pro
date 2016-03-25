@@ -37,13 +37,13 @@ function comp_cal_xybasis, nx=nx, ny=ny, xmat=xmat, ymat=ymat
   endelse
 
   ; create the array for the basis and assign its elements
-  xybasis = fltarr(nx, ny, 6)
+  xybasis = fltarr(nx, ny, 1)
   xybasis[*, *, 0] = 1.0         ; constant term
-  xybasis[*, *, 1] = xmat        ; varying only with x coordinate
-  xybasis[*, *, 2] = ymat        ; varying with y coordinate
-  xybasis[*, *, 3] = xmat * ymat ; bilinear in x and y
-  xybasis[*, *, 4] = xmat * xmat ; quadratic in x
-  xybasis[*, *, 5] = ymat * ymat ; quadratic in y
+;  xybasis[*, *, 1] = xmat        ; varying only with x coordinate
+;  xybasis[*, *, 2] = ymat        ; varying with y coordinate
+;  xybasis[*, *, 3] = xmat * ymat ; bilinear in x and y
+;  xybasis[*, *, 4] = xmat * xmat ; quadratic in x
+;  xybasis[*, *, 5] = ymat * ymat ; quadratic in y
 
   return, xybasis
 end

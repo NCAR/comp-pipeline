@@ -29,6 +29,7 @@
 function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
                            model_basename=model_basename
   compile_opt strictarr
+  @comp_config_common
   common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, $
                           datalower, varsupper, varslower, xmat, ymat, cpols, $
                           pangs, crets, upols, datapols, datacals, cal_data, $
@@ -83,17 +84,23 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
 
     ; linear inversion to compute the upper and lower crosstalk coefficients
     ; into the polarization analyzer states
-    uppercoefs[i, *] = comp_get_polarimeter_coefficients(dataupper[*, icurrent], $
-                                                         varsupper[*, icurrent], $
-                                                         pols, $
-                                                         xyb_upper)
-    lowercoefs[i, *] = comp_get_polarimeter_coefficients(datalower[*, icurrent], $
-                                                         varslower[*, icurrent], $
-                                                         pols, $
-                                                         xyb_lower)
+    if (n_elements(dataupper) gt 0) then begin
+      uppercoefs[i, *] = comp_get_polarimeter_coefficients(dataupper[*, icurrent], $
+                                                           varsupper[*, icurrent], $
+                                                           pols, $
+                                                           xyb_upper)
+    endif
+    if (n_elements(datalower) gt 0) then begin
+      lowercoefs[i, *] = comp_get_polarimeter_coefficients(datalower[*, icurrent], $
+                                                           varslower[*, icurrent], $
+                                                           pols, $
+                                                           xyb_lower)
+    endif
 
     ; compute the calibration data corresponding to these coefficients
-    coefscurrent = {uppercoefs:uppercoefs[i, *], $
+    coefscurrent = {use_upper:n_elements(dataupper) gt 0, $
+                    use_lower:n_elements(datalower) gt 0, $
+                    uppercoefs:uppercoefs[i, *], $
                     lowercoefs:lowercoefs[i, *], $
                     xmat:xmat, $
                     ymat:ymat, $
@@ -103,7 +110,9 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
                     pols:pols, $
                     xybasis:xybasis}
     if (n_elements(model_basename) gt 0L) then begin
-      save, coefscurrent, filename=model_basename + '-' + upols[i] + '.sav'
+      save, coefscurrent, filename=filepath(model_basename + '-' + upols[i] + '.sav', $
+                                            subdir=['20150729', 'newchi2-results'], $
+                                            root=process_basedir)
     endif
     for j = 0, ncurrent - 1 do begin
       cal_data[*, *, icurrent[j]] = comp_compute_cal_image(coefscurrent, pols[j, *])
@@ -124,7 +133,10 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
 
   ; compare model to data
   if (n_elements(model_basename) gt 0L) then begin
-    save, cal_data, data, datacals, datapols, filename=model_basename + '.sav'
+    save, cal_data, data, datacals, datapols, $
+          filename=filepath(model_basename + '.sav', $
+                            subdir=['20150729', 'newchi2-results'], $
+                            root=process_basedir)
   endif
 
   print, chi2 * penalty, input ; printout to show progress of inversion

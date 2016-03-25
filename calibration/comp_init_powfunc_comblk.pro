@@ -108,11 +108,16 @@
 ;     which line to use (median wavelength rounded to nearest nm)
 ;   beam : in, required, type=integer
 ;     which beam splitter setting to use (+1 or -1)
+;   date_dir : in, required, type=string
+;   exact_wave : in, required, type=float
+;     exact wavelength to use for run
+;   location : in, required, type=lonarr(2)
+;     location to center 5x5 mask for data
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
+pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir, exact_wave, location
   compile_opt strictarr
   common comp_cal_comblk, xybasis, xyb_upper, xyb_lower, dataupper, datalower, $
                           varsupper, varslower, xmat, ymat, cpols, pangs, $
@@ -176,14 +181,44 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
   data = fltarr(nx, ny, ndata)
   ; variances corresponding to data (assumes only shot noise)
   vars = fltarr(nx, ny, ndata)
-
-  navgs = fltarr(ndata) ; number of CoMP exposures went into each image in data
+;  navgs = fltarr(ndata) ; number of CoMP exposures went into each image in data
   cpols = dblarr(ndata) ; polarization analyzer flags for each image in data
   crets = dblarr(ndata) ; calibration retarder flags for each image in data
   pangs = dblarr(ndata) ; calibration polarizer angle for each image in data
   datacount = lonarr(ndata) ; counts how many images were averaged for each element of data
   mask = uppermask or lowermask ; initialize the mask
 
+  ; how many images are used in max_images of raw_data
+  n_images = lonarr(ndata)
+
+  for i = 0, nfiles - 1 do begin
+    ii = calfiles[i]   ; select the next cal file
+    mg_log, 'checking %s...', cal_info.files[ii], name='comp', /debug
+    comp_read_data, cal_info.files[ii], images, headers, header0
+    cal = cal_info.ctags[ii] ; cal optics state for this file (assumes only one per file)
+
+    ; loop over the measured polarizations in the file
+    for j = 0, n_mpols[ii] - 1 do begin
+      pol = cal_info.mpols[ii, j]   ; the current measured polarization
+
+      idata = where(datapols eq pol and datacals eq cal)
+
+      comp_inventory_header, headers, beams, groups, waves, polstates, type, $
+                             expose, cover, cal_pol, cal_ret
+
+      beams[0] = 2  ; never match first image in a file
+      !null = where(waves eq exact_wave and polstates eq pol and beams eq beam, n_matching_waves)
+      n_images[idata] += n_matching_waves
+      print, file_basename(cal_info.files[ii]), cal, pol, n_matching_waves, $
+             format='(%"%s: cal: %s, pol: %s, n_matching_waves: %d")'
+    endfor
+  endfor
+
+  ; all used images before median
+  max_images = max(n_images)
+  raw_data = fltarr(nx, ny, max_images, ndata)
+
+  n_found_images = lonarr(ndata)
 
   for i = 0, nfiles - 1 do begin
     ii = calfiles[i]   ; select the next cal file
@@ -200,17 +235,27 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
       idata = where(datapols eq pol and datacals eq cal)
       idata = idata[0]
 
+      comp_inventory_header, headers, beams, groups, waves, polstates, type, $
+                             expose, cover, cal_pol, cal_ret
+
+      beams[0] = 2  ; never match first image in a file
+      ind = where(waves eq exact_wave and polstates eq pol and beams eq beam, n_matching_waves)
+
+      for w = 0L, n_matching_waves - 1L do begin
+        raw_data[*, *, n_found_images[idata], idata] = images[*, *, ind[w]]
+        n_found_images[idata]++
+      endfor
+
       ; get the current file's data for this polarization analyzer state
-      datai = comp_get_component(images, headers, pol, beam, $
-                                 /average_wavelengths, $
-                                 headersout=headersout)
+;      datai = comp_get_component(images, headers, pol, beam, exact_wave, $
+;                                 headersout=headersout)
       ; add it do the data and variance arrays (weighting by the number of
       ; exposures)
-      data[*, *, idata] += datai * sxpar(headersout, 'NAVERAGE')
-      vars[*, *, idata] += photfac * abs(datai) * sxpar(headersout, 'NAVERAGE')
+;      data[*, *, idata] += datai * sxpar(headersout, 'NAVERAGE')
+;      vars[*, *, idata] += photfac * abs(datai) * sxpar(headersout, 'NAVERAGE')
       ; increment the total number of exposures (so we can
       ; renormalize later)
-      navgs[idata] += sxpar(headersout, 'NAVERAGE')
+;      navgs[idata] += sxpar(headersout, 'NAVERAGE')
       datacount[idata] += 1
 
       ; make sure we've recorded book keeping data for this index
@@ -219,20 +264,31 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
       pangs[idata] = cal_info.cangs[ii]
 
       ; compute the mask for this file
-      comp_make_mask_1024, date_dir, flat_header, mask0
+      comp_make_mask_1024, date_dir, flat_header, mask0, o_offset=4.0, f_offset=-3.0
       ; pad the file's mask and combine it with the main mask
-      mask *= erode(mask0, s)
+      ;mask *= erode(mask0, s)
+      mask *= mask0
       ; remove outlier pixels via median filtering
-      mask *= abs(datai / median(datai, 3) - 1.0) lt 0.25
+      ;mask *= abs(datai / median(datai, 3) - 1.0) lt 0.25
     endfor
   endfor
+
+  for d = 0L, ndata - 1L do begin
+    data[*, *, d] = median(raw_data[*, *, 0:n_images[d] - 1, d], dimension=3)
+    vars[*, *, d] = photfac * abs(data[*, *, d]) /  n_found_images[d]
+  endfor
+
+  ; mask by the 5x5 block around the location
+  loc_mask = bytarr(nx, ny)
+  loc_mask[location[0] - 2:location[0] + 2, location[1] - 2: location[1] + 2] = 1B
+  mask and= loc_mask
 
   ; if some calibration and polarizer analyzer combinations are absent from the
   ; data, remove them from the common block arrays
   wherepresent = where(datacount gt 0)
   data      = data[*, *, wherepresent]
   vars      = vars[*, *, wherepresent]
-  navgs     = navgs[wherepresent]
+;  navgs     = navgs[wherepresent]
   cpols     = cpols[wherepresent]
   crets     = crets[wherepresent]
   pangs     = pangs[wherepresent]
@@ -243,31 +299,43 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir
   ; calculation
   whereupper = where(uppermask * mask, npix_upper)
   wherelower = where(lowermask * mask, npix_lower)
-  dataupper = dblarr(npix_upper, ndata)
-  datalower = dblarr(npix_lower, ndata)
-  varsupper = dblarr(npix_upper, ndata)
-  varslower = dblarr(npix_lower, ndata)
-  xyb_upper = dblarr(npix_upper, nbasis)
-  xyb_lower = dblarr(npix_lower, nbasis)
+
+  if (npix_upper gt 0) then begin
+    dataupper = dblarr(npix_upper, ndata)
+    varsupper = dblarr(npix_upper, ndata)
+    xyb_upper = dblarr(npix_upper, nbasis)
+  endif else dataupper = !null
+
+  if (npix_lower gt 0) then begin
+    datalower = dblarr(npix_lower, ndata)
+    varslower = dblarr(npix_lower, ndata)
+    xyb_lower = dblarr(npix_lower, nbasis)
+  endif else datalower = !null
 
   ; assign values to flattened upper and lower basis function arrays
   for i = 0, nbasis - 1 do begin
     xyb_i = reform(xybasis[*, *, i])
-    xyb_upper[*, i] = xyb_i[whereupper]
-    xyb_lower[*, i] = xyb_i[wherelower]
+    if (n_elements(dataupper) gt 0) then xyb_upper[*, i] = xyb_i[whereupper]
+    if (n_elements(datalower) gt 0) then xyb_lower[*, i] = xyb_i[wherelower]
   endfor
 
   for i = 0, ndata - 1 do begin
     ; renormalize the data by total exposure time
-    datai = reform(data[*, *, i] / navgs[i])  ;/datacount[i])
-    varsi = reform(data[*, *, i] / navgs[i])  ;/datacount[i])
-    data[*, *, i] = datai
-    vars[*, *, i] = varsi
+;    datai = reform(data[*, *, i] / navgs[i])  ;/datacount[i])
+;    varsi = reform(data[*, *, i] / navgs[i])  ;/datacount[i])
+;    data[*, *, i] = datai
+;    vars[*, *, i] = varsi
+    datai = data[*, *, i]
+    varsi = vars[*, *, i]
 
     ; assign values to flattened upper and lower data and variance arrays
-    dataupper[*, i] = datai[whereupper]
-    datalower[*, i] = datai[wherelower]
-    varsupper[*, i] = varsi[whereupper]
-    varslower[*, i] = varsi[wherelower]
+    if (n_elements(dataupper) gt 0) then begin
+      dataupper[*, i] = datai[whereupper]
+      varsupper[*, i] = varsi[whereupper]
+    endif
+    if (n_elements(datalower) gt 0) then begin
+      datalower[*, i] = datai[wherelower]
+      varslower[*, i] = varsi[wherelower]
+    endif
   endfor
 end

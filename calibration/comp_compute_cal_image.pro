@@ -44,12 +44,13 @@ function comp_compute_cal_image, coefs, stokes
   ; analyzer in this configuration, except that we only see intensities
   ; (scalars) at the detector - it simply sums the intensities of each component
   ; of the Stokes vector.
+
   coefs_upper = comp_get_response_images(coefs.uppercoefs, coefs.xybasis)
   coefs_lower = comp_get_response_images(coefs.lowercoefs, coefs.xybasis)
-
   nx = n_elements(coefs_upper[*, 0, 0])
   ny = n_elements(coefs_upper[0, *, 0])
   nstokes = n_elements(coefs_upper[0, 0, *])
+
   image = dblarr(nx, ny)
 
   if (size(reform(stokes), /n_dimensions) eq 1) then begin
