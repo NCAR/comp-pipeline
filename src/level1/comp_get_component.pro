@@ -55,17 +55,17 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   compile_opt strictarr
   on_error, 2
 
-  ; figure out what's in this image array:
+  ; figure out what's in this image array
   comp_inventory_header, headers, beams, groups, waves, polstates, type, $
                          expose, cover, cal_pol, cal_ret
 
-  ; if we don't have an input list of wavelengths, use all of them:
+  ; if we don't have an input list of wavelengths, use all of them
   if (n_elements(wave) eq 0L) then wave = waves[uniq(waves, sort(waves))]
   nw = n_elements(wave)
   ntags = n_elements(headers[*, 0L])
 
   ; if this header is missing NAVERAGE (e.g., it's a raw file), the output
-  ; header will need another tag:
+  ; header will need another tag
   if (sxpar(headers[*, 0L], 'NAVERAGE') eq 0L) then ntags++
 
   ; flags to check if polarization states and beams match...
