@@ -21,11 +21,21 @@
 ; :Keywords:
 ;   flat_header : out, optional, type=strarr
 ;     flat header
+;   flat_images : out, optional, type=fltarr
+;     set to a named variable to retrieve the flat images to be used
+;   dark_image : out, optional, type=fltarr
+;     set to a named variable to retrieve the dark image to be used
+;   no_apply : in, optional, type=boolean
+;     set to not apply the flats and darks to the image
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
+pro comp_apply_flats_darks, images, headers, date_dir, $
+                            flat_header=flat_header, $
+                            flat_images=flat_images, $
+                            dark_image=dark_image, $
+                            no_apply=no_apply
   compile_opt strictarr
   @comp_config_common
 
@@ -41,7 +51,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
-  dark = comp_dark_interp(date_dir, time, expose)
+  dark_image = comp_dark_interp(date_dir, time, expose)
   comp_read_flats, date_dir, wave, beam, pol, time, $
                    flat, flat_header, flat_waves, flat_pols, n_uniq_pols, $
                    flat_names, flat_expose
@@ -49,6 +59,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
+
+  if (arg_present(flat_images)) then flat_images = fltarr(1024, 1024, n_ext)
 
   for i = 0L, n_ext - 1L do begin   ; loop over the images...
     header = headers[*, i]
@@ -63,12 +75,16 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     mg_log, 'Using flat %d in %s', iflat, flat_names[iflat], name='comp', /debug
 
     ; subtract darks, fix sensor quirks, and divide by the flats
-    im = images[*, *, i] - dark
-    im = comp_fixrock(temporary(im), 0.030)
-    im = comp_fix_image(temporary(im))
-    im = comp_fix_hot(temporary(im) / flat[*, *, iflat], $
+    if (arg_present(flat_images)) then flat_images[*, *, i] = flat[*, *, iflat]
+
+    if (~keyword_set(no_apply)) then begin
+      im = images[*, *, i] - dark_image
+      im = comp_fixrock(temporary(im), 0.030)
+      im = comp_fix_image(temporary(im))
+      im = comp_fix_hot(temporary(im) / flat[*, *, iflat], $
                       hot=hot, adjacent=adjacent)
-    images[*, *, i] = temporary(im)
+      images[*, *, i] = temporary(im)
+    endif
 
     ; update the header with the flat information
     sxaddpar, header,'FLATFILE', flat_names[iflat], $
