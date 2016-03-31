@@ -28,15 +28,20 @@
 ;
 ;     comp_average, '20110316', '1074', list_file = 'files.txt'
 ;
-; will use filename 'files.txt' as input file. The following::
+;   will use filename 'files.txt' as input file. The following::
 ;
 ;     comp_average, '20110902', '1074', /synoptic
 ;
-; will use filename 'synoptic_1074_files.txt' as input filename. Finally::
+;   will use filename 'synoptic_1074_files.txt' as input filename. Finally::
 ;
 ;     comp_average, '20131026', '1074'
 ;
-; will use 'good_1074_files.txt' as input filename.
+;   will use 'good_1074_files.txt' as input filename.
+;
+; :Uses:
+;   comp_paths_common, comp_constants_common, comp_paths, comp_initialize,
+;   comp_inventory_l2, comp_uniq, comp_make_mask, fits_open, fits_read,
+;   fits_write, fits_close, sxdelpar, sxaddpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string

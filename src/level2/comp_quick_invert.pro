@@ -26,6 +26,12 @@
 ;     comp_quick_invert, '20110504', '1074', /synthetic
 ;     comp_quick_invert, '20130915', '1074'
 ;
+; :Uses:
+;   comp_simulate_common, comp_constants_common, comp_paths_common,
+;   comp_initialize, comp_paths, comp_analytic_gauss_fit2,
+;   fits_open, fits_read, fits_write, fits_close, sxpar, sxaddpar, sxdelpar,
+;   mg_log
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
@@ -88,7 +94,6 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
     return
   endif
 
-
   fits_open, file, fcb
   n = fcb.nextend
 
@@ -96,7 +101,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
 
   ntune = sxpar(primary_header, 'NTUNE', count=nrecords)
-  if (nrecords eq 0L) then ntune=sxpar(primary_header, 'NTUNES')
+  if (nrecords eq 0L) then ntune = sxpar(primary_header, 'NTUNES')
   nstokes = 4
   center_index = ntune / 2
 
