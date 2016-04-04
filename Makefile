@@ -1,4 +1,4 @@
-.PHONY: pipe cal env doc userdoc opendoc unit help clean
+.PHONY: pipe cal env doc userdoc opendoc unit help clean sswdeps
 
 FLAGS=
 QUIET=0
@@ -13,6 +13,7 @@ else
 endif
 
 IDL=idl82
+SSWDEPS_IDL=idl85
 
 OS:=$(shell uname)
 
@@ -40,6 +41,9 @@ COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(GEN_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
+SSW_DEP_PATH="<IDL_DEFAULT>":$(PWD)/ssw:+$(FULL_SSW_DIR)
+
+
 help:
 	@echo "Running on $(MACHINE) by $(USER), using $(CONFIG)"
 	@echo
@@ -52,6 +56,7 @@ help:
 	@echo " opendoc          open the CoMP pipeline API docs in a web browser"
 	@echo " unit             run the CoMP pipeline unit tests"
 	@echo " clean            clean API documentation"
+	@echo " sswdeps          find the SSW dependencies not in ssw dir"
 
 pipe:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
@@ -82,3 +87,6 @@ unit:
 
 clean:
 	$(ECHO_PREFIX)rm -rf api-docs api-userdocs
+
+sswdeps:
+	$(ECHO_PREFIX)$(SSWDEPS_IDL) -IDL_STARTUP "" -IDL_PATH $(SSW_DEP_PATH) -e "comp_find_ssw_dependencies, '$(FULL_SSW_DIR)'"

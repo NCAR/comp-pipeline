@@ -3,12 +3,15 @@
 ;+
 ; Procedure to load 'standard' color tables for AIA images.
 ;
+; :Uses:
+;   nint
+;
 ; :Params:
-;   r : out
+;   r : out, optional, type=bytarr(256)
 ;     byte array
-;   g : out
+;   g : out, optional, type=bytarr(256)
 ;     byte array
-;   b : out
+;   b : out, optional, type=bytarr(256)
 ;     byte array
 ;
 ; :Keywords:
@@ -26,11 +29,12 @@ pro comp_aia_lct, r, g, b, wavelnth=wavelnth, load=load
 
   ; load in standard color table from which to start
   if (not keyword_set(wavelnth)) then begin
-    message, 'comp_aia_lct: must set keyword wavelnth'
+    message, 'must set keyword WAVELNGTH'
   endif
 
   loadct, 3, /silent
   tvlct, r0, g0, b0, /get
+
   c0 = byte(findgen(256))
   c1 = byte(sqrt(findgen(256)) * sqrt(255.))
   c2 = byte(findgen(256)^2 / 255.)
@@ -40,7 +44,7 @@ pro comp_aia_lct, r, g, b, wavelnth=wavelnth, load=load
   wave = [1600, 1700, 4500, 94, 131, 171, 193, 211, 304, 335]
   select = where(nint(wavelnth) eq wave)
   if (select[0] eq -1) then begin
-    message, 'comp_aia_lct: selected invalid wavelength/channel'
+    message, 'selected invalid wavelength/channel'
   endif
 
   case select of
