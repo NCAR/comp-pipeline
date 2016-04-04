@@ -7,11 +7,12 @@
 ;     cd, '/hao/kaula1/Data/CoMP/process/20120606'
 ;     gbu = comp_read_gbu('GBU.1079.log')
 ;
-; :Params:
-;    gbu_file
+; :Uses:
+;   merge_struct, str_sep, mg_log
 ;
-; :Keywords:
-;    verbose : in, optional, type=boolean
+; :Params:
+;   gbu_file : in, required, type=string
+;     GBU filename
 ;
 ; :Author:
 ;   Christian Bethge
@@ -19,7 +20,7 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-function comp_read_gbu, gbu_file, verbose=verbose
+function comp_read_gbu, gbu_file
   compile_opt strictarr
 
   nlines = file_lines(gbu_file)

@@ -1,6 +1,10 @@
 ; docformat = 'rst'
 
 ;+
+;
+; :Uses:
+;   fitshead2struct, struct2fitshead, rem_tag, sxaddpar
+;
 ; :Params:
 ;   in_header
 ;
@@ -11,7 +15,9 @@
 ;
 ; :Author: Christian Bethge
 ;-
-function comp_convert_header, in_header, exten=exten, extname=extname, $
+function comp_convert_header, in_header, $
+                              exten=exten, $
+                              extname=extname, $
                               datminmax=datminmax
   compile_opt strictarr
 

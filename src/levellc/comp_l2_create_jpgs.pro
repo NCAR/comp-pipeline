@@ -10,6 +10,12 @@
 ;
 ;     comp_l2_create_jpgs, '20130520', '1074', nwl=5, /seq
 ;
+; :Uses:
+;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
+;   comp_make_mask, comp_aia_lct, comp_transparent_logo, colorbar2,
+;   anytim2tai, sxpar, headfits, fitshead2struct, merge_struct, readfits,
+;   mg_log
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
@@ -28,11 +34,7 @@
 pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   compile_opt strictarr
   @comp_constants_common
-  @comp_paths_common
-
-  ; configure
-  comp_initialize, date_dir
-  comp_paths, date_dir
+  @comp_config_common
 
   mg_log, 'wave_type: %s %2d', wave_type, nwl, name='comp', /info
 

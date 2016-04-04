@@ -1,6 +1,10 @@
 ; docformat = 'rst'
 
 ;+
+;
+; :Uses:
+;   comp_constants_common, fmedian
+;
 ; :Params:
 ;    fit_arr_in : in, required, type="array[nx, ny, 2]"
 ;      input fitting parameters
@@ -60,7 +64,7 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
     ; eliminate the east-west trend
     fit_arr_in[*, *, 1] = reform(fit_arr_in[*, *, 1]) - resitren
   endif
-  sub=where(reform(fit_arr_in[*,*,0]) ge 2) ;exclude pixels with no data or low S/N data
+  sub = where(reform(fit_arr_in[*,*,0]) ge 2) ;exclude pixels with no data or low S/N data
   if ((size(sub))[0] eq 1) then begin
     ; may select proper ranges to avoid eruptive events, e.g.,
     ; v1=reform(fit_arr_in[300:610,0:619,1,t])

@@ -6,6 +6,13 @@
 ;
 ;     comp_l2_analytical_three, '20130514', '1074'
 ;
+; :Uses:
+;   comp_constants_common, comp_config_common, comp_read_gbu, comp_make_mask,
+;   comp_analytic_gauss_fit, comp_intensity_enhancement,
+;   comp_doppler_correction, comp_convert_header
+;   sxpar, headfits, readfits, writefits, fitshead2struct, sxdelpar, sxaddpar
+;   mg_log
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
@@ -21,11 +28,7 @@
 pro comp_l2_analytical_three, date_dir, wave_type
   compile_opt strictarr
   @comp_constants_common
-  @comp_paths_common
-
-  ; configure
-  comp_initialize, date_dir
-  comp_paths, date_dir
+  @comp_config_common
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
@@ -43,7 +46,7 @@ pro comp_l2_analytical_three, date_dir, wave_type
   endcase
   c = 299792.458D
 
-  gbu_file = 'GBU.'+wave_type+'.log'
+  gbu_file = 'GBU.' + wave_type + '.log'
   gbu = comp_read_gbu(gbu_file)
   ; only want the good 3pt measurements
   nthree = where(gbu.quality eq 'Good' and gbu.wavelengths eq 3, ng3)

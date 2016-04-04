@@ -1,6 +1,9 @@
 ; docformat = 'rst'
 
 ;+
+; :Uses:
+;   sxpar, mpfitfun
+;
 ; :Returns:
 ;
 ; :Params:

@@ -1,27 +1,30 @@
 ; docformat = 'rst'
 
 ;+
+; Blend a partially transparent logo into a background image.
 ;
 ; :Returns:
+;   `arr(*, *, 3)`
 ;
 ; :Params:
-;    image
-;    backgnd
-;    llx
-;    lly
+;   image : in, required, type="arr(*, *, 4)"
+;     logo image
+;   background : in, required, type="arr(*, *, 3)"
+;     background image
 ;
 ; :Author:
 ;   Christian Bethge
 ;-
-function comp_transparent_logo, image, backgnd, llx, lly
+function comp_transparent_logo, image, background, x, y
   compile_opt strictarr
 
   alpha_channel = image[*, *, 3]
   scaled_alpha = float(alpha_channel) / float(max(alpha_channel))
-  s = size(image[*, *, 0:2], /dimensions)
-  alpha = rebin(scaled_alpha, s[0], s[1], s[2])
-  foregnd = image[*, *, 0:2]
-  final_image = foregnd * alpha + (1 - alpha) * backgnd
 
-  return, final_image
+  dims = size(image[*, *, 0:2], /dimensions)
+  alpha = rebin(scaled_alpha, dims[0], dims[1], dims[2])   ; fill out 3rd dim
+
+  foreground = image[*, *, 0:2]
+
+  return, foreground * alpha + (1 - alpha) * background
 end

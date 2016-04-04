@@ -1,5 +1,10 @@
 ; docformat = 'rst
 
+;+
+;
+; :Uses:
+;   comp_config_common
+;   mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -13,11 +18,7 @@
 ;-
 pro comp_infofile_and_tarballs, date_dir, wave_type
   compile_opt strictarr
-  @comp_paths_common
-
-  ; configure
-  comp_initialize, date_dir
-  comp_paths, date_dir
+  @comp_config_common
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
