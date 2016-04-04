@@ -37,7 +37,7 @@ MGUNIT_DIR=$(HOME)/software/mgunit/lib
 IDLDOC_DIR=+$(HOME)/projects/idldoc/src
 FULL_SSW_DIR=/hao/contrib/ssw
 
-COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(GEN_DIR):$(LIB_DIR):"<IDL_DEFAULT>"
+COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(GEN_DIR):+$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
