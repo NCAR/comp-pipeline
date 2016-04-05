@@ -16,8 +16,8 @@
 ;     find_systematics, '20130103', '1074', 'mean'
 ;
 ; :Uses:
-;   comp_constants_common, comp_paths_common, comp_initialize, comp_paths,
-;   fits_open, fits_read, sxpar, mg_log
+;   comp_constants_common, comp_config_common, fits_open, fits_read, sxpar,
+;   mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -42,11 +42,7 @@
 pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   compile_opt idl2
   @comp_constants_common
-  @comp_paths_common
-
-  ; configure
-  comp_initialize, date_dir
-  comp_paths, date_dir
+  @comp_config_common
 
   mg_log, 'find systematics %s', wave_type, name='comp', /info
 

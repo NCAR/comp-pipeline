@@ -27,10 +27,9 @@
 ;     comp_quick_invert, '20130915', '1074'
 ;
 ; :Uses:
-;   comp_simulate_common, comp_constants_common, comp_paths_common,
-;   comp_initialize, comp_paths, comp_analytic_gauss_fit2,
-;   fits_open, fits_read, fits_write, fits_close, sxpar, sxaddpar, sxdelpar,
-;   mg_log
+;   comp_simulate_common, comp_constants_common, comp_config_common,
+;   comp_analytic_gauss_fit2, fits_open, fits_read, fits_write, fits_close,
+;   sxpar, sxaddpar, sxdelpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -56,11 +55,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   compile_opt idl2
   @comp_simulate_common
   @comp_constants_common
-  @comp_paths_common
-
-  ; configure
-  comp_initialize, date_dir
-  comp_paths, date_dir
+  @comp_config_common
 
   mg_log, 'quick invert %s', wave_type, name='comp', /info
 

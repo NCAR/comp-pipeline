@@ -39,9 +39,9 @@
 ;   will use 'good_1074_files.txt' as input filename.
 ;
 ; :Uses:
-;   comp_paths_common, comp_constants_common, comp_paths, comp_initialize,
-;   comp_inventory_l2, comp_uniq, comp_make_mask, fits_open, fits_read,
-;   fits_write, fits_close, sxdelpar, sxaddpar, mg_log
+;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,
+;   comp_make_mask, fits_open, fits_read, fits_write, fits_close, sxdelpar,
+;   sxaddpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -70,12 +70,8 @@
 pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
                   error=error
   compile_opt idl2
-  @comp_paths_common
+  @comp_config_common
   @comp_constants_common
-
-  ; configure
-  comp_paths, date_dir
-  comp_initialize, date_dir
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
