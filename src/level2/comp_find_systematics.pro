@@ -139,6 +139,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     d = dat[*, *, i]
     d -= mean(d[good])
 
+    help, i, nwave, fix(i / nwave)
     case fix(i / nwave) of
       0: begin
           xmin = 0.

@@ -84,7 +84,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.mean.fts")')
   endelse
 
-  if (~file_test(file) || ~file_test(file, /zero_length)) then begin
+  if (~file_test(file) || file_test(file, /zero_length)) then begin
     mg_log, 'file %s does not exist, exiting', file, name='comp/quick_invert', /info
     return
   endif

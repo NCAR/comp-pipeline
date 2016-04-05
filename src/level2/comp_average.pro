@@ -40,8 +40,8 @@
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,
-;   comp_make_mask, fits_open, fits_read, fits_write, fits_close, sxdelpar,
-;   sxaddpar, mg_log
+;   comp_make_mask, comp_find_l1_file, fits_open, fits_read, fits_write,
+;   fits_close, sxdelpar, sxaddpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -182,14 +182,14 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   time_str = uthour + ':' + utminute + ':' + utsecond
   
   for i = 0L, n_stokes - 1L do begin
-    mg_log, '%d images for Stokes %s', numof_stokes[i], stokes[i], $
+    mg_log, '%d image files for Stokes %s', numof_stokes[i], stokes[i], $
             name='comp', /info
   endfor
   ;  for i=0,n_stokes-1 do print,which_file[0:numof_stokes[i]-1,i]
 
   ; take inventory of first file to find wavelengths
-  name = filenames[0]
-  fits_open, name + '.comp.' + wave_type + '.fts', fcb
+  test_filename = comp_find_l1_file(date_dir, filenames[0], wave_type)
+  fits_open, test_filename, fcb
 
   comp_inventory_l1, fcb, wave, pol
 
@@ -234,8 +234,15 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
       for ifile = 0L, numof_stokes[ist] - 1L do begin
         name = filenames[which_file[ifile, ist]]
-        mg_log, 'file %d: %s', ifile, name, name='comp/average', /debug
-        fits_open, name + '.comp.' + wave_type + '.fts',fcb
+        filename = comp_find_l1_file(date_dir, name, wave_type)
+        mg_log, 'file %d/%d for %s @ %s: %s', $
+                ifile + 1, $
+                numof_stokes[ist], $
+                strtrim(stokes[ist], 2), $
+                strtrim(waves[iw], 2), $
+                name, $
+                name='comp/average', /debug
+        fits_open, filename, fcb
         fits_read, fcb, d, theader, /header_only, exten_no=0
         comp_make_mask, date_dir, theader, mask
 
@@ -254,10 +261,14 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
         ; sum background images first time through
         if (ist eq 0) then begin
-          fits_read, fcb, dat, extname='B, ' + strtrim(waves[iw], 1)
+          background_filename = comp_find_l1_file(date_dir, name, wave_type, /background)
+          fits_open, background_filename, bkg_fcb
+          fits_read, bkg_fcb, dat, $
+                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')
           back[*, *, iw] += dat * mask
           naverage = sxpar(header, 'NAVERAGE')
           num_back_averaged[iw] += naverage
+          fits_close, bkg_fcb
         endif
 
         fits_close,fcb

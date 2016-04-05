@@ -77,18 +77,20 @@ pro comp_run_pipeline, config_filename=config_filename
 
     date_dir = dirs[d]
 
-    if (lock_raw) then begin
-      available = comp_state(date_dir, /lock)
-      if (available ne 1) then begin
-        continue
-      endif
-    endif
-
     comp_initialize, date_dir
     comp_setup_loggers_date, date_dir
 
-    mg_log, 'Locked %s', filepath(date_dir, root=raw_basedir), $
-            name='comp', /info
+    if (lock_raw) then begin
+      available = comp_state(date_dir, /lock)
+      if (available ne 1) then begin
+        mg_log, '%s locked, skipping...', date_dir, name='comp', /info
+        continue
+      endif else begin
+        mg_log, 'Locked %s', filepath(date_dir, root=raw_basedir), $
+                name='comp', /info
+      endelse
+    endif
+
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 
     ;---------------  Prep  ----------------------------------------
