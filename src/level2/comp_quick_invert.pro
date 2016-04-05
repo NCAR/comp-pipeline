@@ -166,7 +166,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxdelpar, header, 'DATATYPE'
   sxdelpar, header, 'FILTER'
   sxdelpar, header, 'COMMENT'
-  sxaddpar, header, 'NTUNE', ntune
+  sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
   sxaddpar, header, 'DATAMIN', min(i), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(i), ' MAXIMUM DATA VALUE'

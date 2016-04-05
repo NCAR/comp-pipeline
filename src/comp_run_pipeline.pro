@@ -268,9 +268,6 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-
-    ; ;---------------  Level LC data processing  ---------------
-
       mg_log, 'running 3-points analysis', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin

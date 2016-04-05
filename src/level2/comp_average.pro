@@ -250,7 +250,10 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
         good = where(pol eq stokes[ist] and wave eq waves[iw], count)
         if (count eq 0) then begin
-          mg_log, 'no correct pol and wave', name='comp', /warn
+          mg_log, 'no correct pol and wave: %s and %0.2f', $
+                  stokes[ist], waves[iw], $
+                  name='comp', /warn
+          fits_close, fcb
           continue
         endif
         fits_read, fcb, dat, header, exten_no=good[0] + 1

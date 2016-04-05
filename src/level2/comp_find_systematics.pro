@@ -60,21 +60,21 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
   ; save plots
   year = strmid(date_dir, 0, 4)
-  engineering_dir = filepath('', subdir=['engineering', 'year'], root=log_dir)
-  file_mkdir, engineering_dir
+  engineering_dir = filepath('', subdir=['engineering', year], root=log_dir)
+  if (~file_test(engineering_dir, /directory)) then file_mkdir, engineering_dir
 
   file_dir = date_dir + '.comp.' + wave_type + '.' + file_type
   fits_open, file_dir + '.fts', fcb   ; open input file
   fits_read, fcb, data, header, /header_only, exten_no=0
 
-  nwave = sxpar(header, 'NTUNE')
+  nwave = sxpar(header, 'NTUNES')
   ; number of images in file, subtracting nwave background images
   ndat = fcb.nextend - nwave
   dat = fltarr(nx,nx,ndat)
   wav = strarr(ndat)
   pol = strarr(ndat)
 
-  ;  read in all images
+  ; read in all images
   for i = 0L, ndat - 1L do begin
     fits_read, fcb, d, header, exten_no=i + 1
     dat[*, *, i] = d
@@ -84,7 +84,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   fits_close, fcb
 
   debug = 0
-  ;	plot histograms
+  ; plot histograms
   buffer = 1
   if (debug eq 1) then begin
     buffer = 0
@@ -122,9 +122,11 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                           buffer=buffer)
   endfor
 
-  histogram_plot.save, file_dir + '.his.pdf', /landscape, /bitmap, xmargin=1, $
+  histogram_plot.save, filepath(file_dir + '.his.pdf', root=engineering_dir), $
+                       /landscape, /bitmap, xmargin=1, $
                        width=9.5, ymargin=0
   histogram_plot.close
+  mg_log, 'wrote histogram plot', name='comp', /info
 
   ; plot images
 
@@ -139,7 +141,6 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     d = dat[*, *, i]
     d -= mean(d[good])
 
-    help, i, nwave, fix(i / nwave)
     case fix(i / nwave) of
       0: begin
           xmin = 0.
@@ -171,8 +172,10 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                margin=0)
   endfor
 
-  im.save, file_dir + '.img.pdf', /landscape, xmargin=0, width=10.5, ymargin=0
+  im.save, filepath(file_dir + '.img.pdf', root=engineering_dir), $
+           /landscape, xmargin=0, width=10.5, ymargin=0
   im.close
+  mg_log, 'wrote images', name='comp', /info
 
   ; plot correlation?  Only if Stokes V was observed
   if (ndat / nwave gt 3) then begin
@@ -217,8 +220,10 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     t = text(.6, .8, string(format='("Cor 0: ",f8.4)', coef[0]))
     t = text(.6, .75, string(format='("Cor 1: ",f8.4)', coef[1]))
 
-    scatter_plot.save, file_dir + '.sca.pdf', xmargin=0, ymargin=0, /bitmap
+    scatter_plot.save, filepath(file_dir + '.sca.pdf', root=engineering_dir), $
+                       xmargin=0, ymargin=0, /bitmap
     scatter_plot.close
+    mg_log, 'wrote correlation plots', name='comp', /info
   endif
 
   mg_log, 'done', name='comp', /info

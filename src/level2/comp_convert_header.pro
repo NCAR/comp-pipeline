@@ -24,7 +24,7 @@ function comp_convert_header, in_header, $
   main = fitshead2struct(in_header)
 
   if (not keyword_set(exten)) then begin
-    rtags = ['NTUNE', 'TNELNGTH', 'TUNEDLAY', 'H_D$OCCULT', 'V_D$OCCULT', $
+    rtags = ['NTUNES', 'TNELNGTH', 'TUNEDLAY', 'H_D$OCCULT', 'V_D$OCCULT', $
              'FOCUS', 'COVER', 'POLANGLE', 'POLARIZR', 'OPAL', 'RETARDER', $
              'OXCNTER1', 'OYCNTER1', 'OXCNTER2', 'OYCNTER2', 'FXCNTER1', $
              'FYCNTER1', 'FXCNTER2', 'FYCNTER2', 'METHOD', 'OCRAD1', $

@@ -21,17 +21,12 @@ pro comp_inventory_l1, fcbin, wave, pol
 
   fits_read, fcbin, data, header, /header_only, exten_no=0
 
-  num_wave = sxpar(header, 'NTUNE')
+  wave = fltarr(fcbin.nextend)
+  pol  = strarr(fcbin.nextend)
 
-  num = fcbin.nextend - num_wave   ; number of images in file
-
-  wave = fltarr(num)
-  pol  = strarr(num)
-
-  ; TODO: including background introduces zeros into these arrays
-  for i = 0L, num - 1L do begin
-    fits_read, fcbin, data, header, /header_only, exten_no=i + 1
-    wave[i] = sxpar(header, 'WAVELENG')
-    pol[i]  = strcompress(sxpar(header, 'POLSTATE'), /remove_all)
+  for i = 1L, fcbin.nextend do begin
+    fits_read, fcbin, data, header, /header_only, exten_no=i
+    wave[i - 1] = sxpar(header, 'WAVELENG')
+    pol[i - 1]  = strcompress(sxpar(header, 'POLSTATE'), /remove_all)
   endfor
 end
