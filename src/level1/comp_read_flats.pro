@@ -18,7 +18,9 @@
 ;     time of data image
 ;   flat : out, required, type="fltarr(1024, 1024, nwave)"
 ;   flat_header : out, required, type=strarr
-;   flat_waves
+;   flat_waves : out, optional, type=fltarr
+;     set to retrive the unique wavelengths in `wave`, possibly given sign
+;     through multiplying by beam state
 ;   exposure
 ;
 ; :Keywords:
@@ -46,7 +48,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
 
   flat_waves = wb[comp_uniq(wb, sort(wb))]
   nwave = n_elements(flat_waves)
-  mg_log, 'flat_waves: %s', strjoin(strtrim(flat_waves, 2), ', '), $
+  mg_log, 'wavelengths: %s', strjoin(strtrim(flat_waves, 2), ', '), $
           name='comp', /debug
 
   flat = fltarr(1024, 1024, nwave, /nozero)
@@ -79,7 +81,9 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
       continue
     endif
 
-    mg_log, 'correct_wave: %s', strjoin(strtrim(correct_wave, 2), ', '), $
+    mg_log, 'flat extensions for %02.f: %s', $
+            flat_waves[iw], $
+            strjoin(strtrim(correct_wave + 1, 2), ', '), $
             name='comp', /debug
     mn = min(dt[correct_wave], good)
     iflat = correct_wave[good] + 1
@@ -96,9 +100,10 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
 
     exposure = exposures[iflat - 1L]
-    mg_log, 'iflat = %d, flat_waves[iw] = %f, times[iflat - 1] = %f, ' $
-              + ' wavelengths[iflat - 1] = %f, exposures[iflat - 1] = %f', $
-            iflat, flat_waves[iw], times[iflat - 1], wavelengths[iflat - 1], $
+    mg_log, 'closest flat ext %d: time = %f hrs, wavelengths = %0.2f, exposure = %f ms', $
+            iflat, $
+            times[iflat - 1], $
+            wavelengths[iflat - 1], $
             exposures[iflat - 1], $
             name='comp', /debug
   endfor
