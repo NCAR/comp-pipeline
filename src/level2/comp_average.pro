@@ -94,8 +94,6 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   mean_opt = 'yes'   ; compute mean? (yes or no)
   median_opt = 'yes'   ; compute median? (yes or no)
 
-  !except = 0
-
   ; create output fits file
 
   if (mean_opt eq 'yes') then begin

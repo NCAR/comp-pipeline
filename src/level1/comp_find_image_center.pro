@@ -64,7 +64,8 @@ function comp_find_image_center, dat, $
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol)
 
   c = comp_circfit(theta, r)   ; fit positions to a circle
-  mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), name='comp/find_image_center', /debug
+  mg_log, 'h: %0.3f, alpha: %0.3f, radius: %0.3f', c[0], c[1], c[2], $
+          name='comp/find_image_center', /debug
 
   if (debug eq 1) then begin
     plot, theta, r, psym=3, yrange=[200, 340], ystyle=1, $

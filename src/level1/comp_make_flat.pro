@@ -218,7 +218,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
         ; fix hot pixels
         image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
 
-        mg_log, 'uniq_waves: %s', strjoin(strtrim(uniq_waves, 2), ', '), $
+        mg_log, 'waves: %s', strjoin(strtrim(uniq_waves, 2), ', '), $
                 name='comp', /debug
         if (debug eq 1) then begin
           tvwin, image

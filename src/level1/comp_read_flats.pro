@@ -81,7 +81,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
       continue
     endif
 
-    mg_log, 'flat extensions for %02.f: %s', $
+    mg_log, 'extensions for %0.2f: %s', $
             flat_waves[iw], $
             strjoin(strtrim(correct_wave + 1, 2), ', '), $
             name='comp', /debug
@@ -100,9 +100,11 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
 
     exposure = exposures[iflat - 1L]
-    mg_log, 'closest flat ext %d: time = %f hrs, wavelengths = %0.2f, exposure = %f ms', $
+    mg_log, 'closest flat ext %d:', $
             iflat, $
-            times[iflat - 1], $
+            name='comp', /debug
+    mg_log, '  time=%s, wave=%0.2f, exposure=%0.1fms', $
+            comp_times2str(times[iflat - 1]), $
             wavelengths[iflat - 1], $
             exposures[iflat - 1], $
             name='comp', /debug

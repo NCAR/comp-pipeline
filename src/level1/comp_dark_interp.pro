@@ -67,14 +67,14 @@ function comp_dark_interp, date_dir, time, exposure
         i2 = good[tmin]
       endelse
 
-      mg_log, 'good times = %s', $
+      mg_log, 'times: %s', $
               strjoin(str_times[good], ', '), $
               name='comp/dark_interp', /debug
 
       fits_read, fcb, bias1, header1, exten_no=i1 + 1
       fits_read, fcb, bias2, header2, exten_no=i2 + 1
 
-      mg_log, 'interpolate between %s (ext %d) and %s (ext %d)', $
+      mg_log, 'between %s (ext %d) and %s (ext %d)', $
               str_times[i1], $
               i1 + 1, $
               str_times[i2], $
@@ -84,7 +84,7 @@ function comp_dark_interp, date_dir, time, exposure
       f1 = (times[i2] - time) / (times[i2] - times[i1])
       f2 = (time - times[i1]) / (times[i2] - times[i1])
 
-      mg_log, 'bias = %0.3f * dark[%s] + %0.3f * dark[%s]', $
+      mg_log, 'bias=%0.3f*dark[%s]+%0.3f*dark[%s]', $
               f1, str_times[i1], f2, str_times[i2], $
               name='comp/dark_interp', /debug
 

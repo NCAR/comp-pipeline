@@ -72,6 +72,10 @@ pro comp_run_pipeline, config_filename=config_filename
 
   dirs = candidate_dirs[date_dirs_ind]
 
+  ; ignore math errors
+  orig_except = !except
+  !except = 0
+
   for d = 0L, n_dirs - 1L do begin
     t0 = systime(/seconds)
 
@@ -111,7 +115,7 @@ pro comp_run_pipeline, config_filename=config_filename
     ;---------------  Level_1 data processing  ---------------------
 
     if (create_l1) then begin
-      mg_log, 'starting processing for %s', date_dir, name='comp', /info
+      mg_log, 'starting level 1 processing for %s', date_dir, name='comp', /info
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
@@ -232,6 +236,8 @@ pro comp_run_pipeline, config_filename=config_filename
     ;---------------  Level_2 data processing  ---------------
 
     if (create_l2) then begin
+      mg_log, 'starting level 2 processing for %s', date_dir, name='comp', /info
+
       ; compute the mean, median and standard deviation of Level_1 data
       mg_log, 'running comp_average', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -368,6 +374,8 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /info
     endif
   endfor
+
+  !except = orig_except
 
   mg_log, /quit
 end

@@ -29,7 +29,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   year = strmid(date_dir, 0, 4)
   month = strmid(date_dir, 4, 2)
   day = strmid(date_dir, 6, 4)
-  destination = filepath('', subdir=[year, month, day], root='.')
+  destination = string(year, month, day, format='(%"/%s/%s/%s/")')
 
   ; get some info
   flist  = file_search('*.comp.' + wave_type + '.fts')

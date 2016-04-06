@@ -44,7 +44,7 @@ function comp_circfit, theta, r, chisq=chisq
   while (count gt 0) do begin
     a = amoeba(1.e-4, p0=a, function_name='comp_circ_func', scale=60., $
                function_value=fval, nmax=10000)
-    mg_log, 'chisq: %f', fval[0], name='comp/circfit', /debug
+    mg_log, 'chi^2: %0.3f', fval[0], name='comp/circfit', /debug
 
     ; check if amoeba failed: it returns -1 but usually returns an array, so
     ; use following hack rather than directly checking return value!
@@ -60,10 +60,13 @@ function comp_circfit, theta, r, chisq=chisq
     diff = y - rfit
     rms = stdev(diff)
     bad = where(abs(diff) ge 3. * rms, count, complement=good)
-    if count gt 0 then begin
+    if (count gt 0) then begin
       x = x[good]
       y = y[good]
-      mg_log, '%d bad points:', count, name='comp/circfit', /debug
+      mg_log, '  %d bad point%s', $
+              count, $
+              count gt 1 ? 's' : '', $
+              name='comp/circfit', /debug
       if (debug eq 1) then begin
         plot, x, y, title='circfit'
         oplot, x, rfit
@@ -72,7 +75,7 @@ function comp_circfit, theta, r, chisq=chisq
     endif
   endwhile
 
-  if (keyword_set(chisq)) then chisq = total((r[good] - rfit[good])^2)
+  if (arg_present(chisq)) then chisq = total((r[good] - rfit[good])^2)
 
   return, a
 end

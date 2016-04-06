@@ -62,7 +62,7 @@ pipe:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
 	@if [ "$(PHONE)" ]; then \
 	echo "Sending message to $(PHONE)..."; \
-	sms -n $(PHONE) -m "Done processing new pipeline on $(MACHINE)"; \
+	sms -n $(PHONE) -m "Done processing new pipeline on $(MACHINE) with $(CONFIG)"; \
 	else \
 	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
 	fi
