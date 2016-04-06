@@ -347,7 +347,9 @@ pro comp_run_pipeline, config_filename=config_filename
     if (update_database) then begin
       mg_log, 'running comp_update_database', name='comp', /info
       db_t0 = systime(/seconds)
-      comp_update_database, date_dir, process_wavelengths[w]
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_update_database, date_dir, process_wavelengths[w]
+      endfor
       db_t1 = systime(/seconds)
       mg_log, 'Total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
               db_t1 - db_t0, $

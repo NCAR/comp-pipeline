@@ -69,18 +69,19 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   endfor
 
   ; read logos
-  haologo = read_png(filepath('hao_logo_small.png', root=logo_dir), $
+  haologo = read_png(filepath('hao_logo_small.png', subdir='logos', root=mg_src_root()), $
                      rhao, ghao, bhao)
 
-  nsfimage  = read_png(filepath('nsf_ncar_logo_small.png', root=logo_dir))
+  nsfimage  = read_png(filepath('nsf_ncar_logo_small.png', subdir='logos', root=mg_src_root()))
   nsfimage  = transpose(nsfimage, [1, 2, 0])
   nsfimsize = size(nsfimage[*, *, 0:2], /dimensions)
 
-  nwimage  = read_png(filepath('nw_small.png', root=logo_dir))
+  nwimage  = read_png(filepath('nw_small.png', subdir='logos', root=mg_src_root()))
   nwimage  = transpose(nwimage, [1, 2, 0])
   nwimsize = size(nwimage[*, *, 0:2], /dimensions)
 
   for ii = 0L, nt - 1L do begin
+    mg_log, 'reading %s', gbu[ii].l1file, name='comp', /info
     hdr = headfits(gbu[ii].l1file)
     if (ii eq 0) then begin
       index = fitshead2struct(hdr)
@@ -232,7 +233,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endif
 
     ; plot doppler velocity
-    restore, filepath('my_doppler_ct.sav', subdir='dynamics', root=binary_dir)
+    restore, filepath('my_doppler_ct.sav', root=mg_src_root())
     tvlct, r, g, b
     vel = bytscl(velocity, min=-10, max=10, top=253)
     vel[unmasked] = 254

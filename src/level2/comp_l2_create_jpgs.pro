@@ -226,7 +226,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   width[thresh_unmasked]    = 0.
 
   ; get some info
-  spawn, 'ls *.comp.' + wave_type + '.fts', all_files
+  all_files = file_search('*.comp.' + wave_type + '*.*.fts', count=no_of_files)
   no_of_files = n_elements(all_files)
   first_file_time = strmid(all_files[0], 22, 2, /reverse_offset) $
                       + ':' + strmid(all_files[0], 20, 2, /reverse_offset) $
@@ -259,7 +259,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   tv, poi, 4 * 5, 4 * 5
 
   ; plot doppler velocity
-  restore, filepath('my_doppler_ct.sav', subdir='dynamics', root=binary_dir)
+  restore, filepath('my_doppler_ct.sav', root=mg_src_root())
   tvlct, r, g, b
   vel = bytscl(velocity, min=-10, max=10, top=253)
   vel[thresh_unmasked] = 254
@@ -308,19 +308,19 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   tvlct, rtemp, gtemp, btemp, /get
 
   ; read logos
-  haologo_large = read_png(filepath('hao_logo.png', root=logo_dir), $
+  haologo_large = read_png(filepath('hao_logo.png', subdir='logos', root=mg_src_root()), $
                            rhao, ghao, bhao)
-  haologo = read_png(filepath('hao_logo_small.png', root=logo_dir), $
+  haologo = read_png(filepath('hao_logo_small.png', subdir='logos', root=mg_src_root()), $
                      rhao, ghao, bhao)
 
-  nsfimage_large  = read_png(filepath('nsf_ncar_logo.png', root=logo_dir))
+  nsfimage_large  = read_png(filepath('nsf_ncar_logo.png', subdir='logos', root=mg_src_root()))
   nsfimage_large  = transpose(nsfimage_large, [1, 2, 0])
   nsfimsize_large = size(nsfimage_large[*, *, 0:2], /dimensions)
-  nsfimage  = read_png(filepath('nsf_ncar_logo_small.png', root=logo_dir))
+  nsfimage  = read_png(filepath('nsf_ncar_logo_small.png', subdir='logos', root=mg_src_root()))
   nsfimage  = transpose(nsfimage, [1, 2,0 ])
   nsfimsize = size(nsfimage[*, *, 0:2], /dimensions)
 
-  nwimage  = read_png(filepath('nw_small.png', root=logo_dir))
+  nwimage  = read_png(filepath('nw_small.png', subdir='logos', root=mg_src_root()))
   nwimage  = transpose(nwimage, [1, 2, 0])
   nwimsize = size(nwimage[*, *, 0:2], /dimensions)
 
@@ -349,7 +349,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   colorbar2, position=[0.753, 0.17, 0.753 + 0.158, 0.17 + 0.015], $
              charsize=1.25, title='line width [km/s]', range=[25, 55], $
              font=-1, divisions=3, color=255, ncolors=254
-  restore, filepath('my_doppler_ct.sav', subdir='dynamics', root=binary_dir)
+  restore, filepath('my_doppler_ct.sav', root=mg_src_root())
   tvlct, r, g, b
   colorbar2, position=[0.4225, 0.17, 0.4225 + 0.158, 0.17 + 0.015], $
              charsize=1.25, title='LOS velocity [km/s]', range=[-10, 10], $
@@ -475,7 +475,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   erase
 
   ; plot doppler velocity
-  restore, filepath('my_doppler_ct.sav', subdir='dynamics', root=binary_dir)
+  restore, filepath('my_doppler_ct.sav', root=mg_src_root())
   tvlct, r, g, b
   tv, vel
   colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $

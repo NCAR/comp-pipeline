@@ -155,11 +155,11 @@ pro comp_l2_analytical_three, date_dir, wave_type
     endif
 
     ;=== write out fits files ===
-    mg_log, 'write out fits %d', ii, name='comp', /info
+    mg_log, 'write out fits %d/%d', ii + 1, nt, name='comp', /info
 
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-    outfilename = strmid(gbu[ii].l1file, 31, 26, /reverse_offset) + 'dynamics.3.fts'
+    outfilename = strmid(gbu[ii].l1file, 0, 26) + 'dynamics.3.fts'
     writefits, outfilename, blank, primary_header
 
     ; intensity
@@ -202,7 +202,7 @@ pro comp_l2_analytical_three, date_dir, wave_type
     ;=== polarization package ===
     if (qu_files[ii] eq 1) then begin
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-      outfilename = strmid(gbu[ii].l1file, 31, 26, /reverse_offset) $
+      outfilename = strmid(gbu[ii].l1file, 0, 26) $
                       + 'polarization.3.fts'
       writefits, outfilename, blank, primary_header
 
@@ -235,7 +235,7 @@ pro comp_l2_analytical_three, date_dir, wave_type
       writefits, outfilename, float(stks_q), extension_header, /append
 
       ; Stokes U
-      extension_header = comp_convert_header(headfits(gbu[ii].l1file,exten=2), $
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
                                              /exten, $
                                              extname='Integrated Stokes U', $
                                              datminmax=[min(stks_u), $

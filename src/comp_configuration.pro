@@ -37,7 +37,6 @@ pro comp_configuration, config_filename=config_filename
   hot_file      = config->get('hot_file', section='save')
   deferred_file = config->get('deferred_file', section='save')
   ffmpeg_dir    = config->get('ffmpeg_dir', section='save')
-  logo_dir      = config->get('logo_dir', section='save')
 
   ; processing
   raw_basedir      = config->get('raw_basedir', section='processing')

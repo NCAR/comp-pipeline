@@ -160,9 +160,11 @@ pro comp_l2_analytical_five, date_dir, wave_type
     endif
 
     ;=== write out fits files ===
+    mg_log, 'write out fits %d/%d', ii + 1, nt, name='comp', /info
+
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-    outfilename = strmid(gbu[ii].l1file, 31, 26, /reverse_offset) $
+    outfilename = strmid(gbu[ii].l1file, 0, 26) $
                     + 'dynamics.5.fts'
     writefits, outfilename, blank, primary_header
     ; intensity
@@ -201,7 +203,7 @@ pro comp_l2_analytical_five, date_dir, wave_type
     ;=== polarization package ===
     if (qu_files[ii] eq 1) then begin
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-      outfilename = strmid(gbu[ii].l1file, 31, 26, /reverse_offset) $
+      outfilename = strmid(gbu[ii].l1file, 0, 26) $
                       + 'polarization.5.fts'
       writefits, outfilename, blank, primary_header
       ; intensity

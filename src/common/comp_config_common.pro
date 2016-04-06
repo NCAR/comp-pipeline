@@ -15,7 +15,6 @@ common comp_config, bias_dir, $
                     fullres_dir, $
                     log_dir, $
                     ffmpeg_dir, $
-                    logo_dir, $
                     log_level, $
                     l1_process_log_level, $
                     circfit_log_level, $
