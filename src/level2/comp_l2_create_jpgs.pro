@@ -228,15 +228,16 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   ; get some info
   all_files = file_search('*.comp.' + wave_type + '*.*.fts', count=no_of_files)
   no_of_files = n_elements(all_files)
-  first_file_time = strmid(all_files[0], 22, 2, /reverse_offset) $
-                      + ':' + strmid(all_files[0], 20, 2, /reverse_offset) $
-                      + ':' + strmid(all_files[0], 18, 2, /reverse_offset) $
-                      + ' UT'
-  last_file_time  = strmid(all_files[no_of_files - 1], 22, 2, /reverse_offset) $
-                      + ':' + strmid(all_files[no_of_files - 1], 20, 2, /reverse_offset) $
-                      + ':' + strmid(all_files[no_of_files - 1], 18, 2, /reverse_offset) $
-                      + ' UT'
-  no_of_files     = strcompress(string(no_of_files), /remove_all)
+  first_dt = strmid(all_files[0], 9, 6)
+  first_file_time = string(strmid(first_dt, 0, 2), $
+                           strmid(first_dt, 2, 2), $
+                           strmid(first_dt, 4, 2), $
+                           format='(%"%s:%s:%s UT")')
+  last_dt = strmid(all_files[no_of_files - 1], 9, 6)
+  last_file_time = string(strmid(last_dt, 0, 2), $
+                          strmid(last_dt, 2, 2), $
+                          strmid(last_dt, 4, 2), $
+                          format='(%"%s:%s:%s UT")')
 
   ; now plot everything
   set_plot, 'Z'
@@ -302,7 +303,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   xyouts, 4 * 403, 4 * 100 + 4 * 160, first_file_time, charsize=5, /device, color=0
   xyouts, 4 * 326, 4 * 80 + 4 * 160, 'Last image:', charsize=5, /device, color=0
   xyouts, 4 * 403, 4 * 80 + 4 * 160, last_file_time, charsize=5, /device, color=0
-  xyouts, 4 * 326, 4 * 60 + 4 * 160, 'Total # of images:  ' + no_of_files, $
+  xyouts, 4 * 326, 4 * 60 + 4 * 160, 'Total # of images:  ' + strtrim(no_of_files, 2), $
           charsize=5, /device, color=0
 
   tvlct, rtemp, gtemp, btemp, /get

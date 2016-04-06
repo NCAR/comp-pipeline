@@ -39,14 +39,17 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
     end_time    = '00:00:00'
   endif else begin
     no_of_files = strcompress(string(n_elements(flist)), /remove_all)
-    start_time  = strmid(flist[0], 19, 2, /reverse) $
-                    + ':' + strmid(flist[0], 17, 2, /reverse) $
-                    + ':' + strmid(flist[0], 15, 2, /reverse) $
-                    + ' UT'
-    end_time    = strmid(flist[n_elements(flist) - 1L], 19, 2, /reverse) $
-                    + ':' + strmid(flist[n_elements(flist) - 1L], 17, 2, /reverse) $
-                    + ':' + strmid(flist[n_elements(flist) - 1L], 15, 2, /reverse) $
-                    + ' UT'
+
+    state_dt = strmid(flist[0], 9, 6)
+    start_time = string(strmid(start_dt, 0, 2), $
+                        strmid(start_dt, 2, 2), $
+                        strmid(start_dt, 4, 2), $
+                        format='(%"%s:%s:%s UT")')
+    end_dt = strmid(flist[n_elements(flist) - 1], 9, 6)
+    end_time = string(strmid(end_dt, 0, 2), $
+                      strmid(end_dt, 2, 2), $
+                      strmid(end_dt, 4, 2), $
+                      format='(%"%s:%s:%s UT")')
   endelse
 
   mg_log, '%d files going into info and tar for %s to %s', $
@@ -80,21 +83,21 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   if (not (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '')) then begin
     for ii = 0L, n_elements(flist_d_tpt) - 1L do begin
       printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + strmid(flist_d_tpt[ii], 42, 43, /reverse_offset)
+                + flist_d_tpt[ii]
     endfor
     for ii = 0L, n_elements(flist_p_tpt) - 1L do begin
       printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + strmid(flist_p_tpt[ii], 46, 47, /reverse_offset)
+                + flist_p_tpt[ii]
     endfor
   endif
   if (not (n_elements(flist_d_fpt) eq 1 and flist_d_fpt[0] eq '')) then begin
     for ii = 0L, n_elements(flist_d_fpt) - 1L do begin
       printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + strmid(flist_d_fpt[ii], 42, 43, /reverse_offset)
+                + flist_d_fpt[ii]
     endfor
     for ii = 0L, n_elements(flist_p_fpt) - 1L do begin
       printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + strmid(flist_p_fpt[ii], 46, 47, /reverse_offset)
+                + flist_p_fpt[ii]
     endfor
   endif
 
