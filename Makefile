@@ -41,7 +41,7 @@ COMP_PATH=+$(COMP_SRC_DIR):$(SSW_DIR):$(GEN_DIR):+$(LIB_DIR):"<IDL_DEFAULT>"
 DOC_PATH=$(MGLIB_DIR):$(IDLDOC_DIR):$(COMP_PATH)
 UNIT_PATH=$(PWD)/unit:$(MGUNIT_DIR):$(COMP_PATH)
 
-SSW_DEP_PATH="<IDL_DEFAULT>":$(PWD)/ssw:+$(FULL_SSW_DIR)
+SSW_DEP_PATH="<IDL_DEFAULT>":$(COMP_PATH):+$(FULL_SSW_DIR)
 
 
 help:
@@ -89,4 +89,5 @@ clean:
 	$(ECHO_PREFIX)rm -rf api-docs api-userdocs
 
 sswdeps:
+	find src -name '*.pro' -exec basename {} .pro \; > ROUTINES
 	$(ECHO_PREFIX)$(SSWDEPS_IDL) -IDL_STARTUP "" -IDL_PATH $(SSW_DEP_PATH) -e "comp_find_ssw_dependencies, '$(FULL_SSW_DIR)'"

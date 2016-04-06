@@ -22,7 +22,7 @@
 ; radius of the center coordinate.
 ;-
 function comp_circ_func, p
-  common fitc, x, y
+  @comp_fitc_common
 
   r = p[0] * cos(x - p[1]) + sqrt(p[0]^2 * cos(x - p[1])^2 - p[0]^2 + p[2]^2)
 

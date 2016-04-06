@@ -25,7 +25,7 @@
 ;-
 function comp_read_atlas, wave, range
   compile_opt strictarr
-  @comp_paths_common
+  @comp_config_common
 
   lw = 4 * fix(fix(wave / 10.0) / 4.0)
 
