@@ -28,8 +28,10 @@ function comp_find_l1_file, date, datetime, wave_type, background=background
                                    root=process_basedir), $
                           count=n_files)
 
-  background_mask = strmatch(file_basename(filenames), '*.bkg.fts')
-  background_ind = where(background_mask, complement=foreground_ind)
+  base_re = datetime + '\.comp\.' + wave_type + '\.[iquv]+\.[[:digit:]]{1,2}'
+  l1_re = base_re + (keyword_set(background) ? '\.bkg\.fts' : '\.fts')
+  l1_mask = stregex(file_basename(filenames), l1_re, /boolean)
+  l1_ind = where(l1_mask)
 
-  return, filenames[keyword_set(background) ? background_ind[0] : foreground_ind[0]]
+  return, filenames[l1_ind[0]]
 end

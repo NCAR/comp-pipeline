@@ -25,7 +25,7 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;   file_type : in, required, type=string
-;     unique part of filename to select input file
+;     unique part of filename to select input file, such as 'mean'
 ;
 ; :Keywords:
 ;   error : out, optional, type=long
@@ -64,13 +64,17 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   if (~file_test(engineering_dir, /directory)) then file_mkdir, engineering_dir
 
   file_dir = date_dir + '.comp.' + wave_type + '.' + file_type
-  fits_open, file_dir + '.fts', fcb   ; open input file
+  filename = file_dir + '.fts'
+  fits_open, filename, fcb   ; open input file
   fits_read, fcb, data, header, /header_only, exten_no=0
 
+  mg_log, 'reading %s', file_basename(filename), name='comp', /debug
+
   nwave = sxpar(header, 'NTUNES')
-  ; number of images in file, subtracting nwave background images
+
+  ; number of images in file
   ndat = fcb.nextend - nwave
-  dat = fltarr(nx,nx,ndat)
+  dat = fltarr(nx, nx, ndat)
   wav = strarr(ndat)
   pol = strarr(ndat)
 
@@ -88,12 +92,13 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   buffer = 1
   if (debug eq 1) then begin
     buffer = 0
-    histogram_window = window(window_title="Histogram", $
+    histogram_window = window(window_title='Histogram', $
                               dimensions=[1000, 800], $
                               buffer=buffer)
   endif
 
   for i = 0L, ndat - 1L do begin
+    mg_log, 'histogram for extension %d/%d', i + 1, ndat, name='comp', /debug
     d = dat[*, *, i]
     ; TODO: why the next line?  It modifies dat, which is not used again until
     ; next plot!?
@@ -103,7 +108,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
     good = where(d ne 0., count)
     if (count eq 0) then begin
-      mg_log, 'no good d', name='comp', /warn
+      mg_log, 'no good data in extension %d', i + 1, name='comp', /warn
       continue
     endif
     if (i lt nwave) then bs = 0.01 else bs = 0.001
@@ -138,6 +143,8 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   endif
 
   for i = 0L, ndat - 1L do begin
+    mg_log, 'image for extension %d/%d', i + 1, ndat, name='comp', /debug
+
     d = dat[*, *, i]
     d -= mean(d[good])
 

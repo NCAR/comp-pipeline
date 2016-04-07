@@ -240,6 +240,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
                 strtrim(waves[iw], 2), $
                 name, $
                 name='comp/average', /debug
+        ;mg_log, 'reading %s...', file_basename(filename), name='comp', /debug
         fits_open, filename, fcb
         fits_read, fcb, d, theader, /header_only, exten_no=0
         comp_make_mask, date_dir, theader, mask
@@ -263,6 +264,9 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
         ; sum background images first time through
         if (ist eq 0) then begin
           background_filename = comp_find_l1_file(date_dir, name, wave_type, /background)
+          ;mg_log, 'reading bkg file %s...', $
+          ;        file_basename(background_filename), $
+          ;        name='comp', /debug
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, $
                      extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')
