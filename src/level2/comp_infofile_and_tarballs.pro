@@ -32,7 +32,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   destination = string(year, month, day, format='(%"/%s/%s/%s/")')
 
   ; get some info
-  flist = comp_find_l1_file(date_dir, wave_type, /all)
+  flist = file_basename(comp_find_l1_file(date_dir, wave_type, /all))
   if (n_elements(flist) eq 1 and flist[0] eq '') then begin
     no_of_files = '0'
     start_time  = '00:00:00'
