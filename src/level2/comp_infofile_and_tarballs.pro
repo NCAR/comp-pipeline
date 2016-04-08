@@ -40,7 +40,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   endif else begin
     no_of_files = strcompress(string(n_elements(flist)), /remove_all)
 
-    state_dt = strmid(flist[0], 9, 6)
+    start_dt = strmid(flist[0], 9, 6)
     start_time = string(strmid(start_dt, 0, 2), $
                         strmid(start_dt, 2, 2), $
                         strmid(start_dt, 4, 2), $
