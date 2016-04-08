@@ -61,10 +61,10 @@ help:
 pipe:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
 	@if [ "$(PHONE)" ]; then \
-	@echo "Sending message to $(PHONE)..."; \
+	echo "Sending message to $(PHONE)..."; \
 	$(ECHO_PREFIX)sms -n $(PHONE) -m "Done processing pipeline with $(shell basename $(CONFIG))"; \
 	else \
-	@echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
+	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
 	fi
 
 cal:
