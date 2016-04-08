@@ -32,7 +32,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   destination = string(year, month, day, format='(%"/%s/%s/%s/")')
 
   ; get some info
-  flist  = file_search('*.comp.' + wave_type + '.fts')
+  flist = comp_find_l1_file(date_dir, wave_type, /all)
   if (n_elements(flist) eq 1 and flist[0] eq '') then begin
     no_of_files = '0'
     start_time  = '00:00:00'
@@ -60,7 +60,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   if (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '') then begin
     no_of_tpt_files = '0'
   endif else begin
-    no_of_tpt_files = strcompress(string(n_elements(flist_d_tpt)), /remove_all)
+    no_of_tpt_files = strtrim(n_elements(flist_d_tpt), 2)
   endelse
 
   flist_d_fpt = file_search('*.comp.' + wave_type + '.dynamics.5.fts')
@@ -68,7 +68,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   if (n_elements(flist_d_fpt) eq 1 and flist_d_fpt[0] eq '') then begin
     no_of_fpt_files = '0'
   endif else begin
-    no_of_fpt_files = strcompress(string(n_elements(flist_d_fpt)), /remove_all)
+    no_of_fpt_files = strtrim(n_elements(flist_d_fpt), 2)
   endelse
 
   ; write out info file

@@ -186,7 +186,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   ;  for i=0,n_stokes-1 do print,which_file[0:numof_stokes[i]-1,i]
 
   ; take inventory of first file to find wavelengths
-  test_filename = comp_find_l1_file(date_dir, filenames[0], wave_type)
+  test_filename = comp_find_l1_file(date_dir, wave_type, datetime=filenames[0])
   fits_open, test_filename, fcb
 
   comp_inventory_l1, fcb, wave, pol
@@ -232,7 +232,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
       for ifile = 0L, numof_stokes[ist] - 1L do begin
         name = filenames[which_file[ifile, ist]]
-        filename = comp_find_l1_file(date_dir, name, wave_type)
+        filename = comp_find_l1_file(date_dir, wave_type, datetime=name)
         mg_log, 'file %d/%d for %s @ %s: %s', $
                 ifile + 1, $
                 numof_stokes[ist], $
@@ -263,7 +263,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
         ; sum background images first time through
         if (ist eq 0) then begin
-          background_filename = comp_find_l1_file(date_dir, name, wave_type, /background)
+          background_filename = comp_find_l1_file(date_dir, wave_type, datetime=name, /background)
           ;mg_log, 'reading bkg file %s...', $
           ;        file_basename(background_filename), $
           ;        name='comp', /debug
