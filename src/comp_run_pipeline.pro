@@ -229,8 +229,18 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+
     endif else begin
       mg_log, 'skipping L1 processing', name='comp', /info
+    endelse
+
+    if (distribute_l1) then begin
+      mg_log, 'dstributing L1 data', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_distribute_l1, date_dir, process_wavelengths[w]
+      endfor
+    endif else begin
+      mg_log, 'skipping L1 distribution', name='comp', /info
     endelse
 
     ;---------------  Level_2 data processing  ---------------
@@ -348,6 +358,15 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
     endif else begin
       mg_log, 'skipping L2 processing', name='comp', /info
+    endelse
+
+    if (distribute_l2) then begin
+      mg_log, 'dstributing L2 data', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_distribute_l2, date_dir, process_wavelengths[w]
+      endfor
+    endif else begin
+      mg_log, 'skipping L2 distribution', name='comp', /info
     endelse
 
     if (update_database) then begin

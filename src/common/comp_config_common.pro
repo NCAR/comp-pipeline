@@ -25,7 +25,9 @@ common comp_config, bias_dir, $
                     find_image_center_log_level, $
                     find_post_log_level, $
                     create_l1, $
+                    distribute_l1, $
                     create_l2, $
+                    distribute_l2, $
                     mail_warnings, $
                     send_to_hpss, $
                     validate, $

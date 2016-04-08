@@ -65,7 +65,9 @@ pro comp_configuration, config_filename=config_filename
 
   ; actions
   create_l1 = fix(config->get('create_l1', section='actions', /boolean, default=1B))
+  distribute_l1 = fix(config->get('distribute_l1', section='actions', /boolean, default=1B))
   create_l2 = fix(config->get('create_l2', section='actions', /boolean, default=1B))
+  distribute_l2 = fix(config->get('distribute_l2', section='actions', /boolean, default=1B))
   mail_warnings = fix(config->get('mail_warnings', section='actions', /boolean, default=1B))
   send_to_hpss = fix(config->get('send_to_hpss', section='actions', /boolean, default=1B))
   validate = fix(config->get('validate', section='actions', /boolean, default=1B))
