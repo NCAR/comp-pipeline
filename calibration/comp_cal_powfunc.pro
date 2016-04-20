@@ -126,7 +126,7 @@ function comp_cal_powfunc, input, diag_plot_dir=diag_plot_dir, $
     ;resids = reform((cal_data[*, *, i] - data[*, *, i])^2.0)
     chi2 += total(mask * resids, /nan)
   endfor
-  chi2 /= total(mask) * ndata
+  ;chi2 /= total(mask) * ndata
 
   ; plot diagnostic data if the plot directory parameter is set
   if (n_elements(diag_plot_dir) gt 0) then comp_plot_cal_comblk_data, diag_plot_dir

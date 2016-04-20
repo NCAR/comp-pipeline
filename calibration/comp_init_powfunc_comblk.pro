@@ -275,7 +275,8 @@ pro comp_init_powfunc_comblk, cal_directory, wave, beam, date_dir, exact_wave, l
 
   for d = 0L, ndata - 1L do begin
     data[*, *, d] = median(raw_data[*, *, 0:n_images[d] - 1, d], dimension=3)
-    vars[*, *, d] = photfac * abs(data[*, *, d]) /  n_found_images[d]
+    ;vars[*, *, d] = photfac * abs(data[*, *, d]) /  n_found_images[d]
+    vars[*, *, d] = abs(data[*, *, d])
   endfor
 
   ; mask by the 5x5 block around the location
