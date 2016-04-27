@@ -54,14 +54,14 @@ pro comp_configuration, config_filename=config_filename
   ; log files
   log_dir = config->get('log_dir', section='log')
   log_level = long(config->get('level', section='log', default=4L))
-  l1_process_log_level = long(config->get('l1_process_level', section='log', default=log_level))
-  circfit_log_level = long(config->get('circfit_level', section='log', default=log_level))
-  quick_invert_log_level = long(config->get('quick_invert_level', section='log', default=log_level))
-  average_log_level = long(config->get('average_level', section='log', default=log_level))
-  dark_interp_log_level = long(config->get('dark_interp_level', section='log', default=log_level))
-  fix_crosstalk_log_level = long(config->get('fix_crosstalk_level', section='log', default=log_level))
-  find_image_center_log_level = long(config->get('find_image_center', section='log', default=log_level))
-  find_post_log_level = long(config->get('find_post', section='log', default=log_level))
+  l1_process_log_level = config->get('l1_process_level', section='log', default=log_level, type=3)
+  circfit_log_level = config->get('circfit_level', section='log', default=log_level, type=3)
+  quick_invert_log_level = config->get('quick_invert_level', section='log', default=log_level, type=3)
+  average_log_level = config->get('average_level', section='log', default=log_level, type=3)
+  dark_interp_log_level = config->get('dark_interp_level', section='log', default=log_level, type=3)
+  fix_crosstalk_log_level = config->get('fix_crosstalk_level', section='log', default=log_level, type=3)
+  find_image_center_log_level = config->get('find_image_center', section='log', default=log_level, type=3)
+  find_post_log_level = config->get('find_post', section='log', default=log_level, type=3)
 
   ; actions
   create_l1 = fix(config->get('create_l1', section='actions', /boolean, default=1B))

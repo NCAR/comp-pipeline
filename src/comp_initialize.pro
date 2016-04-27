@@ -28,7 +28,7 @@
 ;-
 function comp_initialize_readconfig, option, date, options, $
                                      found=found, $
-                                     float=float, integer=integer, $
+                                     type=type, $
                                      _extra=e
   compile_opt strictarr
 
@@ -38,13 +38,9 @@ function comp_initialize_readconfig, option, date, options, $
   date_index = value_locate(dates, date)
   for d = date_index, 0L, -1L do begin
     option_value = options->get(option, section=dates[d], $
-                                found=option_found, _extra=e)
+                                found=option_found, type=type, _extra=e)
     if (option_found) then begin
-      case 1 of
-        keyword_set(float): return, float(option_value)
-        keyword_set(integer): return, long(option_value)
-        else: return, option_value
-      endcase
+      return, option_value
     endif
   endfor
 
@@ -81,44 +77,44 @@ pro comp_initialize, date_dir
   debug = comp_initialize_readconfig('debug', date_dir, options, /boolean)
 
   ; level 1 image dimensions
-  nx = comp_initialize_readconfig('nx', date_dir, options, /integer)
-  ny = comp_initialize_readconfig('ny', date_dir, options, /integer)
+  nx = comp_initialize_readconfig('nx', date_dir, options, type=3)
+  ny = comp_initialize_readconfig('ny', date_dir, options, type=3)
 
 
   ; thresholds for cutting out bad data in the L2 products
 
   ; millionths of solar disk intensity
-  int_thresh  = comp_initialize_readconfig('int_thresh', date_dir, options, /integer)
+  int_thresh  = comp_initialize_readconfig('int_thresh', date_dir, options, type=3)
   ; difference between measured and calculated line center intensity
-  diff_thresh = comp_initialize_readconfig('diff_thresh', date_dir, options, /integer)
+  diff_thresh = comp_initialize_readconfig('diff_thresh', date_dir, options, type=3)
 
   ; line center wavelengths
-  center1074 = comp_initialize_readconfig('center_1074', date_dir, options, /float)
-  center1079 = comp_initialize_readconfig('center_1079', date_dir, options, /float)
-  center1083 = comp_initialize_readconfig('center_1083', date_dir, options, /float)
+  center1074 = comp_initialize_readconfig('center_1074', date_dir, options, type=4)
+  center1079 = comp_initialize_readconfig('center_1079', date_dir, options, type=4)
+  center1083 = comp_initialize_readconfig('center_1083', date_dir, options, type=4)
 
   ; display values
-  dispmin1074 = comp_initialize_readconfig('display_min_1074', date_dir, options, /float)
-  dispmin1079 = comp_initialize_readconfig('display_min_1079', date_dir, options, /float)
-  dispmin1083 = comp_initialize_readconfig('display_min_1083', date_dir, options, /float)
+  dispmin1074 = comp_initialize_readconfig('display_min_1074', date_dir, options, type=4)
+  dispmin1079 = comp_initialize_readconfig('display_min_1079', date_dir, options, type=4)
+  dispmin1083 = comp_initialize_readconfig('display_min_1083', date_dir, options, type=4)
 
-  dispmax1074 = comp_initialize_readconfig('display_max_1074', date_dir, options, /float)
-  dispmax1079 = comp_initialize_readconfig('display_max_1079', date_dir, options, /float)
-  dispmax1083 = comp_initialize_readconfig('display_max_1083', date_dir, options, /float)
+  dispmax1074 = comp_initialize_readconfig('display_max_1074', date_dir, options, type=4)
+  dispmax1079 = comp_initialize_readconfig('display_max_1079', date_dir, options, type=4)
+  dispmax1083 = comp_initialize_readconfig('display_max_1083', date_dir, options, type=4)
 
-  dispexp1074 = comp_initialize_readconfig('display_exp_1074', date_dir, options, /float)
-  dispexp1079 = comp_initialize_readconfig('display_exp_1079', date_dir, options, /float)
-  dispexp1083 = comp_initialize_readconfig('display_exp_1083', date_dir, options, /float)
+  dispexp1074 = comp_initialize_readconfig('display_exp_1074', date_dir, options, type=4)
+  dispexp1079 = comp_initialize_readconfig('display_exp_1079', date_dir, options, type=4)
+  dispexp1083 = comp_initialize_readconfig('display_exp_1083', date_dir, options, type=4)
 
   ; number of stokes parameters
   stokes = comp_initialize_readconfig('stokes', date_dir, options, /extract)
   n_stokes = n_elements(stokes)
 
   ; distortion coefficients
-  k1 = comp_initialize_readconfig('k1', date_dir, options, /float)
-  k2 = comp_initialize_readconfig('k2', date_dir, options, /float)
+  k1 = comp_initialize_readconfig('k1', date_dir, options, type=4)
+  k2 = comp_initialize_readconfig('k2', date_dir, options, type=4)
 
-  wavefwhm = comp_initialize_readconfig('wavefwhm', date_dir, options, /float)
+  wavefwhm = comp_initialize_readconfig('wavefwhm', date_dir, options, type=4)
 
   ; parse the date_dir to find the Julian date to use to switch era of constants
   year  = fix(strmid(date_dir, 0, 4))
@@ -129,19 +125,19 @@ pro comp_initialize, date_dir
   ; Era-specific correction factors
 
   ; offset of occulter post (pixels), positive shifts post clockwise in mask
-  post_rotation = comp_initialize_readconfig('post_rotation', date_dir, options, /float)
+  post_rotation = comp_initialize_readconfig('post_rotation', date_dir, options, type=4)
 
   ; over or undersize occulter mask
-  occulter_offset = comp_initialize_readconfig('occulter_offset', date_dir, options, /float)
+  occulter_offset = comp_initialize_readconfig('occulter_offset', date_dir, options, type=4)
 
   ; over or undersize field mask
-  field_offset = comp_initialize_readconfig('field_offset', date_dir, options, /float)
+  field_offset = comp_initialize_readconfig('field_offset', date_dir, options, type=4)
 
   ; overlap of two beams, creating "ears"
-  field_overlap = comp_initialize_readconfig('field_overlap', date_dir, options, /float)
+  field_overlap = comp_initialize_readconfig('field_overlap', date_dir, options, type=4)
 
   ; arcsec per pixel
-  plate_scale = comp_initialize_readconfig('plate_scale', date_dir, options, /float)
+  plate_scale = comp_initialize_readconfig('plate_scale', date_dir, options, type=4)
 
   obj_destroy, options
 end
