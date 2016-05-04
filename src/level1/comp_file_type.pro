@@ -18,7 +18,7 @@
 ;   dark_files.txt - file containing information on dark files
 ;   opal_files.txt - file containing information on opal (flat) files
 ;   cal_files.txt - file containing information on polarization calibration files
-;   dist_files.txt - file containing information on distirtion grid files
+;   dist_files.txt - file containing information on distortion grid files
 ;
 ; These files are written to the processed directory for that day and
 ; copied to the inventory directory.
