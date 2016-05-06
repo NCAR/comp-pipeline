@@ -239,7 +239,7 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
     if (distribute_l1) then begin
-      mg_log, 'dstributing L1 data', name='comp', /info
+      mg_log, 'distributing L1 data', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         comp_distribute_l1, date_dir, process_wavelengths[w]
       endfor
@@ -370,7 +370,7 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
     if (distribute_l2) then begin
-      mg_log, 'dstributing L2 data', name='comp', /info
+      mg_log, 'distributing L2 data', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         comp_distribute_l2, date_dir, process_wavelengths[w]
       endfor
