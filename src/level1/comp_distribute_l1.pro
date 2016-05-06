@@ -1,8 +1,8 @@
 ; docformat = 'rst'
 
 ;+
-; Distribute CoMP Level_1 files from processing pipeline into the appropriate
-; directories.
+; Make tarballs for and distribute CoMP Level_1 files from processing pipeline
+; into the appropriate directories.
 ;
 ; :Examples:
 ;   For example::
@@ -16,63 +16,66 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Author:
-;   Sitongia  
+;   Sitongia
+;
+; :Requires:
+;   IDL 8.2.3
 ;-
-pro distribute_l1, date_dir, wave_type
+pro comp_distribute_l1, date_dir, wave_type
   compile_opt strictarr
   @comp_config_common
   @comp_constants_common
 
   mg_log, 'distribute L1 for %s', wave_type, name='comp', /info
 
-  process_dir = filepath('', subdir=date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  cd, l1_process_dir
 
   ; for the directory name
-  year = strmid(date_dir, 0, 4)
+  year  = strmid(date_dir, 0, 4)
   month = strmid(date_dir, 4, 2)
-  day = strmid(date_dir, 6, 4)
-  destination = year + '/' + month + '/' + day  
+  day   = strmid(date_dir, 6, 4)
 
-  adir = filepath('', subdir=destination, root=archive_dir)
-  frdir = filepath('', subdir=destination, root=fullres_dir), /overwrite
+  adir  = filepath('', subdir=[year, month, day], root=archive_dir)
+  frdir = filepath('', subdir=[year, month, day], root=fullres_dir)
 
   ; prepare directories for level 1 files
-  file_mkdir, adir
+  if (~file_test(adir, /directory)) then file_mkdir, adir
   file_chmod, adir, /g_write
 
-  file_mkdir, frdir
+  if (~file_test(frdir, /directory)) then file_mkdir, frdir
   file_chmod, frdir, /g_write
   
-  ; Copy ALL files
-   
-  ; copy FITS files to archive
-  files = comp_find_l1_file(date_dir, wave_type, /all) + '.gz'
-  file_copy, files, adir, /overwrite
+  ; copy ALL FITS files to archive
 
-  bkg_files = comp_find_l1_file(date_dir, wave_type, /all, /background) + '.gz'
-  file_copy, bkg_files, adir, /overwrite
+  mg_log, 'copying FITS files...', name='comp', /info
+  l1_files = comp_find_l1_file(date_dir, wave_type, /all, $
+                               count=n_l1_files)
+  if (n_l1_files gt 0L) then file_copy, l1_files, adir, /overwrite
 
-  ; copy FITS intensity files to archive
-  files = file_search('*.comp.' + wave_type + '.intensity.gif', count=count)
-  file_copy, files, frdir, /overwrite
+  mg_log, 'copying background FITS files...', name='comp', /info
+  l1_bkg_files = comp_find_l1_file(date_dir, wave_type, /all, $
+                                   count=n_l1_bkg_files, /background)
+  if (n_l1_bkg_files gt 0L) then file_copy, l1_bkg_files, adir, /overwrite
 
-  ; copy GOOD files
+  ; copy GOOD .gif files
+  mg_log, 'copying good GIF files...', name='comp', /info
 
-  files= 'good_' + wave_type + '_files.txt'   ; file with list of filenames
+  files = 'good_' + wave_type + '_files.txt'   ; file with list of filenames
   n_files = file_lines(files)
   openr, lun, files, /get_lun
   line = ''
   for i = 0L, n_files - 1L do begin
     readf, lun, line
-    rootname = strmid(line, 0, 15)
-
-    file_copy, rootname + '.comp.' + wave_type + '.intensity.gif', frdir, /overwrite
+    datetime = strmid(line, 0, 15)
+    filename = datetime + '.comp.' + wave_type + '.intensity.gif'
+    if (file_test(filename)) then file_copy, filename, frdir, /overwrite
   endfor
-
   free_lun, lun
 
   ; save the GBU file
+  mg_log, 'copying GBU file...', name='comp', /info
+
   gbu_dir = filepath('', subdir=['GBU', year], root=log_dir)
   file_mkdir, gbu_dir
   file_copy, 'GBU.' + wave_type + '.log', $
@@ -82,14 +85,33 @@ pro distribute_l1, date_dir, wave_type
   ; tar and send to HPSS
 
   l1_tarname = date_dir + '.comp.' + wave_type + '.l1.tgz'
+  mg_log, 'tarring L1 results in %s', l1_tarname, name='comp', /info
 
-  mg_log, 'tar results', name='comp', /info
-  ; TODO: check the performance of this command vs SPAWNing tar
-  file_tar, file_search('*.comp.' + wave_type + '.fts.gz'), l1_tarname, /gzip
-  ; spawn, 'tar cfz ' + l1_tarname + ' ' + '*.comp.' + wave_type + '.fts.gz'
+  tar_list = [['cal', 'dark', 'opal'] + '_files.txt', $
+              ['', 'good_', 'good_all_', 'good_waves_', 'synoptic_'] $
+                + wave_type + '_files.txt', $
+              'GBU.' + wave_type + '.log', $
+              'flat.fts', 'dark.fts']
 
-  mg_log, 'send to HPSS', name='comp', /info
-  file_link, filepath(tarname, root=process_dir), hpss_gateway
+  ; SPAWN-ing tar seems to be about 10-15% faster than FILE_TAR
+  idl_tar = 1B
+  if (idl_tar) then begin
+    if (n_l1_files gt 0L) then tar_list = [tar_list, l1_files]
+    if (n_l1_bkg_files gt 0L) then tar_list = [tar_list, l1_bkg_files]
+
+    file_tar, tar_list, l1_tarname, /gzip
+  endif else begin
+    spawn, string(l1_tarname, wave_type, strjoin(tar_list, ' '), $
+                  format='(%"tar cfz %s *.comp.%s*.fts %s")')
+  endelse
+
+  if (send_to_hpss) then begin
+    mg_log, 'linking to L1 tarball from HPSS dir...', name='comp', /info
+    if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
+    file_link, filepath(l1_tarname, root=l1_process_dir), hpss_gateway
+  endif else begin
+    mg_log, 'skipping linking to L1 tarball from HPSS dir...', name='comp', /info
+  endelse
 
   mg_log, 'done', name='comp', /info
 end
