@@ -63,8 +63,8 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
   ; check keywords
   uselist = n_elements(list_file) eq 1L
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  cd, l1_process_dir
 
   ; line center
   case wave_type of
@@ -83,12 +83,11 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
   endcase
 
   ; the FITS image file
-  search_filter = '*.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts'
-  files = file_search(search_filter, count=n_files)
+  files = comp_find_l1_file(date_dir, wave_type, /all, count=n_files)
   mg_log, 'found %d files for %s', n_files, wave_type, name='comp', /info
 
   for f = 0L, n_files - 1L do begin
-    mg_log, 'file %s', files[f], name='comp', /debug
+    mg_log, '%d/%d: %s', f + 1L, n_files, file_basename(files[f]), name='comp', /debug
 
     comp_extract_intensity_cube, files[f], $
                                  images=images, $
@@ -99,7 +98,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
     ; determine index of wavelength closest to line center
     wave_diff = abs(wavelengths - line_center)
     !null = min(wave_diff, line_center_index)
-    mg_log, 'using wavelength %f', wavelengths[line_center_index], $
+    mg_log, 'using wavelength %0.2f', wavelengths[line_center_index], $
             name='comp', /debug
 
     ; intensity simple by extracting image near line center
@@ -108,24 +107,8 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
     ; clip intensity = 0 > intensity < scale_max; larger of 0 and
     ; image, then smaller of image and scale_max
 
-    ; only create 5 wavelength 1083 FITS files
-    dims = size(images, /dimensions)
-    if (wave_type eq '1083') then begin
-      fits_open, string(strmid(files[f], 0, 15), wave_type, $
-                        n_elements(wavelengths), $
-                        format='(%"%s.comp.%s.i.%d.fts")'), $
-                 fcbout, /write
-      fits_write, fcbout, 0, primary_header
-      for w = 0L, n_elements(wavelengths) - 1L do begin
-        extname = string(wavelengths[w], format='(%"I, %7.2f")')
-        fits_write, fcbout, reform(images[*, *, w]), reform(headers[*, w]), $
-                    extname=extname
-      endfor
-      fits_close, fcbout
-    endif
-
     ; make GIF from I
-    output_filename = string(strmid(files[f], 0, 15), wave_type, $
+    output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
                              format='(%"%s.comp.%s.intensity.gif")')
     comp_make_gif, date_dir, intensity, primary_header, output_filename, $
                    nx, 'Intensity', wave_type
