@@ -30,7 +30,7 @@ function comp_find_l1_file, date, wave_type, $
   _datetime = n_elements(datetime) gt 0L ? datetime : '*'
   filename_pattern = _datetime + '.comp.' + wave_type + '*.*.fts'
   filenames = file_search(filepath(filename_pattern, $
-                                   subdir=date, $
+                                   subdir=[date, 'level1'], $
                                    root=process_basedir), $
                           count=n_files)
 

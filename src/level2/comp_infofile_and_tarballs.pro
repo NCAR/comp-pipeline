@@ -22,8 +22,9 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   ; for the directory name
   year = strmid(date_dir, 0, 4)

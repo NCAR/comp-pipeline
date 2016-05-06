@@ -3,9 +3,9 @@
 ;+
 ; Procedure to quantify and plot systematic errors in comp data. Typically,
 ; 'mean' is input as the file_type and this routine reads the averaged data
-; produced by comp_average. It computes and plots histograms showing systematic
-; offsets in the data. Plots of the histograms are saved in the engineering
-; directory.
+; produced by `COMP_AVERAGE`. It computes and plots histograms showing
+; systematic offsets in the data. Plots of the histograms are saved in the
+; engineering directory.
 ;
 ; Plots of histograms showing systematic errors are saved as .ps files in the
 ; engineering directory.
@@ -55,8 +55,9 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     return
   endif
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   ; save plots
   year = strmid(date_dir, 0, 4)

@@ -65,7 +65,7 @@ pro comp_file_type, date_dir
   raw_dir = filepath(date_dir, root=raw_basedir)
   cd, raw_dir
 
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   file_mkdir, process_dir
 
   regions = [1074.7, 1079.8, 1083.]

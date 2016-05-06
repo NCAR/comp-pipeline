@@ -88,8 +88,9 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   uselist = 0
   if (n_elements(list_file) eq 1) then uselist = 1
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   mean_opt = 'yes'   ; compute mean? (yes or no)
   median_opt = 'yes'   ; compute median? (yes or no)
@@ -115,6 +116,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       ; file with list of filenames
       files = 'good_' + wave_type + '_files.txt'
     endelse
+    files = filepath(files, root=l1_process_dir)
     n_files = file_lines(files)
     ; average, at most, the first 50 files
     ; n_files <= 50        ; commented out 6/16/14 ST
@@ -263,10 +265,9 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
         ; sum background images first time through
         if (ist eq 0) then begin
-          background_filename = comp_find_l1_file(date_dir, wave_type, datetime=name, /background)
-          ;mg_log, 'reading bkg file %s...', $
-          ;        file_basename(background_filename), $
-          ;        name='comp', /debug
+          background_filename = comp_find_l1_file(date_dir, wave_type, $
+                                                  datetime=name, $
+                                                  /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, $
                      extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')

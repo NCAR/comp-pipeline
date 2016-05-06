@@ -68,8 +68,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
     return
   endif
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   if (keyword_set(synthetic)) then begin
     process_synthetic = 1

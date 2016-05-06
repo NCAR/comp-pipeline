@@ -35,14 +35,18 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
   nwlst = strcompress(string(nwl), /remove_all)
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   temp_path = 'movies'
   if (file_test(temp_path, /directory) eq 0) then file_mkdir, temp_path
 
-  gbu_file = 'GBU.' + wave_type + '.log'
+  gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
   gbu = comp_read_gbu(gbu_file)
+  for ii = 0L, n_elements(gbu) - 1L do begin
+    gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
+  endfor
 
   ; only want the good measurements
   num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
@@ -81,7 +85,9 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   nwimsize = size(nwimage[*, *, 0:2], /dimensions)
 
   for ii = 0L, nt - 1L do begin
-    mg_log, 'reading %s', gbu[ii].l1file, name='comp', /info
+    mg_log, '%d/%d: %s', $
+            ii + 1L, nt, file_basename(gbu[ii].l1file), $
+            name='comp', /info
     hdr = headfits(gbu[ii].l1file)
     if (ii eq 0) then begin
       index = fitshead2struct(hdr)
@@ -93,8 +99,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_make_mask, date_dir, hdr, mask
     mask = double(mask)
 
-    l2_d_file = strmid(gbu[ii].l1file, 0, 26) + 'dynamics.' + nwlst + '.fts'
-    l2_p_file = strmid(gbu[ii].l1file, 0, 26) + 'polarization.' + nwlst + '.fts'
+    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts'
+    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts'
 
     intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     int_enh   = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity

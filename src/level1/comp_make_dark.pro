@@ -62,7 +62,8 @@ pro comp_make_dark, date_dir, error=error
   endif
 
   raw_dir = filepath(date_dir, root=raw_basedir)
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  if (~file_test(process_dir, /directory)) then file_mkdir, process_dir
   cd, process_dir
 
   ;  open list of dark images

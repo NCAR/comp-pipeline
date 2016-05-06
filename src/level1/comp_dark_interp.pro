@@ -25,7 +25,7 @@ function comp_dark_interp, date_dir, time, exposure
   @comp_constants_common
   @comp_config_common
 
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
   ; open output fits file
   fits_open, filepath('dark.fts', root=process_dir), fcb

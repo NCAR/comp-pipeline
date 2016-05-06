@@ -39,7 +39,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
   endif
 
   raw_dir = filepath(date_dir, root=raw_basedir)
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
   cd, process_dir  ; change directory to processing directory
 

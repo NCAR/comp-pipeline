@@ -35,7 +35,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   @comp_constants_common
   @comp_config_common
 
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
   ; multiply beam times wave to get unique waves
   beam_multiplies_wave = read_flats_beam_multiplies_wave

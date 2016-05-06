@@ -103,7 +103,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     return
   endif
 
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, process_dir
 
   files = wave_type + '_files.txt'   ; file with list of filenames

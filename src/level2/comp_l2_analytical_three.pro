@@ -32,8 +32,9 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   date = date_dir
   wave = wave_type
@@ -46,8 +47,12 @@ pro comp_l2_analytical_three, date_dir, wave_type
   endcase
   c = 299792.458D
 
-  gbu_file = 'GBU.' + wave_type + '.log'
+  gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
   gbu = comp_read_gbu(gbu_file)
+  for ii = 0L, n_elements(gbu) - 1L do begin
+    gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
+  endfor
+
   ; only want the good 3pt measurements
   nthree = where(gbu.quality eq 'Good' and gbu.wavelengths eq 3, ng3)
   mg_log, '%d good files...', ng3, name='comp', /info
@@ -59,7 +64,7 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
   ; distinguish between Q/U files and V files
   for ii = 0L, nt - 1L do begin
-    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=4), 'EXTNAME'), 0, 1) 
+    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=4), 'EXTNAME'), 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
   endfor
 
@@ -159,7 +164,9 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-    outfilename = strmid(gbu[ii].l1file, 0, 26) + 'dynamics.3.fts'
+    outfilename = filepath(strmid(file_basename(gbu[ii].l1file), $
+                                  0, 26) + 'dynamics.3.fts', $
+                           root=l2_process_dir)
     writefits, outfilename, blank, primary_header
 
     ; intensity
@@ -202,7 +209,7 @@ pro comp_l2_analytical_three, date_dir, wave_type
     ;=== polarization package ===
     if (qu_files[ii] eq 1) then begin
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-      outfilename = strmid(gbu[ii].l1file, 0, 26) $
+      outfilename = strmid(file_basename(gbu[ii].l1file), 0, 26) $
                       + 'polarization.3.fts'
       writefits, outfilename, blank, primary_header
 

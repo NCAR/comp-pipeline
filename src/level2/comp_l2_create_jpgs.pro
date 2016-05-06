@@ -38,8 +38,9 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
 
   mg_log, 'wave_type: %s %2d', wave_type, nwl, name='comp', /info
 
-  process_dir = filepath(date_dir, root=process_basedir)
-  cd, process_dir
+  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  cd, l2_process_dir
 
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
@@ -48,8 +49,12 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   rest = double(center1074)
   c = 299792.458D
 
-  gbu_file = 'GBU.' + wave_type + '.log'
+  gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
   gbu = comp_read_gbu(gbu_file)
+  for ii = 0L, n_elements(gbu) - 1L do begin
+    gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
+  endfor
+
   ; only want the good measurements
   num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
   if (ng eq 0 || (keyword_set(seq) && ng lt 3)) then goto, skip
@@ -123,8 +128,8 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
     comp_make_mask, date_dir, hdr, mask
     mask = double(mask)
 
-    l2_d_file = strmid(gbu[ii].l1file, 0, 26) + 'dynamics.' + nwlst + '.fts'
-    l2_p_file = strmid(gbu[ii].l1file, 0, 26) + 'polarization.' + nwlst + '.fts'
+    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts'
+    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts'
 
     comp_data[*, *, 0, ii] = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     comp_data[*, *, 1, ii] = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
@@ -142,7 +147,9 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
     comp_data[*, *, 6, ii] = mask   ; mask
   endfor
 
-  obasefilename = filepath(date_dir + '.comp.' + wave_type, root='movies')
+  obasefilename = filepath(date_dir + '.comp.' + wave_type, $
+                           subdir='movies', $
+                           root=l2_process_dir)
 
   ;=== prepare and write out daily images ===
   mg_log, 'creating daily JPGs now...', name='comp', /info
@@ -226,7 +233,9 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   width[thresh_unmasked]    = 0.
 
   ; get some info
-  all_files = file_search('*.comp.' + wave_type + '*.*.fts', count=no_of_files)
+  all_files = file_basename(file_search(filepath('*.comp.' + wave_type + '*.*.fts', $
+                                                 root=l1_process_dir), $
+                                        count=no_of_files))
   no_of_files = n_elements(all_files)
   first_dt = strmid(all_files[0], 9, 6)
   first_file_time = string(strmid(first_dt, 0, 2), $

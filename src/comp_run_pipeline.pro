@@ -122,8 +122,12 @@ pro comp_run_pipeline, config_filename=config_filename
 
       ; copy configuration file to the process output directory
       process_dir = filepath(date_dir, root=process_basedir)
-      file_mkdir, process_dir
-      process_config_filename = filepath('comp.cfg', root=process_dir)
+      if (~file_test(process_dir, /directory)) then file_mkdir, process_dir
+
+      l1_process_dir = filepath('level1', root=process_dir)
+      if (~file_test(l1_process_dir, /directory)) then file_mkdir, l1_process_dir
+
+      process_config_filename = filepath('comp.cfg', root=l1_process_dir)
       file_copy, _config_filename, process_config_filename, /overwrite
 
       ; take inventory of the data for this day
@@ -247,6 +251,15 @@ pro comp_run_pipeline, config_filename=config_filename
 
     if (create_l2) then begin
       mg_log, 'starting level 2 processing for %s', date_dir, name='comp', /info
+
+      process_dir = filepath(date_dir, root=process_basedir)
+      if (~file_test(process_dir, /directory)) then file_mkdir, process_dir
+
+      l2_process_dir = filepath('level2', root=process_dir)
+      if (~file_test(l2_process_dir, /directory)) then file_mkdir, l2_process_dir
+
+      process_config_filename = filepath('comp.cfg', root=l2_process_dir)
+      file_copy, _config_filename, process_config_filename, /overwrite
 
       ; compute the mean, median and standard deviation of Level_1 data
       mg_log, 'running comp_average', name='comp', /info

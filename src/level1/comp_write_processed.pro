@@ -56,14 +56,14 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                                     polarization_tag, $
                                     n_wavelengths, $
                                     format='(%"%s.comp.%s.%s.%d.fts")'), $
-                             subdir=date_dir, $
+                             subdir=[date_dir, 'level1'], $
                              root=process_basedir)
   background_filename = filepath(string(comp_ut_filename(datetime), $
                                         wave_type, $
                                         polarization_tag, $
                                         n_wavelengths, $
                                         format='(%"%s.comp.%s.%s.%d.bkg.fts")'), $
-                                 subdir=date_dir, $
+                                 subdir=[date_dir, 'level1'], $
                                  root=process_basedir)
 
   ; write the input primary header into the output
