@@ -18,14 +18,14 @@
 ; :Author:
 ;   Sitongia
 ;-
-pro distribute_l2, date_dir, wave_type
+pro comp_distribute_l2, date_dir, wave_type
   compile_opt strictarr
   @comp_config_common
   @comp_constants_common
 
   mg_log, 'distribute L2 for %s', wave_type, name='comp', /info
   
-  process_dir = filepath('', subdir=date_dir, process_basedir)
+  process_dir = filepath('', subdir=date_dir, root=process_basedir)
   cd, process_dir
   
   ; for the directory name
