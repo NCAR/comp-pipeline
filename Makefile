@@ -12,7 +12,7 @@ else
   ECHO_PREFIX=
 endif
 
-IDL=idl82
+IDL=idl85
 SSWDEPS_IDL=idl85
 
 OS:=$(shell uname)
