@@ -358,13 +358,9 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-      ;comp_l2_analytical_five, date_dir , '1079'
-      ;comp_l2_create_jpgs, date_dir, '1079', nwl=5, /seq
-      ;comp_l2_create_movies, date_dir, '1079' , nwl=5
-
-      mg_log, 'making tarballs', name='comp', /info
+      mg_log, 'making daily summaries', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
-        comp_infofile_and_tarballs,  date_dir, process_wavelengths[w]
+        comp_l2_summary,  date_dir, process_wavelengths[w]
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $

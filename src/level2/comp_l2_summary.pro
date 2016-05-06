@@ -16,7 +16,7 @@
 ;    removed gzip    Oct 1 2014  GdT
 ;    removed tarball creation - left list of dynamics files    Oct 1 2014  GdT
 ;-
-pro comp_infofile_and_tarballs, date_dir, wave_type
+pro comp_l2_summary, date_dir, wave_type
   compile_opt strictarr
   @comp_config_common
 
@@ -105,6 +105,7 @@ pro comp_infofile_and_tarballs, date_dir, wave_type
   free_lun, funit
 
   ;create tarballs
+
   ;if not (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '') then begin
   ;  printf, logFileUnit, 'Creating 3pt dynamics tarball ...'
   ;  spawn, 'tar czf '+date_dir+'.comp.'+wave_type+$
