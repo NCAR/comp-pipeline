@@ -17,12 +17,15 @@
 ;     date/time in the form "20150701.220501", must set or use `ALL`
 ;   all : in, optional, type=boolean
 ;     set to return all files of the given type
+;   count : out, optional, type=integer
+;     set to a named variable to retrieve the number of files returned via `/ALL`
 ;   background : in, optional, type=boolean
 ;     set to retrieve a background image instead of a foreground image
 ;-
 function comp_find_l1_file, date, wave_type, $
                             datetime=datetime, $
                             all=all, $
+                            count=count, $
                             background=background
   compile_opt strictarr
   @comp_config_common
@@ -38,8 +41,9 @@ function comp_find_l1_file, date, wave_type, $
   base_re = _datetime + '\.comp\.' + wave_type + '\.[iquv]+\.[[:digit:]]{1,2}'
   l1_re = base_re + (keyword_set(background) ? '\.bkg\.fts' : '\.fts')
   l1_mask = stregex(file_basename(filenames), l1_re, /boolean)
-  l1_ind = where(l1_mask)
+  l1_ind = where(l1_mask, count)
 
+  count = keyword_set(all) ? count : 1L
   ind = keyword_set(all) ? l1_ind : l1_ind[0]
   return, filenames[ind]
 end
