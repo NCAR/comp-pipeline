@@ -59,16 +59,16 @@ pro comp_l2_analytical_five, date_dir, wave_type
 
   if (ng5 eq 0) then goto, skip
   gbu = gbu[nfive]
-  
+
   qu_files = intarr(n_elements(gbu))
   nt = n_elements(gbu)
-  
+
   ; distinguish between Q/U files and V files
   for ii = 0L, nt - 1L do begin
     whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=6), 'EXTNAME'), 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
   endfor
-  
+
   for ii = 0L, nt - 1L do begin
     hdr    = headfits(gbu[ii].l1file)
     ; treat them as 3pt measurements for now
