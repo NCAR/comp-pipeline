@@ -45,7 +45,7 @@ pro comp_distribute_l1, date_dir, wave_type
 
   if (~file_test(frdir, /directory)) then file_mkdir, frdir
   file_chmod, frdir, /g_write
-  
+
   ; copy ALL FITS files to archive
 
   mg_log, 'copying FITS files...', name='comp', /info
@@ -53,25 +53,9 @@ pro comp_distribute_l1, date_dir, wave_type
                                count=n_l1_files)
   if (n_l1_files gt 0L) then file_copy, l1_files, adir, /overwrite
 
-  mg_log, 'copying background FITS files...', name='comp', /info
-  l1_bkg_files = comp_find_l1_file(date_dir, wave_type, /all, $
-                                   count=n_l1_bkg_files, /background)
-  if (n_l1_bkg_files gt 0L) then file_copy, l1_bkg_files, adir, /overwrite
-
-  ; copy GOOD .gif files
-  mg_log, 'copying good GIF files...', name='comp', /info
-
-  files = 'good_' + wave_type + '_files.txt'   ; file with list of filenames
-  n_files = file_lines(files)
-  openr, lun, files, /get_lun
-  line = ''
-  for i = 0L, n_files - 1L do begin
-    readf, lun, line
-    datetime = strmid(line, 0, 15)
-    filename = datetime + '.comp.' + wave_type + '.intensity.gif'
-    if (file_test(filename)) then file_copy, filename, frdir, /overwrite
-  endfor
-  free_lun, lun
+  ; copy all the .gifs, not just the good ones
+  mg_log, 'copying GIF files...', name='comp', /info
+  file_copy, '*.comp.' + wave_type + '.intensity.gif', frdir, /overwrite
 
   ; save the GBU file
   mg_log, 'copying GBU file...', name='comp', /info
@@ -81,7 +65,7 @@ pro comp_distribute_l1, date_dir, wave_type
   file_copy, 'GBU.' + wave_type + '.log', $
              filepath(date_dir + '.GBU.' + wave_type + '.log', root=gbu_dir), $
              /overwrite
-  
+
   ; tar and send to HPSS
 
   l1_tarname = date_dir + '.comp.' + wave_type + '.l1.tgz'
