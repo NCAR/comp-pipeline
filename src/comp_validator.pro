@@ -28,7 +28,10 @@
 ;   Added tarlist for tar file (GdT)
 ;   Replaced spawn commands with unix script zipCoMPL0.sh that runs in the bkg 
 ;   so processing code can start without waiting for the tar file to be created 
-;   tarring is done with 12h delay so it does not use CPU during processing (GdT)
+;   tarring is done with 12h delay so it does not use CPU during processing
+;   (GdT)
+;   Made a more generic tar_and_hpss.sh script to be used for L1 and L2 results
+;   as well. (mdg)
 ;-
 function comp_validator, date_dir
   compile_opt idl2
@@ -96,9 +99,16 @@ function comp_validator, date_dir
 
     ; replaced spawn commands with script
     if (send_to_hpss) then begin
-      mg_log, 'tarring and sending to HPSS', name='comp', /info
-      cmd = string(date_dir, raw_dir, hpss_gateway, $
-                   format='(%"/hao/acos/sw/bin/zipCoMPL0.sh %s %s %s &")')
+      mg_log, 'tarring and sending L0 to HPSS', name='comp', /info
+      if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
+
+      time_delay = '12h'
+      archive_script = filepath('archive_l0.sh', $
+                                subdir=['..', 'scripts'], $
+                                root=binary_dir)
+      cmd = string(archive_script, date_dir, hpss_gateway, time_delay, $
+                   format='(%"%s %s %s % &")')
+      
       spawn, cmd, result, error_result, exit_status=status
       if (status ne 0L) then begin
         mg_log, 'problem sending data to HPSS with command: %s', cmd, $
@@ -112,4 +122,3 @@ function comp_validator, date_dir
   mg_log, 'done', name='comp', /info
   return, ~invalid
 end
-
