@@ -80,6 +80,9 @@ pro comp_distribute_l1, date_dir, wave_type
   ; SPAWN-ing tar seems to be about 10-15% faster than FILE_TAR
   idl_tar = 1B
   if (idl_tar) then begin
+    l1_bkg_files = comp_find_l1_file(date_dir, wave_type, /all, $
+                                     count=n_l1_bkg_files, /background)
+
     if (n_l1_files gt 0L) then tar_list = [tar_list, l1_files]
     if (n_l1_bkg_files gt 0L) then tar_list = [tar_list, l1_bkg_files]
 
