@@ -107,7 +107,7 @@ function comp_validator, date_dir
                                 subdir=['..', 'scripts'], $
                                 root=binary_dir)
       cmd = string(archive_script, date_dir, hpss_gateway, time_delay, $
-                   format='(%"%s %s %s % &")')
+                   format='(%"%s %s %s %s &")')
       
       spawn, cmd, result, error_result, exit_status=status
       if (status ne 0L) then begin
