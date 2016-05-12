@@ -48,7 +48,6 @@ pro comp_configuration, config_filename=config_filename
   archive_dir  = config->get('archive_dir', section='results')
   movie_dir    = config->get('movie_dir', section='results')
   fullres_dir  = config->get('fullres_dir', section='results')
-  ldm_basedir  = config->get('ldm_basedir', section='results')
   hpss_gateway = config->get('hpss_gateway', section='results')
 
   ; log files
