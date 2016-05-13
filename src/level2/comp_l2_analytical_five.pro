@@ -177,7 +177,7 @@ pro comp_l2_analytical_five, date_dir, wave_type
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_int), extension_header, /append
     ; enhanced intensity
-    extension_header = comp_convert_header(headfits(gbu[ii].l1file,exten=2), $
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
                                            /exten, $
                                            extname='Enhanced Intensity', $
                                            datminmax=[min(int_enh), $
@@ -186,7 +186,7 @@ pro comp_l2_analytical_five, date_dir, wave_type
     sxaddpar, extension_header, 'BITPIX', 8
     writefits, outfilename, int_enh, extension_header, /append
     ; corrected LOS velocity
-    extension_header = comp_convert_header(headfits(gbu[ii].l1file,exten=2), $
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
                                            /exten, $
                                            extname='Corrected LOS velocity', $
                                            datminmax=[min(temp_corr_velo), $
