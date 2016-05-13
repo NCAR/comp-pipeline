@@ -1,19 +1,26 @@
 ; docformat = 'rst'
 
 ;+
+; Convert a level 1 header to a level 2 header.
 ;
 ; :Uses:
-;   fitshead2struct, struct2fitshead, rem_tag, sxaddpar
+;   sxaddpar, sxdelpar
 ;
 ; :Params:
-;   in_header
+;   in_header : in, required, type=strarr
+;     FITS header
 ;
 ; :Keywords:
-;    exten
-;    extname
-;    datminmax
+;   exten : in, optional, type=integer
+;     extension number; if not present, assume it is primary header
+;   extname : in, optional, type=string
+;     extension name; must be present if exten is present and more than 1
+;   datminmax : in, optional, type=fltarr(2)
+;     min/max of data; must be present if exten is present and more than 1
 ;
-; :Author: Christian Bethge
+; :History:
+;   written by Christian Bethge
+;   modified by mdg 5/13/2016
 ;-
 function comp_convert_header, in_header, $
                               exten=exten, $
@@ -21,9 +28,21 @@ function comp_convert_header, in_header, $
                               datminmax=datminmax
   compile_opt strictarr
 
-  main = fitshead2struct(in_header)
+  out_header = in_header
 
-  if (not keyword_set(exten)) then begin
+  ; if EXTEN is present and 1 or more
+  if (keyword_set(exten)) then begin
+    rtags = ['POLSTATE', 'NAVERAGE', 'FILTER', 'PCOUNT', 'GCOUNT', 'DATATYPE', $
+             'BODYTEMP', 'BASETEMP', 'RACKTEMP', 'EXPOSURE', 'OPTRTEMP', $
+             'DEMULT', 'FILTTEMP', 'FITMNLIN', 'FITVRLIN', 'FLATFILE']
+
+    sxdelpar, out_header, rtags
+
+    sxaddpar, out_header, 'XTENSION', 'IMAGE', 'extension type', before='BITPIX'
+    sxaddpar, out_header, 'EXTNAME',  extname, before='BITPIX'
+    sxaddpar, out_header, 'DATAMIN',  datminmax[0], 'MINIMUM DATA VALUE'
+    sxaddpar, out_header, 'DATAMAX',  datminmax[1], 'MAXIMUM DATA VALUE'
+  endif else begin
     rtags = ['NTUNES', 'TNELNGTH', 'TUNEDLAY', 'H_D$OCCULT', 'V_D$OCCULT', $
              'FOCUS', 'COVER', 'POLANGLE', 'POLARIZR', 'OPAL', 'RETARDER', $
              'OXCNTER1', 'OYCNTER1', 'OXCNTER2', 'OYCNTER2', 'FXCNTER1', $
@@ -31,26 +50,14 @@ function comp_convert_header, in_header, $
              'OCRAD2', 'FCRAD1', 'FCENX1', 'FCENY1', 'FCRAD2', 'FCENX2', $
              'FCENY2', 'CRRADIUS', 'OCC_D$ID', 'OCC_D$SIZE']
 
-    for ii = 0L, n_elements(rtags) - 1L do main = rem_tag(main, rtags[ii])
+    sxdelpar, out_header, rtags
 
-    time_obs = main.date_hst + ' ' + main.time_hst
-    main.DATE_HST = time_obs
-    out_header = struct2fitshead(main)
+    time_obs = sxpar(in_header, 'DATE_HST') + ' ' + sxpar(in_header, 'TIME_HST')
+    sxaddpar, out_header, 'DATE_HST', time_obs
+
     sxaddpar, out_header, 'LEVEL',  'L2', ' '
     sxaddpar, out_header, 'EXTEND', 'T', 'file may contain extensions', $
               after='NAXIS'
-  endif else begin
-    rtags = ['POLSTATE', 'NAVERAGE', 'FILTER', 'PCOUNT', 'GCOUNT', 'DATATYPE', $
-             'BODYTEMP', 'BASETEMP', 'RACKTEMP', 'EXPOSURE', 'OPTRTEMP', $
-             'DEMULT', 'FILTTEMP', 'FITMNLIN', 'FITVRLIN', 'FLATFILE']
-
-    for ii = 0L, n_elements(rtags) - 1L do main = rem_tag(main, rtags[ii])
-
-    out_header = struct2fitshead(main)
-    sxaddpar, out_header, 'XTENSION', 'IMAGE', 'extension type', before='BITPIX'
-    sxaddpar, out_header, 'EXTNAME',  extname, before='BITPIX'
-    sxaddpar, out_header, 'DATAMIN',  datminmax[0], 'MINIMUM DATA VALUE'
-    sxaddpar, out_header, 'DATAMAX',  datminmax[1], 'MAXIMUM DATA VALUE'
   endelse
 
   return, out_header
