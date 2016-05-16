@@ -6,8 +6,6 @@
 ; images in those files. This routine is able to handle a set of files to
 ; average which contain different wavelength and Stokes parameter images.
 ;
-; Note: the background images will also be mean images.
-;
 ; Output:
 ;   comp.mean.wwww.fts - file containing the mean of the input images
 ;   comp.median.wwww.fts - file containing the median of the input images
@@ -26,7 +24,7 @@
 ; :Examples:
 ;   For example, calling it like::
 ;
-;     comp_average, '20110316', '1074', list_file = 'files.txt'
+;     comp_average, '20110316', '1074', list_file='files.txt'
 ;
 ;   will use filename 'files.txt' as input file. The following::
 ;
