@@ -2,12 +2,11 @@
 
 # syntax:
 #
-#   tar_and_hpss.sh date level dir hpss_gateway delay_time
+#   archive_l0.sh date hpss_gateway delay_time
 #
-# For example, for L0:
+# For example:
 #
-#   archive_l0.sh 20150801 /export/data1/Data/CoMP/raw.he/20150801 \
-#     /export/data1/Data/CoMP/test-hpss.l2test 12h
+#   archive_l0.sh 20150801 /export/data1/Data/CoMP/test-hpss.l2test 12h
 
 DATE=$1
 HPSS_GATEWAY=$2
