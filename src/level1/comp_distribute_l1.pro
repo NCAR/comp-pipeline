@@ -95,6 +95,12 @@ pro comp_distribute_l1, date_dir, wave_type
   if (send_to_hpss) then begin
     mg_log, 'linking to L1 tarball from HPSS dir...', name='comp', /info
     if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
+    dest_filename = filepath(l1_tarname, root=hpss_gateway)
+    if (file_test(dest_filename, /symlink) $
+          || file_test(dest_filename, /dangling_symlink)) then begin
+      mg_log, 'deleting old symlink %s', dest_filename, name='comp', /warning
+      file_delete, dest_filename
+    endif
     file_link, filepath(l1_tarname, root=l1_process_dir), hpss_gateway
   endif else begin
     mg_log, 'skipping linking to L1 tarball from HPSS dir...', name='comp', /info
