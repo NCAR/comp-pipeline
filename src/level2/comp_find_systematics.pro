@@ -112,15 +112,18 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
       mg_log, 'no good data in extension %d', i + 1, name='comp', /warn
       continue
     endif
+
     if (i lt nwave) then bs = 0.01 else bs = 0.001
-    h = histogram(d[good], binsize=bs, locations=x)
+    histogram_xrange = i lt nwave ? [-5., 10.] : [-0.4, 0.4]
+    h = histogram(d[good], binsize=bs, locations=x, $
+                  min=histogram_xrange[0], max=histogram_xrange[1])
 
     mo = moment(d[good])
 
     histogram_plot = plot(x, h, $
                           title=string(wav[i], pol[i], mo[0], mo[1], $
                                        format='(%"%4d %1s, %5.2f, %5.2f")'), $
-                          xrange=i lt nwave ? [-5., 10.] : [-0.4, 0.4], $
+                          xrange=histogram_xrange, $
                           yrange=[0, 1.2 * max(h)], $
                           layout=[5, 4, i + 1], $
                           margin=[.3, .2, .1, .2], $
