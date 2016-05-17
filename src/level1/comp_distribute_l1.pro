@@ -85,7 +85,9 @@ pro comp_distribute_l1, date_dir, wave_type
               name='comp', /error
       mg_log, '%s', error_result, name='comp', /error
     endif
-  endif
+  endif else begin
+    mg_log, 'skipping linking to L1 tarball from HPSS dir...', name='comp', /info
+  endelse
 
   mg_log, 'done', name='comp', /info
 end

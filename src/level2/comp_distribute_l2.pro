@@ -82,36 +82,28 @@ pro comp_distribute_l2, date_dir, wave_type
 
   ; tar and send to HPSS
 
-  if (wave_type ne '1083') then begin
+  if (wave_type ne '1083' && send_to_hpss) then begin
+    mg_log, 'tarring and sending L2 for %s to HPSS', wave_type, name='comp', /info
+    if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
+
+    time_delay = '0h'
+    archive_script = filepath('archive_l2.sh', $
+                              subdir=['..', 'scripts'], $
+                              root=binary_dir)
+    cmd = string(archive_script, date_dir, wave_type, hpss_gateway, time_delay, $
+                 format='(%"%s %s %s %s %s &")')
+    spawn, cmd, result, error_result, exit_status=status
+    if (status ne 0L) then begin
+      mg_log, 'problem sending data to HPSS with command: %s', cmd, $
+              name='comp', /error
+      mg_log, '%s', error_result, name='comp', /error
+    endif
+
     l2_tarname = date_dir + '.comp.' + wave_type + '.l2.tgz'
 
-    mg_log, 'tar results', name='comp', /info
-
-    types = ['mean', 'quick_invert']
-    tar_list = date_dir + '.comp.' + wave_type + '.' + types + '.fts'
-
-    idl_tar = 1B
-    if (idl_tar) then begin
-      file_tar, tar_list, l2_tarname, /gzip
-    endif else begin
-      spawn, string(l2_tarname, strjoin(tar_list, ' '), $
-                    format='(%"tar cfz %s %s")')
-    endelse
-
-    if (send_to_hpss) then begin
-      mg_log, 'linking to L2 tarball from HPSS dir...', name='comp', /info
-      if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
-      l2_tarball = filepath(l2_tarname, root=hpss_gateway)
-      if (file_test(l2_tarball, /symlink) $
-            || file_test(l2_tarball, /dangling_symlink)) then begin
-        mg_log, 'removing old link to %s', l2_tarname, name='comp', /warning
-        file_delete, l2_tarball
-      endif
-      file_link, filepath(l2_tarname, root=l2_process_dir), hpss_gateway
-    endif else begin
-      mg_log, 'skipping linking to L2 tarball from HPSS dir...', name='comp', /info
-    endelse
-  endif
+  endif else begin
+    mg_log, 'skipping linking to L2 tarball from HPSS dir...', name='comp', /info
+  endelse
 
   mg_log, 'done', name='comp', /info
 end
