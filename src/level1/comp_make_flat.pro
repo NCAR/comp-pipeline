@@ -1,9 +1,9 @@
 ; docformat = 'rst'
 
 ;+
-; Procedure to read CoMP uncompressed Level_0 opal data for a day and create a
+; Procedure to read CoMP uncompressed Level 0 opal data for a day and create a
 ; file with average flats. This routine reads the `opal_files.txt` file that
-; was created by `file_type`.
+; was created by `COMP_FILE_TYPE`.
 ;
 ; File `flat.fts` is written to the process directory and a copy is written to
 ; the Flat directory. Each extension of the `flat.fts` file contains an
@@ -287,19 +287,19 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
           break
         endif
 
-        if (make_flat_fill) then begin
+;        if (make_flat_fill) then begin
           ; TODO: Steve's fill introduces median values into the annulus, where they look like hot pixels
 ;         tmp_image = mask_full_stray * image
 ;         bad = where(tmp_image lt 0.2 * medflat)
 ;         image[bad] = medflat
 
           ; fill outside mask
-          good = where(mask_full_fill eq 1.0, complement=bad)
-          medflat = median(image[good])
-          image[bad] = medflat
-          mg_log, 'filling flat values with %f outside annulus', medflat, $
-                  name='comp', /debug
-        endif
+;          good = where(mask_full_fill eq 1.0, complement=bad)
+;          medflat = median(image[good])
+;          image[bad] = medflat
+;          mg_log, 'filling flat values with %f outside annulus', medflat, $
+;                  name='comp', /debug
+;        endif
 
         ; make sure there aren't any zeros
         bad = where(image eq 0.0, count)

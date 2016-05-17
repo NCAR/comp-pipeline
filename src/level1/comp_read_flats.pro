@@ -88,15 +88,26 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     mn = min(dt[correct_wave], good)
     iflat = correct_wave[good] + 1
 
-    fits_read, fcb, dat, flat_header, exten_no=iflat
+    fits_read, fcb, image, flat_header, exten_no=iflat
+
     ; make sure there aren't any zeros
-    bad = where(dat eq 0.0, count)
+    bad = where(image eq 0.0, count)
     if (count gt 0L) then begin
       mg_log, 'zeros in flat at pixels %s', strjoin(strtrim(bad, 2), ', '), $
               name='comp', /warn
     endif
 
-    flat[*, *, iw] = float(dat)
+    if (make_flat_fill) then begin
+      mask_full_fill = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0)
+      good_pixels = where(mask_full_fill eq 1.0, n_good_pixels, $
+                          complement=bad_pixels, ncomplement=n_bad_pixels)
+      medflat = median(image[good_pixels])
+      image[bad_pixels] = medflat
+      mg_log, 'filling flat values with %f outside annulus', medflat, $
+              name='comp', /debug
+    endif
+
+    flat[*, *, iw] = float(image)
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
 
     exposure = exposures[iflat - 1L]
