@@ -68,43 +68,24 @@ pro comp_distribute_l1, date_dir, wave_type
 
   ; tar and send to HPSS
 
-  l1_tarname = date_dir + '.comp.' + wave_type + '.l1.tgz'
-  mg_log, 'tarring L1 results in %s', l1_tarname, name='comp', /info
-
-  tar_list = [['cal', 'dark', 'opal'] + '_files.txt', $
-              ['', 'good_', 'good_all_', 'good_waves_', 'synoptic_'] $
-                + wave_type + '_files.txt', $
-              'GBU.' + wave_type + '.log', $
-              'flat.fts', 'dark.fts']
-
-  ; SPAWN-ing tar seems to be about 10-15% faster than FILE_TAR
-  idl_tar = 1B
-  if (idl_tar) then begin
-    l1_bkg_files = comp_find_l1_file(date_dir, wave_type, /all, $
-                                     count=n_l1_bkg_files, /background)
-
-    if (n_l1_files gt 0L) then tar_list = [tar_list, l1_files]
-    if (n_l1_bkg_files gt 0L) then tar_list = [tar_list, l1_bkg_files]
-
-    file_tar, tar_list, l1_tarname, /gzip
-  endif else begin
-    spawn, string(l1_tarname, wave_type, strjoin(tar_list, ' '), $
-                  format='(%"tar cfz %s *.comp.%s*.fts %s")')
-  endelse
-
   if (send_to_hpss) then begin
-    mg_log, 'linking to L1 tarball from HPSS dir...', name='comp', /info
+    mg_log, 'tarring and sending L1 for %s to HPSS', wave_type, name='comp', /info
     if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
-    dest_filename = filepath(l1_tarname, root=hpss_gateway)
-    if (file_test(dest_filename, /symlink) $
-          || file_test(dest_filename, /dangling_symlink)) then begin
-      mg_log, 'deleting old symlink %s', dest_filename, name='comp', /warning
-      file_delete, dest_filename
+
+    time_delay = '1h'
+    archive_script = filepath('archive_l1.sh', $
+                              subdir=['..', 'scripts'], $
+                              root=binary_dir)
+    cmd = string(archive_script, date_dir, wave_type, hpss_gateway, time_delay, $
+                 format='(%"%s %s %s %s %s &")')
+
+    spawn, cmd, result, error_result, exit_status=status
+    if (status ne 0L) then begin
+      mg_log, 'problem sending data to HPSS with command: %s', cmd, $
+              name='comp', /error
+      mg_log, '%s', error_result, name='comp', /error
     endif
-    file_link, filepath(l1_tarname, root=l1_process_dir), hpss_gateway
-  endif else begin
-    mg_log, 'skipping linking to L1 tarball from HPSS dir...', name='comp', /info
-  endelse
+  endif
 
   mg_log, 'done', name='comp', /info
 end

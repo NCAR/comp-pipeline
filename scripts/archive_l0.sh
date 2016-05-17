@@ -18,7 +18,12 @@ sleep ${DELAY_TIME}
 chmod 664 *.FTS
 chmod 664 *.log
 
-tar czf ${DATE}.comp.l0.tgz *.FTS *.log
-tar tvfz ${DATE}.comp.l0.tgz > ${DATE}.comp.l0.tarlist
+L0_TARNAME=${DATE}.comp.l0.tgz
+tar czf ${L0_TARNAME} *.FTS *.log
+tar tvfz ${L0_TARNAME} > ${DATE}.comp.l0.tarlist
 
-ln -s ${DIR}/${DATE}.comp.l0.tgz ${HPSS_GATEWAY}
+if [ -h ${HPSS_GATEWAY}/${L0_TARNAME} ]; then
+  rm ${HPSS_GATEWAY}/${L0_TARNAME}
+fi
+
+ln -s ${DIR}/${L0_TARNAME} ${HPSS_GATEWAY}
