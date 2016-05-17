@@ -7,4 +7,8 @@ common comp_constants, nx, ny, $
                        dispexp1074, dispexp1079, dispexp1083, $
                        stokes, n_stokes, $
                        debug, $
-                       int_thresh, diff_thresh
+                       int_thresh, diff_thresh, $
+                       i_to_q_xtalk, $
+                       i_to_u_xtalk, $
+                       u_to_q_xtalk, $
+                       q_to_u_xtalk

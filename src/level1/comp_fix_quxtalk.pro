@@ -27,27 +27,24 @@
 ;-
 pro comp_fix_quxtalk, date_dir, images, headers, filename
   compile_opt strictarr
+  @comp_constants_common
 
   comp_inventory_header, headers, beams, groups, waves, pols, type, expose, $
                          cover, cal_pol, cal_ret
 
-  ; static Crosstalk correction (new values from Steve Oct 2014)
-  iqxtalk = -0.000581
-  iuxtalk =  0.004841
-  quxtalk =  0.0
-  uqxtalk =  0.0
-
   nimg = n_elements(images[0, 0, *])
+
+  ; crosstalk coefficients are in epochs.cfg file
   for i = 0L, nimg - 1L do begin
     if (pols[i] eq 'Q') then begin
       stokesI = comp_get_component(images, headers, 'I', beams[i], waves[i], /noskip)
       stokesU = comp_get_component(images, headers, 'U', beams[i], waves[i], /noskip)
-      images[*, *, i] -= iqxtalk * stokesI + uqxtalk * stokesU
+      images[*, *, i] -= i_to_q_xtalk * stokesI + u_to_q_xtalk * stokesU
     endif
     if (pols[i] eq 'U') then begin
       stokesQ = comp_get_component(images, headers, 'Q', beams[i], waves[i], /noskip)
       stokesI = comp_get_component(images, headers, 'I', beams[i], waves[i], /noskip)
-      images[*, *, i] -= iuxtalk * stokesI + quxtalk * stokesQ
+      images[*, *, i] -= i_to_u_xtalk * stokesI + q_to_u_xtalk * stokesQ
     endif
   endfor
 end

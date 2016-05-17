@@ -191,11 +191,10 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   ; fix the date/time in UT
   comp_fix_header_time, primary_header
 
-  ; static I to Q and U crosstalk coefficients
-  i_to_q = - 0.000581
-  i_to_u =   0.004841
-  sxaddpar, primary_header, 'i_to_q', i_to_q, ' Crosstalk coefficient from I to Q'
-  sxaddpar, primary_header, 'i_to_u', i_to_u, ' Crosstalk coefficient from I to U'
+  ; I to Q and U crosstalk coefficients
+  sxaddpar, primary_header, 'i_to_q', i_to_q_xtalk, ' Crosstalk coefficient from I to Q'
+  sxaddpar, primary_header, 'i_to_u', i_to_u_xtalk, ' Crosstalk coefficient from I to U'
+  ; TODO: should Q to U and U to Q coefficients be in here? they are currently 0.0
 
   ; N_EXT
   n_extensions = n_elements(headers_combine[0, *]) / 2

@@ -139,5 +139,11 @@ pro comp_initialize, date_dir
   ; arcsec per pixel
   plate_scale = comp_initialize_readconfig('plate_scale', date_dir, options, type=4)
 
+  ; crosstalk coefficients
+  i_to_q_xtalk = comp_initialize_readconfig('i_to_q_xtalk', date_dir, options, type=4)
+  i_to_u_xtalk = comp_initialize_readconfig('i_to_u_xtalk', date_dir, options, type=4)
+  u_to_q_xtalk = comp_initialize_readconfig('u_to_q_xtalk', date_dir, options, type=4)
+  q_to_u_xtalk = comp_initialize_readconfig('q_to_u_xtalk', date_dir, options, type=4)
+
   obj_destroy, options
 end
