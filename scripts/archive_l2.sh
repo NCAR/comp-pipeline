@@ -19,7 +19,7 @@ sleep ${DELAY_TIME}
 L1_FILES=$(ls | egrep ".{8}\.comp\.${WAVE}\.(mean|quick_invert)\.fts")
 
 L2_TARNAME=${DATE}.comp.${WAVE}.l2.tgz 
-cmd="tar czf ${L1_TARNAME} ${L2_FILES}"
+cmd="tar czf ${L2_TARNAME} ${L2_FILES}"
 $cmd
 
 if [ -h ${HPSS_GATEWAY}/${L2_TARNAME} ]; then
