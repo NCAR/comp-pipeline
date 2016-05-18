@@ -89,8 +89,8 @@ pro comp_make_mask, date_dir, fits_header, mask
 
     ; field mask
     field_mask = comp_field_mask(field.r + field_offset, $
-                                 dx=(occulter.x - field.x), $
-                                 dy=(occulter.y - field.y))
+                                 dx=field.x - occulter.x, $
+                                 dy=field.y - occulter.y)
 
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
