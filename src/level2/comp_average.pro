@@ -275,7 +275,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
           fits_close, bkg_fcb
         endif
 
-        fits_close,fcb
+        fits_close, fcb
       endfor
 
       sxaddpar, header, 'LEVEL   ', 'L2'
@@ -340,6 +340,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     sxaddpar, header, 'NAVERAGE', num_back_averaged[iw]
     sxaddpar, header, 'DATAMIN', min(back[*, *, iw]), ' MINIMUM DATA VALUE'
     sxaddpar, header, 'DATAMAX', max(back[*, *, iw]), ' MAXIMUM DATA VALUE'
+    sxaddpar, header, 'POLSTATE', 'BKG'
     ename = 'B, ' + string(format='(f7.2)', waves[iw])
     if (median_opt eq 'yes') then begin
       nans = where(finite(back[*, *, iw], /nan), count)
@@ -353,6 +354,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       if (count gt 0) then begin
         mg_log, 'NaNs', name='comp', /warn
       endif
+
       fits_write, fcbavg, back[*, *, iw], header, extname=ename
     endif
   endfor
