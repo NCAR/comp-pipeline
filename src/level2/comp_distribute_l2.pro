@@ -100,7 +100,6 @@ pro comp_distribute_l2, date_dir, wave_type
     endif
 
     l2_tarname = date_dir + '.comp.' + wave_type + '.l2.tgz'
-
   endif else begin
     mg_log, 'skipping linking to L2 tarball from HPSS dir...', name='comp', /info
   endelse
