@@ -16,7 +16,10 @@ DIR=${PWD}
 
 sleep ${DELAY_TIME}
 
-L2_FILES=$(ls | egrep ".{8}\.comp\.${WAVE}\.(mean|median|sigma|quick_invert)\.fts")
+DAILY_FILES=$(ls | egrep ".{8}\.comp\.${WAVE}\.(mean|median|sigma|quick_invert)\.fts")
+POLARIZATION_FILES="*.polarization.*.fts"
+DYNAMICS_FILES="*.dynamics.*.fts"
+L2_FILES="${DAILY_FILES} ${POLARIZATION_FILES} ${DYNAMICS_FILES}"
 
 L2_TARNAME=${DATE}.comp.${WAVE}.l2.tgz 
 cmd="tar czf ${L2_TARNAME} ${L2_FILES}"
