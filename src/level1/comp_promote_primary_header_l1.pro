@@ -194,7 +194,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   ; I to Q and U crosstalk coefficients
   sxaddpar, primary_header, 'i_to_q', i_to_q_xtalk, ' Crosstalk coefficient from I to Q'
   sxaddpar, primary_header, 'i_to_u', i_to_u_xtalk, ' Crosstalk coefficient from I to U'
-  ; TODO: should Q to U and U to Q coefficients be in here? they are currently 0.0
+  sxaddpar, primary_header, 'q_to_u', q_to_u_xtalk, ' Crosstalk coefficient from Q to U'
+  sxaddpar, primary_header, 'u_to_q', u_to_q_xtalk, ' Crosstalk coefficient from U to Q'
 
   ; N_EXT
   n_extensions = n_elements(headers_combine[0, *]) / 2
