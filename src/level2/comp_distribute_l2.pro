@@ -40,7 +40,7 @@ pro comp_distribute_l2, date_dir, wave_type
 
   ; copy files
 
-  types = ['mean', 'quick_invert']
+  types = ['mean', 'median', 'sigma', 'quick_invert']
   for t = 0L, n_elements(types) - 1L do begin
     mg_log, 'copying %s files...', types[t], name='comp', /info
     filename = string(date_dir, wave_type, types[t], format='(%"%s.comp.%s.%s.fts")')
