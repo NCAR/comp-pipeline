@@ -173,7 +173,13 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxaddpar, header, 'DATAMAX', max(i), ' MAXIMUM DATA VALUE'
 
   fits_write, fcbout, i, header, extname='I'
+
+  sxaddpar, header, 'DATAMIN', min(q), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(q), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, q, header, extname='Q'
+
+  sxaddpar, header, 'DATAMIN', min(u), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(u), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, u, header, extname='U'
 
   sxdelpar, header, 'COMMENT'
@@ -188,10 +194,15 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxaddpar, header, 'DATAMAX', max(azimuth), ' MAXIMUM DATA VALUE'
 
   fits_write, fcbout, azimuth, header, extname='Azimuth'
+  sxdelpar, header, 'COMMENT'
 
   fits_write, fcbout, dop, header, extname='Doppler Velocity'
+  sxaddpar, header, 'DATAMIN', min(dop), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(dop), ' MAXIMUM DATA VALUE'
 
   fits_write, fcbout, width, header, extname='Line Width'
+  sxaddpar, header, 'DATAMIN', min(width), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(width), ' MAXIMUM DATA VALUE'
 
   fits_close, fcbout
 
