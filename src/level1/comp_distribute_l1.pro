@@ -12,8 +12,10 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;   wave_type : in, required, type=string
-;     wavelength range for the observations, '1074', '1079' or '1083'
+;   wave_type : in, optional, type=string
+;     wavelength range for the observations, '1074', '1079' or '1083';
+;     distribute wavelength independent files such as flats and darks if not
+;     provided
 ;
 ; :Author:
 ;   Sitongia
@@ -26,18 +28,28 @@ pro comp_distribute_l1, date_dir, wave_type
   @comp_config_common
   @comp_constants_common
 
-  mg_log, 'distribute L1 for %s', wave_type, name='comp', /info
-
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, l1_process_dir
 
   ; for the directory name
-  year  = strmid(date_dir, 0, 4)
-  month = strmid(date_dir, 4, 2)
-  day   = strmid(date_dir, 6, 4)
+  ymd = comp_decompose_date(date_dir)
 
-  adir  = filepath('', subdir=[year, month, day], root=archive_dir)
-  frdir = filepath('', subdir=[year, month, day], root=fullres_dir)
+  eng_dir = filepath('', subdir=ymd, root=engineering_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+
+  ; save the flats and darks doing a wave_type independent call
+  if (n_elements(wave_type) eq 0L) then begin
+    mg_log, 'distribute L1 flats and darks', name='comp', /info
+    file_copy, 'dark.fts', eng_dir, /overwrite
+    file_copy, 'flat.fts', eng_dir, /overwrite
+    mg_log, 'done', name='comp', /info
+    return
+  endif
+
+  mg_log, 'distribute L1 for %s', wave_type, name='comp', /info
+
+  adir  = filepath('', subdir=ymd, root=archive_dir)
+  frdir = filepath('', subdir=ymd, root=fullres_dir)
 
   ; prepare directories for level 1 files
   if (~file_test(adir, /directory)) then file_mkdir, adir
@@ -60,14 +72,18 @@ pro comp_distribute_l1, date_dir, wave_type
   ; save the GBU file
   mg_log, 'copying GBU file...', name='comp', /info
 
-  gbu_dir = filepath('', subdir=['GBU', year], root=log_dir)
-  file_mkdir, gbu_dir
   file_copy, 'GBU.' + wave_type + '.log', $
-             filepath(date_dir + '.GBU.' + wave_type + '.log', root=gbu_dir), $
+             filepath(date_dir + '.GBU.' + wave_type + '.log', root=eng_dir), $
              /overwrite
 
-  ; tar and send to HPSS
+  ; save the .txt files
+  mg_log, 'copying .txt files...', name='comp', /info
+  txt_files = file_search('*' + wave_type + '*.txt', count=n_txt_files)
+  for t = 0L, n_txt_files - 1L do begin
+    file_copy, txt_files[t], eng_dir, /overwrite
+  endfor
 
+  ; tar and send to HPSS
   if (send_to_hpss) then begin
     mg_log, 'tarring and sending L1 for %s to HPSS', wave_type, name='comp', /info
     if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway

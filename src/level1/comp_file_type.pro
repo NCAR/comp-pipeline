@@ -138,8 +138,9 @@ pro comp_file_type, date_dir
             string(uniq_pols, format='(20(2x,a))'), $
             name='comp', /debug
 
-    printf, luns[ifile], format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)',$
-            files[i], expose, ndata, ndark, nopal, str_cover
+    printf, luns[ifile], files[i], expose, ndata, ndark, nopal, str_cover, $
+            format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)', $
+
     printf, luns[ifile], format='($,21f9.2)', uniq_waves
     printf, luns[ifile], format='(20(2x,a))', uniq_pols
 
@@ -148,18 +149,6 @@ pro comp_file_type, date_dir
 
   free_lun, lun_1074, lun_1079, lun_1083, $
             lun_dark, lun_opal, lun_cal, lun_distort
-
-  ; Copy files to inventory directory
-  ;year = strmid(date_dir, 0, 4)
-  ;inventory_dir = log_dir + 'inventory/' + year + "/"
-  ;FILE_MKDIR, inventory_dir
-  ;file_copy, process_dir+'/1074_files.txt',    inventory_dir + date_dir + "_" + '1074_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/1079_files.txt',    inventory_dir + date_dir + "_" + '1079_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/1083_files.txt',    inventory_dir + date_dir + "_" + '1083_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/dark_files.txt',    inventory_dir + date_dir + "_" + 'dark_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/opal_files.txt',    inventory_dir + date_dir + "_" + 'opal_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/cal_files.txt',     inventory_dir + date_dir + "_" + 'cal_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/distort_files.txt', inventory_dir + date_dir + "_" + 'distort_files.txt', /OVERWRITE
 
   mg_log, 'done', name='comp', /info
 end

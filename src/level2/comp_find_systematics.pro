@@ -60,9 +60,8 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   cd, l2_process_dir
 
   ; save plots
-  year = strmid(date_dir, 0, 4)
-  engineering_dir = filepath('', subdir=['engineering', year], root=log_dir)
-  if (~file_test(engineering_dir, /directory)) then file_mkdir, engineering_dir
+  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
   file_dir = date_dir + '.comp.' + wave_type + '.' + file_type
   filename = file_dir + '.fts'
@@ -131,10 +130,10 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                           buffer=buffer)
   endfor
 
-  histogram_plot.save, filepath(file_dir + '.his.pdf', root=engineering_dir), $
-                       /landscape, /bitmap, xmargin=1, $
-                       width=9.5, ymargin=0
-  histogram_plot.close
+  histogram_plot->save, filepath(file_dir + '.his.gif', root=eng_dir), $
+                        /landscape, /bitmap, xmargin=1, $
+                        width=9.5, ymargin=0
+  histogram_plot->close
   mg_log, 'wrote histogram plot', name='comp', /info
 
   ; plot images
@@ -183,9 +182,9 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                margin=0)
   endfor
 
-  im.save, filepath(file_dir + '.img.pdf', root=engineering_dir), $
-           /landscape, xmargin=0, width=10.5, ymargin=0
-  im.close
+  im->save, filepath(file_dir + '.img.gif', root=eng_dir), $
+            /landscape, xmargin=0, width=10.5, ymargin=0
+  im->close
   mg_log, 'wrote images', name='comp', /info
 
   ; plot correlation?  Only if Stokes V was observed
@@ -231,9 +230,9 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     t = text(.6, .8, string(format='("Cor 0: ",f8.4)', coef[0]))
     t = text(.6, .75, string(format='("Cor 1: ",f8.4)', coef[1]))
 
-    scatter_plot.save, filepath(file_dir + '.sca.pdf', root=engineering_dir), $
-                       xmargin=0, ymargin=0, /bitmap
-    scatter_plot.close
+    scatter_plot->save, filepath(file_dir + '.sca.gif', root=eng_dir), $
+                        xmargin=0, ymargin=0, /bitmap
+    scatter_plot->close
     mg_log, 'wrote correlation plots', name='comp', /info
   endif
 

@@ -338,16 +338,15 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   ; engineering plots
-  year = strmid(date_dir, 0, 4)
-  engineering_dir = filepath('', subdir=['engineering', year], root=log_dir)
-  if (~file_test(engineering_dir, /directory)) then file_mkdir, engineering_dir
+  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_sigma.txt', $
-                      root=engineering_dir), $
+                      root=eng_dir), $
              time, sigma
 
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_background.txt', $
-                      root=engineering_dir), $
+                      root=eng_dir), $
              time, back
 
   mg_log, 'done', name='comp', /info

@@ -62,6 +62,9 @@ pro comp_configuration, config_filename=config_filename
   find_image_center_log_level = config->get('find_image_center', section='log', default=log_level, type=3)
   find_post_log_level = config->get('find_post', section='log', default=log_level, type=3)
 
+  ; engineering files
+  engineering_dir = config->get('engineering_dir', section='engineering')
+
   ; actions
   create_l1 = fix(config->get('create_l1', section='actions', /boolean, default=1B))
   distribute_l1 = fix(config->get('distribute_l1', section='actions', /boolean, default=1B))

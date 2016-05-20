@@ -13,6 +13,7 @@ common comp_config, bias_dir, $
                     movie_dir, $
                     fullres_dir, $
                     log_dir, $
+                    engineering_dir, $
                     ffmpeg_dir, $
                     log_level, $
                     l1_process_log_level, $
