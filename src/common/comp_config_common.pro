@@ -1,8 +1,4 @@
-common comp_config, bias_dir, $
-                    flat_dir, $
-                    mask_dir, $
-                    binary_dir, $
-                    deferred_file, $
+common comp_config, binary_dir, $
                     hot_file, $
                     raw_basedir, $
                     date_pattern, $
