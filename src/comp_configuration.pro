@@ -19,7 +19,7 @@ pro comp_configuration, config_filename=config_filename
   @comp_config_common
 
   ; return if paths have already been defined
-  if (n_elements(bias_dir) gt 0L) then return
+  if (n_elements(raw_basedir) gt 0L) then return
 
   _config_filename = n_elements(config_filename) eq 0L $  
                        ? filepath('comp.cfg', root=mg_src_root()) $

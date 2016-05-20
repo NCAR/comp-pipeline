@@ -139,7 +139,7 @@ pro comp_file_type, date_dir
             name='comp', /debug
 
     printf, luns[ifile], files[i], expose, ndata, ndark, nopal, str_cover, $
-            format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)', $
+            format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)'
 
     printf, luns[ifile], format='($,21f9.2)', uniq_waves
     printf, luns[ifile], format='(20(2x,a))', uniq_pols
