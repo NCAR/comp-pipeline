@@ -97,7 +97,7 @@ function comp_mask_1024, occulter1, occulter2, $
     = mask_image[1024 - nx:1024 - 1, 0:nx - 1] + mask2 / local_bc2
 
   ; mask out overlap
-  if (n_elements(nooverlap)) eq 0 then begin
+  if (n_elements(nooverlap) eq 0) then begin
     ; wew field masks, slightly larger, to create larger overlap to mask
     overlap_mask_1 = comp_field_mask(field1.r + field_overlap, dx=field1.x, dy=field1.y)
     overlap_mask_2 = comp_field_mask(field2.r + field_overlap, dx=field2.x, dy=field2.y)
