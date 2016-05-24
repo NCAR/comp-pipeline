@@ -150,6 +150,9 @@ pro comp_run_pipeline, config_filename=config_filename
           unlocked = comp_state(date_dir, /unlock)
           mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
+          processed = comp_state(date_dir, /processed)
+          mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
         endif
         continue
       endif
@@ -169,6 +172,9 @@ pro comp_run_pipeline, config_filename=config_filename
         if (lock_raw) then begin
           unlocked = comp_state(date_dir, /unlock)
           mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
+          processed = comp_state(date_dir, /processed)
+          mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
         continue
@@ -401,6 +407,9 @@ pro comp_run_pipeline, config_filename=config_filename
     if (lock_raw) then begin
       unlocked = comp_state(date_dir, /unlock)
       mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+              name='comp', /info
+      processed = comp_state(date_dir, /processed)
+      mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
     endif
   endfor
