@@ -49,6 +49,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   comp_initialize, date_dir
   comp_configuration
 
+  
   debug = 0
 
   mg_log, 'starting', name='comp', /info
@@ -287,20 +288,6 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
           break
         endif
 
-;        if (make_flat_fill) then begin
-          ; TODO: Steve's fill introduces median values into the annulus, where they look like hot pixels
-;         tmp_image = mask_full_stray * image
-;         bad = where(tmp_image lt 0.2 * medflat)
-;         image[bad] = medflat
-
-          ; fill outside mask
-;          good = where(mask_full_fill eq 1.0, complement=bad)
-;          medflat = median(image[good])
-;          image[bad] = medflat
-;          mg_log, 'filling flat values with %f outside annulus', medflat, $
-;                  name='comp', /debug
-;        endif
-
         ; make sure there aren't any zeros
         bad = where(image eq 0.0, count)
         if (count gt 0L) then begin
@@ -322,6 +309,12 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
     endwhile
 
     free_lun, opal_lun
+
+    if (nflat eq 0L) then begin
+      mg_log, 'no flats for this day', name='comp', /critical
+      error = 1L
+      return
+    endif
 
     ;  write times, wavelengths and exposure times
     mg_log, 'write times and wavelengths', name='comp', /debug
