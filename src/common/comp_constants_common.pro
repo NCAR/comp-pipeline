@@ -11,4 +11,5 @@ common comp_constants, nx, ny, $
                        i_to_q_xtalk, $
                        i_to_u_xtalk, $
                        u_to_q_xtalk, $
-                       q_to_u_xtalk
+                       q_to_u_xtalk, $
+                       transmissions

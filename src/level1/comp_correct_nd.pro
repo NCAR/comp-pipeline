@@ -14,11 +14,16 @@
 ;-
 function comp_correct_nd_transmission, nd, wavelength
   compile_opt strictarr
+  @comp_constants_common
+
+  ; transmissions are specified in epochs.cfg file
 
   ; currently, we use the same transmissions for all wavelengths because all of
   ; CoMP's wavelengths are very close; transmissions will vary by wavelength
   ; in UCoMP
-  transmissions = [, , , , , , , 1.0]
+
+  ; eventually, we should specify a .sav file in the epochs.cfg file that
+  ; contains a transmissions variable that varies by wavelength
 
   return, transmissions[nd - 1]
 end
@@ -47,5 +52,5 @@ function comp_correct_nd, nd, flat_nd, wavelength
   image_transmission = comp_correct_nd_transmission(nd, wavelength)
   flat_transmission = comp_correct_nd_transmission(flat_nd, wavelength)
 
-  return, image_transmission / flat_transmission
+  return, flat_transmission / image_transmission
 end

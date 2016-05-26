@@ -38,6 +38,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
   if (sxpar(headers[*, 0], 'FLATFILE') eq 0) then ntags++
+  ntags++   ; for the ND-TRANS tag we add below
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
@@ -45,6 +46,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
   flat *= expose / flat_expose   ; modify for exposure times
+  flat_nd = sxpar(flat_header, 'NDFILTR', count=flat_nd_present)
+  if (~flat_nd_present) then flat_nd = 8
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
@@ -53,16 +56,21 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     header = headers[*, i]
 
     ; select the correct flat for this image
-    ; NOTE: comparing both wavelengths and sign of beam is equivalent
-    ; to old BEAM_MULTIPLIES_WAVE option
     iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
 
     ; subtract darks, fix sensor quirks, and divide by the flats
     images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
                                    hot=hot, adjacent=adjacent)
 
+    nd = sxpar(header, 'NDFILTR', count=nd_present)
+    if (~nd_present) then nd = 8
+    transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
+    images[*, *, i] *= transmission_correction
+
     ; update the header with the flat information
-    sxaddpar, header,'FLATFILE', flat_names[iflat[0]], $
+    sxaddpar, header, 'ND-TRANS', transmission_correction, $
+              ' Mult. factor=transmission of flat ND/img ND', after='NDFILTR'
+    sxaddpar, header, 'FLATFILE', flat_names[iflat[0]], $
               ' Name of flat field file'
     headersout[*, i] = header
   endfor
