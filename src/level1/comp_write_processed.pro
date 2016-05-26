@@ -170,7 +170,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
       extension_background = median(background[where(mask eq 1.0)])
       sxaddpar, header, 'BACKGRND', extension_background, $
                 ' Median of masked line center background', format='(F10.3)', $
-                after='NDFILTER'
+                after='ND-TRANS'
 
       fits_write, fcb_out, images[*, *, i], header, extname=ename
     endelse
