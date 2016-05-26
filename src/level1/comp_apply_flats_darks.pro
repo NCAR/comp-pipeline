@@ -46,7 +46,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
   flat *= expose / flat_expose   ; modify for exposure times
-  flat_nd = sxpar(flat_header, 'NDFILTR', count=flat_nd_present)
+  flat_nd = sxpar(flat_header, 'NDFILTER', count=flat_nd_present)
   if (~flat_nd_present) then flat_nd = 8
 
   ; defines hot and adjacent variables
@@ -62,14 +62,16 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
                                    hot=hot, adjacent=adjacent)
 
-    nd = sxpar(header, 'NDFILTR', count=nd_present)
+    nd = sxpar(header, 'NDFILTER', count=nd_present)
     if (~nd_present) then nd = 8
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
     images[*, *, i] *= transmission_correction
+    mg_log, 'applying transmission correction of %0.3f on ND %d (flat ND %d)', $
+            transmission_correction, nd, nd_flat, name='comp', /debug
 
     ; update the header with the flat information
     sxaddpar, header, 'ND-TRANS', transmission_correction, $
-              ' Mult. factor=transmission of flat ND/img ND', after='NDFILTR'
+              ' Mult. factor=transmission of flat ND/img ND', after='NDFILTER'
     sxaddpar, header, 'FLATFILE', flat_names[iflat[0]], $
               ' Name of flat field file'
     headersout[*, i] = header
