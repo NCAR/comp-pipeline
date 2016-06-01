@@ -4,7 +4,7 @@ SCRIPT_LOC=$(readlink -f $0)
 
 PIPE_DIR=$(dirname ${SCRIPT_LOC})
 
-IDL=idl85
+IDL=idl82
 
 SSW_DIR=${PIPE_DIR}/ssw
 GEN_DIR=${PIPE_DIR}/gen
