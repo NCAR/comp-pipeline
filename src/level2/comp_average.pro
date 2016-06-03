@@ -227,7 +227,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
               strjoin(strtrim(waves[iw], 2), ', '), $
               name='comp/average', /debug
 
-      data = fltarr(nx, nx, numof_stokes[ist], /nozero)
+      data = reform(fltarr(nx, nx, numof_stokes[ist], /nozero), nx, nx, numof_stokes[ist])
       num_averaged = 0   ; summation of number of images going into average
 
       for ifile = 0L, numof_stokes[ist] - 1L do begin
@@ -240,7 +240,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
                 strtrim(waves[iw], 2), $
                 name, $
                 name='comp/average', /debug
-        ;mg_log, 'reading %s...', file_basename(filename), name='comp', /debug
+
         fits_open, filename, fcb
         fits_read, fcb, d, theader, /header_only, exten_no=0
         comp_make_mask, date_dir, theader, mask
@@ -304,18 +304,8 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       ; find median and mean across image
       sxaddpar, header, 'NAVERAGE', num_averaged
 
-      n_dims = size(data, /n_dimensions)
-      if (n_dims eq 3) then begin
-        med = median(data, dimension=3)
-        aver = mean(data, dimension=3)
-      endif else if (n_dims eq 2) then begin
-        med = data
-        average = data
-      endif else begin
-        mg_log, 'bad number of dimensions for data: %d', n_dims, $
-                name='comp', /error
-        continue
-      endelse
+      med = median(data, dimension=3)
+      aver = mean(data, dimension=3)
 
       ; write Stokes parameters to output files
       if (median_opt eq 'yes') then begin
