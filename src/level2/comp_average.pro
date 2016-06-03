@@ -115,7 +115,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       files = 'good_' + wave_type + '_files.txt'
     endelse
     files = filepath(files, root=l1_process_dir)
-    n_files = file_lines(files)
+    n_files = file_test(files) ? file_lines(files) : 0L
     ; average, at most, the first 50 files
     ; n_files <= 50        ; commented out 6/16/14 ST
   endelse

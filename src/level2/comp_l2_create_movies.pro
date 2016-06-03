@@ -43,6 +43,10 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   if (file_test(temp_path, /directory) eq 0) then file_mkdir, temp_path
 
   gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
+  if (~file_test(gbu_file)) then begin
+    mg_log, '%s does not exist, skipping', gbu_file, name='comp', /warning
+    goto, skip
+  endif
   gbu = comp_read_gbu(gbu_file)
   for ii = 0L, n_elements(gbu) - 1L do begin
     gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
@@ -527,6 +531,5 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   cd, pwd
 
   skip:
-
   mg_log, 'done', name='comp', /info
 end

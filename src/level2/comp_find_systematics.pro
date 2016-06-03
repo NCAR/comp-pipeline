@@ -65,6 +65,13 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
   file_dir = date_dir + '.comp.' + wave_type + '.' + file_type
   filename = file_dir + '.fts'
+
+  if (~file_test(filename) || file_test(filename, /zero_length)) then begin
+    mg_log, '%s does not exist, skipping', filename, name='comp', /warn
+    mg_log, 'done', name='comp', /info
+    return
+  endif
+
   fits_open, filename, fcb   ; open input file
   fits_read, fcb, data, header, /header_only, exten_no=0
 

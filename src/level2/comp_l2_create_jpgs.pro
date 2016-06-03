@@ -50,6 +50,10 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   c = 299792.458D
 
   gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
+  if (~file_test(gbu_file)) then begin
+    mg_log, '%s does not exist, skipping', gbu_file, name='comp', /warning
+    goto, skip
+  endif
   gbu = comp_read_gbu(gbu_file)
   for ii = 0L, n_elements(gbu) - 1L do begin
     gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
