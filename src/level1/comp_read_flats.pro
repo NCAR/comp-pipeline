@@ -103,7 +103,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
                           complement=bad_pixels, ncomplement=n_bad_pixels)
       medflat = median(image[good_pixels])
       image[bad_pixels] = medflat
-      mg_log, 'filling flat values with %f outside annulus', medflat, $
+      mg_log, 'filling flat values with %0.2f outside annulus', medflat, $
               name='comp', /debug
     endif
 
