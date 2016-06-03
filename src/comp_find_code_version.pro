@@ -18,7 +18,8 @@ function comp_find_code_version, revision=revision
   cd, binary_dir
 
   if (arg_present(revision)) then begin
-    cmd = 'git log -1 --pretty=format:%h'
+    cmd = string(filepath('git', root=git_dir), $
+                 format='(%"%s log -1 --pretty=format:%%h")')
     spawn, cmd, revision, error_result, exit_status=status
     if (status ne 0L) then begin
       mg_log, 'query for git repo status exited with status %d (%s)', $

@@ -31,6 +31,7 @@ pro comp_configuration, config_filename=config_filename
   binary_dir    = config->get('binary_dir', section='save')
   hot_file      = config->get('hot_file', section='save')
   ffmpeg_dir    = config->get('ffmpeg_dir', section='save')
+  git_dir       = config->get('git_dir', section='save')
 
   ; processing
   raw_basedir         = config->get('raw_basedir', section='processing')

@@ -3,7 +3,9 @@
 FLAGS=
 QUIET=0
 
-REVISION:=$(shell git rev-parse --short HEAD)
+GIT=/usr/bin/git
+
+REVISION:=$(shell $(GIT) rev-parse --short HEAD)
 PHONE=$(shell cat $(HOME)/.phonenumber 2> /dev/null)
 
 ifeq ($(QUIET), 1)

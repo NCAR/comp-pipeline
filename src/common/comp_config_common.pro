@@ -11,6 +11,7 @@ common comp_config, binary_dir, $
                     log_dir, $
                     engineering_dir, $
                     ffmpeg_dir, $
+                    git_dir, $
                     log_level, $
                     l1_process_log_level, $
                     circfit_log_level, $
