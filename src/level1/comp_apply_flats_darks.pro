@@ -66,8 +66,6 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     if (~nd_present) then nd = 8
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
     images[*, *, i] *= transmission_correction
-    ;mg_log, 'apply trans cor of %0.1f on ND %d (flat ND %d)', $
-    ;        transmission_correction, nd, flat_nd, name='comp', /debug
 
     ; update the header with the flat information
     sxaddpar, header, 'ND-TRANS', transmission_correction, $
