@@ -304,8 +304,18 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       ; find median and mean across image
       sxaddpar, header, 'NAVERAGE', num_averaged
 
-      med = median(data, dimension=3)
-      aver = mean(data, dimension=3)
+      n_dims = size(data, /n_dimensions)
+      if (n_dims eq 3) then begin
+        med = median(data, dimension=3)
+        aver = mean(data, dimension=3)
+      endif else if (n_dims eq 2) then begin
+        med = data
+        average = data
+      endif else begin
+        mg_log, 'bad number of dimensions for data: %d', n_dims, $
+                name='comp', /error
+        continue
+      endelse
 
       ; write Stokes parameters to output files
       if (median_opt eq 'yes') then begin
