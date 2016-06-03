@@ -53,10 +53,10 @@ pro comp_distribute_l1, date_dir, wave_type
 
   ; prepare directories for level 1 files
   if (~file_test(adir, /directory)) then file_mkdir, adir
-  file_chmod, adir, /g_write
+  if (~file_test(adir, /group, /write)) then file_chmod, adir, /g_write
 
   if (~file_test(frdir, /directory)) then file_mkdir, frdir
-  file_chmod, frdir, /g_write
+  if (~file_test(adir, /group, /write)) then file_chmod, frdir, /g_write
 
   ; copy ALL FITS files to archive
 
