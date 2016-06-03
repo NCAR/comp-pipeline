@@ -67,7 +67,9 @@ pro comp_distribute_l1, date_dir, wave_type
 
   ; copy all the .gifs, not just the good ones
   mg_log, 'copying GIF files...', name='comp', /info
-  file_copy, '*.comp.' + wave_type + '.intensity.gif', frdir, /overwrite
+  gif_wildcard = '*.comp.' + wave_type + '.intensity.gif'
+  gif_files = file_search(gif_wildcard, count=n_gif_files)
+  if (n_gif_files gt 0L) then file_copy, gif_wildcard, frdir, /overwrite
 
   ; save the GBU file
   mg_log, 'copying GBU file...', name='comp', /info
