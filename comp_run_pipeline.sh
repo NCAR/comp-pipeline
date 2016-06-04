@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# u=rwx,g=rwx,o=rx
+umask 0002
+
 SCRIPT_LOC=$(readlink -f $0)
 
 PIPE_DIR=$(dirname ${SCRIPT_LOC})
