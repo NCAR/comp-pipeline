@@ -95,14 +95,6 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
   ; create output fits file
 
-  if (mean_opt eq 'yes') then begin
-    fits_open, date_dir + '.comp.' + wave_type + '.mean.fts', fcbavg, /write
-  endif
-  if (median_opt eq 'yes') then begin
-    fits_open, date_dir + '.comp.' + wave_type + '.median.fts', fcbmed, /write
-  endif
-  fits_open, date_dir + '.comp.' + wave_type + '.sigma.fts', fcbsig, /write
-
   if (uselist) then begin
     files = list_file
     n_files = file_lines(list_file)
@@ -122,7 +114,10 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
   mg_log, 'using %d files from %s', n_files, files, name='comp', /info
 
-  if (n_files lt 1) then return
+  if (n_files lt 1) then begin
+    mg_log, 'no good %s files, exiting', wave_type, name='comp', /warn
+    return
+  endif
 
   openr, lun, files, /get_lun
   str = ' '
@@ -184,6 +179,14 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
             name='comp', /info
   endfor
   ;  for i=0,n_stokes-1 do print,which_file[0:numof_stokes[i]-1,i]
+
+  if (mean_opt eq 'yes') then begin
+    fits_open, date_dir + '.comp.' + wave_type + '.mean.fts', fcbavg, /write
+  endif
+  if (median_opt eq 'yes') then begin
+    fits_open, date_dir + '.comp.' + wave_type + '.median.fts', fcbmed, /write
+  endif
+  fits_open, date_dir + '.comp.' + wave_type + '.sigma.fts', fcbsig, /write
 
   ; take inventory of first file to find wavelengths
   test_filename = comp_find_l1_file(date_dir, wave_type, datetime=filenames[0])
