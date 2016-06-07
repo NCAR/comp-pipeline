@@ -39,6 +39,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   ntags = n_elements(headers[*, 0])
   if (sxpar(headers[*, 0], 'FLATFILE') eq 0) then ntags++
   ntags++   ; for the ND-TRANS tag we add below
+  ntags++   ; for the FLATEXT tag we add below
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
