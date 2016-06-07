@@ -140,7 +140,8 @@ pro comp_gbu, date_dir, wave_type, error=error
     name = (file_search(search_filter, count=n_name_found))[0]
 
     if (n_name_found lt 1L) then begin
-      mg_log, '%s doesn''t exist on disk but is in inventory file', search_filter, $
+      mg_log, 'file for %s doesn''t exist on disk but is in inventory file', $
+              datetime, $
               name='comp', /warn
       good_files[ifile] += 1
       continue
