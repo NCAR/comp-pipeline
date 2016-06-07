@@ -84,7 +84,7 @@ function comp_validator, date_dir
     mg_log, 'errors in validating files transferred from MLSO for %s', $
             date_dir, name='comp', /error
     if (mail_warnings) then begin
-      mail_cmd = "mailx -s 'Errors in validating files transferred from MLSO for CoMP on " $
+      mail_cmd = "mail -s 'Errors in validating files transferred from MLSO for CoMP on " $
                    + date_dir + "' ldm@hao.ucar.edu < /dev/null"
       spawn, mail_cmd, result, error_result, exit_status=status
       if (status ne 0L) then begin
