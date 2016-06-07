@@ -44,7 +44,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
-                   flat_names, flat_expose
+                   flat_names, flat_expose, flat_extensions=flat_extensions
   flat *= expose / flat_expose   ; modify for exposure times
   flat_nd = sxpar(flat_header, 'NDFILTER', count=flat_nd_present)
   if (~flat_nd_present) then flat_nd = 8
@@ -72,6 +72,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
               ' Mult. factor=transmission of flat ND/img ND', after='NDFILTER'
     sxaddpar, header, 'FLATFILE', flat_names[iflat[0]], $
               ' Name of flat field file'
+    sxaddpar, header, 'FLATEXT', flat_extensions[iflat[0]], $
+              ' Extension in flat.fts (not FLATFILE) used', after='FLATFILE'
     headersout[*, i] = header
   endfor
 

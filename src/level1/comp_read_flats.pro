@@ -24,13 +24,17 @@
 ;   exposure
 ;
 ; :Keywords:
-;    file
+;   file : in, optional, type=string, default='flat.fts'
+;     specify filename of flat file to read
+;   flat_extensions : out, optional, type=lonarr(nwave)
+;     set to a named variable to retrieve the extension of the flat file used
 ;
 ; :Author:
 ;   Tomczyk
 ;-
 pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
-                     flat_waves, flat_names, exposure, file=file
+                     flat_waves, flat_names, exposure, $
+                     file=file, flat_extensions=flat_extensions
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
@@ -53,6 +57,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
 
   flat = fltarr(1024, 1024, nwave, /nozero)
   flat_names = strarr(nwave)
+  flat_extensions = lonarr(nwave)
 
   ; flat field filename
   if (keyword_set(file)) then begin
@@ -86,7 +91,8 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
             strjoin(strtrim(correct_wave + 1, 2), ', '), $
             name='comp', /debug
     mn = min(dt[correct_wave], good)
-    iflat = correct_wave[good] + 1
+    iflat = correct_wave[good] + 1   ; FITS extensions start at 1
+    flat_extensions[iw] = iflat
 
     fits_read, fcb, image, flat_header, exten_no=iflat
 
