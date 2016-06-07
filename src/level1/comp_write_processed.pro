@@ -70,7 +70,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
   fits_open, output_filename, fcb_out, /write
   fits_write, fcb_out, 0.0, primary_header
 
-  if (wave_type eq '1083') then begin
+  if (wave_type ne '1083') then begin
     fits_open, background_filename, fcb_back, /write
     fits_write, fcb_back, 0.0, primary_header
   endif
