@@ -70,8 +70,10 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
   fits_open, output_filename, fcb_out, /write
   fits_write, fcb_out, 0.0, primary_header
 
-  fits_open, background_filename, fcb_back, /write
-  fits_write, fcb_back, 0.0, primary_header
+  if (wave_type eq '1083') then begin
+    fits_open, background_filename, fcb_back, /write
+    fits_write, fcb_back, 0.0, primary_header
+  endif
 
   ; clean up the extension headers and write them to file, along with the
   ; images
@@ -155,19 +157,26 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
 
     ; this assumes that all the background extensions are last
     if (strmid(ename, 0, 3) eq 'BKG') then begin
-      ; the foreground wavelength is not correct for the background
-      sxaddpar, header, 'WAVELENG', $
-                strjoin(string(sxpar(header, 'WAVELENG'), format='(F0.2)') $
-                          + string(0.57 * [-1, 1], format='(F+0.2)'), ','), $
-                ' Blue and red continuum [nm]'
-      fits_write, fcb_back, images[*, *, i], header, extname=ename
+      if (wave_type ne '1083') then begin
+        ; the foreground wavelength is not correct for the background
+        sxaddpar, header, 'WAVELENG', $
+                  strjoin(string(sxpar(header, 'WAVELENG'), format='(F0.2)') $
+                            + string(0.57 * [-1, 1], format='(F+0.2)'), ','), $
+                  ' Blue and red continuum [nm]'
+        fits_write, fcb_back, images[*, *, i], header, extname=ename
+      endif
     endif else begin
-      ; give a median background for each extension
-      background = comp_get_component(images, headers, $
-                                      'BKG' + polarizations[i], $
-                                      0, $
-                                      wavelengths[i])
-      extension_background = median(background[where(mask eq 1.0)])
+      if (wave_type eq '1083') then begin
+        extension_background = 'NA'
+      endif else begin
+        ; give a median background for each extension
+        background = comp_get_component(images, headers, $
+                                        'BKG' + polarizations[i], $
+                                        0, $
+                                        wavelengths[i])
+        extension_background = median(background[where(mask eq 1.0)])
+      endelse
+
       sxaddpar, header, 'BACKGRND', extension_background, $
                 ' Median of masked line center background', format='(F10.3)', $
                 after='ND-TRANS'
@@ -177,5 +186,5 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
   endfor
 
   fits_close, fcb_out
-  fits_close, fcb_back
+  if (wave_type ne '1083') then fits_close, fcb_back
 end

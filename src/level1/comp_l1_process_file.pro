@@ -53,7 +53,8 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   comp_combine_beams, images_demod, headers_demod, date_dir, $
                       images_combine, headers_combine, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
-                      image_geometry=image_geometry
+                      image_geometry=image_geometry, $
+                      wave_type=wave_type
 
   ; double precision not required in output
   images_combine = float(images_combine)
