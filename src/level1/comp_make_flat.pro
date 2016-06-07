@@ -161,6 +161,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, cal_pol
 
       ; test for bad opal against thresholds
+      ; TODO: this looks fishy!
       if (wave[0] lt 1075.0) then begin
         threshold = 18.0
       endif else if (wave[0] gt 1080.0) then begin
