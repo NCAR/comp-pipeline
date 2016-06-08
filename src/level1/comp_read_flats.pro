@@ -21,7 +21,8 @@
 ;   flat_waves : out, optional, type=fltarr
 ;     set to retrive the unique wavelengths in `wave`, possibly given sign
 ;     through multiplying by beam state
-;   exposure
+;   flat_exposure : out, optional, type=fltarr
+;     set to retrieve the exposure times for the returned flats
 ;
 ; :Keywords:
 ;   file : in, optional, type=string, default='flat.fts'
@@ -33,7 +34,7 @@
 ;   Tomczyk
 ;-
 pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
-                     flat_waves, flat_names, exposure, $
+                     flat_waves, flat_names, flat_exposure, $
                      file=file, flat_extensions=flat_extensions
   compile_opt idl2
   @comp_constants_common
@@ -58,6 +59,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   flat = fltarr(1024, 1024, nwave, /nozero)
   flat_names = strarr(nwave)
   flat_extensions = lonarr(nwave)
+  flat_exposure = fltarr(nwave)
 
   ; flat field filename
   if (keyword_set(file)) then begin
@@ -116,9 +118,8 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     flat[*, *, iw] = float(image)
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
 
-    exposure = exposures[iflat - 1L]
-    mg_log, 'closest flat ext %d:', $
-            iflat, $
+    flat_exposure[iw] = exposures[iflat - 1L]
+    mg_log, 'closest flat ext %d:', iflat, $
             name='comp', /debug
     mg_log, '  time=%s, wave=%0.2f, exposure=%0.1fms', $
             comp_times2str(times[iflat - 1]), $

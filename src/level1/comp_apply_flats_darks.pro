@@ -46,7 +46,11 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   dark = comp_dark_interp(date_dir, time, expose)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose, flat_extensions=flat_extensions
-  flat *= expose / flat_expose   ; modify for exposure times
+
+  for f = 0L, n_elements(flat_expose) - 1L do begin
+    flat[*, *, f] *= expose / flat_expose[f]   ; modify for exposure times
+  endfor
+
   flat_nd = sxpar(flat_header, 'NDFILTER', count=flat_nd_present)
   if (~flat_nd_present) then flat_nd = 8
 
