@@ -82,7 +82,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   if (process_synthetic eq 1) then begin
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts")')
   endif else begin
-    file = string(date_dir, wave_type, format='(%"%s.comp.%s.mean.fts")')
+    file = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
