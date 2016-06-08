@@ -162,13 +162,13 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
       ; test for bad opal against thresholds
       ; TODO: this looks fishy!
-      if (wave[0] lt 1075.0) then begin
-        threshold = 18.0
-      endif else if (wave[0] gt 1080.0) then begin
-        threshold = 0.1
-      endif else begin
-        threshold = 18.0
-      endelse
+      ; if (wave[0] lt 1075.0) then begin
+      ;   threshold = 18.0
+      ; endif else if (wave[0] gt 1080.0) then begin
+      ;   threshold = 0.1
+      ; endif else begin
+      ;   threshold = 18.0
+      ; endelse
 
       if (make_flat_beam_multiplies_wave) then begin
         ; multiply wavelength by beam sign to allow to find unique
@@ -281,13 +281,14 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
         ; A mask with only occulter and field, but right at edges
         tmp_image = mask_full_fill * image
         medflat = median(tmp_image[where(tmp_image ne 0.)])
+        sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli'
 
         ; Test medflat for scenario where opal didn't go in after a power failure
-        if (medflat lt threshold) then begin
-          mg_log, 'flat median too low', name='comp', /warn
-          mg_log, 'is the opal failing to go back in?', name='comp', /warn
-          break
-        endif
+        ; if (medflat lt threshold) then begin
+        ;   mg_log, 'flat median too low', name='comp', /warn
+        ;   mg_log, 'is the opal failing to go back in?', name='comp', /warn
+        ;   break
+        ; endif
 
         ; make sure there aren't any zeros
         bad = where(image eq 0.0, count)
