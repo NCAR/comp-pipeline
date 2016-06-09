@@ -67,7 +67,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
                                    hot=hot, adjacent=adjacent)
 
-    nd = comp_nd_filter(date_dir, wave_typeheader)
+    nd = comp_get_nd_filter(date_dir, wave_typeheader)
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
     images[*, *, i] *= transmission_correction
 

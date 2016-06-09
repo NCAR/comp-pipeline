@@ -122,7 +122,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
 
     ndfilter = sxpar(header, 'NDFILTER', count=n_ndfilter)
     if (n_ndfilter eq 0) then begin
-      nd = comp_nd_filter(date_dir, wave_type, header)
+      nd = comp_get_nd_filter(date_dir, wave_type, header)
       sxaddpar, header, 'NDFILTER', nd, $
                 ' ND 1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=clr, 8=clr', after='LCVR6TMP'
     endif
