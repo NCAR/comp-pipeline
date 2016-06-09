@@ -48,7 +48,6 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
   ; configure
   comp_initialize, date_dir
   comp_configuration
-
   
   debug = 0
 
@@ -160,15 +159,13 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       ; take inventory of flat file
       comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, cal_pol
 
-      ; test for bad opal against thresholds
-      ; TODO: this looks fishy!
-      ; if (wave[0] lt 1075.0) then begin
-      ;   threshold = 18.0
-      ; endif else if (wave[0] gt 1080.0) then begin
-      ;   threshold = 0.1
-      ; endif else begin
-      ;   threshold = 18.0
-      ; endelse
+      ; the flat can be blocked by the dome or the sky conditions could limit
+      ; the lights, which lowers the value of the flat
+      if (round(expose) eq 50) then begin
+        threshold = 1.5
+      endif else begin
+        threshold = 12.0 * expose / 250.0
+      endelse
 
       if (make_flat_beam_multiplies_wave) then begin
         ; multiply wavelength by beam sign to allow to find unique
@@ -285,12 +282,10 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
         medflat = median(tmp_image[where(tmp_image ne 0.)])
         sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli'
 
-        ; Test medflat for scenario where opal didn't go in after a power failure
-        ; if (medflat lt threshold) then begin
-        ;   mg_log, 'flat median too low', name='comp', /warn
-        ;   mg_log, 'is the opal failing to go back in?', name='comp', /warn
-        ;   break
-        ; endif
+        if (medflat lt threshold) then begin
+          mg_log, 'flat median lower than expected', name='comp', /warn
+          break
+        endif
 
         ; make sure there aren't any zeros
         bad = where(image eq 0.0, count)
