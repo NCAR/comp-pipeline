@@ -43,7 +43,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
     for j = 0L, count - 1L do begin
       fits_read, fcbin, dat, header, exten_no=good[j] + 1
       exposure = sxpar(header, 'EXPOSURE')
-      flat_nd = comp_get_nd_filter(date_dir, wave_type, header)
+      nd_filter = comp_get_nd_filter(date_dir, wave_type, header)
 
       if (sxpar(header, 'DEMULT') eq 0) then dat = comp_demultiplex(temporary(dat))
       dat = float(dat)
