@@ -95,6 +95,13 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
                                  primary_header=primary_header, $
                                  headers=headers
 
+    nd_filter = comp_get_nd_filter(date_dir, wave_type, headers[*, 0])
+    if (wave_type eq '1083' && nd_filter eq 8) then begin
+      mg_log, 'skipping %s image with ND=%d', $
+              wave_type, nd_filter, name='comp', /info
+      continue
+    endif
+
     ; determine index of wavelength closest to line center
     wave_diff = abs(wavelengths - line_center)
     !null = min(wave_diff, line_center_index)

@@ -9,7 +9,7 @@
 ;   used temporary and compound assignment operators to save memory
 ;     Oct 3 2014  GdT
 ;-
-pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
+pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter
   compile_opt strictarr
   @comp_config_common
 
@@ -17,6 +17,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
   skip_first = flat_avg_skip_first
 
   nwaves = n_elements(uniq_waves)
+  wave_type = comp_find_wavelength(wave, /name)
 
   ; do not use first image at each wavelength
   wave[0] = -1   ; do not use first image
@@ -42,6 +43,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
     for j = 0L, count - 1L do begin
       fits_read, fcbin, dat, header, exten_no=good[j] + 1
       exposure = sxpar(header, 'EXPOSURE')
+      flat_nd = comp_get_nd_filter(date_dir, wave_type, header)
 
       if (sxpar(header, 'DEMULT') eq 0) then dat = comp_demultiplex(temporary(dat))
       dat = float(dat)

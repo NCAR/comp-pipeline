@@ -51,8 +51,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     flat[*, *, f] *= expose / flat_expose[f]   ; modify for exposure times
   endfor
 
-  flat_nd = sxpar(flat_header, 'NDFILTER', count=flat_nd_present)
-  if (~flat_nd_present) then flat_nd = 8
+  wave_type = comp_find_wavelength(wave[0], /name)
+  flat_nd = comp_get_nd_filter(date_dir, wave_type, flat_header)
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
@@ -67,8 +67,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
                                    hot=hot, adjacent=adjacent)
 
-    nd = sxpar(header, 'NDFILTER', count=nd_present)
-    if (~nd_present) then nd = 8
+    nd = comp_nd_filter(date_dir, wave_typeheader)
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
     images[*, *, i] *= transmission_correction
 

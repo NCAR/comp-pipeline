@@ -181,7 +181,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
       nwaves = n_elements(uniq_waves)
 
       ; perform averaging
-      comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats
+      comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter
 
       ; extract masking information from second flat image (don't use first)
       image = flats[*, *, 1]
@@ -196,6 +196,8 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
 
       sxaddpar, header, 'FILENAME', opalfile, ' Name of raw opal file'
       sxaddpar, header, 'EXPOSURE', exposure
+      sxaddpar, header, 'NDFILTER', nd_filter, $
+                ' ND 1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=clr, 8=clr'
 
       if (make_flat_spectral_correction eq 0B) then begin
         ; Mask is not wavelength dependent
@@ -339,6 +341,7 @@ pro comp_make_flat, date_dir, replace_flat=replace_flat, error=error
     sxdelpar, header, 'FXCNTER2'
     sxdelpar, header, 'FYCNTER2'
     sxdelpar, header, 'FRADIUS2'
+    sxdelpar, header, 'MEDIAN'
 
     sxaddpar, header, 'DATATYPE', 'TIMES'
     fits_write, fcbout, times, header, extname='Time'
