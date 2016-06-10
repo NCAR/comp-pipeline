@@ -11,14 +11,14 @@
 ; :Uses:
 ;   fits_read, sxpar
 ;-
-pro comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, $
-                    cal_pol, cal_ret
+pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
+                    cal_pol, cal_ret, $
+                    group=group
   compile_opt idl2
 
   num = fcbin.nextend               ; number of images in file
 
   beam = intarr(num)
-  group = intarr(num)
   wave = fltarr(num)
   pol = strarr(num)
 
@@ -51,19 +51,24 @@ pro comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, $
     expose = sxpar(header, 'EXPOSURE')
   endfor
 
-  ; group observations with like wavelength, polarization state, datatype and beam
-  group[0] = 0
-  num_groups = 1
+  if (arg_present(group)) then begin
+    ; group observations with like wavelength, polarization state, datatype and
+    ; beam
+    group = intarr(num)
 
-  for i = 1L, num - 1L do begin
-    for j = 0L, i - 1L do begin
-      if (wave[i] eq wave[j] and pol[i] eq pol[j] and beam[i] eq beam[j]) then begin
-        group[i] = group[j]
-        goto, done
-      endif
+    group[0] = 0
+    num_groups = 1
+
+    for i = 1L, num - 1L do begin
+      for j = 0L, i - 1L do begin
+        if (wave[i] eq wave[j] and pol[i] eq pol[j] and beam[i] eq beam[j]) then begin
+          group[i] = group[j]
+          goto, done
+        endif
+      endfor
+      group[i] = num_groups
+      num_groups = num_groups + 1
+      done:
     endfor
-    group[i] = num_groups
-    num_groups = num_groups + 1
-    done:
-  endfor
+  endif
 end

@@ -39,6 +39,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
+  @comp_flats_common
 
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
@@ -67,21 +68,24 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   endif else begin
     flatfile = filepath('flat.fts', root=process_dir)
   endelse
-  fits_open, flatfile, fcb
-  num = fcb.nextend
 
-  ; read arrays with times, wavelengths and polarizations
-  fits_read, fcb, times, exten_no=num - 2
-  fits_read, fcb, wavelengths, exten_no=num - 1
-  fits_read, fcb, exposures, exten_no=num
+  if (~cache_flats) then begin
+    fits_open, flatfile, fcb
+    num = fcb.nextend
 
-  dt = time - times   ; find time difference from flat times
+    ; read arrays with times, wavelengths and polarizations
+    fits_read, fcb, flat_times, exten_no=num - 2
+    fits_read, fcb, flat_wavelengths, exten_no=num - 1
+    fits_read, fcb, flat_exposures, exten_no=num
+  endif
+
+  dt = time - flat_times   ; find time difference from flat times
   bad = where(dt lt 0., count)
   if (count gt 0L) then dt[bad] = 1000.  ; use only flats before time
 
   ; use closest flat in time with correct wavelength and polarization state
   for iw = 0L, nwave - 1L do begin
-    correct_wave = where(flat_waves[iw] eq wavelengths, count)
+    correct_wave = where(flat_waves[iw] eq flat_wavelengths, count)
     if (count eq 0L) then begin
       mg_log, 'no correct_wave for %f in %s', flat_waves[iw], flatfile, $
               name='comp', /warn
@@ -96,7 +100,12 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     iflat = correct_wave[good] + 1   ; FITS extensions start at 1
     flat_extensions[iw] = iflat
 
-    fits_read, fcb, image, flat_header, exten_no=iflat
+    if (cache_flats) then begin
+      image = flat_images[*, *, iflat - 1]
+      flat_header = flat_headers[*, iflat - 1]
+    endif else begin
+      fits_read, fcb, image, flat_header, exten_no=iflat
+    endelse
 
     ; make sure there aren't any zeros
     bad = where(image eq 0.0, count)
@@ -118,14 +127,17 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     flat[*, *, iw] = float(image)
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
 
-    flat_exposure[iw] = exposures[iflat - 1L]
+    flat_exposure[iw] = flat_exposures[iflat - 1L]
     mg_log, 'closest flat ext %d:', iflat, $
             name='comp', /debug
     mg_log, '  time=%s, wave=%0.2f, exposure=%0.1fms', $
-            comp_times2str(times[iflat - 1]), $
-            wavelengths[iflat - 1], $
-            exposures[iflat - 1], $
+            comp_times2str(flat_times[iflat - 1]), $
+            flat_wavelengths[iflat - 1], $
+            flat_exposures[iflat - 1], $
             name='comp', /debug
   endfor
-  fits_close, fcb
+
+  if (~cache_flats) then begin
+    fits_close, fcb
+  endif
 end

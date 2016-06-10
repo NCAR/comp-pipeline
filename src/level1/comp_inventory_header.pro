@@ -80,7 +80,7 @@ pro comp_inventory_header, headers, beam, wave, pol, type, expose, $
   ; group observations with like wavelength, polarization state, datatype and
   ; beam
 
-  if (arg_present(group) then begin
+  if (arg_present(group)) then begin
     group = intarr(num)
 
     group[0L] = 0L

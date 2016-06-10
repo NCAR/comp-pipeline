@@ -113,4 +113,7 @@ pro comp_configuration, config_filename=config_filename
   make_flat_spectral_correction   = config->get('spectral_correction', $
                                                 section='flats', $
                                                 /boolean, default=0B)
+  cache_flats                     = config->get('cache_flats', $
+                                                section='flats', $
+                                                /boolean, default=1B)
 end

@@ -96,7 +96,7 @@ pro comp_file_type, date_dir
     endif
 
     ; take inventory
-    comp_inventory, fcb, beam, group, wave, pol, type, expose, cover, cal_pol, cal_ret
+    comp_inventory, fcb, beam, wave, pol, type, expose, cover, cal_pol, cal_ret
 
     uniq_waves = wave[comp_uniq(wave, sort(wave))]   ; find unique wavelengths
     ; recent failure modes create files with one wavelength - skip these

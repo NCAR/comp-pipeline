@@ -38,4 +38,5 @@ common comp_config, binary_dir, $
                     make_flat_detrending, $
                     make_flat_destraying, $
                     make_flat_fill, $
-                    make_flat_spectral_correction
+                    make_flat_spectral_correction, $
+                    cache_flats
