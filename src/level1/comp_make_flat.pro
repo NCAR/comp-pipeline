@@ -192,6 +192,12 @@ pro comp_make_flat, date_dir, error=error
     sxaddpar, header, 'NDFILTER', nd_filter, $
               ' ND 1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=clr, 8=clr'
 
+    ; should not have the ND filter in while taking a flat; if so, skip
+    if (nd_filter ne 8) then begin
+      mg_log, 'ND %d flat found in %s', nd_filter, opalfile, name='comp', /warn
+      continue
+    endif
+
     if (make_flat_spectral_correction eq 0B) then begin
       ; Mask is not wavelength dependent
       mask_full_fill = comp_annulus_1024(header, o_offset=0.0, f_offset=0.0)
