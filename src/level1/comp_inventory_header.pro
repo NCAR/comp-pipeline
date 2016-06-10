@@ -14,9 +14,6 @@
 ;   beam : out, required, type=intarr(nimg)
 ;     the beam state (+1 has on-band image in lower right, off-band in upper
 ;     left, vice versa for -1).
-;   group : out, required, type=intarr(nimg)
-;     group ID number; groups are defind to be unique combinations of
-;     wavelength, beam, and polarization state.
 ;   wave : out, required, type=fltarr(nimg)
 ;     the wavelengths
 ;   pol : out, required, type=strarr(nimg)
@@ -32,17 +29,22 @@
 ;   cal_ret : out, optional, type=unknown  
 ;     unknown
 ;
+; :Keywords:
+;   group : out, optional, type=intarr(nimg)
+;     group ID number; groups are defind to be unique combinations of
+;     wavelength, beam, and polarization state.
+;
 ; :Author:
 ;   Steve Tomczyk, Joseph Plowman
 ;-
-pro comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
-                           cover, cal_pol, cal_ret
+pro comp_inventory_header, headers, beam, wave, pol, type, expose, $
+                           cover, cal_pol, cal_ret, $
+                           group=group
   compile_opt strictarr
 
   num = n_elements(headers[0L, *])   ; number of images in file
 
   beam  = intarr(num)
-  group = intarr(num)
   wave  = fltarr(num)
   pol   = strarr(num)
 
@@ -78,19 +80,23 @@ pro comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
   ; group observations with like wavelength, polarization state, datatype and
   ; beam
 
-  group[0L] = 0L
-  num_groups = 1L
+  if (arg_present(group) then begin
+    group = intarr(num)
 
-  for i = 1L, num - 1L do begin
-    for j = 0L, i - 1L do begin
-      if (wave[i] eq wave[j] and pol[i] eq pol[j] and beam[i] eq beam[j]) then begin
-        group[i] = group[j]
-        goto, done
-      endif
+    group[0L] = 0L
+    num_groups = 1L
+
+    for i = 1L, num - 1L do begin
+      for j = 0L, i - 1L do begin
+        if (wave[i] eq wave[j] and pol[i] eq pol[j] and beam[i] eq beam[j]) then begin
+          group[i] = group[j]
+          goto, done
+        endif
+      endfor
+      group[i] = num_groups
+      ++num_groups
+
+      done:
     endfor
-    group[i] = num_groups
-    ++num_groups
-
-    done:
-  endfor
+  endif
 end

@@ -39,7 +39,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   @comp_config_common
   @comp_mask_constants_common
 
-  comp_inventory_header, headers_combine, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers_combine, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
   unique_wave = wave[uniq(wave, sort(wave))]

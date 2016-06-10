@@ -23,7 +23,7 @@
 pro comp_demodulate, rawimages, rawheaders, images, headers
   compile_opt strictarr
 
-  comp_inventory_header, rawheaders, beams, groups, waves, polstates, type, $
+  comp_inventory_header, rawheaders, beams, waves, polstates, type, $
                          expose, cover, cal_pol, cal_ret
 
   beams = [-1, 1]

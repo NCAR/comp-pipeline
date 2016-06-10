@@ -31,7 +31,7 @@
 pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   compile_opt strictarr
 
-  comp_inventory_header, vheaders, beams, groups, waves, pols, type, expose, $
+  comp_inventory_header, vheaders, beams, waves, pols, type, expose, $
                          cover, cal_pol, cal_ret
 
   ; find the nearest Q and U file and prepare it for crosstalk estimation

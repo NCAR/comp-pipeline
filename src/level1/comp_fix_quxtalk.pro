@@ -29,7 +29,7 @@ pro comp_fix_quxtalk, date_dir, images, headers, filename
   compile_opt strictarr
   @comp_constants_common
 
-  comp_inventory_header, headers, beams, groups, waves, pols, type, expose, $
+  comp_inventory_header, headers, beams, waves, pols, type, expose, $
                          cover, cal_pol, cal_ret
 
   nimg = n_elements(images[0, 0, *])

@@ -32,7 +32,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   compile_opt strictarr
   @comp_constants_common
 
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, cover, $
+  comp_inventory_header, headers, beam, wave, pol, type, expose, cover, $
                          cal_pol, cal_ret
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
 

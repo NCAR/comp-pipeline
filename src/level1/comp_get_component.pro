@@ -56,7 +56,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   on_error, 2
 
   ; figure out what's in this image array:
-  comp_inventory_header, headers, beams, groups, waves, polstates, type, $
+  comp_inventory_header, headers, beams, waves, polstates, type, $
                          expose, cover, cal_pol, cal_ret
 
   ; if we don't have an input list of wavelengths, use all of them:

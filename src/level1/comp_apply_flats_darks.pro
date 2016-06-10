@@ -30,7 +30,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   @comp_config_common
 
   ; figure out what's in our image array
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
   ; convert time format for use by read_flats

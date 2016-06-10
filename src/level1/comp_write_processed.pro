@@ -36,7 +36,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
   ; will need mask for BACKGRND in extensions
   comp_make_mask, date_dir, primary_header, mask
 
-  comp_inventory_header, headers, beam, group, wavelengths, polarizations, $
+  comp_inventory_header, headers, beam, wavelengths, polarizations, $
                          type, expose, $
                          cover, cal_pol, cal_ret
 
