@@ -3,10 +3,17 @@
 umask 0002
 output="/tmp/CoMP-$$"
 
-# check yesterday's CoMP log file for errors
 log_name=/hao/acos/comp/logs/$(date +"%Y%m%d" --date="yesterday").log
+
+# check total running time
+grep "INFO: COMP_RUN_PIPELINE: Total running time:" $log_name >> $output 2>&1
+if [ $? -eq 1 ]; then
+  echo "CoMP pipeline not finished yet at $(date +'%Y-%m-%d %H:%M:%S')" >> $output 2>&1
+fi
+
+# check yesterday's CoMP log file for errors
 pattern="(WARN|ERROR|CRITICAL):"
-echo -e "# CoMP pipeline error messages from $log_name\n" >> $output 2>&1
+echo -e "\n# CoMP pipeline error messages from $log_name\n" >> $output 2>&1
 grep -E $pattern $log_name >> $output 2>&1
 
 # check for HPSS errors
