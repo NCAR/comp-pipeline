@@ -1,6 +1,8 @@
 ; docformat = 'rst'
 
 ;+
+; Create dynamics and polarization L2 files.
+;
 ; :Examples:
 ;   For example, call like::
 ;

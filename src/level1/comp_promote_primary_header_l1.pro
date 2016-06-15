@@ -30,7 +30,6 @@
 ;   Joseph Plowman
 ;-
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
-                                    background=background, $
                                     image_geometry=image_geometry, $
                                     headers_combine=headers_combine
   compile_opt strictarr

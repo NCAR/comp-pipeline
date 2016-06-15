@@ -1,6 +1,8 @@
 ; docformat = 'rst'
 
 ;+
+; Read a GBU log file.
+;
 ; :Examples:
 ;   For example, call like::
 ;
@@ -9,6 +11,16 @@
 ;
 ; :Uses:
 ;   merge_struct, str_sep, mg_log
+;
+; :Returns:
+;   array of structures of the form::
+;
+;     { l1file:'', $
+;       time_obs:'', $
+;       quality:'', $
+;       background:0., $
+;       variance:0., $
+;       wavelengths:0 }
 ;
 ; :Params:
 ;   gbu_file : in, required, type=string

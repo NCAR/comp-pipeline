@@ -13,6 +13,8 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     name of date directory containing the files corresponding to the headers
+;   headers : in, required, type="strarr(ntags, nimages)"
+;     extension headers for a file
 ;
 ; :Keywords:
 ;   upper_left_mask :  out, optional, type="fltarr(nx, ny)"

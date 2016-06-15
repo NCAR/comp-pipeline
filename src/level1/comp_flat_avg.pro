@@ -1,9 +1,29 @@
 ; docformat = 'rst'
 
 ;+
+; Average flats by wavelength.
+;
 ; :Uses:
 ;   comp_dark_interp, comp_fixrock, comp_fix_image, comp_demultiplex,
 ;   fits_read, fits_close, sxpar
+;
+; :Params:
+;   date_dir : in, required, type=string
+;     date to process, in YYYYMMDD format
+;   time : in, required, type=float
+;     time of observation
+;   wave : in, required, type=fltarr
+;     wavelengths
+;   uniq_waves : in, required, type=fltarr
+;     unique wavelengths present
+;   exposure : out, required, type=float
+;     set to a named variable to retrieve exposure (ms)
+;   fcbin : in, required, type=structure
+;     FITS Control Block as returned by `FITS_OPEN`
+;   flats : out, required, type="fltarr(1024, 1024, nwaves)"
+;     flat images averaged by wavelength
+;   nd_filter : out, optional, type=integer
+;     set to a named variable to retrieve the ND filter for the flats
 ;
 ; :History:
 ;   used temporary and compound assignment operators to save memory
