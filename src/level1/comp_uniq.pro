@@ -1,3 +1,5 @@
+; docformat = 'idl'
+
 ;+
 ; NAME:
 ;	COMP_UNIQ
@@ -70,7 +72,6 @@
 ;                         - added OLDWAY keyword to return,[value] for scalar
 ;                           value
 ;-
-
 function comp_uniq, ARRAY, IDX, FIRST=FIRST,OLDWAY=OLDWAY
 
 ; Check the arguments.

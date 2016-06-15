@@ -6,6 +6,8 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     the date directory for this data
+;   primary_header : in, out, required, type=starr
+;     primary header
 ;   images_combine : in, required, type="fltarr(620, 620, (2*np*nw))"
 ;     the combined images, one foreground, one background for each wavelength
 ;     and stokes component. The last index is sorted first by wavelength

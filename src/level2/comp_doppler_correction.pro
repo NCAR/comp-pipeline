@@ -1,19 +1,22 @@
 ; docformat = 'rst'
 
 ;+
+; Do doppler correction.
 ;
 ; :Uses:
 ;   comp_constants_common, fmedian
 ;
 ; :Params:
-;    fit_arr_in : in, required, type="array[nx, ny, 2]"
-;      input fitting parameters
-;    fit_arr_out : out, optional, type="array[nx, ny, 2]"
-;      output fitting parameters after Doppler shift correction
-;    ewtrend : out, optional, type=array[nx]
-;      output parameter, east-west trend of the Doppler shift
-;    temptrend : out, optional, type=float
-;      output parameter, temporal trend of the Doppler shift
+;   fit_arr_in : in, required, type="array[nx, ny, 2]"
+;     input fitting parameters
+;   fit_arr_out : out, optional, type="array[nx, ny, 2]"
+;     output fitting parameters after Doppler shift correction
+;   wave_type : in, required, type=string
+;     wave type, '1074', '1079', or '1083'
+;   ewtrend : out, optional, type=array[nx]
+;     output parameter, east-west trend of the Doppler shift
+;   temptrend : out, optional, type=float
+;     output parameter, temporal trend of the Doppler shift
 ;
 ; :Author:
 ;   Hui Tian

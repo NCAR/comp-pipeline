@@ -20,6 +20,10 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
+; :Keywords:
+;    nwl : in, required, type=integer
+;      number of lines, 3 or 5
+;
 ; :Author:
 ;   Christian Bethge
 ;

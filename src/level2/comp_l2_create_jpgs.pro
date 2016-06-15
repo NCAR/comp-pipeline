@@ -23,7 +23,12 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
-;    seq
+;    nwl : in, required, type=integer
+;      number of lines, 3 or 5
+;    seq : in, optional, type=boolean
+;      set to look for longest continuous sequence
+;    n_avrg : in, optional, type=integer
+;      number of files, must be specified if `SEQ` is not set
 ;
 ; :Author:
 ;   Christian Bethge
