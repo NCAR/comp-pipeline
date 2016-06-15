@@ -11,6 +11,9 @@
 ;   flat_header : in, required, type=strarr
 ;      header from flat image
 ;
+; :Returns:
+;   `fltarr(1024, 1024)`
+;
 ; :Keywords:
 ;   o_offset : in, optional
 ;     radial offset of occulting disk (optional, 0. if not provided)

@@ -10,6 +10,33 @@
 ;
 ; :Uses:
 ;   fits_read, sxpar
+;
+; :Params:
+;   fcbin : in, required, type=structure
+;     FITS Control Block as returned by `FITS_OPEN`
+;   beam : out, required, type=intarr
+;     set to a named variable to retrieve the beam state (-1 or 1) for each
+;     extension
+;   wave : out, required, type=fltarr
+;     set to a named variable to retrieve the wavelength (nm) for each extension
+;   pol : out, required, type=strarr
+;     set to a named variable to retrieve the polarization state of each
+;     extension
+;   type : out, required, type=string
+;     set to a named variable to retrieve the type of the file, i.e., 'DARK',
+;     'OPAL', or 'DATA'
+;   expose : out, required, type=float
+;     set to a named variable to retrieve the exposure in milliseconds
+;   cover : out, required, type=integer
+;     set to a named variable to retrieve whether the cover is present
+;   cal_pol : out, required, type=integer
+;     set to a named variable to retrieve whether the polarizer is present
+;   cal_ret : out, required, type=integer
+;     set to a named variable to retrieve whether the retarder is present
+;
+; :Keywords:
+;   group : out, optional, type=intarr
+;     group of each extension
 ;-
 pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
                     cal_pol, cal_ret, $

@@ -6,7 +6,7 @@
 ; configuration file.
 ;
 ; :Returns:
-;   by default returns a string, unless `FLOAT`, `INTEGER`, or `BOOLEAN` is set
+;   by default returns a string, unless `TYPE` is specified
 ;
 ; :Params:
 ;   option : in, required, type=string
@@ -19,6 +19,8 @@
 ; :Keywords:
 ;   found : out, optional, type=boolean
 ;     set to a named variable to retrieve whether the option was found
+;   type : in, optional, type=integer
+;     `SIZE` type to retrieve value as
 ;   _extra : in, optional, type=keywords
 ;     keywords to `MGffOptions::get` such as `BOOLEAN` and `EXTRACT`
 ;-
