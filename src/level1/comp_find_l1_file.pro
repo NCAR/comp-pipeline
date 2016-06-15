@@ -7,7 +7,7 @@
 ;   string
 ;
 ; :Params:
-;   date_dir : in, required, type=string
+;   date : in, required, type=string
 ;     date to process, in YYYYMMDD format
 ;   wave_type : in, required, type=string
 ;     wavelength type such as "1074", "1079", or "1083"

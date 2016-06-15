@@ -19,10 +19,6 @@
 ; :Keywords:
 ;   found : out, optional, type=boolean
 ;     set to a named variable to retrieve whether the option was found
-;   float : in, optional, type=boolean
-;     set to convert value to a float
-;   integer : in, optional, type=integer
-;     set to convert value to a integer
 ;   _extra : in, optional, type=keywords
 ;     keywords to `MGffOptions::get` such as `BOOLEAN` and `EXTRACT`
 ;-
