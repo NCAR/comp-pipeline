@@ -3,4 +3,10 @@ CoMP pipeline code.
 :Dirs:
   .
     main code
+  common
+    common block definitions
+  level1
+    level1 processing
+  level2
+    level2 processing
 
