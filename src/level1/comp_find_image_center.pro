@@ -18,10 +18,10 @@
 ;   comp_radial_der, comp_circfit
 ;
 ; :Returns:
-;   fltarr(3)
+;   `fltarr(3)`
 ;
 ; :Params:
-;   dat : in
+;   dat : in, required, type="fltarr(1024, 1024)"
 ;     the data array in which to locate the image
 ;
 ; :Keywords:

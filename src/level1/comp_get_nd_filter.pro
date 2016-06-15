@@ -3,6 +3,9 @@
 ;+
 ; Retrieve the NDFILTER for an extension.
 ;
+; :Returns:
+;   integer
+;
 ; :Params:
 ;   date : in, required, type=string
 ;     date in the form "YYYYMMDD"
