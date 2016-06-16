@@ -3,6 +3,9 @@
 ;+
 ; Update database with results of pipeline run for the given day.
 ;
+; :Todo:
+;   implement
+;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
@@ -13,5 +16,4 @@ pro comp_update_database, date_dir, wave_type
   compile_opt strictarr
   @comp_config_common
 
-  ; TODO: implement
 end

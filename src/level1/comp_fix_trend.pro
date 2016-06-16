@@ -18,6 +18,10 @@
 ;     structure for field in sub-image 1
 ;   field2 : in, required, type=structure
 ;     structure for field in sub-image 1
+;   post_angle1 : in, required, type=float
+;     position angle for post in sub-image 1
+;   post_angle2 : in, required, type=float
+;     position angle for post in sub-image 2
 ;   fit : out, optional, type=fltarr
 ;     fit
 ;
