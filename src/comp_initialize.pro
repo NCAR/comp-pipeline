@@ -142,6 +142,9 @@ pro comp_initialize, date_dir
   i_to_u_xtalk = comp_initialize_readconfig('i_to_u_xtalk', date_dir, options, type=4)
   u_to_q_xtalk = comp_initialize_readconfig('u_to_q_xtalk', date_dir, options, type=4)
   q_to_u_xtalk = comp_initialize_readconfig('q_to_u_xtalk', date_dir, options, type=4)
+  i_to_v_xtalk = comp_initialize_readconfig('i_to_v_xtalk', date_dir, options, type=4)
+  q_to_v_xtalk = comp_initialize_readconfig('q_to_v_xtalk', date_dir, options, type=4)
+  u_to_v_xtalk = comp_initialize_readconfig('u_to_v_xtalk', date_dir, options, type=4)
 
   transmissions = [comp_initialize_readconfig('nd1', date_dir, options, type=4), $
                    comp_initialize_readconfig('nd2', date_dir, options, type=4), $
