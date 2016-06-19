@@ -72,7 +72,7 @@ function comp_nearest_qufile, date_dir, headers, filename
 
   ; lastly, we want the file that's closest in time
   quindices = where(qucheck and days eq days[vindex] and wavecheck)
-  if (n_elements(times[quindices] eq 1L) then begin
+  if (n_elements(times[quindices]) eq 1L) then begin
     ; this is a workaround for verions of IDL before 8.2.2 that can't
     ; handle 1-element arrays input into VALUE_LOCATE
     ind = ((times[vindex] ge times[quindices])[0]) - 1L
