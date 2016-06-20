@@ -16,7 +16,7 @@ pro comp_plot_flatmedian, filename
                   strmid(tokens[0], 6, 2), $
                   strmid(tokens[0], 0, 4), $
                   tokens[1])
-    s[i].time = jday ;(jday - julday(1, 1, 1970, 0, 0, 0)) * (24.0D * 60.0D * 60.0D)
+    s[i].time = jday
     s[i].wavelength = float(tokens[2])
     s[i].median = float(tokens[3])
   endfor
@@ -28,12 +28,23 @@ pro comp_plot_flatmedian, filename
   
   !null = label_date(date_format='%Y %M %D')
 
-  plot, [s[0].time, s[-1].time], [0.0, 1.0], /nodata, $
-        xstyle=9, ystyle=9, xtickformat='LABEL_DATE'
+  mg_psbegin, filename='flat-medians.ps', xsize=6, ysize=4, /inches, /color
+  device, decomposed=1
+  plot, [s[0].time, s[-1].time], [0.0, 0.6], /nodata, $
+        xstyle=9, ystyle=9, xtickformat='LABEL_DATE', charsize=0.8, $
+        title='Flat medians', xtitle='Date', ytitle='Median values in annuli'
   oplot, s[ind_1074].time, s[ind_1074].median, $
-         color='ff00ff'x
+         color='0000ff'x, psym=1, symsize=0.5         
   oplot, s[ind_1083].time, s[ind_1083].median, $
-         color='00ffff'x
+         color='ff0000'x, psym=2, symsize=0.5
+  cgLegend, symColors=['0000ff'x, 'ff0000'x], $
+            psyms=[1, 2], $
+            symsize=0.5, $
+            location=[0.8, 0.9], $
+            titles=['1074.62', '1083.0'], $
+            charsize=0.8, $
+            length=0.0
+  mg_psend
 end
 
 
