@@ -233,7 +233,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   endelse
   mg_log, 'median background %f', med_back, name='comp', /info
   if (med_back gt 15.0) then begin
-    mg_log, 'exceeds 15, 01 might need to be cleaned', name='comp', /warn
+    mg_log, 'background median exceeds 15.0, 01 might need to be cleaned', $
+            name='comp', /warn
   endif
 
   ; find median intensity image using only good images so far
