@@ -13,7 +13,10 @@ pro comp_flatmedian_analysis_lc, line_centers, fcb, date, times, lun
     mask = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0)
     mask = erode(mask, erode_s)
     mask_ind = where(mask, n_mask_values)
-    flat_median = median(flat_data[mask_ind] / 84.0)
+    flat_median = median(flat_data[mask_ind])
+
+    exposure = sxpar(flat_header, 'EXPOSURE')
+    flat_median *= 250.0 / exposure
 
     wavelength = sxpar(flat_header, 'WAVELENG')
     printf, lun, date, times[line_centers[lc]], wavelength, flat_median, $
@@ -28,7 +31,7 @@ pro comp_flatmedian_analysis, process_dir, output_filename
   openw, lun, output_filename, /get_lun
 
   ; loop over date dirs in process_dir
-  dirs = file_search(filepath('2016*', root=process_dir), $
+  dirs = file_search(filepath('*', root=process_dir), $
                      /test_directory, $
                      count=n_dirs)
   for d = 0L, n_dirs - 1L do begin
@@ -37,6 +40,8 @@ pro comp_flatmedian_analysis, process_dir, output_filename
       mg_log, 'skipping %s', date
       continue
     endif
+
+    if (date eq '20141016') then continue
 
     catch, error
     if (error ne 0) then begin
@@ -79,6 +84,6 @@ end
 
 
 process_dir = '/hao/kaula1/Data/CoMP/process'
-comp_flatmedian_analysis, process_dir, 'flat-medians.csv'
+comp_flatmedian_analysis, process_dir, 'flat-medians-compdata2.csv'
 
 end
