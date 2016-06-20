@@ -45,7 +45,12 @@ pro comp_plot_flatmedians, filename
   endfor
 
 
-  cleanings = [julday(8, 11, 2014, 12), julday(11, 21, 2014, 12)]
+  cleanings = [julday(8, 11, 2014, 12), $
+               julday(11, 21, 2014, 12), $
+               julday(1, 23, 2015, 12), $
+               julday(5, 22, 2015, 12), $
+               julday(9, 16, 2015, 12), $
+               julday(5, 4, 2016, 12)]
 
   y_range = [0.0, 1.05 * max(s.median)]
 
