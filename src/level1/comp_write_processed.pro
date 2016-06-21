@@ -66,6 +66,10 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                                  subdir=[date_dir, 'level1'], $
                                  root=process_basedir)
 
+  if (wave_type eq '1083') then begin
+    sxaddpar, primary_header, 'BACKGRND', 'NA'
+  endif
+
   ; write the input primary header into the output
   fits_open, output_filename, fcb_out, /write
   fits_write, fcb_out, 0.0, primary_header
