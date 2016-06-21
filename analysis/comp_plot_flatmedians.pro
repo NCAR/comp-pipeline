@@ -74,7 +74,7 @@ pro comp_plot_flatmedians, filename
   for c = 0L, n_elements(cleanings) - 1L do begin
     oplot, fltarr(2) + cleanings[c], y_range, color='a0a0a0'x, thick=1.0
     xyouts, cleanings[c] + 10.0, 50.0, $
-            string(cleanings[c], format='("Cleaning ", C(CYI, CMOI, CDI))'), $
+            string(cleanings[c], format='("Cleaning ", C(CYI, ".", CMOI0.2, ".", CDI0.2))'), $
             orientation=90.0, charsize=0.6, font=1
   endfor
 
