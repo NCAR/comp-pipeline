@@ -71,7 +71,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     tmp_image  = comp_fixrock(temporary(tmp_image), 0.030)
     tmp_image  = comp_fix_image(temporary(tmp_image))
     tmp_image /= flat[*, *, iflat]
-    tmp_image  = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
+    images[*, *, i] = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
 
     nd = comp_get_nd_filter(date_dir, wave_type, header)
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
