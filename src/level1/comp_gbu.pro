@@ -169,7 +169,8 @@ pro comp_gbu, date_dir, wave_type, error=error
     ; read primary header
     fits_read, fcb, d, header, /header_only, exten_no=0
 
-    back[ifile] = sxpar(header, 'BACKGRND')
+    file_background = sxpar(header, 'BACKGRND')
+    back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
 
     ; reject special obs at beginning with number of wavelengths observed > 10
