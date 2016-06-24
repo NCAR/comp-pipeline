@@ -31,7 +31,7 @@ function comp_find_l1_file, date, wave_type, $
   @comp_config_common
 
   _datetime = n_elements(datetime) gt 0L ? datetime : '*'
-  filename_pattern = _datetime + '.comp.' + wave_type + '*.*.fts'
+  filename_pattern = _datetime + '.comp.' + wave_type + '*.*.fts{,.gz}'
   filenames = file_search(filepath(filename_pattern, $
                                    subdir=[date, 'level1'], $
                                    root=process_basedir), $
