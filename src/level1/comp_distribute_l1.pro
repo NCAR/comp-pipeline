@@ -69,7 +69,6 @@ pro comp_distribute_l1, date_dir, wave_type
     mg_log, '%s', error_result, name='comp', /error
   endif
 
-
   ; copy L1 FITS files to archive
   mg_log, 'copying FITS files...', name='comp', /info
   l1_files = comp_find_l1_file(date_dir, wave_type, /all, $

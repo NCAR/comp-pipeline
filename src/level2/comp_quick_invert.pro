@@ -156,9 +156,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   ; write fit parameters to output file
 
-  fits_open, string(date_dir, wave_type, $
-                    format='(%"%s.comp.%s.quick_invert.fts")'), $
-             fcbout, /write
+  quick_invert_filename = string(date_dir, wave_type, $
+                                 format='(%"%s.comp.%s.quick_invert.fts")')
+  fits_open, quick_invert_filename, fcbout, /write
 
   ; copy the primary header from the mean file to the output file
   fits_write, fcbout, 0, primary_header
@@ -207,14 +207,13 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   fits_close, fcbout
 
-  ; for the directory name
-  year = strmid(date_dir, 0, 4)
-  month = strmid(date_dir, 4, 2)
-  day = strmid(date_dir, 6, 4)
-  destination = filepath('', subdir=[year, month, day], root='.')
-
-  ; copy FITS files to
-  ;file_copy, date_dir+'.comp.'+wave_type+'.quick_invert.fts', archive_dir + destination, /OVERWRITE
+  zip_cmd = string(quick_invert_filename, format='(%"gzip -f %s")')
+  spawn, zip_cmd, result, error_result, exit_status=status
+  if (status ne 0L) then begin
+    mg_log, 'problem zipping quick_invert file with command: %s', zip_cmd, $
+            name='comp', /error
+    mg_log, '%s', error_result, name='comp', /error
+  endif
 
   mg_log, 'done', name='comp', /info
 end

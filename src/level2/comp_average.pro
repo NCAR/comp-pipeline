@@ -181,12 +181,15 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   ;  for i=0,n_stokes-1 do print,which_file[0:numof_stokes[i]-1,i]
 
   if (mean_opt eq 'yes') then begin
-    fits_open, date_dir + '.comp.' + wave_type + '.mean.fts', fcbavg, /write
+    mean_filename = date_dir + '.comp.' + wave_type + '.mean.fts'
+    fits_open, mean_filename, fcbavg, /write
   endif
   if (median_opt eq 'yes') then begin
-    fits_open, date_dir + '.comp.' + wave_type + '.median.fts', fcbmed, /write
+    median_filename = date_dir + '.comp.' + wave_type + '.median.fts'
+    fits_open, median_filename, fcbmed, /write
   endif
-  fits_open, date_dir + '.comp.' + wave_type + '.sigma.fts', fcbsig, /write
+  sigma_filename = date_dir + '.comp.' + wave_type + '.sigma.fts'
+  fits_open, sigma_filename, fcbsig, /write
 
   ; take inventory of first file to find wavelengths
   test_filename = comp_find_l1_file(date_dir, wave_type, datetime=filenames[0])
@@ -363,9 +366,39 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   endfor
 
   ; close files
-  if (median_opt eq 'yes') then fits_close, fcbmed
-  if (mean_opt eq 'yes') then fits_close, fcbavg
+  if (median_opt eq 'yes') then begin
+    fits_close, fcbmed
+
+    zip_cmd = string(median_filename, format='(%"gzip -f %s")')
+    spawn, zip_cmd, result, error_result, exit_status=status
+    if (status ne 0L) then begin
+      mg_log, 'problem zipping median file with command: %s', zip_cmd, $
+              name='comp', /error
+      mg_log, '%s', error_result, name='comp', /error
+    endif
+  endif
+
+  if (mean_opt eq 'yes') then begin
+    fits_close, fcbavg
+
+    zip_cmd = string(mean_filename, format='(%"gzip -f %s")')
+    spawn, zip_cmd, result, error_result, exit_status=status
+    if (status ne 0L) then begin
+      mg_log, 'problem zipping mean file with command: %s', zip_cmd, $
+              name='comp', /error
+      mg_log, '%s', error_result, name='comp', /error
+    endif
+  endif
+
   fits_close, fcbsig
+
+  zip_cmd = string(sigma_filename, format='(%"gzip -f %s")')
+  spawn, zip_cmd, result, error_result, exit_status=status
+  if (status ne 0L) then begin
+    mg_log, 'problem zipping sigma file with command: %s', zip_cmd, $
+            name='comp', /error
+    mg_log, '%s', error_result, name='comp', /error
+  endif
 
   mg_log, 'done', name='comp', /info
 end

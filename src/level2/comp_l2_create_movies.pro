@@ -103,8 +103,10 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_make_mask, date_dir, hdr, mask
     mask = double(mask)
 
-    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts'
-    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts'
+    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                  + 'dynamics.' + nwlst + '.fts.gz'
+    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                  + 'polarization.' + nwlst + '.fts.gz'
 
     intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     int_enh   = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity

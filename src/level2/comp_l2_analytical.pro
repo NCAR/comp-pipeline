@@ -4,14 +4,14 @@
 ; :Examples:
 ;   For example, call it like::
 ;
-;     comp_l2_analytical_three, '20130514', '1074'
+;     comp_l2_analytical, '20130514', '1074', 3
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_make_mask,
 ;   comp_analytic_gauss_fit, comp_intensity_enhancement,
-;   comp_doppler_correction, comp_convert_header
-;   sxpar, headfits, readfits, writefits, fitshead2struct, sxdelpar, sxaddpar
-;   mg_log
+;   comp_doppler_correction, comp_convert_header,
+;   sxpar, headfits, readfits, fitshead2struct, merge_struct, writefits,
+;   sxaddpar, sxdelpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -23,9 +23,9 @@
 ;   Christian Bethge
 ;
 ; :History:
-;    removed gzip    Oct 1 2014  GdT
+;   removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_analytical_three, date_dir, wave_type
+pro comp_l2_analytical, date_dir, wave_type, nwl
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -38,7 +38,6 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
   date = date_dir
   wave = wave_type
-  nwl = 3
 
   case wave_type of
    '1074': rest = double(center1074)
@@ -58,46 +57,48 @@ pro comp_l2_analytical_three, date_dir, wave_type
     gbu[ii].l1file = filepath(gbu[ii].l1file + '.gz', root=l1_process_dir)
   endfor
 
-  ; only want the good 3pt measurements
-  nthree = where(gbu.quality eq 'Good' and gbu.wavelengths eq 3, ng3)
-  mg_log, '%d good files...', ng3, name='comp', /info
-  if (ng3 eq 0) then goto, skip
-  gbu = gbu[nthree]
+  ; only want the good measurements
+  good = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, n_good)
+  mg_log, '%d good %d point files...', n_good, nwl, name='comp', /info
+
+  if (n_good eq 0) then goto, skip
+  gbu = gbu[good]
 
   qu_files = intarr(n_elements(gbu))
   nt = n_elements(gbu)
 
   ; distinguish between Q/U files and V files
   for ii = 0L, nt - 1L do begin
-    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=4), 'EXTNAME'), 0, 1)
+    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=nwl + 1), 'EXTNAME'), 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
   endfor
 
   for ii = 0L, nt - 1L do begin
     hdr    = headfits(gbu[ii].l1file)
-    i1     = double(readfits(gbu[ii].l1file, exten_no=1, /silent, ehdr1))
-    i2     = double(readfits(gbu[ii].l1file, exten_no=2, /silent, ehdr2))
-    i3     = double(readfits(gbu[ii].l1file, exten_no=3, /silent, ehdr3))
-    
-    if (qu_files[ii] eq 1) then begin
-      stks_q = double(readfits(gbu[ii].l1file, exten_no=4, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=5, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=6, /silent))
-      stks_u = double(readfits(gbu[ii].l1file, exten_no=7, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=8, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=9, /silent))
-    endif
 
+    i1 = double(readfits(gbu[ii].l1file, exten_no=nwl / 2, /silent, ehdr1))
+    i2 = double(readfits(gbu[ii].l1file, exten_no=nwl / 2 + 1, /silent, ehdr2))
+    i3 = double(readfits(gbu[ii].l1file, exten_no=nwl / 2 + 2, /silent, ehdr3))
+    
     if (ii eq 0) then begin
-      wavel    = [sxpar(ehdr1, 'WAVELENG'), $
-                  sxpar(ehdr2, 'WAVELENG'), $
-                  sxpar(ehdr3, 'WAVELENG')]
+      wavel = [sxpar(ehdr1, 'WAVELENG'), $
+               sxpar(ehdr2, 'WAVELENG'), $
+               sxpar(ehdr3, 'WAVELENG')]
       index = fitshead2struct(hdr)
       d_lambda = double(mean(deriv(wavel)))
       vpix = (d_lambda / rest) * c    ; km/s/pix
       nx = (size(i1))[1]
       ny = (size(i1))[2]
       nz = (size(i1))[3] + 3
+    endif
+
+    if (qu_files[ii] eq 1) then begin
+      stks_q = double(readfits(gbu[ii].l1file, exten_no=nwl + nwl / 2, /silent) $
+                        + readfits(gbu[ii].l1file, exten_no=nwl + nwl / 2 + 1, /silent) $
+                        + readfits(gbu[ii].l1file, exten_no=nwl + nwl / 2 + 1, /silent))
+      stks_u = double(readfits(gbu[ii].l1file, exten_no=2 * nwl + nwl / 2, /silent) $
+                        + readfits(gbu[ii].l1file, exten_no=2 * nwl + nwl / 2 + 1, /silent) $
+                        + readfits(gbu[ii].l1file, exten_no=2 * nwl + nwl / 2 + 2, /silent))
     endif
 
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
@@ -107,14 +108,14 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
     for xx = 0L, nx - 1L do begin
       for yy = 0L, ny - 1L do begin
-        if (mask[xx,yy] eq 1) then begin
+        if (mask[xx, yy] eq 1) then begin
           ; compute analytical gaussfit
           profile = double([reform(i1[xx, yy]), $
                             reform(i2[xx, yy]), $
                             reform(i3[xx, yy])])
-          sub_bad = where(profile le 0)
-          if ((size(sub_bad))[0] eq 1) then profile[sub_bad] = 0.005D
-          
+          sub_bad = where(profile le 0, n_bad)
+          if (n_bad gt 0L) then profile[sub_bad] = 0.005D
+
           if (profile[1] gt int_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
           endif else begin
@@ -143,7 +144,9 @@ pro comp_l2_analytical_three, date_dir, wave_type
     int_prep[where(mask eq 0)] = 0D
     int_enh = comp_intensity_enhancement(int_prep, headfits(gbu[ii].l1file))
     int_enh[where(mask eq 0)] = 0D
-    thresh_masked = where(mask eq 1 and temp_int gt int_thresh, complement=thresh_unmasked)
+    ; TODO: should it be "gt" or "eq" in comparison below?
+    thresh_masked = where(mask eq 1 and temp_int gt int_thresh, $
+                          complement=thresh_unmasked)
     temp_velo = temp_data[*, *, 1]
     temp_velo[thresh_unmasked] = 0D
 
@@ -160,8 +163,8 @@ pro comp_l2_analytical_three, date_dir, wave_type
     temp_corr_velo[thresh_unmasked]  = 0D
     temp_line_width[thresh_unmasked] = 0D
     if (qu_files[ii] eq 1) then begin
-      stks_q[thresh_unmasked]          = 0D
-      stks_u[thresh_unmasked]          = 0D
+      stks_q[thresh_unmasked] = 0D
+      stks_u[thresh_unmasked] = 0D
     endif
 
     ;=== write out fits files ===
@@ -169,8 +172,8 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-    outfilename = filepath(strmid(file_basename(gbu[ii].l1file), $
-                                  0, 26) + 'dynamics.3.fts', $
+    outfilename = filepath(strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                             + 'dynamics.' + strtrim(nwl, 2) + '.fts', $
                            root=l2_process_dir)
     writefits, outfilename, blank, primary_header
 
@@ -195,9 +198,9 @@ pro comp_l2_analytical_three, date_dir, wave_type
 
     ; corrected LOS velocity
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
-                                           /exten,$
+                                           /exten, $
                                            extname='Corrected LOS velocity', $
-                                           datminmax=[min(temp_corr_velo),$
+                                           datminmax=[min(temp_corr_velo), $
                                                       max(temp_corr_velo)])
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
@@ -211,11 +214,19 @@ pro comp_l2_analytical_three, date_dir, wave_type
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_line_width), extension_header, /append
 
+    zip_cmd = string(outfilename, format='(%"gzip -f %s")')
+    spawn, zip_cmd, result, error_result, exit_status=status
+    if (status ne 0L) then begin
+      mg_log, 'problem zipping dynamics file with command: %s', zip_cmd, $
+              name='comp', /error
+      mg_log, '%s', error_result, name='comp', /error
+    endif
+
     ;=== polarization package ===
     if (qu_files[ii] eq 1) then begin
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
       outfilename = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                      + 'polarization.3.fts'
+                      + 'polarization.' + strtrim(nwl, 2) + '.fts'
       writefits, outfilename, blank, primary_header
 
       ; intensity
@@ -264,10 +275,17 @@ pro comp_l2_analytical_three, date_dir, wave_type
                                                         max(lin_pol)])
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(lin_pol), extension_header, /append
+
+      zip_cmd = string(outfilename, format='(%"gzip -f %s")')
+      spawn, zip_cmd, result, error_result, exit_status=status
+      if (status ne 0L) then begin
+        mg_log, 'problem zipping polarization file with command: %s', zip_cmd, $
+                name='comp', /error
+        mg_log, '%s', error_result, name='comp', /error
+      endif
     endif
   endfor
 
   skip:
   mg_log, 'done', name='comp', /info
 end
-
