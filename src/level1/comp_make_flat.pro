@@ -155,14 +155,6 @@ pro comp_make_flat, date_dir, error=error
     ; take inventory of flat file
     comp_inventory, fcbin, beam, wave, pol, type, expose, cover, cal_pol
     
-    ; the flat can be blocked by the dome or the sky conditions could limit
-    ; the lights, which lowers the value of the flat
-    if (round(expose) eq 50) then begin
-      threshold = 1.5
-    endif else begin
-      threshold = 12.0 * expose / 250.0
-    endelse
-
     if (make_flat_beam_multiplies_wave) then begin
       ; multiply wavelength by beam sign to allow to find unique
       ; wavelengths/beams
@@ -282,6 +274,11 @@ pro comp_make_flat, date_dir, error=error
       tmp_image = mask_full_fill * image
       medflat = median(tmp_image[where(tmp_image ne 0.)])
       sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli'
+
+      ; the flat can be blocked by the dome or the sky conditions could limit
+      ; the lights, which lowers the value of the flat
+      transmission_correction = comp_correct_nd(nd_filter, 1.0, uniq_waves[i])
+      threshold = 12.0 * expose / 250.0 / transmission_correction
 
       if (medflat lt threshold) then begin
         mg_log, 'flat median lower than expected', name='comp', /warn
