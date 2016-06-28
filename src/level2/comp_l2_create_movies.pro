@@ -20,6 +20,10 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
+; :Keywords:
+;    nwl : in, required, type=integer
+;      number of lines, 3 or 5
+;
 ; :Author:
 ;   Christian Bethge
 ;
@@ -157,12 +161,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
       ; display NSF/NCAR logo
       backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
       tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-      nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+      nwlogo   = comp_transparent_logo(nwimage, backgnd)
       tv, nwlogo, true=3, 4, 555
       qoveri = tvrd(/true)
       erase
@@ -194,12 +198,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
       ; display NSF/NCAR logo
       backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
       tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-      nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+      nwlogo   = comp_transparent_logo(nwimage, backgnd)
       tv, nwlogo, true=3, 4, 555
       uoveri = tvrd(/true)
       erase
@@ -233,12 +237,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
       ; display NSF/NCAR logo
       backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage,backgnd, 619 - 134, 0)
+      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
       tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-      nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+      nwlogo   = comp_transparent_logo(nwimage, backgnd)
       tv, nwlogo, true=3, 4, 555
       ltot = tvrd(/true)
       erase
@@ -271,12 +275,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; display NSF/NCAR logo
     backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
     tv, nsflogo, true=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-    nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+    nwlogo   = comp_transparent_logo(nwimage, backgnd)
     tv, nwlogo, true=3, 4, 555
     corr_velo = tvrd(/true)
     erase
@@ -306,12 +310,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; display NSF/NCAR logo
     backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
     tv, nsflogo, TRUE=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-    nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+    nwlogo   = comp_transparent_logo(nwimage, backgnd)
     tv, nwlogo, true=3, 4, 555
     intensity = tvrd(/true)
     erase
@@ -337,12 +341,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; display NSF/NCAR logo
     backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
     tv, nsflogo, true=3, 619 - 134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-    nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+    nwlogo   = comp_transparent_logo(nwimage, backgnd)
     tv, nwlogo, true=3, 4, 555
     enhanced_intensity = tvrd(/true)
     erase
@@ -379,12 +383,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; display NSF/NCAR logo
     backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
     tv, nsflogo, true=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-    nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+    nwlogo   = comp_transparent_logo(nwimage, backgnd)
     tv, nwlogo, true=3, 4, 555
     line_width = tvrd(/true)
     erase
@@ -422,12 +426,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
       ; display NSF/NCAR logo
       backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage, backgnd, 619 - 134, 0)
+      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
       tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
-      nwlogo   = comp_transparent_logo(nwimage, backgnd, 4, 555)
+      nwlogo   = comp_transparent_logo(nwimage, backgnd)
       tv, nwlogo, true=3, 4, 555
       azim = tvrd(/true)
       erase

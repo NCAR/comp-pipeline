@@ -40,12 +40,14 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   if (sxpar(headers[*, 0], 'FLATFILE') eq 0) then ntags++
   ntags++   ; for the ND-TRANS tag we add below
   ntags++   ; for the FLATEXT tag we add below
+  ntags++   ; for the FLATMED tag we add below
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose, flat_extensions=flat_extensions
+  flat_mask = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0)
 
   for f = 0L, n_elements(flat_expose) - 1L do begin
     flat[*, *, f] *= expose / flat_expose[f]   ; modify for exposure times
@@ -64,12 +66,19 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
 
     ; subtract darks, fix sensor quirks, and divide by the flats
-    images[*, *, i] = comp_fix_hot(comp_fix_image(comp_fixrock(images[*, *, i] - dark, 0.030)) / flat[*, *, iflat], $
-                                   hot=hot, adjacent=adjacent)
+    tmp_image  = images[*, *, i]
+    tmp_image -= dark
+    tmp_image  = comp_fixrock(temporary(tmp_image), 0.030)
+    tmp_image  = comp_fix_image(temporary(tmp_image))
+    tmp_image /= flat[*, *, iflat]
+    images[*, *, i] = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
 
     nd = comp_get_nd_filter(date_dir, wave_type, header)
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
     images[*, *, i] *= transmission_correction
+
+    flat_image = flat[*, *, iflat] * flat_mask
+    medflat = median(flat_image[where(flat_image ne 0.0)])
 
     ; update the header with the flat information
     sxaddpar, header, 'ND-TRANS', transmission_correction, $
@@ -78,6 +87,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
               ' Name of flat field file'
     sxaddpar, header, 'FLATEXT', flat_extensions[iflat[0]], $
               ' Extension in flat.fts (not FLATFILE) used', after='FLATFILE'
+    sxaddpar, header, 'FLATMED', medflat, $
+              ' median of dark and exposure corrected flat', after='FLATEXT'
     headersout[*, i] = header
   endfor
 

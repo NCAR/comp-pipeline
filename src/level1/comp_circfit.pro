@@ -16,6 +16,11 @@
 ; :Uses:
 ;   comp_fitc_common
 ;
+; :Returns:
+;   circle parameters in the form of `fltarr(3) = [h, alpha, R]` where `h` is
+;   the radius of the circle center, `alpha` is the angle of the center point,
+;   `R` is the radius of the circle
+;
 ; :Params:
 ;   theta
 ;     the angle coordinates

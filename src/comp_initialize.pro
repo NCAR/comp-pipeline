@@ -6,7 +6,7 @@
 ; configuration file.
 ;
 ; :Returns:
-;   by default returns a string, unless `FLOAT`, `INTEGER`, or `BOOLEAN` is set
+;   by default returns a string, unless `TYPE` is specified
 ;
 ; :Params:
 ;   option : in, required, type=string
@@ -19,6 +19,8 @@
 ; :Keywords:
 ;   found : out, optional, type=boolean
 ;     set to a named variable to retrieve whether the option was found
+;   type : in, optional, type=integer
+;     `SIZE` type to retrieve value as
 ;   _extra : in, optional, type=keywords
 ;     keywords to `MGffOptions::get` such as `BOOLEAN` and `EXTRACT`
 ;-
@@ -140,6 +142,9 @@ pro comp_initialize, date_dir
   i_to_u_xtalk = comp_initialize_readconfig('i_to_u_xtalk', date_dir, options, type=4)
   u_to_q_xtalk = comp_initialize_readconfig('u_to_q_xtalk', date_dir, options, type=4)
   q_to_u_xtalk = comp_initialize_readconfig('q_to_u_xtalk', date_dir, options, type=4)
+  i_to_v_xtalk = comp_initialize_readconfig('i_to_v_xtalk', date_dir, options, type=4)
+  q_to_v_xtalk = comp_initialize_readconfig('q_to_v_xtalk', date_dir, options, type=4)
+  u_to_v_xtalk = comp_initialize_readconfig('u_to_v_xtalk', date_dir, options, type=4)
 
   transmissions = [comp_initialize_readconfig('nd1', date_dir, options, type=4), $
                    comp_initialize_readconfig('nd2', date_dir, options, type=4), $

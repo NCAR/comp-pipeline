@@ -1,12 +1,16 @@
 ; docformat = 'rst'
 
 ;+
+; Returns normalized fit of trend.
+;
 ; :Returns:
 ;   normalized fit
 ;
 ; :Params:
-;   flat
-;   mask
+;   flat : in, required, type=fltarr
+;     raw image
+;   mask : in, required, type=fltarr
+;     mask of annulus
 ;-
 function comp_detrender, flat, mask
   compile_opt strictarr

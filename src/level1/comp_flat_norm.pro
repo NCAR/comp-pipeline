@@ -1,11 +1,19 @@
 ; docformat = 'rst'
 
 ;+
-; Procedure to calculate normallization factors for comp flat images based on
+; Procedure to calculate normalization factors for comp flat images based on
 ; the intensity of the solar spectrum.
 ;
 ; :Uses:
 ;   comp_read_atlas, comp_trans
+;
+; :Params:
+;   lambda : in, required, type=fltarr
+;     vector of wavelengths
+;   t_on : out, optional, type=float
+;     on-band transmission
+;   t_off : out, optional, type=float
+;     off-band transmission
 ;-
 pro comp_flat_norm, lambda, t_on, t_off
   compile_opt idl2

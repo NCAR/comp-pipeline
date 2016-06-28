@@ -1,12 +1,14 @@
 ; docformat = 'rst'
 
 ;+
+; Find the annulus in a flat.
 ;
 ; :Uses:
 ;   comp_find_image_center
 ;
 ; :Params:
-;   flat
+;   flat : in, required, type="fltarr(1024, 1024)"
+;     flat image
 ;   occulter : out, optional, type=structure
 ;     structure of the form `{x:0., y:0., r:0.}`
 ;   field : out, optional, type=structure

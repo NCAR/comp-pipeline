@@ -30,7 +30,6 @@
 ;   Joseph Plowman
 ;-
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
-                                    background=background, $
                                     image_geometry=image_geometry, $
                                     headers_combine=headers_combine
   compile_opt strictarr
@@ -196,6 +195,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'i_to_u', i_to_u_xtalk, ' Crosstalk coefficient from I to U'
   sxaddpar, primary_header, 'q_to_u', q_to_u_xtalk, ' Crosstalk coefficient from Q to U'
   sxaddpar, primary_header, 'u_to_q', u_to_q_xtalk, ' Crosstalk coefficient from U to Q'
+  sxaddpar, primary_header, 'i_to_v', i_to_v_xtalk, ' Crosstalk coefficient from I to V'
+  sxaddpar, primary_header, 'q_to_v', q_to_v_xtalk, ' Crosstalk coefficient from Q to V'
+  sxaddpar, primary_header, 'u_to_v', u_to_v_xtalk, ' Crosstalk coefficient from U to V'
 
   ; N_EXT
   n_extensions = n_elements(headers_combine[0, *]) / 2

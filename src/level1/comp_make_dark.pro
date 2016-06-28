@@ -105,7 +105,7 @@ pro comp_make_dark, date_dir, error=error
 
     for i = 0L, num - 1L do begin
       fits_read, fcb, dat, header, exten_no=i + 2
-      if (sxpar(header,'DEMULT') eq 0) then begin
+      if (sxpar(header, 'DEMULT') eq 0) then begin
         dat = comp_demultiplex(dat)
       endif
       dat = float(dat)

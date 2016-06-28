@@ -19,6 +19,8 @@
 ;     output square image length in pixels
 ;   label : in, required, type=string
 ;     text annotation to go in lower left
+;   wave : in, required, type=string
+;     wave type, '1074', '1079', or '1083'
 ;
 ; :Author:
 ;   sitongia

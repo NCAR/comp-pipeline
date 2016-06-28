@@ -10,19 +10,25 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;   wave
+;   wave : in, required, type=fltarr
 ;     array of wavelengths of data images
-;   beam
+;   beam : in, required, type=float
 ;     array of beam values for data images
-;   time
+;   time : in, required, type=float
 ;     time of data image
 ;   flat : out, required, type="fltarr(1024, 1024, nwave)"
+;     set to a named variable to retrieve the corresponding flat
 ;   flat_header : out, required, type=strarr
+;     set to a named variable to retrieve the header of the last flat read
 ;   flat_waves : out, optional, type=fltarr
-;     set to retrive the unique wavelengths in `wave`, possibly given sign
-;     through multiplying by beam state
+;     set to a named variable to retrieve the unique wavelengths in `wave`,
+;     possibly given sign through multiplying by beam state
+;   flat_names : out, optional, type=strarr(nwave)
+;     set to a named variable to retrieve the filenames that the corresponding
+;     flats came from 
 ;   flat_exposure : out, optional, type=fltarr
-;     set to retrieve the exposure times for the returned flats
+;     set to a named variable to retrieve the exposure times for the returned
+;     flats
 ;
 ; :Keywords:
 ;   file : in, optional, type=string, default='flat.fts'

@@ -6,6 +6,9 @@
 ; :Uses:
 ;   sxaddpar, sxdelpar
 ;
+; :Returns:
+;   `strarr`
+;
 ; :Params:
 ;   in_header : in, required, type=strarr
 ;     FITS header

@@ -94,21 +94,11 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   endfor
   fits_close, fcb
 
-  debug = 0
-  ; plot histograms
-  buffer = 1
-  if (debug eq 1) then begin
-    buffer = 0
-    histogram_window = window(window_title='Histogram', $
-                              dimensions=[1000, 800], $
-                              buffer=buffer)
-  endif
-
   for i = 0L, ndat - 1L do begin
     mg_log, 'histogram for extension %d/%d', i + 1, ndat, name='comp', /debug
     d = dat[*, *, i]
-    ; TODO: why the next line?  It modifies dat, which is not used again until
-    ; next plot!?
+    ; TODO: why the next line? It modifies dat, which is not used again until
+    ; next plot?
     if (i gt nwave * 3 - 1) then begin
       dat[*, *, i] = dat[*, *, i] + dat[*, *, i - nwave] * 0.185
     endif
@@ -144,13 +134,6 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   mg_log, 'wrote histogram plot', name='comp', /info
 
   ; plot images
-
-  ;  image_window = window(WINDOW_TITLE="Images", DIMENSIONS=[nx*5/2,nx*4/2])
-  if (debug eq 1) then begin
-    image_window = window(window_title='Images', $
-                          dimensions=[1000, 800], $
-                          buffer=buffer)
-  endif
 
   for i = 0L, ndat - 1L do begin
     mg_log, 'image for extension %d/%d', i + 1, ndat, name='comp', /debug
@@ -196,12 +179,6 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
   ; plot correlation?  Only if Stokes V was observed
   if (ndat / nwave gt 3) then begin
-    if (debug eq 1) then begin
-      corr_window = window(window_title='Correlation', $
-                           dimensions=[600, 600], $
-                           buffer=buffer)
-    endif
-
     cor = dat[*, *, 2]
     good = where(cor ne 0.)
     if (count eq 0) then begin

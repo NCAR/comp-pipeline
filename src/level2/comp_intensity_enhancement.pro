@@ -1,14 +1,18 @@
 ; docformat = 'rst'
 
 ;+
+; Return an enhanced intensity image.
+;
 ; :Uses:
 ;   sxpar, mpfitfun
 ;
 ; :Returns:
+;   enhanced intensity image, `bytarr(620, 620)`
 ;
 ; :Params:
-;   data : in, required
-;   hdr
+;   data : in, required, type="fltarr(620, 620)"
+;     image
+;   hdr : in, required, type=strarr
 ;     FITS header
 ;-
 function comp_intensity_enhancement, data, hdr

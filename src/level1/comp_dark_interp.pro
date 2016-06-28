@@ -6,16 +6,18 @@
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, fits_open, fits_read, fits_close,
-;   sxpar, mglog
+;   sxpar, mg_log
 ;
 ; :Returns:
-;   bias
+;   bias image
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;    time
-;    exposure
+;   time : in, required, type=float
+;     time of observation  
+;   exposure : in, required, type=float
+;     exposure of observation
 ;
 ; :Author:
 ;   Tomczyk

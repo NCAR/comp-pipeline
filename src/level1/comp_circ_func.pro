@@ -20,6 +20,13 @@
 ;
 ; Note: this routine assumes the radius of the circle is much larger than the
 ; radius of the center coordinate.
+;
+; :Returns:
+;   $\chi^2$ as float
+;
+; :Params:
+;   p : in, required, type=fltarr
+;     parameters of fit
 ;-
 function comp_circ_func, p
   @comp_fitc_common

@@ -9,24 +9,38 @@
 ;   comp_constants_common, comp_mask_constants_common, comp_disk_mask,
 ;   comp_field_mask, comp_post_mask
 ;
+; :Returns:
+;   mask image, `fltarr(1024, 1024)`
+;
 ; :Params:
-;    occulter1    Structure for occulter in sub-image 1
-;    occulter2    Structure for occulter in sub-image 2
-;    field1       Structure for field in sub-image 1
-;    field2       Structure for field in sub-image 2
-;    post_angle1  Position angle for post in sub-image 1
-;    post_angle2  Position angle for post in sub-image 2
+;   occulter1 : in, required, type=structure
+;     structure for occulter in sub-image 1 of the form `{x:0.0, y:0.0, r:0.0}`
+;   occulter2 : in, required, type=structure
+;     structure for occulter in sub-image 2 of the form `{x:0.0, y:0.0, r:0.0}`
+;   field1 : in, required, type=structure
+;     structure for field in sub-image 1 of the form `{x:0.0, y:0.0, r:0.0}`
+;   field2 : in, required, type=structure
+;     structure for field in sub-image 2 of the form `{x:0.0, y:0.0, r:0.0}`
+;   post_angle1 : in, required, type=float
+;     position angle for post in sub-image 1
+;   post_angle2 : in, required, type=float
+;     position angle for post in sub-image 2
 ;
 ; :Keywords:
-;   o_offset
-;     Number of pixels to add/subtract to radius of occulter for mask
-;   f_offset
-;     Number of pixels to add/subtract to field of occulter for mask
-;    bc1            Background solar spectrum correction for sum-image1
-;    bc2            Background solar spectrum correction for sum-image2
-;    nopost       Don't include post mask in final mask
-;    nooverlap    Don't include overlap in final mask
-;    nullcolumns  Null out first four columns
+;   o_offset : in, optional, type=float, default=occulter_offset
+;     number of pixels to add/subtract to radius of occulter for mask
+;   f_offset : in, optional, type=float, default=field_offset
+;     number of pixels to add/subtract to field of occulter for mask
+;   bc1 : in, optional, type=float, default=1.0
+;     background solar spectrum correction for sum-image1
+;   bc2 : in, optional, type=float, default=1.0
+;     background solar spectrum correction for sum-image2
+;   nopost : in, optional, type=boolean
+;     don't include post mask in final mask
+;   nooverlap : in, optional, type=boolean
+;     don't include overlap in final mask
+;   nullcolumns : in, optional, type=boolean
+;     if set, null out first four columns
 ;
 ; :Author:
 ;   Sitongia
@@ -104,8 +118,10 @@ function comp_mask_1024, occulter1, occulter2, $
 
     ; identify the overlap of images, from the field positions
     tmp_img = fltarr(1024,1024)
-    tmp_img[0:nx - 1, 1024 - nx:1024 - 1] = tmp_img[0:nx - 1, 1024 - nx:1024 - 1] + overlap_mask_1
-    tmp_img[1024 - nx:1024 - 1, 0:nx - 1] = tmp_img[1024 - nx:1024 - 1, 0:nx - 1] + overlap_mask_2
+    tmp_img[0:nx - 1, 1024 - nx:1024 - 1] = tmp_img[0:nx - 1, 1024 - nx:1024 - 1] $
+                                              + overlap_mask_1
+    tmp_img[1024 - nx:1024 - 1, 0:nx - 1] = tmp_img[1024 - nx:1024 - 1, 0:nx - 1] $
+                                              + overlap_mask_2
     overlap = where(tmp_img gt 1.0, count)
     if (count eq 0) then begin
       mg_log, 'no overlap', name='comp', /warn
@@ -115,7 +131,7 @@ function comp_mask_1024, occulter1, occulter2, $
   endif
 
   ; set first four columns to 1 so that they will not be used
-  if (n_elements(nullcolumns) eq 1L) then begin  
+  if (keyword_set(nullcolumns)) then begin  
     mask_image[0:3, *] = 1.0
   endif
 

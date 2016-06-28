@@ -8,12 +8,22 @@
 ;   field masking is in undestorted coordinates, so isn't a good fit for this
 ;
 ; :Params:
-;    image_full
-;    occulter1
-;    occulter2
-;    field1
-;    field2
-;    fit
+;   image_full : in, required, type="fltarr(1024, 1024)"
+;     raw image
+;   occulter1 : in, required, type=structure
+;     structure for occulter in sub-image 1
+;   occulter2 : in, required, type=structure
+;     structure for occulter in sub-image 1
+;   field1 : in, required, type=structure
+;     structure for field in sub-image 1
+;   field2 : in, required, type=structure
+;     structure for field in sub-image 1
+;   post_angle1 : in, required, type=float
+;     position angle for post in sub-image 1
+;   post_angle2 : in, required, type=float
+;     position angle for post in sub-image 2
+;   fit : out, optional, type=fltarr
+;     fit
 ;
 ; :Author:
 ;   sitongia

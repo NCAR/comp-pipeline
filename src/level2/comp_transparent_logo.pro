@@ -15,7 +15,7 @@
 ; :Author:
 ;   Christian Bethge
 ;-
-function comp_transparent_logo, image, background, x, y
+function comp_transparent_logo, image, background
   compile_opt strictarr
 
   alpha_channel = image[*, *, 3]

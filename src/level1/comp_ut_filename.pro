@@ -5,6 +5,9 @@
 ; function converts the timestamp portion of the input filename to UTC and
 ; returns the new root.
 ;
+; :Returns:
+;   string
+;
 ; :Params:
 ;   hst_filename : in, required, type=string
 ;     input filename in HST format
