@@ -42,11 +42,11 @@ pro comp_plot_flatmedians, filename
   tolerance = 5.0
   bad_1074 = where(abs(regress_line_1074 - s[ind_1074].median) gt tolerance, n_bad_1074)
 
+  print, 'Flat median outliers'
   for b = 0L, n_bad_1074 - 1L do begin
     print, s[ind_1074[bad_1074[b]]].time, s[ind_1074[bad_1074[b]]].median, $
            format='(C(), %" median: %0.1f")'
   endfor
-
 
   cleanings = [julday(8, 11, 2014, 12), $
                julday(11, 21, 2014, 12), $
@@ -77,8 +77,20 @@ pro comp_plot_flatmedians, filename
   for c = 0L, n_elements(cleanings) - 1L do begin
     oplot, fltarr(2) + cleanings[c], y_range, color='a0a0a0'x, thick=1.0
     xyouts, cleanings[c] + 10.0, 50.0, $
-            string(cleanings[c], format='("Cleaning ", C(CYI, ".", CMOI0.2, ".", CDI0.2))'), $
+            string(cleanings[c], format='("Cleaning ", C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
             orientation=90.0, charsize=0.6, font=1
+  endfor
+
+  ; annotations
+  annotation_dates = [julday(12, 17, 2014, 12), $
+                      julday(3, 15, 2015, 12)]
+  annotation_heights = [40.0, 38.0]
+  for a = 0L, n_elements(annotation_dates) - 1L do begin
+    oplot, fltarr(2) + annotation_dates[a], [-1.5, -0.5] + annotation_heights[a], $
+           color='a0a0a0'x, thick=1.0
+    xyouts, annotation_dates[a], annotation_heights[a], $
+            string(annotation_dates[a], format='(C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
+            charsize=0.6, font=1
   endfor
 
   ; 1074 and mornings
@@ -106,9 +118,9 @@ pro comp_plot_flatmedians, filename
   cgLegend, symColors=['0000ff'x, '00a5ff'x, 'ff0000'x, '00ff00'x], $
             psyms=[1, 1, 2, 2], $
             symsize=0.5, $
-            location=[0.8, 0.9], $
+            location=[0.775, 0.9], $
             titles=['1074.62', '1074 morning', '1083.0', '1083.0 morning'], $
-            charsize=0.8, tt_font='Helvetica', $
+            charsize=0.85, tt_font='Helvetica', /hardware, $
             length=0.0
   mg_psend
 end
