@@ -18,7 +18,10 @@ pro comp_plot_flatmedians, filename
     month = long(strmid(tokens[0], 4, 2))
     day = long(strmid(tokens[0], 6, 2))
     year = long(strmid(tokens[0], 0, 4))
-    jday = julday(month, day, year, long(tokens[1]))
+    hour = long(tokens[1])
+    minute = long((float(tokens[1]) - hour) * 60)
+    second = long(((float(tokens[1]) - hour) * 60 - minute) * 60)
+    jday = julday(month, day, year, hour, minute, second)
 
     sun, year, month, day, float(tokens[1]) + 10.0, dist=solar_distance
 
