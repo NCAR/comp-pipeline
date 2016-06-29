@@ -103,7 +103,7 @@ pro comp_distribute_l1, date_dir, wave_type
     mg_log, 'tarring and sending L1 for %s to HPSS', wave_type, name='comp', /info
     if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
 
-    time_delay = '1h'
+    time_delay = '0h'
     archive_script = filepath('archive_l1.sh', $
                               subdir=['..', 'scripts'], $
                               root=binary_dir)

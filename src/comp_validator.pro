@@ -102,7 +102,7 @@ function comp_validator, date_dir
       mg_log, 'tarring and sending L0 to HPSS', name='comp', /info
       if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
 
-      time_delay = '12h'
+      time_delay = '0h'
       archive_script = filepath('archive_l0.sh', $
                                 subdir=['..', 'scripts'], $
                                 root=binary_dir)
