@@ -10,15 +10,42 @@
 ;
 ; :Uses:
 ;   fits_read, sxpar
+;
+; :Params:
+;   fcbin : in, required, type=structure
+;     FITS Control Block as returned by `FITS_OPEN`
+;   beam : out, required, type=intarr
+;     set to a named variable to retrieve the beam state (-1 or 1) for each
+;     extension
+;   wave : out, required, type=fltarr
+;     set to a named variable to retrieve the wavelength (nm) for each extension
+;   pol : out, required, type=strarr
+;     set to a named variable to retrieve the polarization state of each
+;     extension
+;   type : out, required, type=string
+;     set to a named variable to retrieve the type of the file, i.e., 'DARK',
+;     'OPAL', or 'DATA'
+;   expose : out, required, type=float
+;     set to a named variable to retrieve the exposure in milliseconds
+;   cover : out, required, type=integer
+;     set to a named variable to retrieve whether the cover is present
+;   cal_pol : out, required, type=integer
+;     set to a named variable to retrieve whether the polarizer is present
+;   cal_ret : out, required, type=integer
+;     set to a named variable to retrieve whether the retarder is present
+;
+; :Keywords:
+;   group : out, optional, type=intarr
+;     group of each extension
 ;-
-pro comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, $
-                    cal_pol, cal_ret
+pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
+                    cal_pol, cal_ret, $
+                    group=group
   compile_opt idl2
 
   num = fcbin.nextend               ; number of images in file
 
   beam = intarr(num)
-  group = intarr(num)
   wave = fltarr(num)
   pol = strarr(num)
 
@@ -51,19 +78,24 @@ pro comp_inventory, fcbin, beam, group, wave, pol, type, expose, cover, $
     expose = sxpar(header, 'EXPOSURE')
   endfor
 
-  ; group observations with like wavelength, polarization state, datatype and beam
-  group[0] = 0
-  num_groups = 1
+  if (arg_present(group)) then begin
+    ; group observations with like wavelength, polarization state, datatype and
+    ; beam
+    group = intarr(num)
 
-  for i = 1L, num - 1L do begin
-    for j = 0L, i - 1L do begin
-      if (wave[i] eq wave[j] and pol[i] eq pol[j] and beam[i] eq beam[j]) then begin
-        group[i] = group[j]
-        goto, done
-      endif
+    group[0] = 0
+    num_groups = 1
+
+    for i = 1L, num - 1L do begin
+      for j = 0L, i - 1L do begin
+        if (wave[i] eq wave[j] and pol[i] eq pol[j] and beam[i] eq beam[j]) then begin
+          group[i] = group[j]
+          goto, done
+        endif
+      endfor
+      group[i] = num_groups
+      num_groups = num_groups + 1
+      done:
     endfor
-    group[i] = num_groups
-    num_groups = num_groups + 1
-    done:
-  endfor
+  endif
 end

@@ -12,21 +12,22 @@
 ; computed which is 0 if the data is good, and incremented by a bit value for
 ; each of the tests that fail. Since there are 8 metrics for rejection, the
 ; `good_files` paramater can have a value between 0 and 255. The metrics for
-; rejection and the corresponding bits set in the good_files parameter are:
+; rejection and the corresponding bits set in the good_files parameter are::
 ;
-;     1  data doesn't exist on disk but is in inventory file
-;     2  number of wavelengths observed > 10 (not necessarily bad data)
-;     4  background > 30 ppm
-;     8  background anamolously low, defined as < 4 ppm  
-;    16  standard deviation of intensity image - median intensity
-;        image > 2.5 ppm
-;    32  background changes abruptly by more than 40% of the median background
-;        level
-;    64  background image contains more than 150 pixels with a value > 150
-;   128  standard deviation of intensity image - median intensity image = NAN
-;        or Inf
+;     1   data doesn't exist on disk but is in inventory file
+;     2   number of wavelengths observed > 10 (not necessarily bad data)
+;     4   background > 30 ppm
+;     8   background anamolously low, defined as < 4 ppm  
+;     16  standard deviation of intensity image - median intensity
+;         image > 2.5 ppm
+;     32  background changes abruptly by more than 40% of the median background
+;         level
+;     64  background image contains more than 150 pixels with a value > 150
+;    128  standard deviation of intensity image - median intensity image = NAN
+;         or Inf
 ;
-; Output:
+; Output files::
+;
 ;   synoptic_wwww_files.txt
 ;     - file containing the filenames and metadata for the good synoptic data
 ;       files for that day
@@ -43,7 +44,7 @@
 ;     - file containing the filenames, the the background, the sigma parameter
 ;       and the good_files parameter
 ;
-; where wwww is the wavelength range ('1074', '1079' or '1083'). The 'synoptic'
+; where `wwww` is the wavelength range ('1074', '1079' or '1083'). The 'synoptic'
 ; data are defined as the polarization data taken before the first waves
 ; sequence.
 ;
@@ -68,8 +69,8 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;    wave_type : in, required, type=string
-;      wavelength range for the observations, '1074', '1079' or '1083'
+;   wave_type : in, required, type=string
+;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
 ;   error : out, optional, type=long
@@ -103,7 +104,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     return
   endif
 
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, process_dir
 
   files = wave_type + '_files.txt'   ; file with list of filenames
@@ -140,7 +141,8 @@ pro comp_gbu, date_dir, wave_type, error=error
     name = (file_search(search_filter, count=n_name_found))[0]
 
     if (n_name_found lt 1L) then begin
-      mg_log, '%s doesn''t exist on disk but is in inventory file', search_filter, $
+      mg_log, 'file for %s doesn''t exist on disk but is in inventory file', $
+              datetime, $
               name='comp', /warn
       good_files[ifile] += 1
       continue
@@ -167,7 +169,8 @@ pro comp_gbu, date_dir, wave_type, error=error
     ; read primary header
     fits_read, fcb, d, header, /header_only, exten_no=0
 
-    back[ifile] = sxpar(header, 'BACKGRND')
+    file_background = sxpar(header, 'BACKGRND')
+    back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
 
     ; reject special obs at beginning with number of wavelengths observed > 10
@@ -232,7 +235,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   endelse
   mg_log, 'median background %f', med_back, name='comp', /info
   if (med_back gt 15.0) then begin
-    mg_log, 'exceeds 15, 01 might need to be cleaned', name='comp', /warn
+    mg_log, 'background median exceeds 15.0, 01 might need to be cleaned', $
+            name='comp', /warn
   endif
 
   ; find median intensity image using only good images so far
@@ -338,16 +342,15 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   ; engineering plots
-  year = strmid(date_dir, 0, 4)
-  engineering_dir = filepath('', subdir=['engineering', year], root=log_dir)
-  if (~file_test(engineering_dir, /directory)) then file_mkdir, engineering_dir
+  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_sigma.txt', $
-                      root=engineering_dir), $
+                      root=eng_dir), $
              time, sigma
 
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_background.txt', $
-                      root=engineering_dir), $
+                      root=eng_dir), $
              time, back
 
   mg_log, 'done', name='comp', /info

@@ -13,6 +13,8 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     name of date directory containing the files corresponding to the headers
+;   headers : in, required, type="strarr(ntags, nimages)"
+;     extension headers for a file
 ;
 ; :Keywords:
 ;   upper_left_mask :  out, optional, type="fltarr(nx, ny)"
@@ -33,7 +35,7 @@ function comp_raw_mask, date_dir, headers, $
   _threshold = n_elements(threshold) eq 0L ? 15 : threshold
 
   ; get the flat
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $

@@ -18,7 +18,7 @@
 ;   dark_files.txt - file containing information on dark files
 ;   opal_files.txt - file containing information on opal (flat) files
 ;   cal_files.txt - file containing information on polarization calibration files
-;   dist_files.txt - file containing information on distirtion grid files
+;   dist_files.txt - file containing information on distortion grid files
 ;
 ; These files are written to the processed directory for that day and
 ; copied to the inventory directory.
@@ -65,7 +65,7 @@ pro comp_file_type, date_dir
   raw_dir = filepath(date_dir, root=raw_basedir)
   cd, raw_dir
 
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   file_mkdir, process_dir
 
   regions = [1074.7, 1079.8, 1083.]
@@ -96,7 +96,7 @@ pro comp_file_type, date_dir
     endif
 
     ; take inventory
-    comp_inventory, fcb, beam, group, wave, pol, type, expose, cover, cal_pol, cal_ret
+    comp_inventory, fcb, beam, wave, pol, type, expose, cover, cal_pol, cal_ret
 
     uniq_waves = wave[comp_uniq(wave, sort(wave))]   ; find unique wavelengths
     ; recent failure modes create files with one wavelength - skip these
@@ -138,8 +138,9 @@ pro comp_file_type, date_dir
             string(uniq_pols, format='(20(2x,a))'), $
             name='comp', /debug
 
-    printf, luns[ifile], format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)',$
-            files[i], expose, ndata, ndark, nopal, str_cover
+    printf, luns[ifile], files[i], expose, ndata, ndark, nopal, str_cover, $
+            format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)'
+
     printf, luns[ifile], format='($,21f9.2)', uniq_waves
     printf, luns[ifile], format='(20(2x,a))', uniq_pols
 
@@ -148,18 +149,6 @@ pro comp_file_type, date_dir
 
   free_lun, lun_1074, lun_1079, lun_1083, $
             lun_dark, lun_opal, lun_cal, lun_distort
-
-  ; Copy files to inventory directory
-  ;year = strmid(date_dir, 0, 4)
-  ;inventory_dir = log_dir + 'inventory/' + year + "/"
-  ;FILE_MKDIR, inventory_dir
-  ;file_copy, process_dir+'/1074_files.txt',    inventory_dir + date_dir + "_" + '1074_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/1079_files.txt',    inventory_dir + date_dir + "_" + '1079_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/1083_files.txt',    inventory_dir + date_dir + "_" + '1083_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/dark_files.txt',    inventory_dir + date_dir + "_" + 'dark_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/opal_files.txt',    inventory_dir + date_dir + "_" + 'opal_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/cal_files.txt',     inventory_dir + date_dir + "_" + 'cal_files.txt', /OVERWRITE
-  ;file_copy, process_dir+'/distort_files.txt', inventory_dir + date_dir + "_" + 'distort_files.txt', /OVERWRITE
 
   mg_log, 'done', name='comp', /info
 end

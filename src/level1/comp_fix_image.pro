@@ -4,9 +4,12 @@
 ; Function to fix CoMP columns. Moves bad columns to the left edge of
 ; the image.
 ;
+; :Returns:
+;   `fltarr(1024, 1024)`
+;
 ; :Params:
-;   data : in, required, type=fltarr
-;     1024 by 1024 raw image
+;   data : in, required, type="fltarr(1024, 1024)"
+;     raw image
 ;
 ; :Keywords:
 ;   old_data : in, optional, type=boolean

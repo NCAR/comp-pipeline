@@ -25,7 +25,7 @@ function comp_image_geometry, images, headers, date_dir
   @comp_constants_common
 
   ; scan the headers to find out what observations the files contain
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
   ; get the time in the format preferred by read_flats

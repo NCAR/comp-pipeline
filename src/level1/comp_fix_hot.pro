@@ -7,8 +7,12 @@
 ; :Uses:
 ;   comp_config_common
 ;
+; :Returns:
+;   `fltarr(1024, 1024)`
+;
 ; :Params:
-;   data : in, required, type=fltarr
+;   data : in, required, type="fltarr(1024, 1024)"
+;     raw image
 ;
 ; :Keywords:
 ;   hot : in, required, type=lonarr(n)
@@ -21,8 +25,7 @@ function comp_fix_hot, data, hot=hot, adjacent=adjacent
   @comp_config_common
 
   fixed = data
-  ; TODO: should use /EVEN?
-  fixed[hot] = median(data[adjacent], dimension=2)
+  fixed[hot] = median(data[adjacent], dimension=2, /even)
 
   return, fixed
 end

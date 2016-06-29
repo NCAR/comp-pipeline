@@ -70,7 +70,7 @@ pro comp_find_post, image, occulter, field, pa
                   nterms=5, $
                   estimates=[max(y), x[max_pixel], 15., 0., 0.])
 
-  mg_log, 'coeff: %s', strjoin(strtrim(coeff, 2), ', '), $
+  mg_log, 'coeff: %s', strjoin(string(coeff, format='(%"%0.3f")'), ', '), $
           name='comp/find_post', /debug
 
   if (debug eq 1) then begin

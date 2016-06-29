@@ -27,7 +27,7 @@ pro comp_update_filenames, date_dir
 
   ; configure
   comp_configuration
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, process_dir
 
   old_filenames = ['1074_files.txt', '1079_files.txt', '1083_files.txt']

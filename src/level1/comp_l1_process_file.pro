@@ -31,7 +31,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   comp_read_data, filename, images, headers, header0
   comp_apply_flats_darks, images, headers, date_dir
   comp_demodulate, images, headers, images_demod, headers_demod
-  comp_inventory_header, headers_demod, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers_demod, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
   ; depending on which polarizations are present, call the appropriate
@@ -54,7 +54,8 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   comp_combine_beams, images_demod, headers_demod, date_dir, $
                       images_combine, headers_combine, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
-                      image_geometry=image_geometry
+                      image_geometry=image_geometry, $
+                      wave_type=wave_type
 
   ; double precision not required in output
   images_combine = float(images_combine)

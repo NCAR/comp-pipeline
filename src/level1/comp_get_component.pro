@@ -49,14 +49,14 @@ function comp_get_component, images, headers, polstate, beam, wave, $
                              skipall=skipall, $
                              count=count, $
                              headersout=headersout, $
-                             average_wavelengths=average_wave, $
+                             average_wavelengths=average_wavelengths, $
                              n_wavelengths=n_wavelengths, $
                              noskip=noskip
   compile_opt strictarr
   on_error, 2
 
   ; figure out what's in this image array:
-  comp_inventory_header, headers, beams, groups, waves, polstates, type, $
+  comp_inventory_header, headers, beams, waves, polstates, type, $
                          expose, cover, cal_pol, cal_ret
 
   ; if we don't have an input list of wavelengths, use all of them:
@@ -110,7 +110,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     headersout[*, i] = headertemp
   endfor
 
-  ; average over all wavelengths if AVERAGE_WAVELENGTHS is set:
+  ; average over all wavelengths if AVERAGE_WAVELENGTHS is set
   if (keyword_set(average_wavelengths) and nw gt 1L) then begin
     if (n_elements(n_wavelengths) eq 0L) then begin
       start_index = 0L

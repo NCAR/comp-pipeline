@@ -35,7 +35,7 @@ function comp_nearest_qufile, date_dir, headers, filename
 
   ; find the inventory file and read it
   invenfile = filepath(line + '_files.txt', $
-                       subdir=date_dir, $
+                       subdir=[date_dir, 'level1'], $
                        root=process_basedir)
   comp_read_inventory_file, invenfile, datafiles, exptimes, $
                             ndata, ndark, nopal, open, waves, polstates
@@ -72,7 +72,14 @@ function comp_nearest_qufile, date_dir, headers, filename
 
   ; lastly, we want the file that's closest in time
   quindices = where(qucheck and days eq days[vindex] and wavecheck)
-  qunearest = quindices[value_locate(times[quindices], times[vindex])]
+  if (n_elements(times[quindices]) eq 1L) then begin
+    ; this is a workaround for verions of IDL before 8.2.2 that can't
+    ; handle 1-element arrays input into VALUE_LOCATE
+    ind = ((times[vindex] ge times[quindices])[0]) - 1L
+  endif else begin
+    ind = value_locate(times[quindices], times[vindex])
+  endelse
+  qunearest = quindices[ind]
 
   qufile = filepath(datafiles[qunearest], subdir=date_dir, root=raw_basedir)
   return, qufile

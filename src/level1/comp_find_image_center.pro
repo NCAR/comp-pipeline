@@ -18,10 +18,10 @@
 ;   comp_radial_der, comp_circfit
 ;
 ; :Returns:
-;   fltarr(3)
+;   `fltarr(3)`
 ;
 ; :Params:
-;   dat : in
+;   dat : in, required, type="fltarr(1024, 1024)"
 ;     the data array in which to locate the image
 ;
 ; :Keywords:
@@ -69,7 +69,7 @@ function comp_find_image_center, dat, $
   c = comp_circfit(theta, r, error=error)
   if (error ne 0L) then return, -1L
 
-  mg_log, 'c: %s', strjoin(strtrim(c, 2), ', '), $
+  mg_log, 'h: %0.3f, alpha: %0.3f, radius: %0.3f', c[0], c[1], c[2], $
           name='comp/find_image_center', /debug
 
   if (debug eq 1) then begin

@@ -30,8 +30,9 @@
 ;-
 pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   compile_opt strictarr
+  @comp_constants_common
 
-  comp_inventory_header, vheaders, beams, groups, waves, pols, type, expose, $
+  comp_inventory_header, vheaders, beams, waves, pols, type, expose, $
                          cover, cal_pol, cal_ret
 
   ; find the nearest Q and U file and prepare it for crosstalk estimation
@@ -40,49 +41,20 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   comp_apply_flats_darks, quimages, quheaders, date_dir
   comp_demodulate, quimages, quheaders, quimages_demod, quheaders_demod
 
-  ; break out the various Stokes pieces and average them over wavelength
-  V1 = comp_get_component(vimages, vheaders, 'V', 1, $
-                          /noskip, /average_wavelengths)
-  V2 = comp_get_component(vimages, vheaders, 'V', -1, $
-                          /noskip, /average_wavelengths)
-  I1 = comp_get_component(quimages_demod, quheaders_demod, 'I', 1, $
-                          /noskip, /average_wavelengths)
-  I2 = comp_get_component(quimages_demod, quheaders_demod, 'I', -1, $
-                          /noskip, /average_wavelengths)
-  Q1 = comp_get_component(quimages_demod, quheaders_demod, 'Q', 1, $
-                          /noskip, /average_wavelengths)
-  Q2 = comp_get_component(quimages_demod, quheaders_demod, 'Q', -1, $
-                          /noskip, /average_wavelengths)
-  U1 = comp_get_component(quimages_demod, quheaders_demod, 'U', 1, $
-                          /noskip, /average_wavelengths)
-  U2 = comp_get_component(quimages_demod, quheaders_demod, 'U', -1, $
-                          /noskip, /average_wavelengths)
-
-  ; mask out the on-band beams and combine the continuum beams
-  mask0 = comp_raw_mask(date_dir, vheaders, $
-                        upper_left_mask=mask1, lower_right_mask=mask2)
-  Ibg = I1 * mask1 + I2 * mask2
-  Qbg = Q1 * mask1 + Q2 * mask2
-  Ubg = U1 * mask1 + U2 * mask2
-  Vbg = V1 * mask1 + V2 * mask2
-
-  ; find the v crosstalk in the combined continuum beams
-  comp_find_vxtalk, date_dir, Ibg, Qbg, Ubg, Vbg, vheaders, $
-                    IVxtalk, QVxtalk, UVxtalk, xtparms
-
-  mg_log, '%s,%s', $
-          file_basename(filename, '.FTS'), strjoin(strtrim(xtparms, 2), ','), $
-          name='comp/crosstalk/' + comp_find_wavelength(waves, /name), /info
-
   ; apply the estimated crosstalk correction to vimages (both on-band and
   ; continuum)
   nimg = n_elements(vimages[0, 0, *])
   for i = 0L, nimg - 1L do begin
     if (pols[i] eq 'V') then begin
-      stokesI = comp_get_component(quimages_demod, quheaders_demod, 'I', beams[i], waves[i], /noskip)
-      stokesQ = comp_get_component(quimages_demod, quheaders_demod, 'Q', beams[i], waves[i], /noskip)
-      stokesU = comp_get_component(quimages_demod, quheaders_demod, 'U', beams[i], waves[i], /noskip)
-      vimages[*, *, i] -= IVxtalk * stokesI + QVxtalk * stokesQ + UVxtalk * stokesU
+      stokesI = comp_get_component(quimages_demod, quheaders_demod, 'I', $
+                                   beams[i], waves[i], /noskip)
+      stokesQ = comp_get_component(quimages_demod, quheaders_demod, 'Q', $
+                                   beams[i], waves[i], /noskip)
+      stokesU = comp_get_component(quimages_demod, quheaders_demod, 'U', $
+                                   beams[i], waves[i], /noskip)
+      vimages[*, *, i] -= i_to_v_xtalk * stokesI $
+                            + q_to_v_xtalk * stokesQ $
+                            + u_to_v_xtalk * stokesU
     endif
   endfor
 end

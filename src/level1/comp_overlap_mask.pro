@@ -13,6 +13,9 @@
 ;
 ; :Params:
 ;   radius : in, required, type=float
+;     radius of overlap
+;   angle : in, required, type=angle
+;     angle (degrees) of overlap
 ;
 ; :Keywords:
 ;   dx : in, optional, type=float

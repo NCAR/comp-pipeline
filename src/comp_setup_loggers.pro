@@ -45,17 +45,15 @@ pro comp_setup_loggers_date, date_dir
   compile_opt strictarr
   @comp_config_common
 
-  cidx_dir = filepath('', subdir='cidx', root=log_dir)
-  if (~file_test(cidx_dir, /directory)) then file_mkdir, cidx_dir
+  if (~file_test(log_dir, /directory)) then file_mkdir, log_dir
 
   loggers = comp_setup_loggers_loggers()
   for i = 0L, n_elements(loggers) - 1L do begin
     mg_log, name=loggers[i], logger=logger
-    logger->setProperty, filename=filepath(date_dir + '.log', root=cidx_dir)
+    logger->setProperty, filename=filepath(date_dir + '.log', root=log_dir)
   endfor
 
-  year = strmid(date_dir, 0, 4)
-  eng_dir = filepath('', subdir=['engineering', year], root=log_dir)
+  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
   if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
   for w = 0L, n_elements(process_wavelengths) - 1L do begin

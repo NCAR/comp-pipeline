@@ -62,7 +62,8 @@ pro comp_make_dark, date_dir, error=error
   endif
 
   raw_dir = filepath(date_dir, root=raw_basedir)
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  if (~file_test(process_dir, /directory)) then file_mkdir, process_dir
   cd, process_dir
 
   ;  open list of dark images
@@ -104,7 +105,7 @@ pro comp_make_dark, date_dir, error=error
 
     for i = 0L, num - 1L do begin
       fits_read, fcb, dat, header, exten_no=i + 2
-      if (sxpar(header,'DEMULT') eq 0) then begin
+      if (sxpar(header, 'DEMULT') eq 0) then begin
         dat = comp_demultiplex(dat)
       endif
       dat = float(dat)
@@ -158,8 +159,11 @@ pro comp_make_dark, date_dir, error=error
     sxaddpar, header, 'MEAN', aver
     sxaddpar, header, 'NOISE', median(sigma)
 
-    mg_log, '%s  %f   %f ms   %d used out of %d dark images mean: %f  rms: %f', $
-            time_str, time[nout], exposure[nout], count, num, aver, noise, $
+    mg_log, '%s: %5.1fms, %d/%d used, mean: %0.1f, rms: %0.3f', $
+            comp_times2str(time[nout]), $
+            exposure[nout], $
+            count, num, $
+            aver, noise, $
             name='comp', /info
 
     ++nout

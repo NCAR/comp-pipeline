@@ -72,23 +72,29 @@ pro comp_run_pipeline, config_filename=config_filename
 
   dirs = candidate_dirs[date_dirs_ind]
 
+  ; ignore math errors
+  orig_except = !except
+  !except = 0
+
   for d = 0L, n_dirs - 1L do begin
     t0 = systime(/seconds)
 
     date_dir = dirs[d]
 
-    if (lock_raw) then begin
-      available = comp_state(date_dir, /lock)
-      if (available ne 1) then begin
-        continue
-      endif
-    endif
-
     comp_initialize, date_dir
     comp_setup_loggers_date, date_dir
 
-    mg_log, 'Locked %s', filepath(date_dir, root=raw_basedir), $
-            name='comp', /info
+    if (lock_raw) then begin
+      available = comp_state(date_dir, /lock)
+      if (available ne 1) then begin
+        mg_log, '%s locked, skipping...', date_dir, name='comp', /info
+        continue
+      endif else begin
+        mg_log, 'Locked %s', filepath(date_dir, root=raw_basedir), $
+                name='comp', /info
+      endelse
+    endif
+
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 
     ;---------------  Prep  ----------------------------------------
@@ -108,21 +114,25 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Level_1 data processing  ---------------------
 
-    if (create_l1) then begin
-      mg_log, 'starting processing for %s', date_dir, name='comp', /info
+    if (create_l1 || create_flatsdarks) then begin
+      mg_log, 'starting level 1 processing for %s', date_dir, name='comp', /info
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
       ; copy configuration file to the process output directory
       process_dir = filepath(date_dir, root=process_basedir)
-      file_mkdir, process_dir
-      process_config_filename = filepath('comp.cfg', root=process_dir)
+      if (~file_test(process_dir, /directory)) then file_mkdir, process_dir
+
+      l1_process_dir = filepath('level1', root=process_dir)
+      if (~file_test(l1_process_dir, /directory)) then file_mkdir, l1_process_dir
+
+      process_config_filename = filepath('comp.cfg', root=l1_process_dir)
       file_copy, _config_filename, process_config_filename, /overwrite
 
+      ; take inventory of the data for this day
       mg_log, 'running file_type', name='comp', /info
       file_type_t0 = systime(/seconds)
-      ; take inventory of the data for this day
       comp_file_type, date_dir
       file_type_t1 = systime(/seconds)
       mg_log, 'Total time for COMP_FILE_TYPE: %0.1f seconds', $
@@ -132,14 +142,16 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-      mg_log, 'running dark mode', name='comp', /info
-
       ; reduce bias images for this day
+      mg_log, 'running dark mode', name='comp', /info
       comp_make_dark, date_dir, error=error
       if (error ne 0) then begin
         if (lock_raw) then begin
           unlocked = comp_state(date_dir, /unlock)
           mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
+          processed = comp_state(date_dir, /processed)
+          mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
         continue
@@ -161,13 +173,18 @@ pro comp_run_pipeline, config_filename=config_filename
           unlocked = comp_state(date_dir, /unlock)
           mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
+          processed = comp_state(date_dir, /processed)
+          mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
+                  name='comp', /info
         endif
         continue
       endif
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif
 
+    if (create_l1) then begin
       mg_log, 'running l1_process', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         l1_process_t0 = systime(/seconds)
@@ -195,8 +212,8 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-      mg_log, 'running comp_extract_intensity', name='comp', /info
       ; extract intensity images from Level_1 files
+      mg_log, 'running comp_extract_intensity', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         extract_intensity_t0 = systime(/seconds)
         comp_extract_intensity, date_dir, process_wavelengths[w], error=error
@@ -210,8 +227,8 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-      mg_log, 'running comp_gbu', name='comp', /info
       ; identify good data
+      mg_log, 'running comp_gbu', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         gbu_t0 = systime(/seconds)
         comp_gbu, date_dir, process_wavelengths[w], error=error
@@ -224,134 +241,154 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+
     endif else begin
       mg_log, 'skipping L1 processing', name='comp', /info
     endelse
 
+    if (distribute_l1) then begin
+      mg_log, 'distributing L1 data', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_distribute_l1, date_dir, process_wavelengths[w]
+      endfor
+      ; distribute files not associated with a wavelength such as flats/darks
+      comp_distribute_l1, date_dir
+    endif else begin
+      mg_log, 'skipping L1 distribution', name='comp', /info
+    endelse
+
     ;---------------  Level_2 data processing  ---------------
 
-    ; if (create_l2) then begin
-    ; mg_log, 'running comp_average', name='comp', /info
-    ; ; compute the mean, median and standard deviation of Level_1 data
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_average, date_dir, process_wavelengths[w], error=error
-    ;     if (error ne 0) then continue
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; mg_log, 'running comp_quick_invert', name='comp', /info
-    ; ; perform 'quick' inversion
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_quick_invert, date_dir, process_wavelengths[w], error=error
-    ;     if (error ne 0) then continue
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; mg_log, 'running comp_find_systematics', name='comp', /info
-    ; ; evaluate systematic errors in comp data
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_find_systematics, date_dir, process_wavelengths[w], 'mean', error=error
-    ;     if (error ne 0) then continue
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ;
-    ; ;---------------  Level LC data processing  ---------------
-    ;
-    ; mg_log, 'running 3-points analysis', name='comp', /info
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_l2_analytical_three, date_dir, process_wavelengths[w]
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_l2_create_jpgs, date_dir, process_wavelengths[w], nwl=3, /seq
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_l2_create_movies, date_dir, process_wavelengths[w], nwl=3
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; ;comp_quickview, date_dir, '1074', nwl=3,  dynamics=0
-    ;
-    ; ;comp_l2_analytical_three, date_dir, '1079'
-    ; ;comp_l2_create_jpgs, date_dir, '1079', nwl=3, /seq
-    ; ;comp_l2_create_movies, date_dir, '1079', nwl=3
-    ;
-    ; mg_log, 'running 5-points analysis', name='comp', /info
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_l2_analytical_five, date_dir , process_wavelengths[w]
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_l2_create_jpgs, date_dir, process_wavelengths[w], nwl=5, /seq
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   if (process_wavelengths[w] ne '1083') then begin
-    ;     comp_l2_create_movies, date_dir, process_wavelengths[w], nwl=5
-    ;   endif
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ;
-    ; ;comp_l2_analytical_five, date_dir , '1079'
-    ; ;comp_l2_create_jpgs, date_dir, '1079', nwl=5, /seq
-    ; ;comp_l2_create_movies, date_dir, '1079' , nwl=5
-    ;
-    ; mg_log, 'making tarballs', name='comp', /info
-    ; for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    ;   comp_infofile_and_tarballs,  date_dir, process_wavelengths[w]
-    ; endfor
-    ; mg_log, 'memory usage: %0.1fM', $
-    ;         (memory(/highwater) - start_memory) / 1024. / 1024., $
-    ;         name='comp', /debug
-    ; ;comp_infofile_and_tarballs,  date_dir, '1079'
-    ; endif else begin
-    ;   mg_log, 'skipping L2 processing', name='comp', /info
-    ; endelse
+    if (create_l2) then begin
+      mg_log, 'starting level 2 processing for %s', date_dir, name='comp', /info
+
+      process_dir = filepath(date_dir, root=process_basedir)
+      if (~file_test(process_dir, /directory)) then file_mkdir, process_dir
+
+      l2_process_dir = filepath('level2', root=process_dir)
+      if (~file_test(l2_process_dir, /directory)) then file_mkdir, l2_process_dir
+
+      process_config_filename = filepath('comp.cfg', root=l2_process_dir)
+      file_copy, _config_filename, process_config_filename, /overwrite
+
+      ; compute the mean, median and standard deviation of Level_1 data
+      mg_log, 'running comp_average', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_average, date_dir, process_wavelengths[w], error=error
+          if (error ne 0) then continue
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      ; perform 'quick' inversion
+      mg_log, 'running comp_quick_invert', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_quick_invert, date_dir, process_wavelengths[w], error=error
+          if (error ne 0) then continue
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      ; evaluate systematic errors in comp data
+      mg_log, 'running comp_find_systematics', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_find_systematics, date_dir, process_wavelengths[w], 'mean', error=error
+          if (error ne 0) then continue
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      mg_log, 'running 3-points analysis', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_l2_analytical, date_dir, process_wavelengths[w], 3
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_l2_create_jpgs, date_dir, process_wavelengths[w], nwl=3, /seq
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_l2_create_movies, date_dir, process_wavelengths[w], nwl=3
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      mg_log, 'running 5-points analysis', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_l2_analytical, date_dir, process_wavelengths[w], 5
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_l2_create_jpgs, date_dir, process_wavelengths[w], nwl=5, /seq
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          comp_l2_create_movies, date_dir, process_wavelengths[w], nwl=5
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
+      mg_log, 'making daily summaries', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_l2_summary,  date_dir, process_wavelengths[w]
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif else begin
+      mg_log, 'skipping L2 processing', name='comp', /info
+    endelse
+
+    if (distribute_l2) then begin
+      mg_log, 'distributing L2 data', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_distribute_l2, date_dir, process_wavelengths[w]
+      endfor
+    endif else begin
+      mg_log, 'skipping L2 distribution', name='comp', /info
+    endelse
 
     if (update_database) then begin
       mg_log, 'running comp_update_database', name='comp', /info
       db_t0 = systime(/seconds)
-      comp_update_database, date_dir, process_wavelengths[w]
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        comp_update_database, date_dir, process_wavelengths[w]
+      endfor
       db_t1 = systime(/seconds)
       mg_log, 'Total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
               db_t1 - db_t0, $
@@ -368,8 +405,13 @@ pro comp_run_pipeline, config_filename=config_filename
       unlocked = comp_state(date_dir, /unlock)
       mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
+      processed = comp_state(date_dir, /processed)
+      mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
+              name='comp', /info
     endif
   endfor
+
+  !except = orig_except
 
   mg_log, /quit
 end

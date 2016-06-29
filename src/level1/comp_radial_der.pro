@@ -20,19 +20,22 @@
 ; :Uses:
 ;   parabola
 ;
+; :Returns:
+;   `dblarr(360)`
+;
 ; :Params:
-;   data : in
+;   data : in, required, type=fltarr
 ;     the data image to analyze
-;   theta : in
-;   radius : in
+;   theta : in, required, type=float
+;   radius : in, required, type=float
 ;     the approximate radius of the discontinuity (pixels)
 ;   dr : in
 ;     the region +/- around radius to make the scan (pixels)
 ;
 ; :Keywords:
 ;   neg_pol : in, optional, type=boolean
-;     this determines the polarity of the discontinuity, neg_pol=1 for negative
-;     polarity
+;     this determines the polarity of the discontinuity, `neg_pol=1` for
+;     negative polarity
 ;
 ; :Author:
 ;   Tomczyk

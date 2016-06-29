@@ -1,3 +1,5 @@
+; docformat = 'idl'
+
 ;+
 ; NAME:
 ;	COMP_UNIQ
@@ -49,9 +51,11 @@
 ;	will be a copy of the sorted Array with duplicate adjacent
 ;	elements removed.
 ;
-; Optional Keyword Parameter:
-;   first - if set, return index of FIRST occurence for duplicates
-;           (default is LAST occurence)
+; Keyword Parameters:
+;   first: if set, return index of FIRST occurence for duplicates
+;          (default is LAST occurence)
+;   oldway: if set, return array of size 1 instead of scalar for 1-element
+;           results
 ;
 ; COMMON BLOCKS:
 ;	None.
@@ -70,7 +74,6 @@
 ;                         - added OLDWAY keyword to return,[value] for scalar
 ;                           value
 ;-
-
 function comp_uniq, ARRAY, IDX, FIRST=FIRST,OLDWAY=OLDWAY
 
 ; Check the arguments.

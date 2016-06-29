@@ -1,6 +1,7 @@
 ; docformat = 'rst'
 
 ;+
+; Find the annulus in a flat.
 ;
 ; :Uses:
 ;   comp_find_image_center
@@ -49,6 +50,9 @@ pro comp_find_annulus, im, occulter, field, error=error
   occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2]}
   field = {x:c_field[0], y:c_field[1], r:c_field[2]}
 end
+
+
+; main-level test program
 
 comp_initialize, '20150624'
 

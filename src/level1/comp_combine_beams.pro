@@ -32,6 +32,8 @@
 ;     set to a named variable to retrieve the number of unique wavelengths
 ;   image_geometry : out, required, type=structure
 ;     image geometry specifications
+;   wave_type : in, required, type=string
+;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Author:
 ;   Joseph Plowman
@@ -39,11 +41,12 @@
 pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine, $
                         n_uniq_polstates=np, n_uniq_wavelengths=nw, $
-                        image_geometry=plus_image_geometry
+                        image_geometry=plus_image_geometry, $
+                        wave_type=wave_type
   compile_opt strictarr
   @comp_constants_common
 
-  comp_inventory_header, headers, beam, group, wave, pol, type, expose, $
+  comp_inventory_header, headers, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
   uwave = wave[uniq(wave, sort(wave))]  ; unique waves
@@ -85,8 +88,14 @@ pro comp_combine_beams, images, headers, date_dir, $
       comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus, $
                           image_geometry=minus_image_geometry
 
-      ; foreground part (with background subtracted)
-      images_combine[*, *, i * nw + j] = 0.5 * (fgplus - bgminus + fgminus - bgplus)
+      ; foreground part (with background subtracted); note: the He background
+      ; is contaminated, so don't subtract
+      if (wave_type eq '1083') then begin
+        images_combine[*, *, i * nw + j] = 0.5 * (fgplus + fgminus)
+      endif else begin
+        images_combine[*, *, i * nw + j] = 0.5 * (fgplus - bgminus + fgminus - bgplus)
+      endelse
+
       ; background part
       images_combine[*, *, np * nw + i * nw + j] = 0.5 * (bgminus + bgplus)
 

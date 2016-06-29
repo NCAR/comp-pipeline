@@ -1,1 +1,1 @@
-common fitc, xfit, yfit, zfit
+common fit, xfit, yfit, zfit

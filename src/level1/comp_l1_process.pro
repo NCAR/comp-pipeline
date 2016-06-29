@@ -39,7 +39,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
   endif
 
   raw_dir = filepath(date_dir, root=raw_basedir)
-  process_dir = filepath(date_dir, root=process_basedir)
+  process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
   cd, process_dir  ; change directory to processing directory
 
@@ -56,7 +56,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   for file_count = 0L, n_file_lines - 1L do begin
     readf, infiles_lun, in_filename, format='(a19)'
-    mg_log, 'processing data file (%d/%d for %s): %s', $
+    mg_log, 'processing file %d/%d @ %s: %s', $
             file_count + 1L, n_file_lines, wave_type, in_filename, $
             name='comp/l1_process', /info
     filename = filepath(in_filename, subdir=date_dir, root=raw_basedir)

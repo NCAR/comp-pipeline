@@ -8,9 +8,6 @@
 ; THIS ASSUMES THAT THE IMAGE HAS ALREADY BEEN CENTERED USING THE CENTER OF THE
 ; OCCULTER
 ;
-; Output:
-;    mask - the mask image
-;
 ; :Examples:
 ;   For example, call like::
 ;
@@ -20,12 +17,16 @@
 ;   comp_constants_common, comp_mask_constants_common, comp_initialize,
 ;   comp_disk_mask, comp_field_mask, comp_post_mask, comp_overlap_mask
 ;
+; :Returns:
+;   mask image, `fltarr(1024, 1024)`
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
 ;   fits_header : in, required
 ;     the primary header of the CoMP FITS file
+;   mask : out, optional, type="fltarr(1024, 1024)"
+;     mask image
 ;
 ; :Author:
 ;   sitongia@hao.ucar.edu
@@ -89,8 +90,8 @@ pro comp_make_mask, date_dir, fits_header, mask
 
     ; field mask
     field_mask = comp_field_mask(field.r + field_offset, $
-                                 dx=(occulter.x - field.x), $
-                                 dy=(occulter.y - field.y))
+                                 dx=field.x - occulter.x, $
+                                 dy=field.y - occulter.y)
 
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
