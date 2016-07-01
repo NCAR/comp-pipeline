@@ -124,7 +124,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                           layout=[5, 4, i + 1], $
                           margin=[.3, .2, .1, .2], $
                           /current, $
-                          buffer=buffer)
+                          /buffer)
   endfor
 
   histogram_plot->save, filepath(file_dir + '.his.gif', root=eng_dir), $
@@ -168,7 +168,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     im = image(rebin(dd, nx / 2, nx / 2), $
                layout=[5, 4, row * 5 + column + 1], $
                /current, $
-               buffer=buffer, $
+               /buffer, $
                margin=0)
   endfor
 
@@ -197,7 +197,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                         LINESTYLE='none', $
                         symbol='.', $
                         /current, $
-                        buffer=buffer)
+                        /buffer)
 
     coef = poly_fit(i[good], v[good], 1)
 
@@ -206,7 +206,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
     y = poly(x, coef)
     ;oplot,x,y
-    corr_plot = plot(x, y, /overplot, buffer=buffer)
+    corr_plot = plot(x, y, /overplot, /buffer)
 
     ;  xyouts,.4,0.,file,/norm,chars=2
     ;  outfile=file+'.cor.bmp'
