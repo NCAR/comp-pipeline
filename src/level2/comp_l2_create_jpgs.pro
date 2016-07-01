@@ -137,8 +137,8 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
     comp_make_mask, date_dir, hdr, mask
     mask = double(mask)
 
-    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts'
-    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts'
+    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts.gz'
+    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts.gz'
 
     comp_data[*, *, 0, ii] = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     comp_data[*, *, 1, ii] = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
