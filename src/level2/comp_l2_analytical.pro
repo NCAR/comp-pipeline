@@ -71,7 +71,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
 
   ; distinguish between Q/U files and V files
   for ii = 0L, nt - 1L do begin
-    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=nwl + 1), 'EXTNAME'), 0, 1)
+    l1_header = headfits(gbu[ii].l1file, exten=nwl + 1)
+    l1_extname = sxpar(l1_header, 'EXTNAME')
+    whatisthis = strmid(l1_extname, 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
   endfor
 

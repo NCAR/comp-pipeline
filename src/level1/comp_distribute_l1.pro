@@ -60,8 +60,8 @@ pro comp_distribute_l1, date_dir, wave_type
 
   ; zip L1 (and background) files
   mg_log, 'zipping L1 files...', name='comp', /info
-  zip_cmd = string(date_dir, wave_type, $
-                   format='(%"gzip -f %s.*.comp.%s.*.fts")')
+  zip_cmd = string(wave_type, $
+                   format='(%"gzip -f *.*.comp.%s.*.fts")')
   spawn, zip_cmd, result, error_result, exit_status=status
   if (status ne 0L) then begin
     mg_log, 'problem zipping files with command: %s', zip_cmd, $
