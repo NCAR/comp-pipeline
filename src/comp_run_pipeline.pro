@@ -114,7 +114,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Level_1 data processing  ---------------------
 
-    if (create_l1) then begin
+    if (create_l1 || create_flatsdarks) then begin
       mg_log, 'starting level 1 processing for %s', date_dir, name='comp', /info
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
@@ -182,7 +182,9 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif
 
+    if (create_l1) then begin
       mg_log, 'running l1_process', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         l1_process_t0 = systime(/seconds)
