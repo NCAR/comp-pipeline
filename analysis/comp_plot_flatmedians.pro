@@ -70,26 +70,46 @@ pro comp_plot_flatmedians, filename
         xminor=12, $
         xticks=12, $
         charsize=0.8, font=1, $
-        title='Flat values!CMedians corrected for solar distance and exposure time', $
-        xtitle='Date', ytitle='Median values in annuli'
+        title='Median flat values!CMedians normalized for solar distance (1 AU) and exposure time (250.0 ms)', $
+        xtitle='Date', ytitle='Median values in both annuli'
 
   ; cleanings
   for c = 0L, n_elements(cleanings) - 1L do begin
     oplot, fltarr(2) + cleanings[c], y_range, color='a0a0a0'x, thick=1.0
-    xyouts, cleanings[c] + 10.0, 50.0, $
-            string(cleanings[c], format='("Cleaning ", C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
+    xyouts, cleanings[c] + 10.0, 49.0, $
+            string(cleanings[c], $
+                   format='(C(CYI, ".", CMOI2.2, ".", CDI2.2), " 01 cleaning")'), $
             orientation=90.0, charsize=0.6, font=1
   endfor
 
   ; annotations
-  annotation_dates = [julday(12, 17, 2014, 12), $
-                      julday(3, 15, 2015, 12)]
-  annotation_heights = [40.0, 38.0]
-  for a = 0L, n_elements(annotation_dates) - 1L do begin
-    oplot, fltarr(2) + annotation_dates[a], [-1.5, -0.5] + annotation_heights[a], $
+  annotation_dates = [julday(1, 15, 2014, 12), $
+                      julday(4, 29, 2014, 12), $
+                      julday(10, 19, 2014, 12), $
+                      julday(12, 17, 2014, 12)]
+  annotations = ['CoMP warmed', $
+                 'turned off camera to conserve LN2', $
+                 'turned off camera to conserve LN2', $
+                 'camera warmed/re-cooled']
+
+  for c = 0L, n_elements(annotations) - 1L do begin
+    oplot, fltarr(2) + annotation_dates[c], y_range, color='a0a0a0'x, thick=1.0
+    xyouts, annotation_dates[c] + 10.0, 49.0, $
+            string(annotation_dates[c], annotations[c], $
+                   format='(C(CYI, ".", CMOI2.2, ".", CDI2.2), %" %s")'), $
+            orientation=90.0, charsize=0.6, font=1
+  endfor
+
+  ; marks
+  marks_dates = [julday(5, 16, 2014, 12), $
+                 julday(12, 17, 2014, 12), $
+                 julday(3, 15, 2015, 12)]
+  marks_heights = [47.0, 40.0, 38.0]
+  for a = 0L, n_elements(marks_dates) - 1L do begin
+    oplot, fltarr(2) + marks_dates[a], [-1.5, -0.5] + marks_heights[a], $
            color='a0a0a0'x, thick=1.0
-    xyouts, annotation_dates[a], annotation_heights[a], $
-            string(annotation_dates[a], format='(C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
+    xyouts, marks_dates[a], marks_heights[a], $
+            string(marks_dates[a], format='(C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
             charsize=0.6, font=1
   endfor
 
