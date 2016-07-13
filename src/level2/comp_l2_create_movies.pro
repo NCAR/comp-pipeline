@@ -477,8 +477,9 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   endfor
 
   ; set_plot, 'X'
-  mg_log, 'PNG creation for movies finished. Making movies now...', $
-          name='comp', /info
+  mg_log, 'frame creation finished', name='comp', /info
+  mg_log, 'encoding movies...', name='comp', /info
+
   cd, current=pwd
   cd, temp_path
 

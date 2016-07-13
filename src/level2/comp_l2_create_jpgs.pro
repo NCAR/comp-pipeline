@@ -41,7 +41,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   @comp_constants_common
   @comp_config_common
 
-  mg_log, 'wave_type: %s %2d', wave_type, nwl, name='comp', /info
+  mg_log, 'wave_type: %s %d points', wave_type, nwl, name='comp', /info
 
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
@@ -66,6 +66,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
 
   ; only want the good measurements
   num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
+  mg_log, '%d good %d point files', ng, nwl, name='comp', /debug
   if (ng eq 0 || (keyword_set(seq) && ng lt 3)) then goto, skip
   gbu = gbu[num_gf]
 
@@ -112,7 +113,8 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   qu_files = intarr(n_elements(gbu))
   nt = n_elements(gbu)
 
-  mg_log, '%d files...', nt, name='comp', /info
+  mg_log, 'using %d%s files...', nt, keyword_set(seq) ? ' sequential' : '', $
+          name='comp', /info
 
   ; distinguish between Q/U files and V files
   for ii = 0, nt - 1L do begin
@@ -137,21 +139,23 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
     comp_make_mask, date_dir, hdr, mask
     mask = double(mask)
 
-    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts.gz'
-    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts.gz'
+    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                  + 'dynamics.' + nwlst + '.fts.gz'
+    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                  + 'polarization.' + nwlst + '.fts.gz'
 
     comp_data[*, *, 0, ii] = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     comp_data[*, *, 1, ii] = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
     comp_data[*, *, 2, ii] = readfits(l2_d_file, ext=3, /silent)   ; corrected LOS velocity
     comp_data[*, *, 3, ii] = readfits(l2_d_file, ext=4, /silent)   ; Line Width
+    mg_log, '%s: %s file', l2_d_file, qu_files[ii] eq 1 ? 'QU' : 'V', $
+            name='comp', /debug
     if (qu_files[ii] eq 1) then begin
       comp_data[*, *, 4, ii] = readfits(l2_p_file, ext=3, /silent)  ; integrated Stokes Q
       comp_data[*, *, 5, ii] = readfits(l2_p_file, ext=4, /silent)  ; integrated Stokes U
     endif else begin
-      comp_data[*, *, 4, ii] = fltarr(nx, ny)
-      comp_data[*, *, 5, ii] = fltarr(nx, ny)
-      comp_data[*, *, 4, ii] = !VALUES.F_NAN
-      comp_data[*, *, 5, ii] = !VALUES.F_NAN
+      comp_data[*, *, 4, ii] = !values.f_nan
+      comp_data[*, *, 5, ii] = !values.f_nan
     endelse
     comp_data[*, *, 6, ii] = mask   ; mask
   endfor
@@ -167,10 +171,12 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   for zz = 4, 5 do begin
     for yy = 0L, ny - 1L do begin
       for xx = 0L, nx - 1L do begin
-        mean_qu[xx, yy, zz - 4] = mean(comp_data[xx, yy, zz, *],/nan)
+        mean_qu[xx, yy, zz - 4] = mean(comp_data[xx, yy, zz, *], /nan)
       endfor
     endfor
   endfor
+
+  mg_log, 'mean_qu mean: %f', mean(mean_qu), name='comp', /debug
 
   ; slow and complicated, I know - necessary though to treat the NAN values
   ; properly...
@@ -188,6 +194,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
       endfor
     endfor
   endfor
+
   comp_data  = 0
   mintensity = reform(mean_corr_data[*, *, 0])
   mint_enh   = reform(mean_corr_data[*, *, 1])
@@ -204,11 +211,11 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   bad_az     = where(azimuth lt 0.)
   if ((size(bad_az))[0] eq 1) then azimuth[bad_az] += 180.
   p          = sqrt(stks_q^2. + stks_u^2.)
+  mg_log, 'p mean: %f', mean(p), name='comp', /debug
   poi        = float(p) / float(mintensity)
-  ;get the intensity from the original
-  ;fits files without the cosmetics
-  ;(so that the full FOV is visible and
-  ; no data is cut out for the website)
+
+  ; get the intensity from the original FITS files without the cosmetics (so
+  ; that the full FOV is visible and no data is cut out for the website)
   intensity = fltarr(nx, ny)
   nmask = fltarr(nx, ny)
   for jj = 0L, nt - 1L do begin
@@ -242,7 +249,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   width[thresh_unmasked]    = 0.
 
   ; get some info
-  all_files = file_basename(file_search(filepath('*.comp.' + wave_type + '*.*.fts', $
+  all_files = file_basename(file_search(filepath('*.comp.' + wave_type + '*.*.fts.gz', $
                                                  root=l1_process_dir), $
                                         count=no_of_files))
   no_of_files = n_elements(all_files)
