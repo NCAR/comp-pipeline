@@ -25,10 +25,8 @@
 ; :Keywords:
 ;    nwl : in, required, type=integer
 ;      number of lines, 3 or 5
-;    seq : in, optional, type=boolean
-;      set to look for longest continuous sequence
-;    n_avrg : in, optional, type=integer
-;      number of files, must be specified if `SEQ` is not set
+;    n_avrg : in, optional, type=integer, default=50
+;      number of files to average over
 ;
 ; :Author:
 ;   Christian Bethge
@@ -36,7 +34,7 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
+pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -70,45 +68,10 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   if (ng eq 0 || (keyword_set(seq) && ng lt 3)) then goto, skip
   gbu = gbu[num_gf]
 
-  if (keyword_set(seq)) then begin
-    ; lets look for the longest contiguous sequence
-    times = anytim2tai(gbu.time_obs)
-    dt = abs(deriv(times))
-
-    dips = comp_uniq(dt)
-    len = intarr(n_elements(dips))
-    start = intarr(n_elements(dips))
-    finish = intarr(n_elements(dips))
-    for ii = 0L, n_elements(dips) - 1L do begin
-      if (ii eq 0) then begin
-        len[ii] = dips[0]
-        start[ii] = 0
-        finish[ii] = dips[0]
-      endif
-
-      if (ii ne 0 and ii ne n_elements(dips) - 1) then begin
-        len[ii] = dips[ii + 1] - dips[ii]
-        start[ii] = dips[ii] + 1
-        finish[ii] = dips[ii + 1]
-      endif
-
-      if (ii eq n_elements(dips) - 1) then begin
-        len[ii] = ng - dips[ii]
-        start[ii] = dips[ii]
-        finish[ii] = ng - 1
-      endif
-    endfor
-    best = max(len, maxdex)
-    gbu  = gbu[start[maxdex]:finish[maxdex]]
-  endif else begin
-    if (~keyword_set(n_avrg)) then begin
-      mg_log, 'n_avrg must be defined', name='comp', /warn
-      return
-    endif
-    if (n_elements(gbu) gt n_avrg) then begin
-      gbu = gbu[0:n_avrg-1]
-    endif
-  endelse
+  _n_avrg = n_elements(n_avrg) eq 0L ? 50L : n_avrg
+  if (n_elements(gbu) gt _n_avrg) then begin
+    gbu = gbu[0:_n_avrg-1]
+  endif
 
   qu_files = intarr(n_elements(gbu))
   nt = n_elements(gbu)
@@ -167,26 +130,13 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   ;=== prepare and write out daily images ===
   mg_log, 'creating daily JPGs now...', name='comp', /info
 
-  mean_qu = fltarr(nx, ny, 2)
-  for zz = 4, 5 do begin
-    for yy = 0L, ny - 1L do begin
-      for xx = 0L, nx - 1L do begin
-        mean_qu[xx, yy, zz - 4] = mean(comp_data[xx, yy, zz, *], /nan)
-      endfor
-    endfor
-  endfor
-
-  mg_log, 'mean_qu mean: %f', mean(mean_qu), name='comp', /debug
-
-  ; slow and complicated, I know - necessary though to treat the NAN values
-  ; properly...
   mean_corr_data = reform(comp_data[*, *, *, 0] - comp_data[*, *, *, 0])
-  for zz = 0, 3 do begin
+  for zz = 0, 5 do begin
     for yy = 0L, ny - 1L do begin
       for xx = 0L, nx - 1L do begin
         tmp_var = reform(comp_data[xx, yy, zz, *])
-        good_val = where(finite(tmp_var) eq 1.)
-        if ((size(good_val))[0] eq 1) then begin
+        good_val = where(finite(tmp_var) eq 1., n_finite_values)
+        if (n_finite_values gt 0L) then begin
           mean_corr_data[xx, yy, zz] = median(tmp_var[good_val])
         endif else begin
           mean_corr_data[xx, yy, zz] = 0.
@@ -200,8 +150,6 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   mint_enh   = reform(mean_corr_data[*, *, 1])
   velocity   = reform(mean_corr_data[*, *, 2])
   width      = reform(mean_corr_data[*, *, 3])
-  mean_corr_data[*, *, 4:5] = mean_qu
-  mean_qu = 0
 
   stks_q     = reform(mean_corr_data[*, *, 4])
   stks_u     = reform(mean_corr_data[*, *, 5])
@@ -211,7 +159,6 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   bad_az     = where(azimuth lt 0.)
   if ((size(bad_az))[0] eq 1) then azimuth[bad_az] += 180.
   p          = sqrt(stks_q^2. + stks_u^2.)
-  mg_log, 'p mean: %f', mean(p), name='comp', /debug
   poi        = float(p) / float(mintensity)
 
   ; get the intensity from the original FITS files without the cosmetics (so
