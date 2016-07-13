@@ -94,19 +94,17 @@ function comp_read_gbu, gbu_file
   mg_log, name='comp', logger=logger
   logger->getProperty, level=level
   if (level eq 5) then begin  ; 5 = debug
-    good = where(gbu.quality eq 'Good', ngf)
-    mg_log, 'Directory file has %d Good images', ngf, name='comp', /debug
+    good = where(gbu.quality eq 'Good', n_good)
+    bad = where(gbu.quality eq 'Bad', n_bad)
+    ugly = where(gbu.quality eq 'Ugly', n_ugly)
+
+    mg_log, 'GBU file has %d good, %d bad, and %d ugly images', $
+            n_good, n_bad, n_ugly, name='comp', /debug
 
     nfive = where(gbu.quality eq 'Good' and gbu.wavelengths eq 5, ng5)
     nthree = where(gbu.quality eq 'Good' and gbu.wavelengths eq 3, ng3)
-    mg_log, '...of those, there are %d 5pt and %d 3pt measurements', $
+    mg_log, '%d good 5pt files and %d good 3pt files', $
             ng5, ng3, name='comp', /debug
-
-    bad = where(gbu.quality eq 'Bad', nbf)
-    mg_log, 'Directory file has %d Bad images', nbf, name='comp', /debug
-
-    ugly = where(gbu.quality eq 'Ugly', nuf)
-    mg_log, 'Directory file has %d Ugly images', nuf, name='comp', /debug
   endif
 
   return, gbu

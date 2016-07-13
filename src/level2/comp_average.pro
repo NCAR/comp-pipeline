@@ -112,7 +112,8 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     ; n_files <= 50        ; commented out 6/16/14 ST
   endelse
 
-  mg_log, 'using %d files from %s', n_files, files, name='comp', /info
+  mg_log, 'using %d files from %s', n_files, file_basename(files), $
+          name='comp', /info
 
   if (n_files lt 1) then begin
     mg_log, 'no good %s files, exiting', wave_type, name='comp', /warn
