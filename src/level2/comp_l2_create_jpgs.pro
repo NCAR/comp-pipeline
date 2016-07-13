@@ -8,7 +8,7 @@
 ; :Examples:
 ;   For example, call like::
 ;
-;     comp_l2_create_jpgs, '20130520', '1074', nwl=5, /seq
+;     comp_l2_create_jpgs, '20130520', '1074', nwl=5
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
@@ -65,7 +65,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   ; only want the good measurements
   num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
   mg_log, '%d good %d point files', ng, nwl, name='comp', /debug
-  if (ng eq 0 || (keyword_set(seq) && ng lt 3)) then goto, skip
+  if (ng eq 0) then goto, skip
   gbu = gbu[num_gf]
 
   _n_avrg = n_elements(n_avrg) eq 0L ? 50L : n_avrg
@@ -76,8 +76,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   qu_files = intarr(n_elements(gbu))
   nt = n_elements(gbu)
 
-  mg_log, 'using %d%s files...', nt, keyword_set(seq) ? ' sequential' : '', $
-          name='comp', /info
+  mg_log, 'using %d files...', nt, name='comp', /info
 
   ; distinguish between Q/U files and V files
   for ii = 0, nt - 1L do begin
