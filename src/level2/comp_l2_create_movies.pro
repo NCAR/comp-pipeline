@@ -81,10 +81,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   endfor
 
   ; read logos
-  haologo = read_png(filepath('hao_logo_small.png', subdir='logos', root=mg_src_root()), $
+  haologo = read_png(filepath('hao_logo_small.png', $
+                              subdir='logos', $
+                              root=mg_src_root()), $
                      rhao, ghao, bhao)
 
-  nsfimage  = read_png(filepath('nsf_ncar_logo_small.png', subdir='logos', root=mg_src_root()))
+  nsfimage  = read_png(filepath('nsf_ncar_logo_small.png', $
+                                subdir='logos', $
+                                root=mg_src_root()))
   nsfimage  = transpose(nsfimage, [1, 2, 0])
   nsfimsize = size(nsfimage[*, *, 0:2], /dimensions)
 
