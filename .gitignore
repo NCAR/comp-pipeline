@@ -2,3 +2,6 @@
 /api-userdocs
 /config
 /ROUTINES
+/analysis/flat-medians.csv
+/analysis/flat-medians.ps
+/analysis/flat-outliers.txt
