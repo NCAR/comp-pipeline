@@ -50,7 +50,6 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   nwlst = strcompress(string(nwl), /remove_all)
   
   rest = double(center1074)
-  c = 299792.458D
 
   gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
   if (~file_test(gbu_file)) then begin
@@ -145,7 +144,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
     endfor
   endfor
 
-  comp_data  = 0
+  comp_data  = 0   ; free comp_data
+
   mintensity = reform(mean_corr_data[*, *, 0])
   mint_enh   = reform(mean_corr_data[*, *, 1])
   velocity   = reform(mean_corr_data[*, *, 2])
@@ -156,8 +156,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   p_angle    = sxpar(hdr, 'SOLAR_P0')
   azimuth    = (0.5 * atan(stks_u, stks_q) * 180. / !pi) - p_angle + 45.
   azimuth    = azimuth mod 180.
-  bad_az     = where(azimuth lt 0.)
-  if ((size(bad_az))[0] eq 1) then azimuth[bad_az] += 180.
+  bad_az     = where(azimuth lt 0., n_bad_azimuth)
+  if (n_bad_azimuth gt 0L) then azimuth[bad_az] += 180.
   p          = sqrt(stks_q^2. + stks_u^2.)
   poi        = float(p) / float(mintensity)
 
