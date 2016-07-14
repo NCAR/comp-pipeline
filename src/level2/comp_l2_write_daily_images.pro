@@ -1,8 +1,8 @@
 ; docformat = 'rst'
 
 ;+
-; Creates the daily jpgs for the website from the L2 fits files, i.e., write
-; out jpgs for hover and fullr for filesize issues, but pngs with a better
+; Creates the daily images for the website from the L2 fits files, i.e., write
+; out JPEGs for hover and fullr for filesize issues, but PNGs with a better
 ; quality for the dashboard.
 ;
 ; :Examples:
@@ -34,7 +34,7 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
+pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
