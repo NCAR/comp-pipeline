@@ -1,7 +1,7 @@
 ; docformat = 'rst'
 
 ;+
-; Creates the daily mp4 movies for the website from the L2 fits files.
+; Creates the daily mp4 movies for the website from the L2 FITS files.
 ;
 ; :Examples:
 ;   For example, call it like::
@@ -20,24 +20,18 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
-; :Keywords:
-;    nwl : in, required, type=integer
-;      number of lines, 3 or 5
-;
 ; :Author:
 ;   Christian Bethge
 ;
 ; :History:
 ;    removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
+pro comp_l2_create_movies, date_dir, wave_type
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
 
-  mg_log, 'wave_type: %s %2d', wave_type, nwl, name='comp', /info
-
-  nwlst = strcompress(string(nwl), /remove_all)
+  mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
@@ -57,27 +51,21 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   endfor
 
   ; only want the good measurements
-  num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
-  mg_log, '%d good files...', ng, name='comp', /info
+  good_files = where(gbu.quality eq 'Good', n_good_files)
+  mg_log, '%d good files...', n_good_files, name='comp', /info
 
-  if (ng eq 0) then goto, skip
-  gbu = gbu[num_gf]
+  if (n_good_files eq 0) then goto, skip
+  gbu = gbu[good_files]
 
-  qu_files = intarr(n_elements(gbu))
   nt = n_elements(gbu)
-  p_counter = 0
+  qu_files = intarr(nt)
 
   ; distinguish between Q/U files and V files
-  for ii = 0, nt - 1L do begin
-    case nwl of
-      3: whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=4), $
-                                   'EXTNAME'), $
-                             0, 1)
-      5: whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=6), $
-                                   'EXTNAME'), $
-                             0, 1)
-    endcase
-    if (whatisthis eq 'Q') then qu_files[ii] = 1
+  for i = 0L, nt - 1L do begin
+    tokens = strsplit(file_basename(gbu[i].l1file), '.', /extract)
+    ; L1 name: [date].[time].comp.[wave].[pols].[npts].fts
+    pol_char = strmid(tokens[4], 1, 1)  ; skip 'i' which is always first
+    if (pol_char eq 'q') then qu_files[i] = 1
   endfor
 
   ; read logos
@@ -96,6 +84,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   nwimage  = transpose(nwimage, [1, 2, 0])
   nwimsize = size(nwimage[*, *, 0:2], /dimensions)
 
+  p_counter = 0
+
   for ii = 0L, nt - 1L do begin
     mg_log, '%d/%d: %s', $
             ii + 1L, nt, file_basename(gbu[ii].l1file), $
@@ -111,10 +101,10 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_make_mask, date_dir, hdr, mask
     mask = double(mask)
 
-    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                  + 'dynamics.' + nwlst + '.fts.gz'
-    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                  + 'polarization.' + nwlst + '.fts.gz'
+    l2_d_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                               + 'dynamics.*.fts.gz'))[0]
+    l2_p_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
+                               + 'polarization.*.fts.gz'))[0]
 
     intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     int_enh   = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
@@ -147,14 +137,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       qoi = bytscl(qoi, min=-0.15, max=0.15)
       qoi[unmasked] = 0.
       tv, qoi
-      colorbar2, position=colbarpos, chars=1.25, title='Q/I', $
+      colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
                  range=[-0.15, 0.15], font=-1, divisions=4, format='(F6.3)'
-      xyouts, 4 * 66, 4 * 78, 'Q/I', chars=6, /device, color=255
+      xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=6, /device, color=255
       !p.font = -1
-      xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
+      xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
-              chars=1, /device, color=255
+              charsize=1, /device, color=255
       !p.font = 1
 
       ; display HAO logo
@@ -184,14 +174,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       uoi = bytscl(uoi, min=-0.15, max=0.15)
       uoi[unmasked] = 0.
       tv, uoi
-      colorbar2, position=colbarpos,chars=1.25, title='U/I', $
+      colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
                  range=[-0.15, 0.15], font=-1, divisions=4, format='(F6.3)'
-      xyouts, 4 * 67, 4 * 78, 'U/I', chars=6, /device, color=255
+      xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255
       !p.font = -1
-      xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
+      xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
-              chars=1, /device, color=255
+              charsize=1, /device, color=255
       !p.font = 1
 
       ; display HAO logo
@@ -223,14 +213,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       poi = bytscl(poi, min=-2.3, max=-0.3, /nan)
       if ((size(bad_val))[0] eq 1) then poi[bad_val] = 0
       tv, poi
-      colorbar2, position=colbarpos,chars=1.25, title='log(L!Itot !N/I)', $
+      colorbar2, position=colbarpos, charsize=1.25, title='log(L!Itot !N/I)', $
                  range=[-2.3, -0.3], font=-1, divisions=4, format='(F5.1)'
-      xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', chars=6, /device, color=255
+      xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255
       !p.font = -1
-      xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
+      xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
-              chars=1, /device, color=255
+              charsize=1, /device, color=255
       !p.font = 1
 
       ; display HAO logo
@@ -259,16 +249,16 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     vel[unmasked] = 254
     if ((size(bad_val))[0] eq 1) then vel[bad_val] = 254
     tv, vel
-    colorbar2, position=colbarpos, chars=1.25, title='LOS velocity [km/s]', $
+    colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $
                range=[-10, 10], font=-1, divisions=10, color=255, ncolors=253
     loadct, 0, /silent
-    xyouts, 4 * 48, 4 * 97, 'Doppler', chars=6, /device, color=255
-    xyouts, 4 * 48.5, 4 * 78, 'Velocity', chars=6, /device, color=255
+    xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255
+    xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255
     !p.font = -1
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
-            chars=1, /device, color=255
+            charsize=1, /device, color=255
     !p.font = 1
 
     ; display HAO logo
@@ -295,15 +285,16 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     int = bytscl(int, min=1, max=5)
     if ((size(bad_val))[0] eq 1) then int[bad_val] = 0
     tv, int
-    colorbar2, position=colbarpos, chars=1.25, title='sqrt(intensity)', $
+    colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
                range=[1, 5], font=-1, divisions=4
     loadct, 0, /silent
-    xyouts, 4 * 48, 4 * 78, 'Intensity', chars=6, /device, color=255
+    xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
     !p.font = -1
-    xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
+    xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, $
+            charsize=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
-            chars=1, /device, color=255
+            charsize=1, /device, color=255
     !p.font = 1
 
     ; display HAO logo
@@ -328,13 +319,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_aia_lct, wave=193, /load
     tv, int_enh
     loadct, 0, /silent
-    xyouts, 4 * 40, 4 * 85, 'Enhanced', chars=6, /device, color=255
-    xyouts, 4 * 48, 4 * 68, 'Intensity', chars=6, /device, color=255
+    xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255
+    xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255
     !p.font = -1
-    xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
+    xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, $
+            charsize=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
-            chars=1, /device, color=255
+            charsize=1, /device, color=255
     !p.font = 1
 
     ; display HAO logo
@@ -400,7 +392,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; plot azimuth
     if (qu_files[ii] eq 1) then begin
       p_angle = float(index[ii].solar_p0)
-      azimuth = (0.5*atan(stks_u, stks_q) * 180. / !pi) - p_angle + 45.
+      azimuth = 0.5 * atan(stks_u, stks_q) * 180.0 / !pi - p_angle + 45.0
       azimuth = azimuth mod 180.
       bad_az  = where(azimuth lt 0.)
       if ((size(bad_az))[0] eq 1) then azimuth[bad_az] += 180.
@@ -441,16 +433,11 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       erase
     endif
 
-    timestamp = strmid(index[ii].time_d$obs,0,2) $
+    timestamp = strmid(index[ii].time_d$obs, 0, 2) $
                   + strmid(index[ii].time_d$obs, 3, 2) $
                   + strmid(index[ii].time_d$obs, 6, 2)
 
-    if (ii + 1 ge 1000) then prefix = ''
-    if (ii + 1 lt 1000) then prefix = '0'
-    if (ii + 1 lt 100)  then prefix = '00'
-    if (ii + 1 lt 10)   then prefix = '000'
-    im_no = strcompress(string(ii + 1), /remove_all)
-    png_ext = wave_type + '.' + nwlst + '.' + prefix + im_no + '.png'
+    png_ext = string(wave_type, ii, format='(%"%s.%04d.png")')
     write_png, filepath('intensity.' + png_ext, root=temp_path), $
                intensity
     write_png, filepath('enhanced_intensity.' + png_ext, root=temp_path), $
@@ -461,22 +448,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                line_width
 
     if (qu_files[ii] eq 1) then begin
-      if (p_counter ge 1000) then pprefix = ''
-      if (p_counter lt 1000) then pprefix = '0'
-      if (p_counter lt 100)  then pprefix = '00'
-      if (p_counter lt 10)   then pprefix = '000'
-      png_ext = wave_type + '.' + nwlst + '.' + pprefix $
-                  + strcompress(string(p_counter), /remove_all) + '.png'
+      png_ext = string(wave_type, p_counter, format='(%"%s.%04d.png")')
       write_png, filepath('q.' + png_ext, root=temp_path), qoveri
       write_png, filepath('u.' + png_ext, root=temp_path), uoveri
       write_png, filepath('ltot.' + png_ext, root=temp_path), ltot
-      if (nwlst eq '3') then begin
-        write_png, filepath('azimuth.' + png_ext, root=temp_path), azim
-      endif
+      write_png, filepath('azimuth.' + png_ext, root=temp_path), azim
     endif
   endfor
 
-  ; set_plot, 'X'
   mg_log, 'frame creation finished', name='comp', /info
   mg_log, 'encoding movies...', name='comp', /info
 
@@ -489,54 +468,74 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                  + ' -vcodec libx264' $
                  + ' -passlogfile %s' $
                  + ' -b:v %s -g 3' $
-                 + ' %s.comp.%s.%s.%s.mp4")'
-  infile_ext = '.' + wave_type + '.' + nwlst + '.%04d.png'
+                 + ' %s.comp.%s.%s.mp4")'
+  infile_ext = '.' + wave_type + '.%04d.png'
 
   ; 2-pass encoding with ffmpeg and x264
   for mmm = 1, 2 do begin
-    spawn, filepath(string('intensity' + infile_ext, $
-                           mmm, 'int', '2000k', $
-                           date_dir, wave_type, 'daily_intensity', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
-    spawn, filepath(string('enhanced_intensity' + infile_ext, $
-                           mmm, 'enh_int', '3000k', $
-                           date_dir, wave_type, 'daily_enhanced_intensity', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
-    spawn, filepath(string('corrected_velocity' + infile_ext, $
-                           mmm, 'corr_velo', '3000k', $
-                           date_dir, wave_type, 'daily_corrected_velocity', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
-    spawn, filepath(string('line_width' + infile_ext, $
-                           mmm, 'line_width', '3000k', $
-                           date_dir, wave_type, 'daily_line_width', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
-    spawn, filepath(string('ltot' + infile_ext, $
-                           mmm, 'lin_pol', '3000k', $
-                           date_dir, wave_type, 'daily_ltot', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
-    spawn, filepath(string('q' + infile_ext, $
-                           mmm, 'stks_q', '3000k', $
-                           date_dir, wave_type, 'daily_q', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
-    spawn, filepath(string('u' + infile_ext, $
-                           mmm, 'stks_u', '3000k', $
-                           date_dir, wave_type, 'daily_u', nwlst, $
-                           format=ffmpeg_fmt), $
-                    root=ffmpeg_dir)
+    ffmpeg_cmd = filepath(string('intensity' + infile_ext, $
+                                 mmm, 'int', '2000k', $
+                                 date_dir, wave_type, 'daily_intensity', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
 
-    if (nwlst eq '3') then begin
-      spawn, filepath(string('azimuth' + infile_ext, $
-                             mmm, 'azi', '3000k', $
-                             date_dir, wave_type, 'daily_azimuth', nwlst, $
-                             format=ffmpeg_fmt), $
-                      root=ffmpeg_dir)
-    endif
+    ffmpeg_cmd = filepath(string('enhanced_intensity' + infile_ext, $
+                                 mmm, 'enh_int', '3000k', $
+                                 date_dir, wave_type, 'daily_enhanced_intensity', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
+
+    ffmpeg_cmd = filepath(string('corrected_velocity' + infile_ext, $
+                                 mmm, 'corr_velo', '3000k', $
+                                 date_dir, wave_type, 'daily_corrected_velocity', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
+
+    ffmpeg_cmd = filepath(string('line_width' + infile_ext, $
+                                 mmm, 'line_width', '3000k', $
+                                 date_dir, wave_type, 'daily_line_width', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
+
+    ffmpeg_cmd = filepath(string('ltot' + infile_ext, $
+                                 mmm, 'lin_pol', '3000k', $
+                                 date_dir, wave_type, 'daily_ltot', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
+
+    ffmpeg_cmd = filepath(string('q' + infile_ext, $
+                                 mmm, 'stks_q', '3000k', $
+                                 date_dir, wave_type, 'daily_q', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
+
+    ffmpeg_cmd = filepath(string('u' + infile_ext, $
+                                 mmm, 'stks_u', '3000k', $
+                                 date_dir, wave_type, 'daily_u', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
+
+    fmpeg_cmd = filepath(string('azimuth' + infile_ext, $
+                                mmm, 'azi', '3000k', $
+                                date_dir, wave_type, 'daily_azimuth', $
+                                format=ffmpeg_fmt), $
+                         root=ffmpeg_dir)
+    mg_log, ffmpeg_cmd, name='comp', /debug
+    spawn, ffmpeg_cmd
   endfor
 
   cd, pwd

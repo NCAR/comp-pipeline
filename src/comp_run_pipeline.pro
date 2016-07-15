@@ -327,15 +327,6 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-      for w = 0L, n_elements(process_wavelengths) - 1L do begin
-        if (process_wavelengths[w] ne '1083') then begin
-          comp_l2_create_movies, date_dir, process_wavelengths[w], nwl=3
-        endif
-      endfor
-      mg_log, 'memory usage: %0.1fM', $
-              (memory(/highwater) - start_memory) / 1024. / 1024., $
-              name='comp', /debug
-
       mg_log, 'running 5-points analysis', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
@@ -358,7 +349,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
-          comp_l2_create_movies, date_dir, process_wavelengths[w], nwl=5
+          comp_l2_create_movies, date_dir, process_wavelengths[w]
         endif
       endfor
       mg_log, 'memory usage: %0.1fM', $
