@@ -72,10 +72,10 @@ pro comp_configuration, config_filename=config_filename
   engineering_dir = config->get('engineering_dir', section='engineering')
 
   ; actions
-  create_flatsdarks = config->get('create_flatsdarks', section='actions', $
-                                  /boolean, default=1B)
   create_l1         = config->get('create_l1', section='actions', $
                                   /boolean, default=1B)
+  create_flatsdarks = config->get('create_flatsdarks', section='actions', $
+                                  /boolean, default=create_l1)
   distribute_l1     = config->get('distribute_l1', section='actions', $
                                   /boolean, default=1B)
   create_l2         = config->get('create_l2', section='actions', $
