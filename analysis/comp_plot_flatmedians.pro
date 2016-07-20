@@ -161,7 +161,7 @@ pro comp_plot_flatmedians, filename
   start = julday(1, 1, 1904, 0)
   temp_times = start + temp_times / (24.0 * 60.0 * 60.0)
 
-  temp_threshold = 10.0
+  temp_threshold = -170.0
   bad_temps = where(temps gt temp_threshold, n_bad_temps)
   if (n_bad_temps gt 0L) then begin
     temps[bad_temps] = !values.f_nan
