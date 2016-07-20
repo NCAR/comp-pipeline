@@ -1,5 +1,12 @@
 ; docformat = 'rst'
 
+;+
+; Plot medians of flat.
+;
+; :Params:
+;   filename : in, required, type=string
+;     filename of flat medians CSV file
+;-
 pro comp_plot_flatmedians, filename
   compile_opt strictarr
 
