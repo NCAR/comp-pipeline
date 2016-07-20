@@ -59,8 +59,8 @@ pro comp_plot_flatmedians, filename
 
   !null = label_date(date_format=['%M %D', '%Y'])
 
-  mg_psbegin, filename='flat-medians.ps', xsize=9, ysize=6, /inches, $
-              /color, /landscape
+  mg_psbegin, filename='flat-medians.ps', xsize=10.0, ysize=8.0, /inches, $
+              /color, /landscape, xoffset=0.0
 
   device, decomposed=1
   plot, [s[0].time, s[-1].time], y_range, /nodata, $
@@ -71,15 +71,19 @@ pro comp_plot_flatmedians, filename
         xticks=12, $
         charsize=0.8, font=1, $
         title='Median flat values!CMedians normalized for solar distance (1 AU) and exposure time (250.0 ms)', $
-        xtitle='Date', ytitle='Median values in both annuli'
+        xtitle='Date', ytitle='Median values in both annuli', $
+        position=[0.05, 0.45, 0.975, 0.9]
+
+  annotation_charsize = 0.5
 
   ; cleanings
   for c = 0L, n_elements(cleanings) - 1L do begin
     oplot, fltarr(2) + cleanings[c], y_range, color='a0a0a0'x, thick=1.0
-    xyouts, cleanings[c] + 10.0, 49.0, $
+    xyouts, cleanings[c] + 10.0, y_range[1], $
             string(cleanings[c], $
                    format='(C(CYI, ".", CMOI2.2, ".", CDI2.2), " 01 cleaning")'), $
-            orientation=90.0, charsize=0.6, font=1
+            orientation=90.0, charsize=annotation_charsize, font=1, $
+            alignment=1.0
   endfor
 
   ; annotations
@@ -88,16 +92,17 @@ pro comp_plot_flatmedians, filename
                       julday(10, 19, 2014, 12), $
                       julday(12, 17, 2014, 12)]
   annotations = ['CoMP warmed', $
-                 'turned off camera to conserve LN2', $
-                 'turned off camera to conserve LN2', $
-                 'camera warmed/re-cooled']
+                 'turned off!Ccamerato conserve LN2', $
+                 'turned off!Ccamera to conserve LN2', $
+                 'camera!Cwarmed/re-cooled']
 
   for c = 0L, n_elements(annotations) - 1L do begin
     oplot, fltarr(2) + annotation_dates[c], y_range, color='a0a0a0'x, thick=1.0
-    xyouts, annotation_dates[c] + 10.0, 49.0, $
+    xyouts, annotation_dates[c] + 10.0, y_range[1], $
             string(annotation_dates[c], annotations[c], $
                    format='(C(CYI, ".", CMOI2.2, ".", CDI2.2), %" %s")'), $
-            orientation=90.0, charsize=0.6, font=1
+            orientation=90.0, charsize=annotation_charsize, font=1, $
+            alignment=1.0
   endfor
 
   ; marks
@@ -110,7 +115,7 @@ pro comp_plot_flatmedians, filename
            color='a0a0a0'x, thick=1.0
     xyouts, marks_dates[a], marks_heights[a], $
             string(marks_dates[a], format='(C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
-            charsize=0.6, font=1
+            charsize=annotation_charsize, font=1
   endfor
 
   ; 1074 and mornings
@@ -142,6 +147,41 @@ pro comp_plot_flatmedians, filename
             titles=['1074.62', '1074 morning', '1083.0', '1083.0 morning'], $
             charsize=0.85, tt_font='Helvetica', /hardware, $
             length=0.0
+
+  temp_filename = 'rockwell-temp-record.txt'
+  n_temps = file_lines(temp_filename)
+  data = dblarr(2, n_temps)
+  openr, lun, temp_filename, /get_lun
+  readf, lun, data
+  free_lun, lun
+
+  temps = data[1, *]
+  temp_times = data[0, *]
+
+  start = julday(1, 1, 1904, 0)
+  temp_times = start + temp_times / (24.0 * 60.0 * 60.0)
+
+  temp_threshold = 10.0
+  bad_temps = where(temps gt temp_threshold, n_bad_temps)
+  if (n_bad_temps gt 0L) then begin
+    temps[bad_temps] = !values.f_nan
+  endif
+
+  temp_range = [min(temps, max=max_temp), max_temp]
+
+  plot, [s[0].time, s[-1].time], temp_range, /nodata, /noerase, $
+        xstyle=9, ystyle=9, $
+        xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
+        xtickunits=['Time', 'Time'], $
+        xminor=12, $
+        xticks=12, $
+        charsize=0.8, font=1, $
+        title='Rockwell temperatures', $
+        xtitle='Date', ytitle='Temperature (deg C)', $
+        position=[0.05, 0.15, 0.975, 0.3]
+
+  oplot, temp_times, temps, psym=3, color='a0a0a0'x
+
   mg_psend
 end
 
