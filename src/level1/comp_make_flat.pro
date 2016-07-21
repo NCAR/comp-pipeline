@@ -282,7 +282,7 @@ pro comp_make_flat, date_dir, error=error
 
       if (medflat lt threshold) then begin
         mg_log, 'flat median lower than expected for %s: %0.2f (flat median) < %0.2f (theshold)', $
-                opalfile, medflat, theshold, name='comp', /warn
+                opalfile, medflat, threshold, name='comp', /warn
         break
       endif
       
