@@ -169,9 +169,20 @@ pro comp_plot_flatmedians, filename
   temp_times = start + temp_times / (24.0 * 60.0 * 60.0)
 
   temp_threshold = -170.0
-  bad_temps = where(temps gt temp_threshold, n_bad_temps)
+  bad_temps = where(temps lt temp_threshold, n_bad_temps)
   if (n_bad_temps gt 0L) then begin
     temps[bad_temps] = !values.f_nan
+  endif
+
+  zero_temps = where(temps eq 0.0, n_zero_temps)
+  if (n_zero_temps gt 0L) then begin
+    temps[zero_temps] = !values.f_nan
+  endif
+
+  good_temps = where(finite(temps), n_good_temps)
+  if (n_good_temps gt 0L) then begin
+    temps = temps[good_temps]
+    temp_times = temp_times[good_temps]
   endif
 
   temp_range = [min(temps, max=max_temp), max_temp]
