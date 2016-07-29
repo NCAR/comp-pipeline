@@ -28,7 +28,8 @@ end
 pro comp_flatmedian_analysis, process_dir, output_filename
   compile_opt strictarr
 
-  after = '20151101'
+  after = '20140100'
+
   openw, lun, output_filename, /get_lun
 
   ; loop over date dirs in process_dir
@@ -38,10 +39,20 @@ pro comp_flatmedian_analysis, process_dir, output_filename
   for d = 0L, n_dirs - 1L do begin
     date = file_basename(dirs[d])
 
-    if (date eq '20141016') then continue
-    if (date eq '20160701') then continue
+    skip_date = 0B
+    if (date eq '20141016') then skip_date = 1B
+    if (date eq '20150803') then skip_date = 1B
+    if (date eq '20150821') then skip_date = 1B
+    if (date eq '20160510') then skip_date = 1B
+    if (date eq '20160511') then skip_date = 1B
+    if (date eq '20160701') then skip_date = 1B
+    if (date eq '20160712') then skip_date = 1B
+    if (date eq '20160720') then skip_date = 1B
+    if (date eq '20160721') then skip_date = 1B
+    if (date eq '20160723') then skip_date = 1B
+    if (date eq '20160724') then skip_date = 1B
 
-    if (~stregex(date, '^[[:digit:]]{8}$', /boolean) || date lt after) then begin
+    if (~stregex(date, '^[[:digit:]]{8}$', /boolean) || date lt after || skip_date) then begin
       mg_log, 'skipping %s', date
       continue
     endif else begin
@@ -88,7 +99,7 @@ pro comp_flatmedian_analysis, process_dir, output_filename
 end
 
 
-process_dir = '/hao/kaula1/Data/CoMP/process'
+process_dir = '/hao/compdata1/Data/CoMP/process.flats'
 comp_flatmedian_analysis, process_dir, 'flat-medians-new.csv'
 
 end

@@ -62,7 +62,8 @@ pro comp_plot_flatmedians, filename
                julday(9, 16, 2015, 12), $
                julday(5, 4, 2016, 12)]
 
-  y_range = [0.0, 1.05 * max(s.median)]
+  ;y_range = [0.0, 1.05 * max(s.median)]
+  y_range = [0.0, 66.0]
 
   !null = label_date(date_format=['%M %D', '%Y'])
 
