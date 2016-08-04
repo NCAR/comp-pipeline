@@ -7,6 +7,7 @@ GIT=/usr/bin/git
 
 REVISION:=$(shell $(GIT) rev-parse --short HEAD)
 PHONE=$(shell cat $(HOME)/.phonenumber 2> /dev/null)
+EMAIL=mgalloy@ucar.edu
 
 ifeq ($(QUIET), 1)
   ECHO_PREFIX=@
@@ -62,12 +63,13 @@ help:
 
 pipe:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
-	@if [ "$(PHONE)" ]; then \
-	echo "Sending message to $(PHONE)..."; \
-	$(ECHO_PREFIX)sms -n $(PHONE) -m "Done processing pipeline with $(shell basename $(CONFIG))"; \
-	else \
-	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
-	fi
+#	@if [ "$(PHONE)" ]; then \
+#	echo "Sending message to $(PHONE)..."; \
+#	$(ECHO_PREFIX)sms -n $(PHONE) -m "Done processing pipeline with $(shell basename $(CONFIG))"; \
+#	else \
+#	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
+#	fi
+	$(ECHO_PREFIX)mail_results.sh $(CONFIG) $(EMAIL)
 
 cal:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH):"+$(FULL_SSW_DIR)" -e ".run comp_cal_example_script"
