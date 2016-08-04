@@ -61,6 +61,9 @@ function comp_dark_interp, date_dir, time, exposure
       ;  otherwise interpolate for time
       closest = min(abs(times[good] - time), tmin)
       time_diff = times[good[tmin]] - time
+      mg_log, 'time: %f, tmin: %d, good times: %s', $
+              time, tmin, strjoin(strtrim(times[good], 2), ', '), $
+              name='comp/dark_interp', /debug
       if (time_diff le 0) then begin
         i1 = good[tmin]
         i2 = good[tmin + 1L]
