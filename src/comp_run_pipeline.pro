@@ -143,7 +143,7 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
 
       ; reduce bias images for this day
-      mg_log, 'running dark mode', name='comp', /info
+      mg_log, 'making darks', name='comp', /info
       comp_make_dark, date_dir, error=error
       if (error ne 0) then begin
         if (lock_raw) then begin
@@ -160,7 +160,7 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
-      mg_log, 'running comp_make_flat', name='comp', /info
+      mg_log, 'making flats', name='comp', /info
       make_flat_t0 = systime(/seconds)
       ; reduce opal images for this day
       comp_make_flat, date_dir, error=error
