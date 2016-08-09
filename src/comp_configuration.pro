@@ -74,6 +74,8 @@ pro comp_configuration, config_filename=config_filename
   ; actions
   create_l1         = config->get('create_l1', section='actions', $
                                   /boolean, default=1B)
+  correct_crosstalk = config->get('correct_crosstalk', section='actions', $
+                                  /boolean, default=1B)
   create_flatsdarks = config->get('create_flatsdarks', section='actions', $
                                   /boolean, default=create_l1)
   distribute_l1     = config->get('distribute_l1', section='actions', $

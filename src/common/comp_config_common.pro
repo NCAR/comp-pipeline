@@ -23,6 +23,7 @@ common comp_config, binary_dir, $
                     find_post_log_level, $
                     create_flatsdarks, $
                     create_l1, $
+                    correct_crosstalk, $
                     distribute_l1, $
                     create_l2, $
                     distribute_l2, $
