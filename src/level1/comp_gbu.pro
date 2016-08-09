@@ -242,7 +242,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; find median intensity image using only good images so far
   good_subs = where(good_files eq 0, count)
   if (count eq 0) then begin
-    mg_log, 'no good files this day', name='comp', /warn
+    mg_log, 'no good %s files this day', wave_type, name='comp', /warn
   endif
 
   med = fltarr(nx, nx)
