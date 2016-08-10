@@ -7,22 +7,21 @@
 ;   debug : in, optional, type=boolean
 ;     set to display plots and more information about fit
 ;-
-pro comp_crosstalk, debug=debug
+pro comp_crosstalk, process_basedir, date_dir, debug=debug
   compile_opt strictarr
   common fit, stokes_i, stokes_q, stokes_u, stokes_v
 
   ans = ' '
   nx = 620
 
-  date_dir = '20130915'
   wave_type = '1074'
 
-  dir = 'E:\CoMP\Process\' + date_dir
-  filename = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts")'
+  dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  filename = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
 
   if (keyword_set(debug)) then begin
     window, 0, xsize=2400, ysize=500
-    window, 1, xsize=5*nx, ysize=nx
+    window, 1, xsize=5 * nx, ysize=nx
   endif
 
   device, decomposed=0
@@ -49,7 +48,7 @@ pro comp_crosstalk, debug=debug
 
   ; create mask
 
-  comp_make_mask2, date_dir, p_header, mask, occ_fac=1.06, fld_fac=0.98
+  comp_make_mask2, p_header, mask, occ_fac=1.06, fld_fac=0.98
 
   for i = 0, ntune - 1 do begin
     ; read stokes I
@@ -177,3 +176,13 @@ pro comp_crosstalk, debug=debug
   endif
 end
 
+
+; main-level example program
+
+process_basedir = '/hao/compdata1/Data/CoMP/process.crosstalk'
+date_dir = '20160801'
+
+comp_initialize, date_dir
+comp_crosstalk, process_basedir, date_dir;, /debug
+
+end
