@@ -11,7 +11,7 @@
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_make_mask,
 ;   comp_transparent_logo, comp_aia_lct, colorbar2,
-;   sxpar, headfits, fitshead2struct, merge_struct, readfits, 
+;   sxpar, headfits, fitshead2struct, merge_struct, readfits,
 ;   mg_log
 ;
 ; :Params:
