@@ -58,7 +58,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   endif
   gbu = comp_read_gbu(gbu_file)
   for ii = 0L, n_elements(gbu) - 1L do begin
-    gbu[ii].l1file = filepath(gbu[ii].l1file + '.gz', root=l1_process_dir)
+    gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
   endfor
 
   ; only want the good measurements
