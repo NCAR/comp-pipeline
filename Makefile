@@ -29,7 +29,7 @@ endif
 
 MACHINE=$(shell comp_get_hostname.sh)
 CONFIG=config/comp.$(USER).$(MACHINE)$(FLAGS).cfg
-CONFIG_FILENAME=$(shell mktemp)
+CONFIG_FILENAME:=$(shell mktemp)
 
 SSW_DIR=$(PWD)/ssw
 GEN_DIR=$(PWD)/gen
@@ -71,7 +71,7 @@ pipe:
 #	else \
 #	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
 #	fi
-	$(ECHO_PREFIX)mail_results.sh $(CONFIG_FILENAME) $(EMAIL)
+	$(ECHO_PREFIX)mail_results.sh $(CONFIG) $(CONFIG_FILENAME) $(EMAIL)
 	$(ECHO_PREFIX)rm $(CONFIG_FILENAME)
 
 cal:

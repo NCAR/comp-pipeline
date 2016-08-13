@@ -1,6 +1,7 @@
 #!/bin/sh
 
-CONFIG_FILENAME=$1
-EMAIL=$2
+CONFIG=$(basename $1)
+TMP_FILENAME=$2
+EMAIL=$3
 
-cat ${CONFIG_FILENAME} | mail -s "Done processing pipeline with $(basename ${CONFIG_FILENAME})" ${EMAIL}
+cat ${TMP_FILENAME} | mail -s "Done processing pipeline with ${CONFIG}" ${EMAIL}
