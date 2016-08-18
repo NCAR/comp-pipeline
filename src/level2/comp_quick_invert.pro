@@ -80,13 +80,13 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   ; create filename and open input FITS file
   if (process_synthetic eq 1) then begin
-    file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts")')
+    file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
   endif else begin
-    file = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts")')
+    file = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
-    mg_log, 'file %s does not exist, exiting', file, name='comp/quick_invert', /info
+    mg_log, 'file %s does not exist, exiting', file, name='comp/quick_invert', /warn
     return
   endif
 
