@@ -99,6 +99,10 @@ pro comp_configuration, config_filename=config_filename
   code_version = comp_find_code_version(revision=revision)
   code_revision = revision
 
+  subtract_background             = config->get('subtract_background', $
+                                                section='options', $
+                                                /boolean, default=1B)
+
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
                                                 /boolean, default=0B)
