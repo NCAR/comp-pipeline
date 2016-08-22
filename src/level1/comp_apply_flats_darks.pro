@@ -41,6 +41,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   ntags++   ; for the ND-TRANS tag we add below
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
+  if (remove_stray_light) then ntags += 2   ; for FITMNLIN/FITVRLIN
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
@@ -76,7 +77,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
     if (flat_found[iflat]) then begin
       tmp_image /= flat[*, *, iflat]
     endif
-    images[*, *, i] = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
+    tmp_image = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
+    images[*, *, i] = temporary(tmp_image)
 
     nd = comp_get_nd_filter(date_dir, wave_type, header)
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
@@ -86,6 +88,19 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
       flat_image = flat[*, *, iflat] * flat_mask
       medflat = median(flat_image[where(flat_image ne 0.0)])
     endif else medflat = !values.f_nan
+
+    if (remove_stray_light) then begin
+      tmp_image = images[*, *, i]
+      comp_fix_stray_light, tmp_image, header, fit
+      images[*, *, i] = temporary(tmp_image)
+
+      ; characterize the fit and save in the header
+      fit_moment = moment(fit)
+      sxaddpar, header, 'FITMNLIN', fit_moment[0], $
+                ' Stray Light Fit Mean for Line'
+      sxaddpar, header, 'FITVRLIN', fit_moment[1], $
+                ' Stray Light Fit Variance for Line'
+    endif
 
     ; update the header with the flat information
     sxaddpar, header, 'ND-TRANS', transmission_correction, $

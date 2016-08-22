@@ -35,6 +35,7 @@ common comp_config, binary_dir, $
                     code_version, $
                     code_revision, $
                     subtract_background, $
+                    remove_stray_light, $
                     flat_avg_skip_first, $
                     read_flats_beam_multiplies_wave, $
                     make_flat_beam_multiplies_wave, $
