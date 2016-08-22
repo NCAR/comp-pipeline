@@ -74,6 +74,8 @@ pro comp_configuration, config_filename=config_filename
   ; actions
   create_l1         = config->get('create_l1', section='actions', $
                                   /boolean, default=1B)
+  correct_crosstalk = config->get('correct_crosstalk', section='actions', $
+                                  /boolean, default=1B)
   create_flatsdarks = config->get('create_flatsdarks', section='actions', $
                                   /boolean, default=create_l1)
   distribute_l1     = config->get('distribute_l1', section='actions', $
@@ -96,6 +98,10 @@ pro comp_configuration, config_filename=config_filename
   ; processing code version
   code_version = comp_find_code_version(revision=revision)
   code_revision = revision
+
+  subtract_background             = config->get('subtract_background', $
+                                                section='options', $
+                                                /boolean, default=1B)
 
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $

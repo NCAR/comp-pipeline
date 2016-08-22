@@ -236,7 +236,7 @@ pro comp_make_flat, date_dir, error=error
 
       ; detrend across large image
       if (make_flat_detrending) then begin
-        ; TODO use post_angle1 for second post because second is in wrong position
+        ; TODO: use post_angle1 for second post because second is in wrong position
         comp_fix_trend, image, $
                         occulter1, occulter2, $
                         field1, field2, post_angle1, post_angle1, fit
@@ -281,9 +281,9 @@ pro comp_make_flat, date_dir, error=error
       threshold = 12.0 * expose / 250.0 / transmission_correction
 
       if (medflat lt threshold) then begin
-        mg_log, 'flat median lower than expected for %s: %0.2f (flat median) < %0.2f (theshold)', $
-                opalfile, medflat, threshold, name='comp', /warn
-        break
+        mg_log, 'flat median lower than expected for %s (%0.2f): %0.2f (flat median) < %0.2f (theshold)', $
+                opalfile, uniq_waves[i], medflat, threshold, name='comp', /warn
+        continue
       endif
       
       ; make sure there aren't any zeros

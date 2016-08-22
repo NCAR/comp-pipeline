@@ -65,5 +65,16 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   free_lun, infiles_lun
 
+  ; zip L1 (and background) files
+  mg_log, 'zipping L1 files...', name='comp', /info
+  zip_cmd = string(wave_type, $
+                   format='(%"gzip -f *.*.comp.%s.*.fts")')
+  spawn, zip_cmd, result, error_result, exit_status=status
+  if (status ne 0L) then begin
+    mg_log, 'problem zipping files with command: %s', zip_cmd, $
+            name='comp', /error
+    mg_log, '%s', error_result, name='comp', /error
+  endif
+
   mg_log, 'done', name='comp', /info
 end

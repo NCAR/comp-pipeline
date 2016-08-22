@@ -35,13 +35,17 @@
 ;     specify filename of flat file to read
 ;   flat_extensions : out, optional, type=lonarr(nwave)
 ;     set to a named variable to retrieve the extension of the flat file used
+;   flat_found : out, optional, type=bytarr(nwave)
+;     set to a named variable to retrieve whether a flat was found for the given
+;     wavelength
 ;
 ; :Author:
 ;   Tomczyk
 ;-
 pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
                      flat_waves, flat_names, flat_exposure, $
-                     file=file, flat_extensions=flat_extensions
+                     file=file, flat_extensions=flat_extensions, $
+                     flat_found=flat_found
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
@@ -67,6 +71,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   flat_names = strarr(nwave)
   flat_extensions = lonarr(nwave)
   flat_exposure = fltarr(nwave)
+  flat_found = bytarr(nwave) + 1B
 
   ; flat field filename
   if (keyword_set(file)) then begin
@@ -93,8 +98,10 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   for iw = 0L, nwave - 1L do begin
     correct_wave = where(flat_waves[iw] eq flat_wavelengths, count)
     if (count eq 0L) then begin
-      mg_log, 'no correct_wave for %f in %s', flat_waves[iw], flatfile, $
+      mg_log, 'no correct wave for %0.2f in %s', $
+              flat_waves[iw], file_basename(flatfile), $
               name='comp', /warn
+      flat_found[iw] = 0B
       continue
     endif
 

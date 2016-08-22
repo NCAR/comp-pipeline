@@ -11,7 +11,7 @@
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_make_mask,
 ;   comp_transparent_logo, comp_aia_lct, colorbar2,
-;   sxpar, headfits, fitshead2struct, merge_struct, readfits, 
+;   sxpar, headfits, fitshead2struct, merge_struct, readfits,
 ;   mg_log
 ;
 ; :Params:
@@ -47,7 +47,7 @@ pro comp_l2_create_movies, date_dir, wave_type
   endif
   gbu = comp_read_gbu(gbu_file)
   for ii = 0L, n_elements(gbu) - 1L do begin
-    gbu[ii].l1file = filepath(gbu[ii].l1file + '.gz', root=l1_process_dir)
+    gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
   endfor
 
   ; only want the good measurements

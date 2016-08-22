@@ -58,7 +58,7 @@ function comp_read_gbu, gbu_file
     ;ttt = str_sep(x[0],'.gz')
     ;file = ttt[0]
     file = x[0]
-    ttt = str_sep(file, '.fts')
+    ttt = str_sep(file, '.fts.gz')
     ttt = str_sep(ttt[0], '/')
     base = ttt[n_elements(ttt) - 1]
 

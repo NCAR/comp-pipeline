@@ -23,6 +23,7 @@ common comp_config, binary_dir, $
                     find_post_log_level, $
                     create_flatsdarks, $
                     create_l1, $
+                    correct_crosstalk, $
                     distribute_l1, $
                     create_l2, $
                     distribute_l2, $
@@ -33,6 +34,7 @@ common comp_config, binary_dir, $
                     update_database, $
                     code_version, $
                     code_revision, $
+                    subtract_background, $
                     flat_avg_skip_first, $
                     read_flats_beam_multiplies_wave, $
                     make_flat_beam_multiplies_wave, $

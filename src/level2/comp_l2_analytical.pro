@@ -42,9 +42,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
   wave = wave_type
 
   case wave_type of
-   '1074': rest = double(center1074)
-   '1079': rest = double(center1079)
-   '1083': rest = double(center1083)
+    '1074': rest = double(center1074)
+    '1079': rest = double(center1079)
+    '1083': rest = double(center1083)
   endcase
   c = 299792.458D
 
@@ -56,7 +56,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
   gbu = comp_read_gbu(gbu_file)
 
   for ii = 0L, n_elements(gbu) - 1L do begin
-    gbu[ii].l1file = filepath(gbu[ii].l1file + '.gz', root=l1_process_dir)
+    gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
   endfor
 
   ; only want the good measurements
