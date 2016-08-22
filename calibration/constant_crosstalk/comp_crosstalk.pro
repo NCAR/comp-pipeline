@@ -27,7 +27,6 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   device, decomposed=0
   loadct, 0
-  ;openw,1,dir+'crosstalk.log'
 
   ; read data
   if (keyword_set(debug)) then print, 'reading data'
@@ -37,6 +36,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   fits_read, fcb, data, p_header, /header_only, exten_no=0
   ntune = sxpar(p_header, 'NTUNES')
+
   ; compute center wavelength index (0 is first)
   nc = fix(ntune / 2)                 
 
@@ -48,7 +48,9 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   background = fltarr(nx, nx, ntune)
 
   ; create mask
+  erode_s = bytarr(25, 25) + 1B
   comp_make_mask2, p_header, mask, occ_fac=1.06, fld_fac=0.98
+  mask = erode(mask, erode_s)
 
   for i = 0, ntune - 1 do begin
     ; read stokes I
@@ -61,7 +63,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     fits_read, fcb, data, header, exten_no=i + 1 + 2 * ntune
     stokes_u[*, *, i] = data * mask
     ; read stokes V
-    fits_read, fcb, data, header, exten_no=i+1+3*ntune
+    fits_read, fcb, data, header, exten_no=i + 1 + 3 * ntune
     stokes_v[*, *, i] = data * mask
     ; read background
     fits_read, fcb, data, header, exten_no=i + 1 + 4 * ntune
@@ -74,10 +76,10 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   if (keyword_set(debug)) then begin
     wset, 1
     !p.multi = [0, 4, 1, 0, 0]
-    tv, bytscl(stokes_i[*, *, nc] * mask, 0, 25), 0
-    tv, bytscl(stokes_q[*, *, nc] * mask, -0.8, 0.8), 1
-    tv, bytscl(stokes_u[*, *, nc] * mask, -0.8, 0.8), 2
-    tv, bytscl(stokes_v[*, *, nc] * mask, -0.15, 0.15), 3
+    tv, bytscl(stokes_i[*, *, nc] * mask,  0.0,  25.0),  0
+    tv, bytscl(stokes_q[*, *, nc] * mask, -0.8,   0.8),  1
+    tv, bytscl(stokes_u[*, *, nc] * mask, -0.8,   0.8),  2
+    tv, bytscl(stokes_v[*, *, nc] * mask, -0.15,  0.15), 3
   endif
 
   ; determine bright and faint intensity pixels
@@ -176,6 +178,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     tmp = stokes_i[*, *, 0]
     low_ind = where(tmp[faint] lt 11.0, count)
     low_xy = array_indices([620, 620], faint[low_ind], /dimensions)
+    print, count, format='(%"Number < 11.0   : %d")'
 
     device, decomposed=1
     plots, low_xy[0, *], low_xy[1, *], /device, color='0000ff'x, psym=3
