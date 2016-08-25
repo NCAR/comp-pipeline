@@ -59,8 +59,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
     gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
   endfor
 
-  ; only want the good measurements
-  good = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, n_good)
+  ; only want the good measurements with at least nwl wavelengths
+  n_points = gbu.wavelengths
+  good = where(gbu.quality eq 'Good' and n_points ge nwl, n_good)
   mg_log, '%d good %d point files...', n_good, nwl, name='comp', /info
 
   if (n_good eq 0) then goto, skip
@@ -71,7 +72,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
 
   ; distinguish between Q/U files and V files
   for ii = 0L, nt - 1L do begin
-    l1_header = headfits(gbu[ii].l1file, exten=nwl + 1)
+    l1_header = headfits(gbu[ii].l1file, exten=n_points[ii] + 1)
     l1_extname = sxpar(l1_header, 'EXTNAME')
     whatisthis = strmid(l1_extname, 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
@@ -80,9 +81,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
   for ii = 0L, nt - 1L do begin
     hdr    = headfits(gbu[ii].l1file)
 
-    i1 = double(readfits(gbu[ii].l1file, exten_no=nwl / 2, /silent, ehdr1))
-    i2 = double(readfits(gbu[ii].l1file, exten_no=nwl / 2 + 1, /silent, ehdr2))
-    i3 = double(readfits(gbu[ii].l1file, exten_no=nwl / 2 + 2, /silent, ehdr3))
+    i1 = double(readfits(gbu[ii].l1file, exten_no=n_points[ii] / 2, /silent, ehdr1))
+    i2 = double(readfits(gbu[ii].l1file, exten_no=n_points[ii] / 2 + 1, /silent, ehdr2))
+    i3 = double(readfits(gbu[ii].l1file, exten_no=n_points[ii] / 2 + 2, /silent, ehdr3))
     
     if (ii eq 0) then begin
       wavel = [sxpar(ehdr1, 'WAVELENG'), $
@@ -97,12 +98,24 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
     endif
 
     if (qu_files[ii] eq 1) then begin
-      stks_q = double(readfits(gbu[ii].l1file, exten_no=nwl + nwl / 2, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=nwl + nwl / 2 + 1, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=nwl + nwl / 2 + 1, /silent))
-      stks_u = double(readfits(gbu[ii].l1file, exten_no=2 * nwl + nwl / 2, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=2 * nwl + nwl / 2 + 1, /silent) $
-                        + readfits(gbu[ii].l1file, exten_no=2 * nwl + nwl / 2 + 2, /silent))
+      stks_q = double(readfits(gbu[ii].l1file, $
+                               exten_no=n_points[ii] + n_points[ii] / 2, $
+                               /silent) $
+                        + readfits(gbu[ii].l1file, $
+                                   exten_no=n_points[ii] + n_points[ii] / 2 + 1, $
+                                   /silent) $
+                        + readfits(gbu[ii].l1file, $
+                                   exten_no=n_points[ii] + n_points[ii] / 2 + 1, $
+                                   /silent))
+      stks_u = double(readfits(gbu[ii].l1file, $
+                               exten_no=2 * n_points[ii] + n_points[ii] / 2, $
+                               /silent) $
+                        + readfits(gbu[ii].l1file, $
+                                   exten_no=2 * n_points[ii] + n_points[ii] / 2 + 1, $
+                                   /silent) $
+                        + readfits(gbu[ii].l1file, $
+                                   exten_no=2 * n_points[ii] + n_points[ii] / 2 + 2, $
+                                   /silent))
     endif
 
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
