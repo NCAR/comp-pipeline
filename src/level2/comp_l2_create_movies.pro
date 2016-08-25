@@ -106,6 +106,25 @@ pro comp_l2_create_movies, date_dir, wave_type
     l2_p_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
                                + 'polarization.*.fts.gz'))[0]
 
+    if (file_test(l2_d_file) eq 0L) then begin
+      mg_log, 'dynamics file not found', file_basename(gbu[ii].l1file), $
+              name='comp', /warn
+      continue
+    endif
+
+    if (qu_files[ii] eq 1 and file_test(l2_p_file) eq 0) then begin
+      mg_log, 'polarization file not found: %s', file_basename(gbu[ii].l1file), $
+              name='comp', /warn
+      continue
+    endif
+
+    mg_log, 'dynamics file: %s (%s)', $
+            l2_d_file, file_test(l2_d_file) ? 'present' : 'not found', $
+            name='comp', /debug
+    mg_log, 'polarization file: %s (%s)', $
+            l2_d_file, file_test(l2_p_file) ? 'present' : 'not found', $
+            name='comp', /debug
+
     intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     int_enh   = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
     velocity  = readfits(l2_d_file, ext=3, /silent)   ; corrected LOS velocity
