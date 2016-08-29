@@ -104,7 +104,7 @@ pro comp_configuration, config_filename=config_filename
                                                 /boolean, default=1B)
   remove_stray_light              = config->get('remove_stray_light', $
                                                 section='options', $
-                                                /boolean, default=1B)
+                                                /boolean, default=0B)
 
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
