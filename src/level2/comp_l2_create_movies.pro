@@ -20,13 +20,17 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
+; :Keywords:
+;   nwl : in, required, type=integer
+;     number of wavelengths to use, must be 3 right now
+;
 ; :Author:
 ;   Christian Bethge
 ;
 ; :History:
 ;    removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_create_movies, date_dir, wave_type
+pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -102,9 +106,9 @@ pro comp_l2_create_movies, date_dir, wave_type
     mask = double(mask)
 
     l2_d_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                               + 'dynamics.*.fts.gz'))[0]
+                               + 'dynamics.' + strtrim(nwl, 2) + '.fts.gz'))[0]
     l2_p_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                               + 'polarization.*.fts.gz'))[0]
+                               + 'polarization.' + strtrim(nwl, 2) + '.fts.gz'))[0]
 
     if (file_test(l2_d_file) eq 0L) then begin
       mg_log, 'dynamics file not found', file_basename(gbu[ii].l1file), $

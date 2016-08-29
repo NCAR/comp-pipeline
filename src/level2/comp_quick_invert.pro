@@ -93,13 +93,16 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   fits_open, file, fcb
   n = fcb.nextend
 
+  comp_inventory, fcb, beam, wavelengths
+
   ; copy the primary header from the mean file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
 
   ntune = sxpar(primary_header, 'NTUNE', count=nrecords)
   if (nrecords eq 0L) then ntune = sxpar(primary_header, 'NTUNES')
   nstokes = 4
-  center_index = ntune / 2
+  ; find standard 3 pt wavelength indices
+  wave_indices = comp_3pt_indices(wave_type, wavelengths, error=error)
 
   ; read data
 
@@ -122,11 +125,11 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
 
   ; compute parameters
-  i = comp_obs[*, *, 0, center_index]
-  q = comp_obs[*, *, 1, center_index]
-  u = comp_obs[*, *, 2, center_index]
+  i = comp_obs[*, *, 0, wave_indices[1]]
+  q = comp_obs[*, *, 1, wave_indices[1]]
+  u = comp_obs[*, *, 2, wave_indices[1]]
 
-  p_angle = sxpar(header,'SOLAR_P0')
+  p_angle = sxpar(header, 'SOLAR_P0')
 
   zero = where(i eq 0, count)
   if (count eq 0) then mg_log, 'no zeros', name='comp/quick_invert', /warn
@@ -145,14 +148,14 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   l = sqrt(q^2 + u^2)
 
   ; compute doppler shift and linewidth from analytic gaussian fit
-  i1 = comp_obs[*, *, 0L, center_index - 1L]
-  i2 = comp_obs[*, *, 0L, center_index]
-  i3 = comp_obs[*, *, 0L, center_index + 1L]
-  d_lambda = abs(wave[center_index] - wave[center_index - 1L])
+  i1 = comp_obs[*, *, 0L, wave_indices[0]]
+  i2 = comp_obs[*, *, 0L, wave_indices[1]]
+  i3 = comp_obs[*, *, 0L, wave_indices[2]]
+  d_lambda = abs(wave[wave_indices[1]] - wave[wave_indices[0]])
 
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, i_cent
-  dop *= 3.e5 / wave[center_index]   ; convert to km/s
-  width *= 3.e5 / wave[center_index]
+  dop *= 3.e5 / wave[wave_indices[1]]   ; convert to km/s
+  width *= 3.e5 / wave[wave_indices[1]]
 
   ; write fit parameters to output file
 

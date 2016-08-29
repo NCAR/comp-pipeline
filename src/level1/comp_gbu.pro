@@ -15,7 +15,7 @@
 ; rejection and the corresponding bits set in the good_files parameter are::
 ;
 ;     1   data doesn't exist on disk but is in inventory file
-;     2   number of wavelengths observed > 10 (not necessarily bad data)
+;     2   3 standard wavelengths not found (not necessarily bad data)
 ;     4   background > 30 ppm
 ;     8   background anamolously low, defined as < 4 ppm  
 ;     16  standard deviation of intensity image - median intensity
@@ -173,16 +173,28 @@ pro comp_gbu, date_dir, wave_type, error=error
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
 
+    comp_inventory, fcb, beam, wavelengths
+    wave_indices = comp_3pt_indices(wave_type, wavelengths, error=wave_error)
+  
     ; reject special obs at beginning with number of wavelengths observed > 10
     if (wave_type ne '1083') then begin
-      if (n_waves[ifile] gt 10) then begin
-        mg_log, 'gt 10 waves, skipping observation %s', str, name='comp', /warn
-        good_files[ifile] += 2 
+      ; skip observation if standard 3 wavelengths don't exist for the wave type
+      if (wave_error gt 0L) then begin
+        mg_log, 'standard 3 wavelengths not found, skipping observation %s', str, $
+                name='comp', /warn
+        good_files[ifile] += 2
+
+        ; skip observation
+        fits_close, fcb
+        fits_close, back_fcb
+        continue
       endif
 
       ; reject high background images
-      if (back[ifile] gt 30.) then begin
-        mg_log, 'background gt 30, reject %s', str, name='comp', /warn
+      background_cutoff = 30.0
+      if (back[ifile] gt background_cutoff) then begin
+        mg_log, 'background gt %0.1f, reject %s', background_cutoff, str, $
+                name='comp', /warn
         good_files[ifile] += 4
       endif
 
@@ -196,21 +208,20 @@ pro comp_gbu, date_dir, wave_type, error=error
     ; make mask of field-of-view
     comp_make_mask, date_dir, header, mask
 
-    ; read three images around central wavelength
-
+    ; find standard 3 wavelengths for the wave type
     ; read line center intensity
-    fits_read, fcb, dat, header, exten_no=n_waves[ifile] / 2 + 1
+    fits_read, fcb, dat, header, exten_no=wave_indices[1] + 1
     ; read blue wing intensity
-    fits_read, fcb, dat_b, header, exten_no=n_waves[ifile] / 2
+    fits_read, fcb, dat_b, header, exten_no=wave_indices[0] + 1
     ; read red wing intensity
-    fits_read, fcb, dat_r, header, exten_no=n_waves[ifile] / 2 + 2
+    fits_read, fcb, dat_r, header, exten_no=wave_indices[2] + 1
 
     ; use average of intensities (/2 not 3 since blue and red are about 0.5
     ; center intensity)
     data[*, *, ifile] = (dat + dat_b + dat_r) * mask / 2.
 
     ; read central background image
-    fits_read, back_fcb, dat_back, header, exten_no=n_waves[ifile] / 2 + 1
+    fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
 
     ; reject file if there are more than 150 background pixels with a level of
     ; >150
@@ -309,9 +320,11 @@ pro comp_gbu, date_dir, wave_type, error=error
     if ((synoptic_flag eq 1) and (good_files[i] eq 0)) then begin
       printf, synoptic_lun, good_lines[i]
     endif
+    ; TODO: good GBU and must contain I+Q, I-Q, I+U, I-U
     if ((good_files[i] eq 0) and (n_waves[i] eq 5)) then begin
       printf, good_lun, good_lines[i]
     endif
+    ; need fast cadence for waves (only way to tell now is 3 points)
     if ((good_files[i] eq 0) and (n_waves[i] eq 3)) then begin
       printf, good_waves_lun, good_lines[i]
     endif

@@ -1,7 +1,10 @@
 common comp_constants, nx, ny, $
                        k1, k2, $
                        wavefwhm, $
-                       center1074, center1079, center1083,  $
+                       center1074, center1079, center1083, $
+                       wavelengths_3pt_1074, $
+                       wavelengths_3pt_1079, $
+                       wavelengths_3pt_1083, $
                        dispmin1074, dispmin1079, dispmin1083, $
                        dispmax1074, dispmax1079, dispmax1083, $
                        dispexp1074, dispexp1079, dispexp1083, $

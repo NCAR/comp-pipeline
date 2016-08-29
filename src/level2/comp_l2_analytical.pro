@@ -21,13 +21,17 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
+; :Keywords:
+;   nwl : in, required, type=integer
+;     number of wavelengths to use; must be 3 right now
+;
 ; :Author:
 ;   Christian Bethge
 ;
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_analytical, date_dir, wave_type, nwl
+pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -79,11 +83,17 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
   endfor
 
   for ii = 0L, nt - 1L do begin
+    fits_open, gbu[ii].l1file, fcb
+    comp_inventory, fcb, beam, wave
+    fits_close, fcb
+
     hdr    = headfits(gbu[ii].l1file)
 
-    i1 = double(readfits(gbu[ii].l1file, exten_no=n_points[ii] / 2, /silent, ehdr1))
-    i2 = double(readfits(gbu[ii].l1file, exten_no=n_points[ii] / 2 + 1, /silent, ehdr2))
-    i3 = double(readfits(gbu[ii].l1file, exten_no=n_points[ii] / 2 + 2, /silent, ehdr3))
+    wave_ind = comp_3pt_indices(wave_type, wave, error=error)
+
+    i1 = double(readfits(gbu[ii].l1file, exten_no=wave_ind[0] + 1, /silent, ehdr1))
+    i2 = double(readfits(gbu[ii].l1file, exten_no=wave_ind[1] + 1, /silent, ehdr2))
+    i3 = double(readfits(gbu[ii].l1file, exten_no=wave_ind[2] + 1, /silent, ehdr3))
     
     if (ii eq 0) then begin
       wavel = [sxpar(ehdr1, 'WAVELENG'), $
@@ -99,22 +109,22 @@ pro comp_l2_analytical, date_dir, wave_type, nwl
 
     if (qu_files[ii] eq 1) then begin
       stks_q = double(readfits(gbu[ii].l1file, $
-                               exten_no=n_points[ii] + n_points[ii] / 2, $
+                               exten_no=n_points[ii] + wave_ind[0] + 1, $
                                /silent) $
                         + readfits(gbu[ii].l1file, $
-                                   exten_no=n_points[ii] + n_points[ii] / 2 + 1, $
+                                   exten_no=n_points[ii] + wave_ind[1] + 1, $
                                    /silent) $
                         + readfits(gbu[ii].l1file, $
-                                   exten_no=n_points[ii] + n_points[ii] / 2 + 1, $
+                                   exten_no=n_points[ii] + wave_ind[2] + 1, $
                                    /silent))
       stks_u = double(readfits(gbu[ii].l1file, $
-                               exten_no=2 * n_points[ii] + n_points[ii] / 2, $
+                               exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
                                /silent) $
                         + readfits(gbu[ii].l1file, $
-                                   exten_no=2 * n_points[ii] + n_points[ii] / 2 + 1, $
+                                   exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
                                    /silent) $
                         + readfits(gbu[ii].l1file, $
-                                   exten_no=2 * n_points[ii] + n_points[ii] / 2 + 2, $
+                                   exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
                                    /silent))
     endif
 
