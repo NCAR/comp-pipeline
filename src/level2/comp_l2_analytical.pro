@@ -121,10 +121,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
                                /silent) $
                         + readfits(gbu[ii].l1file, $
-                                   exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
+                                   exten_no=2 * n_points[ii] + wave_ind[1] + 1, $
                                    /silent) $
                         + readfits(gbu[ii].l1file, $
-                                   exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
+                                   exten_no=2 * n_points[ii] + wave_ind[2] + 1, $
                                    /silent))
     endif
 
