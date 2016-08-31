@@ -28,22 +28,24 @@ function comp_azimuth, u, q, p_angle, radial_azimuth=radial_azimuth
   bad = where(azimuth lt 0., count)
   if (count gt 0) then azimuth[bad] += 180.0
 
-  x = rebin(findgen(nx) - float(nx) / 2.0, nx, nx)
-  y = transpose(x)
-  ; compute theta and convert to degrees
-  theta = atan(y, x) * 180.0 / !pi + 180.0
-  theta mod= 180.0
-
-  thew = theta + 90.0
-  testsouth = where(theta gt 90.0D and theta le 270.0D, count)
-  if (count gt 0L) then thew[testsouth] -= 180.0D
-  testquad = where(theta gt 270.0D, count)
-  if (count gt 0) then thew[testquad] -= 360.0D
-
   if (arg_present(radial_azimuth)) then begin
+    x = rebin(findgen(nx) - float(nx) / 2.0, nx, nx)
+    y = transpose(x)
+    ; compute theta and convert to degrees
+    theta = atan(y, x) * 180.0 / !pi + 180.0
+    theta mod= 180.0
+
+    thew = theta + 90.0
+    testsouth = where(theta gt 90.0D and theta le 270.0D, count)
+    if (count gt 0L) then thew[testsouth] -= 180.0D
+    testquad = where(theta gt 270.0D, count)
+    if (count gt 0) then thew[testquad] -= 360.0D
+
     radial_azimuth = azimuth - thew
     test = where(radial_azimuth lt 0., count)
     if (count gt 0) then radial_azimuth[test] += 180.d0
     radial_azimuth -= 90.0
   endif
+
+  return, azimuth
 end
