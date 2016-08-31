@@ -91,13 +91,13 @@ pro comp_initialize, date_dir
   center1079 = comp_initialize_readconfig('center_1079', date_dir, options, type=4)
   center1083 = comp_initialize_readconfig('center_1083', date_dir, options, type=4)
 
-  wavelengths_3pt_1074 = comp_initialize_readconfig('wavelengths_3pt_1074', $
+  wavelengths_3pt_1074 = comp_initialize_readconfig('1074_3pt_wavelengths', $
                                                     date_dir, options, $
                                                     type=4, /extract)
-  wavelengths_3pt_1079 = comp_initialize_readconfig('wavelengths_3pt_1079', $
+  wavelengths_3pt_1079 = comp_initialize_readconfig('1079_3pt_wavelengths', $
                                                     date_dir, options, $
                                                     type=4, /extract)
-  wavelengths_3pt_1083 = comp_initialize_readconfig('wavelengths_3pt_1083', $
+  wavelengths_3pt_1083 = comp_initialize_readconfig('1083_3pt_wavelengths', $
                                                     date_dir, options, $
                                                     type=4, /extract)
 
