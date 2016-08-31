@@ -226,7 +226,9 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif
 
+    if (create_l1 || perform_gbu) then begin
       ; identify good data
       mg_log, 'running comp_gbu', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin

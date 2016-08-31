@@ -21,6 +21,7 @@ common comp_config, binary_dir, $
                     fix_crosstalk_log_level, $
                     find_image_center_log_level, $
                     find_post_log_level, $
+                    perform_gbu, $
                     create_flatsdarks, $
                     create_l1, $
                     correct_crosstalk, $
