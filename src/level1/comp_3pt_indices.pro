@@ -38,7 +38,7 @@ function comp_3pt_indices, wave_type, wavelengths, tolerance=tolerance, error=er
   for i = 0L, 2L do begin
     min_value = min(abs(wave_3pt[i] - wavelengths), ind)
     indices[i] = ind
-    if (min_value gt tolerance) then error = 1L
+    if (min_value gt _tolerance) then error = 1L
   endfor
 
   return, indices
