@@ -32,17 +32,20 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-function comp_read_gbu, gbu_file
+function comp_read_gbu, gbu_file, count=count
   compile_opt strictarr
 
   nlines = file_lines(gbu_file)
+  count = nlines - 1
   sarr = strarr(nlines)
   openr, unit, gbu_file, /get_lun
   readf, unit, sarr
   free_lun, unit
 
-  mg_log, 'GBU file %s has %d entries', file_basename(gbu_file), nlines - 1, $
+  mg_log, 'GBU file %s has %d entries', file_basename(gbu_file), count, $
           name='comp', /debug
+
+  if (count eq 0) then return, !null
 
   for ii = 1L, n_elements(sarr) - 1L do begin
     str = {l1file:'', $

@@ -53,10 +53,17 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
 
   gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
   if (~file_test(gbu_file)) then begin
-    mg_log, '%s does not exist, skipping', gbu_file, name='comp', /warning
+    mg_log, '%s does not exist, skipping', file_basename(gbu_file), $
+            name='comp', /warning
     goto, skip
   endif
-  gbu = comp_read_gbu(gbu_file)
+  gbu = comp_read_gbu(gbu_file, count=count)
+  if (count eq 0) then begin
+    mg_log, 'no entries in GBU file %s', file_basename(gbu_file), $
+            name='comp', /warning
+    goto, skip
+  endif
+
   for ii = 0L, n_elements(gbu) - 1L do begin
     gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
   endfor

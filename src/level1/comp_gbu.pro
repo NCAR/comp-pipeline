@@ -95,8 +95,6 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   mg_log, 'wave_type %s', wave_type, name='comp', /info
 
-  ; Establish error handler. When errors occur, the index of the
-  ; error is returned in the variable Error_status:
   catch, error
   if (error ne 0) then begin
     catch, /cancel
@@ -116,6 +114,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   filenames = strarr(n_files)
+
   ; array to collect good filenames (0 for good, >0 for bad)
   good_files = intarr(n_files)
   good_lines = strarr(n_files)
@@ -127,6 +126,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   time = fltarr(n_files)
   sigma = fltarr(n_files)
   n_waves = intarr(n_files)
+  polstates = strarr(n_files)
 
   str = ''
   openr, lun, files, /get_lun
@@ -136,6 +136,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     good_lines[ifile] = str
 
     datetime = strmid(str, 0, 15)
+
     ; search_filter is a glob, not a regular expression
     search_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts.gz'
     name = (file_search(search_filter, count=n_name_found))[0]
@@ -172,10 +173,14 @@ pro comp_gbu, date_dir, wave_type, error=error
     file_background = sxpar(header, 'BACKGRND')
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
-
-    comp_inventory, fcb, beam, wavelengths
-    wave_indices = comp_3pt_indices(wave_type, wavelengths, error=wave_error)
   
+    comp_inventory, fcb, beam, wavelengths, pol
+
+    upol = pol[uniq(pol, sort(pol))]
+    polstates[ifile] = strjoin(upol, ',')
+
+    wave_indices = comp_3pt_indices(wave_type, wavelengths, error=wave_error)  
+
     ; reject special obs at beginning with number of wavelengths observed > 10
     if (wave_type ne '1083') then begin
       ; skip observation if standard 3 wavelengths don't exist for the wave type
@@ -315,13 +320,17 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   printf, gbu_lun, 'Filename                                   Quality     Back     Sigma   #waves  Reason'
   for i = 0L, n_files - 1L do begin
+    ; don't put nonexistent files in the GBU file
+    if (filenames[i] eq '') then continue
+
     ; stop saving to synoptic when obs switch to 3 waves
     if ((synoptic_flag eq 1) and (n_waves[i] lt 5)) then synoptic_flag = 0
     if ((synoptic_flag eq 1) and (good_files[i] eq 0)) then begin
       printf, synoptic_lun, good_lines[i]
     endif
-    ; TODO: good GBU and must contain I+Q, I-Q, I+U, I-U
-    if ((good_files[i] eq 0) and (n_waves[i] eq 5)) then begin
+    if ((good_files[i] eq 0) $
+          and (strpos(polstates[i], 'Q') ge 0) $
+          and (strpos(polstates[i], 'U') ge 0)) then begin
       printf, good_lun, good_lines[i]
     endif
     ; need fast cadence for waves (only way to tell now is 3 points)
@@ -351,7 +360,10 @@ pro comp_gbu, date_dir, wave_type, error=error
   bad = where(good_files gt 0, bad_total)
   mg_log, '%d bad files', bad_total, name='comp', /info
   if (bad_total gt 0) then begin
-    mg_log, 'bad: %s', strjoin(filenames[bad], ', '), name='comp', /warn
+    bad_existing = where(good_files gt 0 and good_files mod 2 eq 0, n_bad_existing)
+    if (n_bad_existing gt 0L) then begin
+      mg_log, 'bad: %s', strjoin(filenames[bad_existing], ', '), name='comp', /warn
+    endif
   endif
 
   ; engineering plots
