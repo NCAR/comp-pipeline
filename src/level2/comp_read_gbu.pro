@@ -41,7 +41,8 @@ function comp_read_gbu, gbu_file
   readf, unit, sarr
   free_lun, unit
 
-  mg_log, 'CoMP GBU file has %d entries', nlines - 1, name='comp', /debug
+  mg_log, 'GBU file %s has %d entries', file_basename(gbu_file), nlines - 1, $
+          name='comp', /debug
 
   for ii = 1L, n_elements(sarr) - 1L do begin
     str = {l1file:'', $
@@ -55,8 +56,6 @@ function comp_read_gbu, gbu_file
     x = x[best]
     str.l1file = x[0]
 
-    ;ttt = str_sep(x[0],'.gz')
-    ;file = ttt[0]
     file = x[0]
     ttt = str_sep(file, '.fts.gz')
     ttt = str_sep(ttt[0], '/')
@@ -98,8 +97,9 @@ function comp_read_gbu, gbu_file
     bad = where(gbu.quality eq 'Bad', n_bad)
     ugly = where(gbu.quality eq 'Ugly', n_ugly)
 
-    mg_log, 'GBU file has %d good, %d bad, and %d ugly images', $
-            n_good, n_bad, n_ugly, name='comp', /debug
+    mg_log, 'GBU file %s has %d good, %d bad, and %d ugly images', $
+            file_basename(gbu_file), n_good, n_bad, n_ugly, $
+            name='comp', /debug
 
     nfive = where(gbu.quality eq 'Good' and gbu.wavelengths eq 5, ng5)
     nthree = where(gbu.quality eq 'Good' and gbu.wavelengths eq 3, ng3)
