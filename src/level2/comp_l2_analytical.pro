@@ -108,24 +108,24 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     endif
 
     if (qu_files[ii] eq 1) then begin
-      stks_q = double(readfits(gbu[ii].l1file, $
-                               exten_no=n_points[ii] + wave_ind[0] + 1, $
-                               /silent) $
-                        + readfits(gbu[ii].l1file, $
-                                   exten_no=n_points[ii] + wave_ind[1] + 1, $
-                                   /silent) $
-                        + readfits(gbu[ii].l1file, $
-                                   exten_no=n_points[ii] + wave_ind[2] + 1, $
-                                   /silent))
-      stks_u = double(readfits(gbu[ii].l1file, $
-                               exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
-                               /silent) $
-                        + readfits(gbu[ii].l1file, $
-                                   exten_no=2 * n_points[ii] + wave_ind[1] + 1, $
-                                   /silent) $
-                        + readfits(gbu[ii].l1file, $
-                                   exten_no=2 * n_points[ii] + wave_ind[2] + 1, $
-                                   /silent))
+      stks_q = 0.5D * double(readfits(gbu[ii].l1file, $
+                                      exten_no=n_points[ii] + wave_ind[0] + 1, $
+                                      /silent) $
+                               + readfits(gbu[ii].l1file, $
+                                          exten_no=n_points[ii] + wave_ind[1] + 1, $
+                                          /silent) $
+                               + readfits(gbu[ii].l1file, $
+                                          exten_no=n_points[ii] + wave_ind[2] + 1, $
+                                          /silent))
+      stks_u = 0.5D * double(readfits(gbu[ii].l1file, $
+                                      exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
+                                      /silent) $
+                               + readfits(gbu[ii].l1file, $
+                                          exten_no=2 * n_points[ii] + wave_ind[1] + 1, $
+                                          /silent) $
+                               + readfits(gbu[ii].l1file, $
+                                          exten_no=2 * n_points[ii] + wave_ind[2] + 1, $
+                                          /silent))
     endif
 
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
