@@ -72,6 +72,8 @@ pro comp_configuration, config_filename=config_filename
   engineering_dir = config->get('engineering_dir', section='engineering')
 
   ; actions
+  dry_run           = config->get('dry_run', section='actions', $
+                                  /boolean, default=0B)
   create_l1         = config->get('create_l1', section='actions', $
                                   /boolean, default=1B)
   correct_crosstalk = config->get('correct_crosstalk', section='actions', $
