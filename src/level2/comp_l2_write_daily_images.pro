@@ -12,9 +12,9 @@
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
-;   comp_make_mask, comp_aia_lct, comp_transparent_logo, colorbar2,
-;   anytim2tai, sxpar, headfits, fitshead2struct, merge_struct, readfits,
-;   mg_log
+;   comp_azimuth, comp_make_mask, comp_aia_lct, comp_transparent_logo,
+;   colorbar2, anytim2tai, sxpar, headfits, fitshead2struct, merge_struct,
+;   readfits, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -160,10 +160,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   stks_q     = reform(mean_corr_data[*, *, 4])
   stks_u     = reform(mean_corr_data[*, *, 5])
   p_angle    = sxpar(hdr, 'SOLAR_P0')
-  azimuth    = (0.5 * atan(stks_u, stks_q) * 180. / !pi) - p_angle + 45.
-  azimuth    = azimuth mod 180.
-  bad_az     = where(azimuth lt 0., n_bad_azimuth)
-  if (n_bad_azimuth gt 0L) then azimuth[bad_az] += 180.
+  azimuth    = comp_azimuth(stks_u, stks_q, p_angle)
   p          = sqrt(stks_q^2. + stks_u^2.)
   poi        = float(p) / float(mintensity)
 

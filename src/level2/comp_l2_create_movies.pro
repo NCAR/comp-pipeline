@@ -9,8 +9,8 @@
 ;     comp_l2_create_movies, '20120708', '1074', nwl=3
 ;
 ; :Uses:
-;   comp_constants_common, comp_config_common, comp_read_gbu, comp_make_mask,
-;   comp_transparent_logo, comp_aia_lct, colorbar2,
+;   comp_constants_common, comp_config_common, comp_azimuth, comp_read_gbu,
+;   comp_make_mask, comp_transparent_logo, comp_aia_lct, colorbar2,
 ;   sxpar, headfits, fitshead2struct, merge_struct, readfits,
 ;   mg_log
 ;
@@ -422,10 +422,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; plot azimuth
     if (qu_files[ii] eq 1) then begin
       p_angle = float(index[ii].solar_p0)
-      azimuth = 0.5 * atan(stks_u, stks_q) * 180.0 / !pi - p_angle + 45.0
-      azimuth = azimuth mod 180.
-      bad_az  = where(azimuth lt 0.)
-      if ((size(bad_az))[0] eq 1) then azimuth[bad_az] += 180.
+      azimuth = comp_azimuth(stks_u, stks_q, p_angle)
+
       loadct, 4, /silent
       tvlct, r, g, b, /get
       b[255] = 255

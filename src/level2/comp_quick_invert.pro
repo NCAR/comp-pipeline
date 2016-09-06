@@ -28,8 +28,8 @@
 ;
 ; :Uses:
 ;   comp_simulate_common, comp_constants_common, comp_config_common,
-;   comp_analytic_gauss_fit2, fits_open, fits_read, fits_write, fits_close,
-;   sxpar, sxaddpar, sxdelpar, mg_log
+;   comp_azimuth, comp_analytic_gauss_fit2, fits_open, fits_read, fits_write,
+;   fits_close, sxpar, sxaddpar, sxdelpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -135,11 +135,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   if (count eq 0) then mg_log, 'no zeros', name='comp/quick_invert', /warn
 
   ; compute azimuth and adjust for p-angle, correct azimuth for quadrants  
-  azimuth = 0.5 * atan(u, q) * 180. / !pi - p_angle + 45.
-  ;azimuth = -90. > azimuth < 90.
-  azimuth = azimuth mod 180.
-  bad = where(azimuth lt 0., count)
-  if (count gt 0L) then azimuth[bad] = azimuth[bad] + 180.
+  azimuth = comp_azimuth(u, q, p_angle, radial_azimuth=radial_azimuth)
 
   i[zero] = 0.
   azimuth[zero] = 0.
@@ -171,11 +167,11 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxdelpar, header, 'DATATYPE'
   sxdelpar, header, 'FILTER'
   sxdelpar, header, 'COMMENT'
+
   sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
   sxaddpar, header, 'DATAMIN', min(i), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(i), ' MAXIMUM DATA VALUE'
-
   fits_write, fcbout, i, header, extname='I'
 
   sxaddpar, header, 'DATAMIN', min(q), ' MINIMUM DATA VALUE'
@@ -189,24 +185,26 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxdelpar, header, 'COMMENT'
   sxaddpar, header, 'DATAMIN', min(l), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(l), ' MAXIMUM DATA VALUE'
-
   fits_write, fcbout, l, header, extname='Linear Polarization'
 
   sxaddpar, header, 'COMMENT', $
             'Azimuth is measured positive counter-clockwise from the horizontal.'
   sxaddpar, header, 'DATAMIN', min(azimuth), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(azimuth), ' MAXIMUM DATA VALUE'
-
   fits_write, fcbout, azimuth, header, extname='Azimuth'
   sxdelpar, header, 'COMMENT'
 
-  fits_write, fcbout, dop, header, extname='Doppler Velocity'
+  sxaddpar, header, 'DATAMIN', min(radial_azimuth), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(radial_azimuth), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
+
   sxaddpar, header, 'DATAMIN', min(dop), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(dop), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, dop, header, extname='Doppler Velocity'
 
-  fits_write, fcbout, width, header, extname='Line Width'
   sxaddpar, header, 'DATAMIN', min(width), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(width), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, width, header, extname='Line Width'
 
   fits_close, fcbout
 
