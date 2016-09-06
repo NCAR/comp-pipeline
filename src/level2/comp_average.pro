@@ -256,9 +256,12 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
         good = where(pol eq stokes[ist] and wave eq waves[iw], count)
         if (count eq 0) then begin
-          mg_log, 'no correct pol and wave: %s and %0.2f', $
-                  stokes[ist], waves[iw], $
-                  name='comp', /warn
+          ; this probably shouldn't be a warning now that we have raw
+          ; data with various numbers of wavelengths and might be missing
+          ; wavelengths in any given file
+          ;mg_log, 'no correct pol and wave: %s and %0.2f', $
+          ;        stokes[ist], waves[iw], $
+          ;        name='comp', /warn
           fits_close, fcb
           continue
         endif
