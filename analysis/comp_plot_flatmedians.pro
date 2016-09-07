@@ -72,6 +72,7 @@ pro comp_plot_flatmedians, filename
 
   device, decomposed=1
   plot, [s[0].time, s[-1].time], y_range, /nodata, $
+        xticklen=-0.01, yticklen=-0.01, $
         xstyle=9, ystyle=9, $
         xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
         xtickunits=['Time', 'Time'], $
@@ -81,6 +82,10 @@ pro comp_plot_flatmedians, filename
         title='Median flat values!CMedians normalized for solar distance (1 AU) and exposure time (250.0 ms)', $
         xtitle='Date', ytitle='Median values in both annuli', $
         position=[0.05, 0.45, 0.975, 0.9]
+  axis, s[-1].time, 0.0, /yaxis, $
+        charsize=0.8, font=1, $
+        yticklen=-0.01, $
+        yrange=r_range, ystyle=1
 
   annotation_charsize = 0.5
 
