@@ -121,7 +121,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Level_1 data processing  ---------------------
 
-    if (create_l1 || create_flatsdarks) then begin
+    if (create_flatsdarks) then begin
       mg_log, 'starting level 1 processing for %s', date_dir, name='comp', /info
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
@@ -239,7 +239,7 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
     endif
 
-    if (create_l1 || perform_gbu) then begin
+    if (perform_gbu) then begin
       ; identify good data
       mg_log, 'determining GBU', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -302,6 +302,9 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
 
+    endif
+
+    if (create_quick_invert) then begin
       ; perform 'quick' inversion
       mg_log, 'creating quick invert', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -315,7 +318,9 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif
 
+    if (create_l2) then begin
       ; evaluate systematic errors in comp data
       mg_log, 'finding systematics', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -392,7 +397,7 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
     if (update_database) then begin
-      mg_log, 'running comp_update_database', name='comp', /info
+      mg_log, 'updating database', name='comp', /info
       db_t0 = systime(/seconds)
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (~dry_run) then begin

@@ -15,6 +15,7 @@
 ;   U - approximated by the Stokes U image rearest line center
 ;   Linear Polarization - computed as sqrt( Q^2 + U^2)
 ;   Azimuth - computed as 0.5 atan( U / Q)
+;   Radial Azimuth
 ;   Doppler Velocity - computed from the analytic gaussian fit of the intensity
 ;                      of the three images nearest line center
 ;   Line Width - computed from the analytic gaussian fit of the intensity of

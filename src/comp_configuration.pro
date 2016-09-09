@@ -72,29 +72,31 @@ pro comp_configuration, config_filename=config_filename
   engineering_dir = config->get('engineering_dir', section='engineering')
 
   ; actions
-  dry_run           = config->get('dry_run', section='actions', $
-                                  /boolean, default=0B)
-  create_l1         = config->get('create_l1', section='actions', $
-                                  /boolean, default=1B)
-  correct_crosstalk = config->get('correct_crosstalk', section='actions', $
-                                  /boolean, default=create_l1)
-  perform_gbu       = config->get('perform_gbu', section='actions', $
-                                  /boolean, default=create_l1)
-  create_flatsdarks = config->get('create_flatsdarks', section='actions', $
-                                  /boolean, default=create_l1)
-  distribute_l1     = config->get('distribute_l1', section='actions', $
-                                  /boolean, default=1B)
-  create_l2         = config->get('create_l2', section='actions', $
-                                  /boolean, default=1B)
-  distribute_l2     = config->get('distribute_l2', section='actions', $
-                                  /boolean, default=1B)
-  mail_warnings     = config->get('mail_warnings', section='actions', $
-                                  /boolean, default=1B)
-  send_to_hpss      = config->get('send_to_hpss', section='actions', $
-                                  /boolean, default=1B)
-  validate          = config->get('validate', section='actions', $
-                                  /boolean, default=1B)
-  lock_raw          = config->get('lock_raw', section='actions', $
+  dry_run             = config->get('dry_run', section='actions', $
+                                    /boolean, default=0B)
+  create_l1           = config->get('create_l1', section='actions', $
+                                    /boolean, default=1B)
+  correct_crosstalk   = config->get('correct_crosstalk', section='actions', $
+                                    /boolean, default=create_l1)
+  perform_gbu         = config->get('perform_gbu', section='actions', $
+                                    /boolean, default=create_l1)
+  create_flatsdarks   = config->get('create_flatsdarks', section='actions', $
+                                    /boolean, default=create_l1)
+  distribute_l1       = config->get('distribute_l1', section='actions', $
+                                    /boolean, default=1B)
+  create_l2           = config->get('create_l2', section='actions', $
+                                    /boolean, default=1B)
+  create_quick_invert = config->get('create_quick_invert', section='actions', $
+                                    /boolean, default=create_l2)
+  distribute_l2       = config->get('distribute_l2', section='actions', $
+                                    /boolean, default=1B)
+  mail_warnings       = config->get('mail_warnings', section='actions', $
+                                    /boolean, default=1B)
+  send_to_hpss        = config->get('send_to_hpss', section='actions', $
+                                    /boolean, default=1B)
+  validate            = config->get('validate', section='actions', $
+                                    /boolean, default=1B)
+  lock_raw            = config->get('lock_raw', section='actions', $
                                   /boolean, default=1B)
   update_database = config->get('update_database', section='actions', $
                                 /boolean, default=1B)
