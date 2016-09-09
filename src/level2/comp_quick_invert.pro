@@ -3,7 +3,7 @@
 ;+
 ; Procedure to perform an approximate 'quick' inversion of some parameters from
 ; the comp averaged Level_2 data file. This routine reads the
-; YYYYMMDD.comp.wwww.mean.fts which was computed with `comp_average`, where
+; YYYYMMDD.comp.wwww.median.fts which was computed with `comp_average`, where
 ; "wwww" is the wave_type and "YYYYMMDD" is the date.
 ;
 ; The output is a FITS file written to the process directory named
@@ -95,7 +95,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   comp_inventory, fcb, beam, wavelengths
 
-  ; copy the primary header from the mean file to the output file
+  ; copy the primary header from the median file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
 
   ntune = sxpar(primary_header, 'NTUNE', count=nrecords)
@@ -159,7 +159,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
                                  format='(%"%s.comp.%s.quick_invert.fts")')
   fits_open, quick_invert_filename, fcbout, /write
 
-  ; copy the primary header from the mean file to the output file
+  ; copy the primary header from the median file to the output file
   fits_write, fcbout, 0, primary_header
 
   sxdelpar, header, 'POLSTATE'
