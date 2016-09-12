@@ -5,6 +5,8 @@ common comp_constants, nx, ny, $
                        wavelengths_3pt_1074, $
                        wavelengths_3pt_1079, $
                        wavelengths_3pt_1083, $
+                       wavelengths_5pt_1074, $
+                       wavelengths_5pt_1079, $
                        dispmin1074, dispmin1079, dispmin1083, $
                        dispmax1074, dispmax1079, dispmax1083, $
                        dispexp1074, dispexp1079, dispexp1083, $

@@ -101,6 +101,13 @@ pro comp_initialize, date_dir
                                                     date_dir, options, $
                                                     type=4, /extract)
 
+  wavelengths_5pt_1074 = comp_initialize_readconfig('1074_5pt_wavelengths', $
+                                                    date_dir, options, $
+                                                    type=4, /extract)
+  wavelengths_5pt_1079 = comp_initialize_readconfig('1079_5pt_wavelengths', $
+                                                    date_dir, options, $
+                                                    type=4, /extract)
+
   ; display values
   dispmin1074 = comp_initialize_readconfig('display_min_1074', date_dir, options, type=4)
   dispmin1079 = comp_initialize_readconfig('display_min_1079', date_dir, options, type=4)
