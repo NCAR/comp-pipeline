@@ -566,6 +566,15 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     spawn, ffmpeg_cmd
   endfor
 
+  file_delete, file_search('intensity.' + wave_type + '.*.png')
+  file_delete, file_search('enhanced_intensity.' + wave_type + '.*.png')
+  file_delete, file_search('corrected_velocity.' + wave_type + '.*.png')
+  file_delete, file_search('line_width.' + wave_type + '.*.png')
+  file_delete, file_search('ltot.' + wave_type + '.*.png')
+  file_delete, file_search('q.' + wave_type + '.*.png')
+  file_delete, file_search('u.' + wave_type + '.*.png')
+  file_delete, file_search('azimuth.' + wave_type + '.*.png')
+
   cd, pwd
 
   skip:
