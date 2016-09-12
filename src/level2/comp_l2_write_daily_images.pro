@@ -8,7 +8,7 @@
 ; :Examples:
 ;   For example, call like::
 ;
-;     comp_l2_create_jpgs, '20130520', '1074', nwl=5
+;     comp_l2_create_jpgs, '20130520', '1074'
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
@@ -23,8 +23,6 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
-;    nwl : in, required, type=integer
-;      number of lines, 3 or 5
 ;    n_avrg : in, optional, type=integer, default=50
 ;      number of files to average over
 ;
@@ -34,12 +32,12 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
+pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
 
-  mg_log, 'wave_type: %s %d points', wave_type, nwl, name='comp', /info
+  mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
@@ -47,8 +45,6 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
 
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
-  nwlst = strcompress(string(nwl), /remove_all)
-  
   rest = double(center1074)
 
   gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
@@ -57,6 +53,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
             name='comp', /warning
     goto, skip
   endif
+
   gbu = comp_read_gbu(gbu_file, count=count)
   if (count eq 0) then begin
     mg_log, 'no entries in GBU file %s', file_basename(gbu_file), $
@@ -64,13 +61,25 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
     goto, skip
   endif
 
+  has_3pts = bytarr(n_elements(gbu))
+  nwl = lonarr(n_elements(gbu))
   for ii = 0L, n_elements(gbu) - 1L do begin
     gbu[ii].l1file = filepath(gbu[ii].l1file, root=l1_process_dir)
+    fits_open, gbu[ii].l1file, fcb
+    comp_inventory, fcb, beam, wavelengths
+    fits_close, fcb
+
+    wavelengths = wavelengths[uniq(wavelengths, sort(wavelengths))]
+    nwl[ii] = n_elements(wavelengths)
+
+    ind = comp_3pt_indices(wave_type, wavelengths, error=error)
+    has_3pts[ii] = error eq 0
   endfor
 
   ; only want the good measurements
-  num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
-  mg_log, '%d good %d point files', ng, nwl, name='comp', /debug
+  num_gf = where(gbu.quality eq 'Good' and has_3pts, ng)
+
+  mg_log, '%d good files with the reference 3 points', ng, name='comp', /debug
   if (ng eq 0) then goto, skip
   gbu = gbu[num_gf]
 
@@ -86,10 +95,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
 
   ; distinguish between Q/U files and V files
   for ii = 0, nt - 1L do begin
-    case nwl of
-      3: whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=4), 'EXTNAME'), 0, 1)
-      5: whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=6), 'EXTNAME'), 0, 1)
-    endcase
+    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=nwl[ii] + 1), 'EXTNAME'), 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
   endfor
 
@@ -108,9 +114,9 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
     mask = double(mask)
 
     l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                  + 'dynamics.' + nwlst + '.fts.gz'
+                  + 'dynamics.3.fts.gz'
     l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                  + 'polarization.' + nwlst + '.fts.gz'
+                  + 'polarization.3.fts.gz'
 
     comp_data[*, *, 0, ii] = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     comp_data[*, *, 1, ii] = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
@@ -169,8 +175,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   intensity = fltarr(nx, ny)
   nmask = fltarr(nx, ny)
   for jj = 0L, nt - 1L do begin
-    if (nwl eq 3) then intensity += readfits(gbu[jj].l1file, exten_no=2, /silent)
-    if (nwl eq 5) then intensity += readfits(gbu[jj].l1file, exten_no=3, /silent)
+    intensity += readfits(gbu[jj].l1file, exten_no=nwl[jj] / 2 + 1, /silent)
     hdr = headfits(gbu[jj].l1file, ext=0)
     tmp_mask = fltarr(nx, ny)
     comp_make_mask, date_dir, hdr, ntmp_mask
@@ -333,10 +338,10 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   tvlct, old_r, old_g, old_b
 
   fhover = tvrd(/true)
-  write_jpeg,  obasefilename + '.daily_fullr.' + nwlst + '.jpg', fhover, $
+  write_jpeg,  obasefilename + '.daily_fullr.3.jpg', fhover, $
                true=1, quality=75
   hover = rebin(fhover, 3, 485, 325)
-  write_jpeg, obasefilename + '.daily_hover.' + nwlst + '.jpg', hover, $
+  write_jpeg, obasefilename + '.daily_hover.3.jpg', hover, $
                true=1, quality=50
 
   ; plot the files for the dashboard
@@ -623,16 +628,16 @@ pro comp_l2_write_daily_images, date_dir, wave_type, nwl=nwl, n_avrg=n_avrg
   azimuth = tvrd(/true)
   erase
 
-  write_png, obasefilename + '.daily_intensity.' + nwlst + '.png', intensity
-  write_png, obasefilename + '.daily_enhanced_intensity.' + nwlst + '.png', $
+  write_png, obasefilename + '.daily_intensity.3.png', intensity
+  write_png, obasefilename + '.daily_enhanced_intensity.3.png', $
              enhanced_intensity
-  write_png, obasefilename + '.daily_corrected_velocity.' + nwlst + '.png', $
+  write_png, obasefilename + '.daily_corrected_velocity.3.png', $
              corr_velo
-  write_png, obasefilename + '.daily_line_width.' + nwlst + '.png', line_width
-  write_png, obasefilename + '.daily_azimuth.' + nwlst + '.png', azimuth
-  write_png, obasefilename + '.daily_ltot.' + nwlst + '.png', ltot
-  write_png, obasefilename + '.daily_q.' + nwlst + '.png', qoveri
-  write_png, obasefilename + '.daily_u.' + nwlst + '.png', uoveri
+  write_png, obasefilename + '.daily_line_width.3.png', line_width
+  write_png, obasefilename + '.daily_azimuth.3.png', azimuth
+  write_png, obasefilename + '.daily_ltot.3.png', ltot
+  write_png, obasefilename + '.daily_q.3.png', qoveri
+  write_png, obasefilename + '.daily_u.3.png', uoveri
 
   ;  set_plot, 'X'
   ;  !p.font=-1
