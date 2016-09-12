@@ -33,7 +33,8 @@
 ;       files for that day
 ;   good_wwww_files.txt
 ;     - file containing the filenames and metadata for the all good
-;       polarization data files for that day 
+;       polarization data files for that day (before 9.1.2016 only good 5-pt
+;       files, now all good files with Q and U)
 ;   good_all_wwww.txt
 ;     - file containing the filenames and metadata for all good data files that
 ;       day (polarization and waves)
