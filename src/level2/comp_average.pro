@@ -52,6 +52,8 @@
 ;     filename containing list of files to process
 ;   synoptic
 ;     optional keyword to processes 'synoptic' subset of images
+;   max_files : in, optional, type=integer
+;     maximum number of files to use
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
@@ -66,15 +68,13 @@
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
 pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
-                  error=error
+                  max_files=max_files, error=error
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
-  ; Establish error handler. When errors occur, the index of the
-  ; error is returned in the variable Error_status:
   catch, error
   if (error ne 0) then begin
     catch, /cancel
@@ -111,6 +111,8 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     ; average, at most, the first 50 files
     ; n_files <= 50        ; commented out 6/16/14 ST
   endelse
+
+  if (n_elements(max_files) gt 0L) then n_files <= max_files
 
   mg_log, 'using %d files from %s', n_files, file_basename(files), $
           name='comp', /info
