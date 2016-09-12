@@ -293,7 +293,7 @@ pro comp_run_pipeline, config_filename=config_filename
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
-            comp_average, date_dir, process_wavelengths[w], error=error
+            comp_average, date_dir, process_wavelengths[w], max_files=200, error=error
             if (error ne 0) then continue
           endif
         endif
@@ -352,7 +352,7 @@ pro comp_run_pipeline, config_filename=config_filename
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
             comp_l2_write_daily_images, date_dir, process_wavelengths[w], $
-                                        nwl=3, n_avrg=50
+                                        n_avrg=50
           endif
         endif
       endfor
