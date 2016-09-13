@@ -256,10 +256,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif
 
-    endif else begin
+    if (~create_l1) then begin
       mg_log, 'skipping L1 processing', name='comp', /info
-    endelse
+    endif
 
     if (distribute_l1) then begin
       mg_log, 'distributing L1 data', name='comp', /info
@@ -303,8 +304,9 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-
-    endif
+    endif else begin
+      mg_log, 'skipping create average', name='comp', /info
+    endelse
 
     if (create_quick_invert) then begin
       ; perform 'quick' inversion
@@ -320,9 +322,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-    endif
+    endif else begin
+      mg_log, 'skipping quick invert', name='comp', /info
+    endelse
 
-    if (create_l2) then begin
+    if (find_systematics) then begin
       ; evaluate systematic errors in comp data
       mg_log, 'finding systematics', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -336,7 +340,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif else begin
+      mg_log, 'skipping find systematics', name='comp', /info
+    endelse
 
+    if (create_analysis) then begin
       mg_log, 'running 3-point analysis', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
@@ -348,7 +356,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif else begin
+      mg_log, 'skipping creating analysis', name='comp', /info
+    endelse
 
+    if (create_daily_images) then begin
       mg_log, 'creating daily images', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
@@ -361,7 +373,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif else begin
+      mg_log, 'skipping creating daily images', name='comp', /info
+    endelse
 
+    if (create_movies) then begin
       mg_log, 'creating movies', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
@@ -373,7 +389,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif else begin
+      mg_log, 'skipping creating movies', name='comp', /info
+    endelse
 
+    if (create_daily_summaries) then begin
       mg_log, 'making daily summaries', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (~dry_run) then begin
@@ -383,11 +403,9 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-    endif
-
-    if (~create_l2) then begin
-      mg_log, 'skipping L2 processing', name='comp', /info
-    endif
+    endif else begin
+      mg_log, 'skipping creating daily summaries', name='comp', /info
+    endelse
 
     if (distribute_l2) then begin
       mg_log, 'distributing L2 data', name='comp', /info

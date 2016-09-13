@@ -30,6 +30,11 @@ common comp_config, binary_dir, $
                     create_l2, $
                     create_average, $
                     create_quick_invert, $
+                    find_systematics, $
+                    create_analysis, $
+                    create_daily_images, $
+                    create_movies, $
+                    create_daily_summaries, $
                     distribute_l2, $
                     mail_warnings, $
                     send_to_hpss, $

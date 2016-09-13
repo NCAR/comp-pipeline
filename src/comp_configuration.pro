@@ -90,6 +90,16 @@ pro comp_configuration, config_filename=config_filename
                                     /boolean, default=create_l2)
   create_quick_invert = config->get('create_quick_invert', section='actions', $
                                     /boolean, default=create_l2)
+  find_systematics    = config->get('find_systematics', section='actions', $
+                                    /boolean, default=create_l2)
+  create_analysis     = config->get('create_analysis', section='actions', $
+                                    /boolean, default=create_l2)
+  create_daily_images = config->get('create_daily_images', section='actions', $
+                                    /boolean, default=create_l2)
+  create_movies       = config->get('create_movies', section='actions', $
+                                    /boolean, default=create_l2)
+  create_daily_summaries = config->get('create_daily_summaries', section='actions', $
+                                       /boolean, default=create_l2)
   distribute_l2       = config->get('distribute_l2', section='actions', $
                                     /boolean, default=1B)
   mail_warnings       = config->get('mail_warnings', section='actions', $
