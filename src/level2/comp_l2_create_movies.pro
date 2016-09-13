@@ -557,11 +557,11 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     mg_log, ffmpeg_cmd, name='comp', /debug
     spawn, ffmpeg_cmd
 
-    fmpeg_cmd = filepath(string('azimuth' + infile_ext, $
-                                mmm, 'azi', '3000k', $
-                                date_dir, wave_type, 'daily_azimuth', $
-                                format=ffmpeg_fmt), $
-                         root=ffmpeg_dir)
+    ffmpeg_cmd = filepath(string('azimuth' + infile_ext, $
+                                 mmm, 'azi', '3000k', $
+                                 date_dir, wave_type, 'daily_azimuth', $
+                                 format=ffmpeg_fmt), $
+                          root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
     spawn, ffmpeg_cmd
   endfor
