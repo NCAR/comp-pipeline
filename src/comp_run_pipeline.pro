@@ -287,7 +287,9 @@ pro comp_run_pipeline, config_filename=config_filename
         process_config_filename = filepath('comp.cfg', root=l2_process_dir)
         file_copy, _config_filename, process_config_filename, /overwrite
       endif
+    endif
 
+    if (create_average) then begin
       ; compute the mean, median and standard deviation of L1 data
       mg_log, 'creating averages', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -381,9 +383,11 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-    endif else begin
+    endif
+
+    if (~create_l2) then begin
       mg_log, 'skipping L2 processing', name='comp', /info
-    endelse
+    endif
 
     if (distribute_l2) then begin
       mg_log, 'distributing L2 data', name='comp', /info

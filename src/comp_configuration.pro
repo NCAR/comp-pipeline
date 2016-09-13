@@ -86,6 +86,8 @@ pro comp_configuration, config_filename=config_filename
                                     /boolean, default=1B)
   create_l2           = config->get('create_l2', section='actions', $
                                     /boolean, default=1B)
+  create_average      = config->get('create_average', section='actions', $
+                                    /boolean, default=create_l2)
   create_quick_invert = config->get('create_quick_invert', section='actions', $
                                     /boolean, default=create_l2)
   distribute_l2       = config->get('distribute_l2', section='actions', $

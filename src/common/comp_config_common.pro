@@ -28,6 +28,7 @@ common comp_config, binary_dir, $
                     correct_crosstalk, $
                     distribute_l1, $
                     create_l2, $
+                    create_average, $
                     create_quick_invert, $
                     distribute_l2, $
                     mail_warnings, $
