@@ -101,7 +101,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   ntune = sxpar(primary_header, 'NTUNE', count=nrecords)
   if (nrecords eq 0L) then ntune = sxpar(primary_header, 'NTUNES')
-  nstokes = 4
+
+  nstokes = n / ntune - 1L   ; don't count BKG
+
   ; find standard 3 pt wavelength indices
   wave_indices = comp_3pt_indices(wave_type, wavelengths, error=error)
 
@@ -138,8 +140,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   ; compute azimuth and adjust for p-angle, correct azimuth for quadrants  
   azimuth = comp_azimuth(u, q, p_angle, radial_azimuth=radial_azimuth)
 
-  i[zero] = 0.
-  azimuth[zero] = 0.
+  i[zero] = 0.0
+  azimuth[zero] = 0.0
+  radial_azimuth[zero] = 0.0
 
   ; compute linear polarization
   l = sqrt(q^2 + u^2)

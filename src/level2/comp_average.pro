@@ -215,9 +215,6 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
   sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
 
-  if (median_opt eq 'yes') then fits_write, fcbmed, 0, primary_header
-  if (mean_opt eq 'yes') then fits_write, fcbavg, 0, primary_header
-
   ; use given 5-pt wavelengths
   case wave_type of
     '1074': waves = wavelengths_5pt_1074
@@ -225,10 +222,15 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     else: begin
         mg_log, 'no 5-point reference wavelengths of wave type %s', wave_type, $
                 name='comp', /error
+        return
       end
   endcase
 
   n_waves = n_elements(waves)
+  sxaddpar, primary_header, 'NTUNES', n_waves
+
+  if (median_opt eq 'yes') then fits_write, fcbmed, 0, primary_header
+  if (mean_opt eq 'yes') then fits_write, fcbavg, 0, primary_header
 
   mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp/average', /debug
 
@@ -317,7 +319,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       sxaddpar, header, 'NAVERAGE', m, ' Number of files used'
 
       sxaddpar, header, 'AVESTART', average_times[0, ist, iw], $
-                ' [UTC] Start of averaging HHMM:SS', after='NAVERAGE'
+                ' [UTC] Start of averaging HH:MM:SS', after='NAVERAGE'
       sxaddpar, header, 'AVEEND', average_times[1, ist, iw], $
                 ' [UTC] End of averaging HH:MM:SS', after='AVESTART'
 
