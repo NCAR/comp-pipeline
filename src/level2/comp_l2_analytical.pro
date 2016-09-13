@@ -209,7 +209,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     writefits, outfilename, blank, primary_header
 
     ; intensity
-    extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                    exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Intensity', $
                                            datminmax=[min(temp_int), $
@@ -218,7 +219,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     writefits, outfilename, float(temp_int), extension_header, /append
 
     ; enhanced intensity
-    extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                    exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Enhanced Intensity', $
                                            datminmax=[min(int_enh), $
@@ -228,7 +230,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     writefits, outfilename, int_enh, extension_header, /append
 
     ; corrected LOS velocity
-    extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                    exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Corrected LOS velocity', $
                                            datminmax=[min(temp_corr_velo), $
@@ -237,7 +240,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
 
     ; line width
-    extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                    exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Line Width', $
                                            datminmax=[min(temp_line_width), $
@@ -261,7 +265,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       writefits, outfilename, blank, primary_header
 
       ; intensity
-      extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Intensity', $
                                              datminmax=[min(temp_int), $
@@ -270,7 +275,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       writefits, outfilename, float(temp_int), extension_header, /append
 
       ; enhanced intensity
-      extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Enhanced Intensity', $
                                              datminmax=[min(int_enh), $
@@ -280,7 +286,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       writefits, outfilename, int_enh, extension_header, /append
 
       ; Stokes Q
-      extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
                                              /exten,$
                                              extname='Integrated Stokes Q', $
                                              datminmax=[min(stks_q), $
@@ -289,7 +296,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       writefits, outfilename, float(stks_q), extension_header, /append
 
       ; Stokes U
-      extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Integrated Stokes U', $
                                              datminmax=[min(stks_u), $
@@ -299,7 +307,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
       ; Linear Polarization
       lin_pol = sqrt((stks_q)^2. + (stks_u)^2.)
-      extension_header = comp_convert_header(headfits(gbu[ii].l1file, exten=2), $
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
                                              /exten,$
                                              extname='Total Linear Polarization', $
                                              datminmax=[min(lin_pol), $
