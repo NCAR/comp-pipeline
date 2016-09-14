@@ -129,12 +129,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       continue
     endif
 
-    mg_log, 'dynamics file: %s %s', $
-            l2_d_file, file_test(l2_d_file) ? '' : ' (not found)', $
-            name='comp', /debug
-    mg_log, 'polarization file: %s %s', $
-            l2_d_file, file_test(l2_p_file) ? '' : ' (not found)', $
-            name='comp', /debug
+    if (file_test(l2_d_file)) then begin
+      mg_log, 'dynamics: %s', l2_d_file, name='comp', /debug
+    endif
+
+    if (file_test(l2_p_file)) then begin
+      mg_log, 'polarization file: %s %s', l2_d_file, name='comp', /debug
+    endif
 
     intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
     int_enh   = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
