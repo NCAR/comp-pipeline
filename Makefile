@@ -7,7 +7,7 @@ GIT=/usr/bin/git
 
 REVISION:=$(shell $(GIT) rev-parse --short HEAD)
 PHONE=$(shell cat $(HOME)/.phonenumber 2> /dev/null)
-EMAIL=mgalloy@ucar.edu
+EMAIL=$(USER)@ucar.edu
 
 ifeq ($(QUIET), 1)
   ECHO_PREFIX=@
