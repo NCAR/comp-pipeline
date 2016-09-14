@@ -82,6 +82,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   mg_log, '%d good files with the reference 3 points', ng, name='comp', /debug
   if (ng eq 0) then goto, skip
   gbu = gbu[num_gf]
+  nwl = nwl[num_gf]
 
   _n_avrg = n_elements(n_avrg) eq 0L ? 50L : n_avrg
   if (n_elements(gbu) gt _n_avrg) then begin
@@ -95,7 +96,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   ; distinguish between Q/U files and V files
   for ii = 0, nt - 1L do begin
-    whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=nwl[ii] + 1), 'EXTNAME'), 0, 1)
+    hdr = headfits(gbu[ii].l1file, exten=nwl[ii] + 1)
+    whatisthis = strmid(sxpar(hdr, 'EXTNAME'), 0, 1)
     if (whatisthis eq 'Q') then qu_files[ii] = 1
   endfor
 
