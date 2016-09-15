@@ -275,7 +275,9 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Level_2 data processing  ---------------
 
-    if (create_l2) then begin
+    if (create_l2 || create_average || create_quick_invert || find_systematics $
+          || create_analysis || create_daily_images || create_movies $
+          || create_daily_summaries) then begin
       mg_log, 'starting level 2 processing for %s', date_dir, name='comp', /info
 
       if (~dry_run) then begin
