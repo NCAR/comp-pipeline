@@ -321,9 +321,12 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       sxaddpar, header, 'WAVELENG', waves[iw]
       sxaddpar, header, 'NAVERAGE', m, ' Number of files used'
 
-      sxaddpar, header, 'AVESTART', average_times[0, ist, iw], $
+      start_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[0, ist, iw]
+      endfor_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[1, ist, iw]
+
+      sxaddpar, header, 'AVESTART', start_time, $
                 ' [UTC] Start of averaging HH:MM:SS', after='NAVERAGE'
-      sxaddpar, header, 'AVEEND', average_times[1, ist, iw], $
+      sxaddpar, header, 'AVEEND', end_time, $
                 ' [UTC] End of averaging HH:MM:SS', after='AVESTART'
 
       sigma = fltarr(nx, nx)
