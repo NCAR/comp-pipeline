@@ -252,6 +252,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
       data = reform(fltarr(nx, nx, numof_stokes[ist], /nozero), nx, nx, numof_stokes[ist])
 
+      header = !null
       for ifile = 0L, numof_stokes[ist] - 1L do begin
         name = filenames[which_file[ifile, ist]]
         filename = comp_find_l1_file(date_dir, wave_type, datetime=name)
@@ -316,6 +317,8 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
       m = numof_stokes[ist]
       sm = sqrt(m)
+
+      sxaddpar, header, 'WAVELENG', waves[iw]
       sxaddpar, header, 'NAVERAGE', m, ' Number of files used'
 
       sxaddpar, header, 'AVESTART', average_times[0, ist, iw], $
