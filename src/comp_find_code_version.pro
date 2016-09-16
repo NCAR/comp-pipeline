@@ -31,5 +31,5 @@ function comp_find_code_version, revision=revision
 
   cd, current_working_dir
 
-  return, '1.2.2'
+  return, '1.2.3'
 end
