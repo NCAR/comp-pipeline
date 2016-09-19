@@ -50,21 +50,21 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
                                           format=quick_invert_format), $
                                    root=l2_process_dir)
 
-  if (~file_test(quick_invert_filename)) then begin
-    mg_log, 'quick invert file %f not found, skipping', quick_invert_filename, $
-            name='comp', /debug
-    goto, skip
-  endif
+;  if (~file_test(quick_invert_filename)) then begin
+;    mg_log, 'quick invert file %s not found, skipping', quick_invert_filename, $
+;            name='comp', /debug
+;    goto, skip
+;  endif
 
-  fits_open, quick_invert_filename, quick_invert_fcb
-  fits_read, quick_invert_fcb, intensity, intensity_header, exten_no=1
-  fits_read, quick_invert_fcb, stks_q, intensity_header, exten_no=2
-  fits_read, quick_invert_fcb, stks_u, intensity_header, exten_no=3
-  fits_read, quick_invert_fcb, lpol, intensity_header, exten_no=4
-  fits_read, quick_invert_fcb, azimuth, intensity_header, exten_no=5
-  fits_read, quick_invert_fcb, vel, intensity_header, exten_no=7
-  fits_read, quick_invert_fcb, width, intensity_header, exten_no=8
-  fits_close, quick_invert_fcb
+;  fits_open, quick_invert_filename, quick_invert_fcb
+;  fits_read, quick_invert_fcb, intensity, intensity_header, exten_no=1
+;  fits_read, quick_invert_fcb, stks_q, intensity_header, exten_no=2
+;  fits_read, quick_invert_fcb, stks_u, intensity_header, exten_no=3
+;  fits_read, quick_invert_fcb, lpol, intensity_header, exten_no=4
+;  fits_read, quick_invert_fcb, azimuth, intensity_header, exten_no=5
+;  fits_read, quick_invert_fcb, vel, intensity_header, exten_no=7
+;  fits_read, quick_invert_fcb, width, intensity_header, exten_no=8
+;  fits_close, quick_invert_fcb
 
   gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
   if (~file_test(gbu_file)) then begin
