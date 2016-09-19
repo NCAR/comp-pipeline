@@ -28,8 +28,8 @@ pro comp_configuration, config_filename=config_filename
   config = mg_read_config(_config_filename)
 
   ; save files
-  binary_dir    = config->get('binary_dir', section='save')
-  hot_file      = config->get('hot_file', section='save')
+  binary_dir    = mg_src_root()
+  hot_file      = filepath('hothot.sav', root=binary_dir)
   ffmpeg_dir    = config->get('ffmpeg_dir', section='save')
   git_dir       = config->get('git_dir', section='save')
 
