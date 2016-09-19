@@ -322,7 +322,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       sxaddpar, header, 'NAVERAGE', m, ' Number of files used'
 
       start_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[0, ist, iw]
-      endfor_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[1, ist, iw]
+      end_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[1, ist, iw]
 
       sxaddpar, header, 'AVESTART', start_time, $
                 ' [UTC] Start of averaging HH:MM:SS', after='NAVERAGE'
