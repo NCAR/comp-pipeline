@@ -238,7 +238,9 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   back = fltarr(nx, nx, n_waves)
 
   ; summation of number of files going into average
+  naverage = lonarr(n_stokes, n_waves)
   num_averaged = lonarr(n_stokes, n_waves)
+  back_naverage = lonarr(n_waves)
   num_back_averaged = lonarr(n_waves)
   average_times = strarr(2, n_stokes, n_waves)
 
@@ -283,6 +285,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
         endif
         fits_read, fcb, dat, header, exten_no=good[0] + 1
 
+        naverage[ist, iw] += sxpar(header, 'NAVERAGE')
         data[*, *, ifile] = dat * mask
         if (num_averaged[ist, iw] eq 0) then average_times[0, ist, iw] = strmid(name, 9, 6)
         num_averaged[ist, iw] += 1
@@ -294,9 +297,10 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
                                                   datetime=name, $
                                                   /background)
           fits_open, background_filename, bkg_fcb
-          fits_read, bkg_fcb, dat, $
+          fits_read, bkg_fcb, dat, bkg_header, $
                      extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')
           back[*, *, iw] += dat * mask
+          back_naverage[iw] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[iw] += 1
           fits_close, bkg_fcb
         endif
@@ -310,7 +314,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       ; calculate noise sigma
 
       ; format times
-      hrs = strmid(average_times[*, ist, iw], 0, 2)
+      hrs  = strmid(average_times[*, ist, iw], 0, 2)
       mins = strmid(average_times[*, ist, iw], 2, 2)
       secs = strmid(average_times[*, ist, iw], 4, 2)
       average_times[*, ist, iw] = hrs + ':' + mins + ':' + secs
@@ -319,7 +323,9 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       sm = sqrt(m)
 
       sxaddpar, header, 'WAVELENG', waves[iw]
-      sxaddpar, header, 'NAVERAGE', m, ' Number of files used'
+      sxaddpar, header, 'NAVERAGE', m
+      sxaddpar, header, 'NFILES', num_averaged[ist, iw], ' Number of files used', $
+                after='NAVERAGE'
 
       start_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[0, ist, iw]
       end_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[1, ist, iw]
@@ -344,8 +350,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       fits_write, fcbsig, sigma, header, extname=ename
 
       ; find median and mean across image
-      sxaddpar, header, 'NAVERAGE', num_averaged[ist, iw], $
-                ' Number of files used'
+      sxaddpar, header, 'NAVERAGE', naverage[ist, iw]
 
       med = median(data, dimension=3)
       aver = mean(data, dimension=3)
@@ -381,7 +386,9 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   for iw = 0L, n_waves - 1L do begin
     back[*, *, iw] /= float(numof_stokes[0])
     sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
-    sxaddpar, header, 'NAVERAGE', num_back_averaged[iw], ' Number of files used'
+    sxaddpar, header, 'NAVERAGE', back_naverage[iw]
+    sxaddpar, header, 'NFILES', num_back_averaged[iw], ' Number of files used', $
+              after='NAVERAGE'
     sxaddpar, header, 'DATAMIN', min(back[*, *, iw]), ' MINIMUM DATA VALUE'
     sxaddpar, header, 'DATAMAX', max(back[*, *, iw]), ' MAXIMUM DATA VALUE'
     sxaddpar, header, 'POLSTATE', 'BKG'
