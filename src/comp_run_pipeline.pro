@@ -121,7 +121,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Level_1 data processing  ---------------------
 
-    if (create_flatsdarks) then begin
+    if (create_l1 || create_flatsdarks) then begin
       mg_log, 'starting level 1 processing for %s', date_dir, name='comp', /info
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
@@ -148,7 +148,9 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
+    endif
 
+    if (create_flatsdarks) then begin
       ; reduce bias images for this day
       mg_log, 'making darks', name='comp', /info
       if (~dry_run) then comp_make_dark, date_dir, error=error

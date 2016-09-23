@@ -37,7 +37,9 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   time = comp_extract_time(headers)
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
-  if (sxpar(headers[*, 0], 'FLATFILE') eq 0) then ntags++
+  optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER', 'FLATFILE']
+  hastags = mg_fits_hastag(headers[*, 0], optional_tags, count=n_hastags)
+  ntags += n_elements(optional_tags) - n_hastags
   ntags++   ; for the ND-TRANS tag we add below
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
