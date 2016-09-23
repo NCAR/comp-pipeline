@@ -99,9 +99,10 @@ pro comp_combine_beams, images, headers, date_dir, $
       sxdelpar, hplus, 'BEAM'
       sxaddpar, hplus, 'NAVERAGE', $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
-      headers_combine[*, i * nw + j] = hplus
+
+      headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
       sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i]
-      headers_combine[*, np * nw + i * nw + j] = hplus
+      headers_combine[0, np * nw + i * nw + j] = reform(hplus, n_elements(hplus), 1)
     endfor
   endfor
 end
