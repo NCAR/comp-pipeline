@@ -46,15 +46,17 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
   ntags = n_elements(rawheaders[*, 0])
 
   ; output images are ordered polarization->beam->wavelength (wavelength tightest)
-  ; one new tag for number of exposures in average
+  ; one new tag for number of exposures in average, i.e., NAVERAGE
   headers = strarr(ntags + 1, (np + 1) * nw * nb)
   images = dblarr(nx, ny, (np + 1) * nw * nb)  ; np+1 since 0th polarization is Stokes I
 
   for i = 0L, np - 1L do begin
     for j = 0L, nb - 1L do begin
       ; pull out the plus and minus Stokes component at each wavelength
-      ipstokes = comp_get_component(rawimages, rawheaders, ps_all[wpc[i], 0], beams[j], headersout=ipheads)
-      imstokes = comp_get_component(rawimages, rawheaders, ps_all[wpc[i], 1], beams[j], headersout=imheads)
+      ipstokes = comp_get_component(rawimages, rawheaders, ps_all[wpc[i], 0], $
+                                    beams[j], headersout=ipheads)
+      imstokes = comp_get_component(rawimages, rawheaders, ps_all[wpc[i], 1], $
+                                    beams[j], headersout=imheads)
 
       ; form I and Q, U, or V and put them in the appropriate places in the
       ; image and header arrays:
@@ -76,7 +78,8 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
                   sxpar(headertemp, 'NAVERAGE') + sxpar(headers[*, j * nw + k], 'NAVERAGE')
 
         headers[*, j * nw + k] = headertemp
-        images[*, *, j * nw + k] += 0.5 * (ipstokes[*, *, k] + imstokes[ *, *, k]) * naverage
+        images[*, *, j * nw + k] += 0.5 * (ipstokes[*, *, k] $
+                                             + imstokes[ *, *, k]) * naverage
       endfor
     endfor
   endfor
