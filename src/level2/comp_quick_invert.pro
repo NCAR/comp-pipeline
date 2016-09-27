@@ -125,7 +125,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   fits_close, fcb
 
   sxaddpar, primary_header, 'N_EXT', 8, /savecomment
-  sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
+
+  ; update version
+  comp_l2_update_version, primary_header
 
   ; compute parameters
   i = comp_obs[*, *, 0, wave_indices[1]]

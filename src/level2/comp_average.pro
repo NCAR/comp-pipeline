@@ -181,7 +181,6 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     mg_log, '%d image files for Stokes %s', numof_stokes[i], stokes[i], $
             name='comp', /info
   endfor
-  ;  for i=0,n_stokes-1 do print,which_file[0:numof_stokes[i]-1,i]
 
   if (mean_opt eq 'yes') then begin
     mean_filename = date_dir + '.comp.' + wave_type + '.mean.fts'
@@ -213,8 +212,6 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   sxaddpar, primary_header, 'DURATION', 24. * 60. * duration, $
             ' [minutes] Averaging duration', after='TIME-OBS', format='(f8.3)'
 
-  sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
-
   ; use given 5-pt wavelengths
   case wave_type of
     '1074': waves = wavelengths_5pt_1074
@@ -229,8 +226,11 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   n_waves = n_elements(waves)
   sxaddpar, primary_header, 'NTUNES', n_waves
 
+  comp_l2_update_version, primary_header
+
   if (median_opt eq 'yes') then fits_write, fcbmed, 0, primary_header
   if (mean_opt eq 'yes') then fits_write, fcbavg, 0, primary_header
+  fits_write, fcbsig, 0, primary_header
 
   mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp/average', /debug
 
