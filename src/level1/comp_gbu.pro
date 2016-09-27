@@ -104,8 +104,9 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
-  if (file_test(process_dir, /directory)) then begin
-    mg_log, 'level1 process directory %s does not exist, exiting', process_dir, /warn
+  if (~file_test(process_dir, /directory)) then begin
+    mg_log, 'level1 process directory %s does not exist, exiting', process_dir, $
+            name='comp', /warn
     return
   endif
   cd, process_dir
