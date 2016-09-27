@@ -44,7 +44,7 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;   wave_type
+;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
