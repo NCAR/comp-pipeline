@@ -159,6 +159,13 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   dop *= 3.e5 / wave[wave_indices[1]]   ; convert to km/s
   width *= 3.e5 / wave[wave_indices[1]]
 
+  pre_corr = dblarr(nx, ny, 2)
+  pre_corr[*, *, 0] = i
+  pre_corr[*, *, 1] = dop
+
+  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
+  corrected_dop = reform(post_corr[*, *, 1])
+
   ; write fit parameters to output file
 
   quick_invert_filename = string(date_dir, wave_type, $
@@ -204,9 +211,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxaddpar, header, 'DATAMAX', max(radial_azimuth), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
 
-  sxaddpar, header, 'DATAMIN', min(dop), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(dop), ' MAXIMUM DATA VALUE'
-  fits_write, fcbout, dop, header, extname='Doppler Velocity'
+  sxaddpar, header, 'DATAMIN', min(corrected_dop), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(corrected_dop), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
 
   sxaddpar, header, 'DATAMIN', min(width), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(width), ' MAXIMUM DATA VALUE'
