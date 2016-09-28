@@ -20,6 +20,9 @@
 ;     maximum number of files to be returned
 ;   min_n_cluster_files : in, required, type=long
 ;     minimum number of files needed in a cluster
+;   stokes_present : out, optional, type=strarr
+;     set to a named variable to retrieve the Stokes variables present in each
+;     corresponding file
 ;   count : out, optional, type=long
 ;     set to a named variable to retrieve the number of files found
 ;-
@@ -27,8 +30,10 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
                                                max_cadence_interval=max_cadence_interval, $
                                                min_n_cluster_files=min_n_cluster_files, $
                                                max_n_files=max_n_files, $
+                                               stokes_present=stokes_present, $
                                                count=count
   compile_opt strictarr
+  @comp_constants_common
 
   n_candidate_files = file_lines(list_filename)
   if (n_candidate_files eq 0L) then begin
@@ -38,6 +43,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
 
   candidate_files = strarr(n_candidate_files)
   times = dblarr(n_candidate_files)
+  stokes_present = strarr(n_candidate_files)
 
   openr, lun, list_filename, /get_lun
   line = ''
@@ -55,6 +61,10 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
     second = long(strmid(line, 13, 2))
 
     times[f] = julday(month, day, year, hour, minute, second)
+
+    for s = 0L, n_stokes - 1L do begin
+      if (strpos(line, stokes[s]) gt -1) then stokes_present[f] += stokes[s]
+    endfor
   endfor
   free_lun, lun
 
@@ -107,6 +117,9 @@ end
 ;     cluster must be closer than `MAX_CADENCE_INTERVAL` apart
 ;   max_n_noncluster_files : in, optional, type=integer, default=50
 ;     maximum number of files to use if no cluster was good enough
+;   stokes_present : out, optional, type=strarr
+;     set to a named variable to retrieve the Stokes variables present in each
+;     corresponding file
 ;   count : out, optional, type=integer
 ;     set to a named variable to retrieve the number of files returned
 ;-
@@ -115,6 +128,7 @@ function comp_find_average_files, date_dir, wave_type, $
                                   min_n_cluster_files=min_n_cluster_files, $
                                   max_cadence_interval=max_cadence_interval, $
                                   max_n_noncluster_files=max_n_noncluster_files, $
+                                  stokes_present=stokes_present, $
                                   count=count
   compile_opt strictarr
   @comp_config_common
@@ -143,10 +157,8 @@ function comp_find_average_files, date_dir, wave_type, $
   ; 3. if no files found yet, take the first files in
   ;    good_{wave_type}_files.txt up to MAX_N_NONCLUSTER_FILES (50 now)
 
-  cd, current=process_dir
-
   ; candidate filenames and their corresponding times
-  l1_process_dir = filepath('level1', root=process_dir)
+  l1_process_dir = filepath('level1', subdir=date_dir, root=process_basedir)
 
   flat_filename = filepath('flat.fts', root=l1_process_dir)
   fits_open, flat_filename, flat_fcb
@@ -168,6 +180,7 @@ function comp_find_average_files, date_dir, wave_type, $
                                                max_cadence_interval=_max_cadence_interval, $
                                                min_n_cluster_files=_min_n_cluster_files, $
                                                max_n_files=_max_n_files, $
+                                               stokes_present=stokes_present, $
                                                count=count)
   if (count gt 0L) then return, files
 
@@ -178,6 +191,7 @@ function comp_find_average_files, date_dir, wave_type, $
                                                max_cadence_interval=_max_cadence_interval, $
                                                min_n_cluster_files=_min_n_cluster_files, $
                                                max_n_files=_max_n_files, $
+                                               stokes_present=stokes_present, $
                                                count=count)
   if (count gt 0L) then return, files
 
@@ -189,13 +203,23 @@ function comp_find_average_files, date_dir, wave_type, $
   endif
 
   candidate_files = strarr(n_candidate_files)
+  stokes_present = strarr(n_candidate_files)
+
   openr, lun, list_filename, /get_lun
   line = ''
   for f = 0L, n_candidate_files - 1L do begin
     readf, lun, line
+
+    tokens = strsplit(line, /extract)
+    candidate_files[f] = tokens[0]
+
+    for s = 0L, n_stokes - 1L do begin
+      if (strpos(line, stokes[s]) gt -1) then stokes_present[f] += stokes[s]
+    endfor
   endfor
   free_lun, lun
 
   count = n_candidate_files < _max_n_noncluster_files
+  stokes_present = stokes_present[0:count - 1L]
   return, files[0:count - 1L]
 end

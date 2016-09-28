@@ -85,6 +85,7 @@ pro comp_average, date_dir, wave_type, error=error
                                   min_n_cluster_files=averaging_min_n_cluster_files, $
                                   max_cadence_interval=averaging_max_cadence_interval, $
                                   max_n_noncluster_files=averaging_max_n_noncluster_files, $
+                                  stokes_present=stokes_present, $
                                   count=n_files)
 
   if (n_files lt 1) then begin
@@ -102,10 +103,9 @@ pro comp_average, date_dir, wave_type, error=error
   filenames = strarr(n_files)
 
   for j = 0L, n_files - 1L do begin
-    filenames[j] = files[j]
+    filenames[j] = strmid(files[j], 0, 15)
     for i = 0L, n_stokes - 1L do begin
-      sp = strpos(str, stokes[i])
-      if (sp gt -1) then begin
+      if (strpos(stokes_present[j], stokes[i]) gt -1) then begin
         which_file[numof_stokes[i], i] = j
         ++numof_stokes[i]
       endif
