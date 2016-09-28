@@ -48,12 +48,6 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
-;   list_file : in, optional, type=string, default=good_XXXX_files.txt
-;     filename containing list of files to process
-;   synoptic
-;     optional keyword to processes 'synoptic' subset of images
-;   max_files : in, optional, type=integer
-;     maximum number of files to use
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
@@ -67,8 +61,7 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
-                  max_files=max_files, error=error
+pro comp_average, date_dir, wave_type, error=error
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
@@ -82,48 +75,25 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     return
   endif
 
-  ; check keywords
-  uselist = 0
-  if (n_elements(list_file) eq 1) then uselist = 1
-
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
 
-  mean_opt = 'yes'   ; compute mean? (yes or no)
-  median_opt = 'yes'   ; compute median? (yes or no)
-
-  ; create output fits file
-
-  if (uselist) then begin
-    files = list_file
-    n_files = file_lines(list_file)
-  endif else begin
-    if (keyword_set(synoptic)) then begin
-      ; file with list of filenames
-      files = 'synoptic_' + wave_type + '_files.txt'
-    endif else begin
-      ; file with list of filenames
-      files = 'good_' + wave_type + '_files.txt'
-    endelse
-    files = filepath(files, root=l1_process_dir)
-    n_files = file_test(files) ? file_lines(files) : 0L
-    ; average, at most, the first 50 files
-    ; n_files <= 50        ; commented out 6/16/14 ST
-  endelse
-
-  if (n_elements(max_files) gt 0L) then n_files <= max_files
-
-  mg_log, 'using %d files from %s', n_files, file_basename(files), $
-          name='comp', /info
+  ; find the files to average
+  files = comp_find_average_files(date_dir, wave_type, $
+                                  max_n_files=averaging_max_n_files, $
+                                  min_n_cluster_files=averaging_min_n_cluster_files, $
+                                  max_cadence_interval=averaging_max_cadence_interval, $
+                                  max_n_noncluster_files=averaging_max_n_noncluster_files, $
+                                  count=n_files)
 
   if (n_files lt 1) then begin
     mg_log, 'no good %s files, exiting', wave_type, name='comp', /warn
     return
   endif
 
-  openr, lun, files, /get_lun
-  str = ''
+  mg_log, 'averaging %d files: %s', n_files, strjoin(files, ', '), $
+          name='comp', /info
 
   ; loop over filenames and determine number of each images for each Stokes
   ; parameter
@@ -132,8 +102,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   filenames = strarr(n_files)
 
   for j = 0L, n_files - 1L do begin
-    readf, lun, str
-    filenames[j] = strmid(str, 0, 15)
+    filenames[j] = files[j]
     for i = 0L, n_stokes - 1L do begin
       sp = strpos(str, stokes[i])
       if (sp gt -1) then begin
@@ -142,8 +111,6 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       endif
     endfor
   endfor
-
-  free_lun, lun
 
   ; time period for this averaging
   year     = long(strmid(filenames[0], 0, 4))
@@ -182,12 +149,12 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
             name='comp', /info
   endfor
 
-  if (mean_opt eq 'yes') then begin
+  if (compute_mean) then begin
     mean_filename = date_dir + '.comp.' + wave_type + '.mean.fts'
     fits_open, mean_filename, fcbavg, /write
   endif
 
-  if (median_opt eq 'yes') then begin
+  if (compute_median) then begin
     median_filename = date_dir + '.comp.' + wave_type + '.median.fts'
     fits_open, median_filename, fcbmed, /write
   endif
@@ -228,8 +195,8 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
 
   comp_l2_update_version, primary_header
 
-  if (median_opt eq 'yes') then fits_write, fcbmed, 0, primary_header
-  if (mean_opt eq 'yes') then fits_write, fcbavg, 0, primary_header
+  if (compute_median) then fits_write, fcbmed, 0, primary_header
+  if (compute_mean) then fits_write, fcbavg, 0, primary_header
   fits_write, fcbsig, 0, primary_header
 
   mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp/average', /debug
@@ -356,7 +323,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
       aver = mean(data, dimension=3)
 
       ; write Stokes parameters to output files
-      if (median_opt eq 'yes') then begin
+      if (compute_median) then begin
         sxaddpar, header, 'DATAMIN', min(med), ' MINIMUM DATA VALUE'
         sxaddpar, header, 'DATAMAX', max(med), ' MAXIMUM DATA VALUE'
 
@@ -368,7 +335,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
         fits_write, fcbmed, med, header, extname=ename
       endif
 
-      if (mean_opt eq 'yes') then begin
+      if (compute_mean) then begin
         sxaddpar, header, 'DATAMIN', min(aver), ' MINIMUM DATA VALUE'
         sxaddpar, header, 'DATAMAX', max(aver), ' MAXIMUM DATA VALUE'
 
@@ -393,14 +360,14 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     sxaddpar, header, 'DATAMAX', max(back[*, *, iw]), ' MAXIMUM DATA VALUE'
     sxaddpar, header, 'POLSTATE', 'BKG'
     ename = 'B, ' + string(format='(f7.2)', waves[iw])
-    if (median_opt eq 'yes') then begin
+    if (compute_median) then begin
       nans = where(finite(back[*, *, iw], /nan), count)
       if (count gt 0) then begin
         mg_log, 'found NaNs in median values of background', name='comp', /warn
       endif
       fits_write, fcbmed, back[*, *, iw], header, extname=ename
     endif
-    if (mean_opt eq 'yes') then begin
+    if (compute_mean) then begin
       nans = where(finite(back[*, *, iw], /nan), count)
       if (count gt 0) then begin
         mg_log, 'found NaNs in mean values of background', name='comp', /warn
@@ -411,7 +378,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
   endfor
 
   ; close files
-  if (median_opt eq 'yes') then begin
+  if (compute_median) then begin
     fits_close, fcbmed
 
     zip_cmd = string(median_filename, format='(%"gzip -f %s")')
@@ -423,7 +390,7 @@ pro comp_average, date_dir, wave_type, list_file=list_file, synoptic=synoptic, $
     endif
   endif
 
-  if (mean_opt eq 'yes') then begin
+  if (compute_mean) then begin
     fits_close, fcbavg
 
     zip_cmd = string(mean_filename, format='(%"gzip -f %s")')

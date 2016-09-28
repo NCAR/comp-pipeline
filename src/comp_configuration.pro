@@ -145,4 +145,24 @@ pro comp_configuration, config_filename=config_filename
   cache_flats                     = config->get('cache_flats', $
                                                 section='flats', $
                                                 /boolean, default=1B)
+
+  ; L2 averaging
+  averaging_max_n_files           = config->get('max_n_files', $
+                                                section='averaging', $
+                                                default=150, type=3)
+  averaging_min_n_cluster_files    = config->get('min_n_cluster_files', $
+                                                 section='averaging', $
+                                                 default=50, type=3)
+  averaging_max_cadence_interval   = config->get('max_cadence_interval', $
+                                                 section='averaging', $
+                                                 default=180.0, type=4)
+  averaging_max_n_noncluster_files = config->get('max_n_noncluster_files', $
+                                                 section='averaging', $
+                                                 default=50, type=3)
+  compute_mean                     = config->get('compute_mean', $
+                                                 section='averaging', $
+                                                 /boolean, default=1B)
+  compute_median                   = config->get('compute_median', $
+                                                 section='averaging', $
+                                                 /boolean, default=1B)
 end

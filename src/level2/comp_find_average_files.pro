@@ -106,7 +106,7 @@ end
 ;     time cadence (in seconds) to use to create clusters; files within a
 ;     cluster must be closer than `MAX_CADENCE_INTERVAL` apart
 ;   max_n_noncluster_files : in, optional, type=integer, default=50
-;     maximum number of files to use 
+;     maximum number of files to use if no cluster was good enough
 ;   count : out, optional, type=integer
 ;     set to a named variable to retrieve the number of files returned
 ;-
@@ -128,6 +128,9 @@ function comp_find_average_files, date_dir, wave_type, $
                            ? 50L $
                            : min_n_cluster_files
   _max_n_files = n_elements(max_n_files) eq 0L ? 150L : max_n_files
+  _max_n_noncluster_files = n_elements(max_n_noncluster_files) eq 0L $
+                              ? 50L $
+                              : max_n_noncluster_files
 
   ; 1. using good_waves_{wave_type}_files.txt, group files into clusters where
   ;    files: 
@@ -137,8 +140,8 @@ function comp_find_average_files, date_dir, wave_type, $
   ;       cutting it down to the first MAX_N_FILES (150 now) if it has more than
   ;       that
   ; 2. if step 1. didn't yield files, try it with good_{wave_type}_files.txt
-  ; 3. if no files found yet, take all the files in the first clusters which
-  ;    keep the total number of files less than MAX_N_NONCLUSTER_FILES (50 now)
+  ; 3. if no files found yet, take the first files in
+  ;    good_{wave_type}_files.txt up to MAX_N_NONCLUSTER_FILES (50 now)
 
   cd, current=process_dir
 
@@ -179,6 +182,20 @@ function comp_find_average_files, date_dir, wave_type, $
   if (count gt 0L) then return, files
 
   ; step 3.
+  n_candidate_files = file_lines(list_filename)
+  if (n_candidate_files eq 0L) then begin
+    count = 0L
+    return, !null
+  endif
 
-  return, []
+  candidate_files = strarr(n_candidate_files)
+  openr, lun, list_filename, /get_lun
+  line = ''
+  for f = 0L, n_candidate_files - 1L do begin
+    readf, lun, line
+  endfor
+  free_lun, lun
+
+  count = n_candidate_files < _max_n_noncluster_files
+  return, files[0:count - 1L]
 end

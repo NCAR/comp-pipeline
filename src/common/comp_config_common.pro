@@ -52,4 +52,10 @@ common comp_config, binary_dir, $
                     make_flat_destraying, $
                     make_flat_fill, $
                     make_flat_spectral_correction, $
-                    cache_flats
+                    cache_flats, $
+                    averaging_max_n_files, $
+                    averaging_min_n_cluster_files, $
+                    averaging_max_cadence_interval, $
+                    averaging_max_n_noncluster_files, $
+                    compute_mean, $
+                    compute_median
