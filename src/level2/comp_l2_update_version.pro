@@ -7,12 +7,23 @@
 ;   header : in, out, required, type=strarr
 ;     FITS header
 ;-
-pro comp_l2_update_version, header
+pro comp_l2_update_version, header, from_l2=from_l2
   compile_opt strictarr
 
   ; get the L1 versions
-  l1version = sxpar(header, 'VERSION', count=n_l1version)
-  l1revision = sxpar(header, 'REVISION', count=n_l1revision)
+
+  ; L1VER/L1REV might already be present if creating an L2 file from another L2
+  ; file
+
+  l1version = sxpar(header, 'L1VER', count=n_l1version)
+  if (n_l1version eq 0) then begin
+    l1version = sxpar(header, 'VERSION', count=n_l1version)
+  endif
+
+  l1revision = sxpar(header, 'L1REV', count=n_l1revision)
+  if (n_l1revision eq 0) then begin
+    l1revision = sxpar(header, 'REVISION', count=n_l1revision)
+  endif
 
   version = comp_find_code_version(revision=revision)
   sxaddpar, header, 'VERSION', version, ' Calibration software version'
