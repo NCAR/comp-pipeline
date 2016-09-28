@@ -87,7 +87,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
-    mg_log, 'file %s does not exist, exiting', file, name='comp/quick_invert', /warn
+    mg_log, '%s does not exist, exiting', file, name='comp/quick_invert', /warn
     return
   endif
 
