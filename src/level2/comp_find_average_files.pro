@@ -146,6 +146,8 @@ function comp_find_average_files, date_dir, wave_type, $
                               ? 50L $
                               : max_n_noncluster_files
 
+  count = 0L
+
   ; 1. using good_waves_{wave_type}_files.txt, group files into clusters where
   ;    files: 
   ;      - are within MAX_CADENCE_INTERVAL (3 min now) of each other
@@ -162,6 +164,11 @@ function comp_find_average_files, date_dir, wave_type, $
 
   flat_filename = filepath('flat.fts', root=l1_process_dir)
   fits_open, flat_filename, flat_fcb
+
+  ; make sure there is a real flat.fts file with the 3 required extensions and
+  ; at least one extension representing a flat
+  if (size(flat_fcb, /type) ne 8 || flat_fcb.nextend lt 4) then return, []
+
   fits_read, flat_fcb, flat_times, flat_times_header, exten_no=flat_fcb.nextend - 2
   fits_close, flat_fcb
 
