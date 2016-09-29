@@ -126,6 +126,13 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   sxaddpar, primary_header, 'N_EXT', 8, /savecomment
 
+  case wave_type of
+    '1074': rest = double(center1074)
+    '1079': rest = double(center1079)
+    '1083': rest = double(center1083)
+  endcase
+  c = 299792.458D
+
   ; update version
   comp_l2_update_version, primary_header
 
@@ -156,11 +163,12 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   d_lambda = abs(wave[wave_indices[1]] - wave[wave_indices[0]])
 
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, i_cent
-  dop *= 3.e5 / wave[wave_indices[1]]   ; convert to km/s
-  width *= 3.e5 / wave[wave_indices[1]]
+  dop += rest
+  ; TODO: should this be divided by sqrt(2.0) to give sigma?
+  width *= c / wave[wave_indices[1]]
 
   pre_corr = dblarr(nx, ny, 2)
-  pre_corr[*, *, 0] = i
+  pre_corr[*, *, 0] = i_cent
   pre_corr[*, *, 1] = dop
 
   comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
