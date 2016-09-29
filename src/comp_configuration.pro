@@ -30,8 +30,8 @@ pro comp_configuration, config_filename=config_filename
   ; save files
   binary_dir    = mg_src_root()
   hot_file      = filepath('hothot.sav', root=binary_dir)
-  ffmpeg_dir    = config->get('ffmpeg_dir', section='save')
-  git_dir       = config->get('git_dir', section='save')
+  ffmpeg_dir    = config->get('ffmpeg_dir', section='externals')
+  git_dir       = config->get('git_dir', section='externals')
 
   ; processing
   raw_basedir         = config->get('raw_basedir', section='processing')
@@ -76,8 +76,6 @@ pro comp_configuration, config_filename=config_filename
                                     /boolean, default=0B)
   create_l1           = config->get('create_l1', section='actions', $
                                     /boolean, default=1B)
-  correct_crosstalk   = config->get('correct_crosstalk', section='actions', $
-                                    /boolean, default=create_l1)
   perform_gbu         = config->get('perform_gbu', section='actions', $
                                     /boolean, default=create_l1)
   create_flatsdarks   = config->get('create_flatsdarks', section='actions', $
@@ -117,12 +115,15 @@ pro comp_configuration, config_filename=config_filename
   code_version = comp_find_code_version(revision=revision)
   code_revision = revision
 
-  subtract_background             = config->get('subtract_background', $
-                                                section='options', $
-                                                /boolean, default=1B)
-  remove_stray_light              = config->get('remove_stray_light', $
-                                                section='options', $
-                                                /boolean, default=0B)
+  ; options
+  subtract_background = config->get('subtract_background', $
+                                    section='options', $
+                                    /boolean, default=1B)
+  remove_stray_light  = config->get('remove_stray_light', $
+                                    section='options', $
+                                    /boolean, default=0B)
+  correct_crosstalk   = config->get('correct_crosstalk', section='options', $
+                                    /boolean, default=create_l1)
 
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
