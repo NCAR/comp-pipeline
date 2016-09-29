@@ -491,13 +491,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   cd, current=pwd
   cd, temp_path
 
+  n_points = 3
   ffmpeg_fmt = '(%"ffmpeg -r 25 -i %s' $
                  + ' -y -pass %d' $
                  + ' -loglevel error' $
                  + ' -vcodec libx264' $
                  + ' -passlogfile %s' $
                  + ' -b:v %s -g 3' $
-                 + ' %s.comp.%s.%s.mp4")'
+                 + ' %s.comp.%s.%s.%d.mp4")'
   infile_ext = '.' + wave_type + '.%04d.png'
 
   ; 2-pass encoding with ffmpeg and x264
@@ -505,6 +506,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('intensity' + infile_ext, $
                                  mmm, 'int', '2000k', $
                                  date_dir, wave_type, 'daily_intensity', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -513,6 +515,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('enhanced_intensity' + infile_ext, $
                                  mmm, 'enh_int', '3000k', $
                                  date_dir, wave_type, 'daily_enhanced_intensity', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -521,6 +524,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('corrected_velocity' + infile_ext, $
                                  mmm, 'corr_velo', '3000k', $
                                  date_dir, wave_type, 'daily_corrected_velocity', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -529,6 +533,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('line_width' + infile_ext, $
                                  mmm, 'line_width', '3000k', $
                                  date_dir, wave_type, 'daily_line_width', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -537,6 +542,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('ltot' + infile_ext, $
                                  mmm, 'lin_pol', '3000k', $
                                  date_dir, wave_type, 'daily_ltot', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -545,6 +551,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('q' + infile_ext, $
                                  mmm, 'stks_q', '3000k', $
                                  date_dir, wave_type, 'daily_q', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -553,6 +560,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('u' + infile_ext, $
                                  mmm, 'stks_u', '3000k', $
                                  date_dir, wave_type, 'daily_u', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
@@ -561,6 +569,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ffmpeg_cmd = filepath(string('azimuth' + infile_ext, $
                                  mmm, 'azi', '3000k', $
                                  date_dir, wave_type, 'daily_azimuth', $
+                                 n_points, $
                                  format=ffmpeg_fmt), $
                           root=ffmpeg_dir)
     mg_log, ffmpeg_cmd, name='comp', /debug
