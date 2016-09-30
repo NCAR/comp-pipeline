@@ -112,7 +112,8 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
               ' Extension in flat.fts (not FLATFILE) used', after='FLATFILE'
     sxaddpar, header, 'FLATMED', medflat, $
               ' median of dark and exposure corrected flat', after='FLATEXT'
-    headersout[*, i] = header
+
+    headersout[0, i] = reform(header, n_elements(header), 1)
   endfor
 
   headers = headersout
