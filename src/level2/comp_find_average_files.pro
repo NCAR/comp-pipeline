@@ -35,8 +35,16 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   compile_opt strictarr
   @comp_constants_common
 
+  if (~file_test(list_filename)) then begin
+    count = 0L
+    return, !null
+  endif
+
   n_candidate_files = file_lines(list_filename)
-  if (n_candidate_files eq 0L) then begin
+
+  ; can't have a cluster of at least min_n_cluster_files if there aren't at
+  ; least that many candidates
+  if (n_candidate_files lt min_n_cluster_files) then begin
     count = 0L
     return, !null
   endif
@@ -76,6 +84,13 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   flat_check = histogram(bins, min=0, max=n_elements(time_check) - 1L) eq 0
 
   check = time_check and flat_check
+
+  ; check must have at least 3 elements to work with LABEL_REGION, but if
+  ; it doesn't have at least min_n_cluster_files we will return 0 files anyway
+  if (n_elements(check) lt (3L > min_n_cluster_files)) then begin
+    count = 0L
+    return, []
+  endif
 
   clusters = label_region(check)
   if (check[0]) then clusters[0] = 1
@@ -132,6 +147,7 @@ function comp_find_average_files, date_dir, wave_type, $
                                   count=count
   compile_opt strictarr
   @comp_config_common
+  @comp_constants_common
 
   ; set defaults for optional keywords
   _max_cadence_interval = n_elements(max_cadence_interval) eq 0L $
@@ -228,5 +244,5 @@ function comp_find_average_files, date_dir, wave_type, $
 
   count = n_candidate_files < _max_n_noncluster_files
   stokes_present = stokes_present[0:count - 1L]
-  return, files[0:count - 1L]
+  return, candidate_files[0:count - 1L]
 end
