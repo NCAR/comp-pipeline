@@ -219,6 +219,11 @@ function comp_find_average_files, date_dir, wave_type, $
   if (count gt 0L) then return, files
 
   ; step 3.
+  if (~file_test(list_filename)) then begin
+    count = 0L
+    return, !null
+  endif
+
   n_candidate_files = file_lines(list_filename)
   if (n_candidate_files eq 0L) then begin
     count = 0L
