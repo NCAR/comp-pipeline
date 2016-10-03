@@ -179,6 +179,7 @@ function comp_find_average_files, date_dir, wave_type, $
   l1_process_dir = filepath('level1', subdir=date_dir, root=process_basedir)
 
   flat_filename = filepath('flat.fts', root=l1_process_dir)
+  if (~file_test(flat_filename)) then return, []
   fits_open, flat_filename, flat_fcb
 
   ; make sure there is a real flat.fts file with the 3 required extensions and
