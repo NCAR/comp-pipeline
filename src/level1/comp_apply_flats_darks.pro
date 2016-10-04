@@ -21,13 +21,18 @@
 ; :Keywords:
 ;   flat_header : out, optional, type=strarr
 ;     flat header
+;   error : out, optional, type=long
+;     set to a named variable to retrieve whether there was an error in applying
+;     flats and darks; 0 indicates no error
 ;
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
+pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header, error=error
   compile_opt strictarr
   @comp_config_common
+
+  error = 0L
 
   ; figure out what's in our image array
   comp_inventory_header, headers, beam, wave, pol, type, expose, $
@@ -51,6 +56,12 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose, flat_extensions=flat_extensions, $
                    flat_found=flat_found
+  if (total(flat_found, /integer) eq 0L) then begin
+    mg_log, 'no valid flats found', name='comp', /error
+    error = 1L
+    return
+  endif
+
   flat_mask = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0)
 
   for f = 0L, n_elements(flat_expose) - 1L do begin

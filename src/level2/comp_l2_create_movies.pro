@@ -502,88 +502,128 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   infile_ext = '.' + wave_type + '.%04d.png'
 
   ; 2-pass encoding with ffmpeg and x264
-  for mmm = 1, 2 do begin
-    ffmpeg_cmd = filepath(string('intensity' + infile_ext, $
-                                 mmm, 'int', '2000k', $
-                                 date_dir, wave_type, 'daily_intensity', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+  for pass = 1, 2 do begin
+    type = 'intensity'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'int', '2000k', $
+                                   date_dir, wave_type, 'daily_intensity', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('enhanced_intensity' + infile_ext, $
-                                 mmm, 'enh_int', '3000k', $
-                                 date_dir, wave_type, 'daily_enhanced_intensity', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'enhanced_intensity'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'enh_int', '3000k', $
+                                   date_dir, wave_type, 'daily_enhanced_intensity', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('corrected_velocity' + infile_ext, $
-                                 mmm, 'corr_velo', '3000k', $
-                                 date_dir, wave_type, 'daily_corrected_velocity', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'corrected_velocity'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'corr_velo', '3000k', $
+                                   date_dir, wave_type, 'daily_corrected_velocity', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('line_width' + infile_ext, $
-                                 mmm, 'line_width', '3000k', $
-                                 date_dir, wave_type, 'daily_line_width', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'line_width'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'line_width', '3000k', $
+                                   date_dir, wave_type, 'daily_line_width', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('ltot' + infile_ext, $
-                                 mmm, 'lin_pol', '3000k', $
-                                 date_dir, wave_type, 'daily_ltot', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'ltot'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'lin_pol', '3000k', $
+                                   date_dir, wave_type, 'daily_ltot', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('q' + infile_ext, $
-                                 mmm, 'stks_q', '3000k', $
-                                 date_dir, wave_type, 'daily_q', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'q'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'stks_q', '3000k', $
+                                   date_dir, wave_type, 'daily_q', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('u' + infile_ext, $
-                                 mmm, 'stks_u', '3000k', $
-                                 date_dir, wave_type, 'daily_u', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'u'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'stks_u', '3000k', $
+                                   date_dir, wave_type, 'daily_u', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
 
-    ffmpeg_cmd = filepath(string('azimuth' + infile_ext, $
-                                 mmm, 'azi', '3000k', $
-                                 date_dir, wave_type, 'daily_azimuth', $
-                                 n_points, $
-                                 format=ffmpeg_fmt), $
-                          root=ffmpeg_dir)
-    mg_log, ffmpeg_cmd, name='comp', /debug
-    spawn, ffmpeg_cmd
+    type = 'azimuth'
+    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    if (n_files gt 0L) then begin
+      ffmpeg_cmd = filepath(string(type + infile_ext, $
+                                   pass, 'azi', '3000k', $
+                                   date_dir, wave_type, 'daily_azimuth', $
+                                   n_points, $
+                                   format=ffmpeg_fmt), $
+                            root=ffmpeg_dir)
+      mg_log, ffmpeg_cmd, name='comp', /debug
+      spawn, ffmpeg_cmd
+    endif
   endfor
 
-  file_delete, file_search('intensity.' + wave_type + '.*.png')
-  file_delete, file_search('enhanced_intensity.' + wave_type + '.*.png')
-  file_delete, file_search('corrected_velocity.' + wave_type + '.*.png')
-  file_delete, file_search('line_width.' + wave_type + '.*.png')
-  file_delete, file_search('ltot.' + wave_type + '.*.png')
-  file_delete, file_search('q.' + wave_type + '.*.png')
-  file_delete, file_search('u.' + wave_type + '.*.png')
-  file_delete, file_search('azimuth.' + wave_type + '.*.png')
+  files = file_search('intensity.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('enhanced_intensity.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('corrected_velocity.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('line_width.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('ltot.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('q.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('u.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
+  files = file_search('azimuth.' + wave_type + '.*.png', count=n_files)
+  if (n_files gt 0L) then file_delete, files
 
   cd, pwd
 
