@@ -33,7 +33,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   comp_apply_flats_darks, images, headers, date_dir, error=error
   if (error ne 0L) then begin
-    mg_log, 'not processing %s because flats/darks could not be applied', $
+    mg_log, 'skipping %s (no flats/darks)', $
             file_basename(filename), name='comp', /error
     return
   endif
