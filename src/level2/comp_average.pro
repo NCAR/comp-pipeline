@@ -172,12 +172,16 @@ pro comp_average, date_dir, wave_type, error=error
   sxdelpar, primary_header, 'TIME_HST'
   sxaddpar, primary_header, 'LEVEL   ', 'L2'
   fits_close, fcb
+
   sxaddpar, primary_header, 'DATE-OBS', date_str, $
             ' [UTC] Averaging mid-point DATE: CCYY-MM-DD', after='TIMESYS'
   sxaddpar, primary_header, 'TIME-OBS', time_str, $
             ' [UTC] Averaging mid-point TIME: HH:MM:SS', after='DATE-OBS'
   sxaddpar, primary_header, 'DURATION', 24. * 60. * duration, $
             ' [minutes] Averaging duration', after='TIME-OBS', format='(f8.3)'
+
+  sxdelpar, primary_header, 'OBS_PLAN'
+  sxdelpar, primary_header, 'OBS_ID'
 
   ; use given 5-pt wavelengths
   case wave_type of
@@ -289,6 +293,7 @@ pro comp_average, date_dir, wave_type, error=error
       m = numof_stokes[ist]
       sm = sqrt(m)
 
+      sxaddpar, header, 'POLSTATE', stokes[ist]
       sxaddpar, header, 'WAVELENG', waves[iw]
       sxaddpar, header, 'NAVERAGE', m
       sxaddpar, header, 'NFILES', num_averaged[ist, iw], ' Number of files used', $

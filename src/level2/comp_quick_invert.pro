@@ -99,6 +99,9 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   ; copy the primary header from the median file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
 
+  sxdelpar, primary_header, 'OBS_PLAN'
+  sxdelpar, primary_header, 'OBS_ID'
+
   ntune = sxpar(primary_header, 'NTUNE', count=nrecords)
   if (nrecords eq 0L) then ntune = sxpar(primary_header, 'NTUNES')
 
@@ -106,21 +109,27 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   ; find standard 3 pt wavelength indices
   wave_indices = comp_3pt_indices(wave_type, wavelengths, error=error)
+  if (error ne 0L) then begin
+    mg_log, 'standard 3pt wavelengths not found in %s', $
+            file_basename(file), name='comp', /error
+  endif
 
   ; read data
-
   comp_obs = fltarr(nx, nx, nstokes, ntune)
   wave = fltarr(ntune)
 
-  i = 1
+  e = 1
   for is = 0L, nstokes - 1L do begin
     for iw = 0L, ntune - 1L do begin
-      fits_read, fcb, dat, header, exten_no=i
+      fits_read, fcb, dat, h, exten_no=e
       comp_obs[*, *, is, iw] = dat
-      wave[iw] = sxpar(header, 'WAVELENG')
-      ++i
+      wave[iw] = sxpar(h, 'WAVELENG')
+      ++e
     endfor
   endfor
+
+  ; use header for center wavelength for I as template
+  fits_read, fcb, dat, header, exten_no=ntune / 2
 
   fits_close, fcb
 
@@ -191,40 +200,40 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
-  sxaddpar, header, 'DATAMIN', min(i), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(i), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(i, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(i, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, i, header, extname='I'
 
-  sxaddpar, header, 'DATAMIN', min(q), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(q), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(q, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(q, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, q, header, extname='Q'
 
-  sxaddpar, header, 'DATAMIN', min(u), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(u), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(u, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(u, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, u, header, extname='U'
 
   sxdelpar, header, 'COMMENT'
-  sxaddpar, header, 'DATAMIN', min(l), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(l), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(l, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(l, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, l, header, extname='Linear Polarization'
 
   sxaddpar, header, 'COMMENT', $
             'Azimuth is measured positive counter-clockwise from the horizontal.'
-  sxaddpar, header, 'DATAMIN', min(azimuth), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(azimuth), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(azimuth, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(azimuth, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, azimuth, header, extname='Azimuth'
   sxdelpar, header, 'COMMENT'
 
-  sxaddpar, header, 'DATAMIN', min(radial_azimuth), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(radial_azimuth), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
 
-  sxaddpar, header, 'DATAMIN', min(corrected_dop), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(corrected_dop), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
 
-  sxaddpar, header, 'DATAMIN', min(width), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(width), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(width, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(width, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, width, header, extname='Line Width'
 
   fits_close, fcbout
