@@ -1,15 +1,23 @@
 ; docformat = 'rst'
 
-pro comp_plot_flatmedians, filename
+;+
+; Plot medians of flat.
+;
+; :Params:
+;   flat_filename : in, required, type=string
+;     filename of flat medians CSV file
+;   dark_filename : in, required, type=string
+;     filename of dark medians CSV file
+;-
+pro comp_plot_flatmedians, flat_filename, dark_filename
   compile_opt strictarr
 
-  n_lines = file_lines(filename)
+  n_lines = file_lines(flat_filename)
   s = replicate({time: 0.0D, $
                  time_of_day: 0.0, $
                  wavelength: 0.0, $
                  median: 0.0}, n_lines)
-  data = fltarr(4, n_lines)
-  openr, lun, filename, /get_lun
+  openr, lun, flat_filename, /get_lun
   line = ''
   for i = 0L, n_lines - 1L do begin
     readf, lun, line
@@ -29,6 +37,30 @@ pro comp_plot_flatmedians, filename
     s[i].time_of_day = float(tokens[1])
     s[i].wavelength = float(tokens[2])
     s[i].median = float(tokens[3]) * solar_distance^2
+  endfor
+  free_lun, lun
+
+  n_lines = file_lines(dark_filename)
+  d = replicate({time: 0.0D, $
+                 time_of_day: 0.0, $
+                 median: 0.0}, n_lines)
+  openr, lun, dark_filename, /get_lun
+  line = ''
+  for i = 0L, n_lines - 1L do begin
+    readf, lun, line
+    tokens = strsplit(line, ',', /extract)
+
+    month = long(strmid(tokens[0], 4, 2))
+    day = long(strmid(tokens[0], 6, 2))
+    year = long(strmid(tokens[0], 0, 4))
+    hour = long(tokens[1])
+    minute = long((float(tokens[1]) - hour) * 60)
+    second = long(((float(tokens[1]) - hour) * 60 - minute) * 60)
+    jday = julday(month, day, year, hour, minute, second)
+
+    d[i].time = jday
+    d[i].time_of_day = float(tokens[1])
+    d[i].median = float(tokens[2])
   endfor
   free_lun, lun
 
@@ -55,42 +87,73 @@ pro comp_plot_flatmedians, filename
                julday(9, 16, 2015, 12), $
                julday(5, 4, 2016, 12)]
 
-  y_range = [0.0, 1.05 * max(s.median)]
+  ;y_range = [0.0, 1.05 * max(s.median)]
+  y_range = [0.0, 66.0]
 
   !null = label_date(date_format=['%M %D', '%Y'])
 
-  mg_psbegin, filename='flat-medians.ps', xsize=9, ysize=6, /inches, $
-              /color, /landscape
+  mg_psbegin, filename='flat-medians.ps', xsize=10.0, ysize=8.0, /inches, $
+              /color, /landscape, xoffset=0.0
 
   device, decomposed=1
   plot, [s[0].time, s[-1].time], y_range, /nodata, $
+        xticklen=-0.01, yticklen=-0.01, $
         xstyle=9, ystyle=9, $
         xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
         xtickunits=['Time', 'Time'], $
         xminor=12, $
         xticks=12, $
         charsize=0.8, font=1, $
-        title='Flat values!CMedians corrected for solar distance and exposure time', $
-        xtitle='Date', ytitle='Median values in annuli'
+        title='Median flat values!CMedians normalized for solar distance (1 AU) and exposure time (250.0 ms)', $
+        xtitle='Date', ytitle='Median values in both annuli', $
+        position=[0.05, 0.55, 0.975, 0.95]
+  axis, s[-1].time, 0.0, /yaxis, $
+        charsize=0.8, font=1, $
+        yticklen=-0.01, $
+        yrange=r_range, ystyle=1
+
+  annotation_charsize = 0.5
 
   ; cleanings
   for c = 0L, n_elements(cleanings) - 1L do begin
     oplot, fltarr(2) + cleanings[c], y_range, color='a0a0a0'x, thick=1.0
-    xyouts, cleanings[c] + 10.0, 50.0, $
-            string(cleanings[c], format='("Cleaning ", C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
-            orientation=90.0, charsize=0.6, font=1
+    xyouts, cleanings[c] + 10.0, y_range[1], $
+            string(cleanings[c], $
+                   format='(C(CYI, ".", CMOI2.2, ".", CDI2.2), " 01 cleaning")'), $
+            orientation=90.0, charsize=annotation_charsize, font=1, $
+            alignment=1.0
   endfor
 
   ; annotations
-  annotation_dates = [julday(12, 17, 2014, 12), $
-                      julday(3, 15, 2015, 12)]
-  annotation_heights = [40.0, 38.0]
-  for a = 0L, n_elements(annotation_dates) - 1L do begin
-    oplot, fltarr(2) + annotation_dates[a], [-1.5, -0.5] + annotation_heights[a], $
+  annotation_dates = [julday(1, 15, 2014, 12), $
+                      julday(4, 29, 2014, 12), $
+                      julday(10, 19, 2014, 12), $
+                      julday(12, 17, 2014, 12)]
+  annotations = ['CoMP warmed', $
+                 'turned off!Ccamerato conserve LN2', $
+                 'turned off!Ccamera to conserve LN2', $
+                 'camera!Cwarmed/re-cooled']
+
+  for c = 0L, n_elements(annotations) - 1L do begin
+    oplot, fltarr(2) + annotation_dates[c], y_range, color='a0a0a0'x, thick=1.0
+    xyouts, annotation_dates[c] + 10.0, y_range[1], $
+            string(annotation_dates[c], annotations[c], $
+                   format='(C(CYI, ".", CMOI2.2, ".", CDI2.2), %" %s")'), $
+            orientation=90.0, charsize=annotation_charsize, font=1, $
+            alignment=1.0
+  endfor
+
+  ; marks
+  marks_dates = [julday(5, 16, 2014, 12), $
+                 julday(12, 17, 2014, 12), $
+                 julday(3, 15, 2015, 12)]
+  marks_heights = [47.0, 40.0, 38.0]
+  for a = 0L, n_elements(marks_dates) - 1L do begin
+    oplot, fltarr(2) + marks_dates[a], [-1.5, -0.5] + marks_heights[a], $
            color='a0a0a0'x, thick=1.0
-    xyouts, annotation_dates[a], annotation_heights[a], $
-            string(annotation_dates[a], format='(C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
-            charsize=0.6, font=1
+    xyouts, marks_dates[a], marks_heights[a], $
+            string(marks_dates[a], format='(C(CYI, ".", CMOI2.2, ".", CDI2.2))'), $
+            charsize=annotation_charsize, font=1
   endfor
 
   ; 1074 and mornings
@@ -122,10 +185,73 @@ pro comp_plot_flatmedians, filename
             titles=['1074.62', '1074 morning', '1083.0', '1083.0 morning'], $
             charsize=0.85, tt_font='Helvetica', /hardware, $
             length=0.0
+
+  temp_filename = 'rockwell-temp-record.txt'
+  n_temps = file_lines(temp_filename)
+  data = dblarr(2, n_temps)
+  openr, lun, temp_filename, /get_lun
+  readf, lun, data
+  free_lun, lun
+
+  temps = data[1, *]
+  temp_times = data[0, *]
+
+  start = julday(1, 1, 1904, 0)
+  temp_times = start + temp_times / (24.0 * 60.0 * 60.0)
+
+  temp_threshold = -170.0
+  bad_temps = where(temps lt temp_threshold, n_bad_temps)
+  if (n_bad_temps gt 0L) then begin
+    temps[bad_temps] = !values.f_nan
+  endif
+
+  zero_temps = where(temps eq 0.0, n_zero_temps)
+  if (n_zero_temps gt 0L) then begin
+    temps[zero_temps] = !values.f_nan
+  endif
+
+  good_temps = where(finite(temps), n_good_temps)
+  if (n_good_temps gt 0L) then begin
+    temps = temps[good_temps]
+    temp_times = temp_times[good_temps]
+  endif
+
+  dark_coeffs = poly_fit(d.time, d.median, 1)
+  dark_range = [min(d.median, max=max_dark), max_dark]
+  plot, [s[0].time, s[-1].time], dark_range, /nodata, /noerase, $
+        xstyle=9, ystyle=9, $
+        yticklen=-0.01, $
+        xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
+        xtickunits=['Time', 'Time'], $
+        xminor=12, $
+        xticks=12, $
+        charsize=0.7, font=1, $
+        title='Median dark values', $
+        xtitle='Date', ytitle='Median values in both annuli', $
+        position=[0.05, 0.3, 0.975, 0.425]
+  oplot, d.time, d.median, psym=3, color='a0a0a0'x
+  oplot, d.time, dark_coeffs[0] + dark_coeffs[1] * d.time, color='000000'x
+  xyouts, (d.time)[-1], 2100.0, string(dark_coeffs[1], format='(%"slope %0.3f")'), $
+          /data, alignment=1.0, charsize=0.65, font=1
+
+  temp_range = [min(temps, max=max_temp), max_temp]
+  plot, [s[0].time, s[-1].time], temp_range, /nodata, /noerase, $
+        xstyle=9, ystyle=9, $
+        yticklen=-0.01, $
+        xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
+        xtickunits=['Time', 'Time'], $
+        xminor=12, $
+        xticks=12, $
+        charsize=0.7, font=1, $
+        title='Rockwell temperatures', $
+        xtitle='Date', ytitle='Temperature (deg C)', $
+        position=[0.05, 0.125, 0.975, 0.2]
+  oplot, temp_times, temps, psym=3, color='a0a0a0'x
+
   mg_psend
 end
 
 
-comp_plot_flatmedians, 'flat-medians.csv'
+comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv'
 
 end

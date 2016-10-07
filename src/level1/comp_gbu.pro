@@ -15,7 +15,7 @@
 ; rejection and the corresponding bits set in the good_files parameter are::
 ;
 ;     1   data doesn't exist on disk but is in inventory file
-;     2   number of wavelengths observed > 10 (not necessarily bad data)
+;     2   3 standard wavelengths not found (not necessarily bad data)
 ;     4   background > 30 ppm
 ;     8   background anamolously low, defined as < 4 ppm  
 ;     16  standard deviation of intensity image - median intensity
@@ -33,7 +33,8 @@
 ;       files for that day
 ;   good_wwww_files.txt
 ;     - file containing the filenames and metadata for the all good
-;       polarization data files for that day 
+;       polarization data files for that day (before 9.1.2016 only good 5-pt
+;       files, now all good files with Q and U)
 ;   good_all_wwww.txt
 ;     - file containing the filenames and metadata for all good data files that
 ;       day (polarization and waves)
@@ -95,8 +96,6 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   mg_log, 'wave_type %s', wave_type, name='comp', /info
 
-  ; Establish error handler. When errors occur, the index of the
-  ; error is returned in the variable Error_status:
   catch, error
   if (error ne 0) then begin
     catch, /cancel
@@ -105,6 +104,11 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
+  if (~file_test(process_dir, /directory)) then begin
+    mg_log, 'level1 process directory %s does not exist, exiting', process_dir, $
+            name='comp', /warn
+    return
+  endif
   cd, process_dir
 
   files = wave_type + '_files.txt'   ; file with list of filenames
@@ -116,6 +120,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   filenames = strarr(n_files)
+
   ; array to collect good filenames (0 for good, >0 for bad)
   good_files = intarr(n_files)
   good_lines = strarr(n_files)
@@ -127,6 +132,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   time = fltarr(n_files)
   sigma = fltarr(n_files)
   n_waves = intarr(n_files)
+  polstates = strarr(n_files)
 
   str = ''
   openr, lun, files, /get_lun
@@ -136,23 +142,24 @@ pro comp_gbu, date_dir, wave_type, error=error
     good_lines[ifile] = str
 
     datetime = strmid(str, 0, 15)
+
     ; search_filter is a glob, not a regular expression
-    search_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts'
+    search_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts.gz'
     name = (file_search(search_filter, count=n_name_found))[0]
 
     if (n_name_found lt 1L) then begin
-      mg_log, 'file for %s doesn''t exist on disk but is in inventory file', $
+      mg_log, 'L1 file for %s doesn''t exist on disk but is in inventory file', $
               datetime, $
               name='comp', /warn
       good_files[ifile] += 1
       continue
     endif
 
-    back_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.bkg.fts'
+    back_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.bkg.fts.gz'
     back_name = (file_search(search_filter, count=n_name_found))[0]
 
     if (n_name_found lt 1L || ~file_test(name)) then begin
-      mg_log, 'background %s doesn''t exist on disk but is in inventory file', $
+      mg_log, 'L1 background %s doesn''t exist on disk but is in inventory file', $
               back_filter, $
               name='comp', /warn
       continue
@@ -172,17 +179,33 @@ pro comp_gbu, date_dir, wave_type, error=error
     file_background = sxpar(header, 'BACKGRND')
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
+  
+    comp_inventory, fcb, beam, wavelengths, pol
+
+    upol = pol[uniq(pol, sort(pol))]
+    polstates[ifile] = strjoin(upol, ',')
+
+    wave_indices = comp_3pt_indices(wave_type, wavelengths, error=wave_error)  
 
     ; reject special obs at beginning with number of wavelengths observed > 10
     if (wave_type ne '1083') then begin
-      if (n_waves[ifile] gt 10) then begin
-        mg_log, 'gt 10 waves, skipping observation %s', str, name='comp', /warn
-        good_files[ifile] += 2 
+      ; skip observation if standard 3 wavelengths don't exist for the wave type
+      if (wave_error gt 0L) then begin
+        mg_log, 'standard 3 wavelengths not found, skipping observation %s', str, $
+                name='comp', /warn
+        good_files[ifile] += 2
+
+        ; skip observation
+        fits_close, fcb
+        fits_close, back_fcb
+        continue
       endif
 
       ; reject high background images
-      if (back[ifile] gt 30.) then begin
-        mg_log, 'background gt 30, reject %s', str, name='comp', /warn
+      background_cutoff = 30.0
+      if (back[ifile] gt background_cutoff) then begin
+        mg_log, 'background gt %0.1f, reject %s', background_cutoff, str, $
+                name='comp', /warn
         good_files[ifile] += 4
       endif
 
@@ -196,21 +219,20 @@ pro comp_gbu, date_dir, wave_type, error=error
     ; make mask of field-of-view
     comp_make_mask, date_dir, header, mask
 
-    ; read three images around central wavelength
-
+    ; find standard 3 wavelengths for the wave type
     ; read line center intensity
-    fits_read, fcb, dat, header, exten_no=n_waves[ifile] / 2 + 1
+    fits_read, fcb, dat, header, exten_no=wave_indices[1] + 1
     ; read blue wing intensity
-    fits_read, fcb, dat_b, header, exten_no=n_waves[ifile] / 2
+    fits_read, fcb, dat_b, header, exten_no=wave_indices[0] + 1
     ; read red wing intensity
-    fits_read, fcb, dat_r, header, exten_no=n_waves[ifile] / 2 + 2
+    fits_read, fcb, dat_r, header, exten_no=wave_indices[2] + 1
 
     ; use average of intensities (/2 not 3 since blue and red are about 0.5
     ; center intensity)
     data[*, *, ifile] = (dat + dat_b + dat_r) * mask / 2.
 
     ; read central background image
-    fits_read, back_fcb, dat_back, header, exten_no=n_waves[ifile] / 2 + 1
+    fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
 
     ; reject file if there are more than 150 background pixels with a level of
     ; >150
@@ -242,7 +264,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; find median intensity image using only good images so far
   good_subs = where(good_files eq 0, count)
   if (count eq 0) then begin
-    mg_log, 'no good files this day', name='comp', /warn
+    mg_log, 'no good %s files this day', wave_type, name='comp', /warn
   endif
 
   med = fltarr(nx, nx)
@@ -302,26 +324,32 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; make new file for all good files (both 5 wave and 3 wave)
   openw, good_all_lun, 'good_all_' + files, /get_lun
 
-  printf, gbu_lun, 'Filename                                Quality     Back     Sigma   #waves  Reason'
+  printf, gbu_lun, 'Filename                                   Quality     Back     Sigma   #waves  Reason'
   for i = 0L, n_files - 1L do begin
+    ; don't put nonexistent files in the GBU file
+    if (filenames[i] eq '') then continue
+
     ; stop saving to synoptic when obs switch to 3 waves
     if ((synoptic_flag eq 1) and (n_waves[i] lt 5)) then synoptic_flag = 0
     if ((synoptic_flag eq 1) and (good_files[i] eq 0)) then begin
       printf, synoptic_lun, good_lines[i]
     endif
-    if ((good_files[i] eq 0) and (n_waves[i] eq 5)) then begin
+    if ((good_files[i] eq 0) $
+          and (strpos(polstates[i], 'Q') ge 0) $
+          and (strpos(polstates[i], 'U') ge 0)) then begin
       printf, good_lun, good_lines[i]
     endif
+    ; need fast cadence for waves (only way to tell now is 3 points)
     if ((good_files[i] eq 0) and (n_waves[i] eq 3)) then begin
       printf, good_waves_lun, good_lines[i]
     endif
     if (good_files[i] eq 0) then printf, good_all_lun, good_lines[i]
     if (good_files[i] eq 0) then begin
-      printf, gbu_lun, format='(A38, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
+      printf, gbu_lun, format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
               filenames[i], '  Good', back[i], sigma[i], n_waves[i], $
               good_files[i]
     endif else begin
-      printf, gbu_lun, format='(A38, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
+      printf, gbu_lun, format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
               filenames[i], '   Bad', back[i], sigma[i], n_waves[i], $
               good_files[i]
     endelse
@@ -338,7 +366,10 @@ pro comp_gbu, date_dir, wave_type, error=error
   bad = where(good_files gt 0, bad_total)
   mg_log, '%d bad files', bad_total, name='comp', /info
   if (bad_total gt 0) then begin
-    mg_log, 'bad: %s', strjoin(filenames[bad], ', '), name='comp', /warn
+    bad_existing = where(good_files gt 0 and good_files mod 2 eq 0, n_bad_existing)
+    if (n_bad_existing gt 0L) then begin
+      mg_log, 'bad: %s', strjoin(filenames[bad_existing], ', '), name='comp', /warn
+    endif
   endif
 
   ; engineering plots

@@ -87,7 +87,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
       message, 'no image at specified polarization/beam/wave'
     endif
     if (keyword_set(skipall)) then begin
-      imagei = imagei[*,*,1:counti-1]   ; skip first image at all wavelengths...
+      imagei = imagei[*, *, 1:counti - 1]   ; skip first image at all wavelengths...
       --counti
     endif
 

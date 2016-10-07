@@ -28,10 +28,10 @@ pro comp_configuration, config_filename=config_filename
   config = mg_read_config(_config_filename)
 
   ; save files
-  binary_dir    = config->get('binary_dir', section='save')
-  hot_file      = config->get('hot_file', section='save')
-  ffmpeg_dir    = config->get('ffmpeg_dir', section='save')
-  git_dir       = config->get('git_dir', section='save')
+  binary_dir    = mg_src_root()
+  hot_file      = filepath('hothot.sav', root=binary_dir)
+  ffmpeg_dir    = config->get('ffmpeg_dir', section='externals')
+  git_dir       = config->get('git_dir', section='externals')
 
   ; processing
   raw_basedir         = config->get('raw_basedir', section='processing')
@@ -72,23 +72,41 @@ pro comp_configuration, config_filename=config_filename
   engineering_dir = config->get('engineering_dir', section='engineering')
 
   ; actions
-  create_flatsdarks = config->get('create_flatsdarks', section='actions', $
-                                  /boolean, default=1B)
-  create_l1         = config->get('create_l1', section='actions', $
-                                  /boolean, default=1B)
-  distribute_l1     = config->get('distribute_l1', section='actions', $
-                                  /boolean, default=1B)
-  create_l2         = config->get('create_l2', section='actions', $
-                                  /boolean, default=1B)
-  distribute_l2     = config->get('distribute_l2', section='actions', $
-                                  /boolean, default=1B)
-  mail_warnings     = config->get('mail_warnings', section='actions', $
-                                  /boolean, default=1B)
-  send_to_hpss      = config->get('send_to_hpss', section='actions', $
-                                  /boolean, default=1B)
-  validate          = config->get('validate', section='actions', $
-                                  /boolean, default=1B)
-  lock_raw          = config->get('lock_raw', section='actions', $
+  dry_run             = config->get('dry_run', section='actions', $
+                                    /boolean, default=0B)
+  create_l1           = config->get('create_l1', section='actions', $
+                                    /boolean, default=1B)
+  perform_gbu         = config->get('perform_gbu', section='actions', $
+                                    /boolean, default=create_l1)
+  create_flatsdarks   = config->get('create_flatsdarks', section='actions', $
+                                    /boolean, default=create_l1)
+  distribute_l1       = config->get('distribute_l1', section='actions', $
+                                    /boolean, default=1B)
+  create_l2           = config->get('create_l2', section='actions', $
+                                    /boolean, default=1B)
+  create_average      = config->get('create_average', section='actions', $
+                                    /boolean, default=create_l2)
+  create_quick_invert = config->get('create_quick_invert', section='actions', $
+                                    /boolean, default=create_l2)
+  find_systematics    = config->get('find_systematics', section='actions', $
+                                    /boolean, default=create_l2)
+  create_analysis     = config->get('create_analysis', section='actions', $
+                                    /boolean, default=create_l2)
+  create_daily_images = config->get('create_daily_images', section='actions', $
+                                    /boolean, default=create_l2)
+  create_movies       = config->get('create_movies', section='actions', $
+                                    /boolean, default=create_l2)
+  create_daily_summaries = config->get('create_daily_summaries', section='actions', $
+                                       /boolean, default=create_l2)
+  distribute_l2       = config->get('distribute_l2', section='actions', $
+                                    /boolean, default=1B)
+  mail_warnings       = config->get('mail_warnings', section='actions', $
+                                    /boolean, default=1B)
+  send_to_hpss        = config->get('send_to_hpss', section='actions', $
+                                    /boolean, default=1B)
+  validate            = config->get('validate', section='actions', $
+                                    /boolean, default=1B)
+  lock_raw            = config->get('lock_raw', section='actions', $
                                   /boolean, default=1B)
   update_database = config->get('update_database', section='actions', $
                                 /boolean, default=1B)
@@ -96,6 +114,16 @@ pro comp_configuration, config_filename=config_filename
   ; processing code version
   code_version = comp_find_code_version(revision=revision)
   code_revision = revision
+
+  ; options
+  subtract_background = config->get('subtract_background', $
+                                    section='options', $
+                                    /boolean, default=1B)
+  remove_stray_light  = config->get('remove_stray_light', $
+                                    section='options', $
+                                    /boolean, default=0B)
+  correct_crosstalk   = config->get('correct_crosstalk', section='options', $
+                                    /boolean, default=create_l1)
 
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
@@ -118,4 +146,24 @@ pro comp_configuration, config_filename=config_filename
   cache_flats                     = config->get('cache_flats', $
                                                 section='flats', $
                                                 /boolean, default=1B)
+
+  ; L2 averaging
+  averaging_max_n_files           = config->get('max_n_files', $
+                                                section='averaging', $
+                                                default=150, type=3)
+  averaging_min_n_cluster_files    = config->get('min_n_cluster_files', $
+                                                 section='averaging', $
+                                                 default=50, type=3)
+  averaging_max_cadence_interval   = config->get('max_cadence_interval', $
+                                                 section='averaging', $
+                                                 default=180.0, type=4)
+  averaging_max_n_noncluster_files = config->get('max_n_noncluster_files', $
+                                                 section='averaging', $
+                                                 default=50, type=3)
+  compute_mean                     = config->get('compute_mean', $
+                                                 section='averaging', $
+                                                 /boolean, default=1B)
+  compute_median                   = config->get('compute_median', $
+                                                 section='averaging', $
+                                                 /boolean, default=1B)
 end

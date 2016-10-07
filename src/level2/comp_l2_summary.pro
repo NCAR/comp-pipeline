@@ -56,16 +56,16 @@ pro comp_l2_summary, date_dir, wave_type
   mg_log, '%d files going into info and tar for %s to %s', $
           no_of_files, start_time, end_time, name='comp', /info
 
-  flist_d_tpt = file_search('*.comp.' + wave_type + '.dynamics.3.fts')
-  flist_p_tpt = file_search('*.comp.' + wave_type + '.polarization.3.fts')
+  flist_d_tpt = file_search('*.comp.' + wave_type + '.dynamics.3.fts.gz')
+  flist_p_tpt = file_search('*.comp.' + wave_type + '.polarization.3.fts.gz')
   if (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '') then begin
     no_of_tpt_files = '0'
   endif else begin
     no_of_tpt_files = strtrim(n_elements(flist_d_tpt), 2)
   endelse
 
-  flist_d_fpt = file_search('*.comp.' + wave_type + '.dynamics.5.fts')
-  flist_p_fpt = file_search('*.comp.' + wave_type + '.polarization.5.fts')
+  flist_d_fpt = file_search('*.comp.' + wave_type + '.dynamics.5.fts.gz')
+  flist_p_fpt = file_search('*.comp.' + wave_type + '.polarization.5.fts.gz')
   if (n_elements(flist_d_fpt) eq 1 and flist_d_fpt[0] eq '') then begin
     no_of_fpt_files = '0'
   endif else begin
@@ -103,26 +103,6 @@ pro comp_l2_summary, date_dir, wave_type
   endif
 
   free_lun, funit
-
-  ;create tarballs
-
-  ;if not (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '') then begin
-  ;  printf, logFileUnit, 'Creating 3pt dynamics tarball ...'
-  ;  spawn, 'tar czf '+date_dir+'.comp.'+wave_type+$
-  ;    '.daily_dynamics.3.tar.gz *.comp.'+wave_type+'.dynamics.3.fts.gz'
-  ;  printf, logFileUnit, 'Creating 3pt polarization tarball ...'
-  ;  spawn, 'tar czf '+date_dir+'.comp.'+wave_type+$
-  ;    '.daily_polarization.3.tar.gz *.comp.'+wave_type+'.polarization.3.fts.gz'
-  ;endif
-  
-  ;if not (n_elements(flist_d_fpt) eq 1 and flist_d_fpt[0] eq '') then begin
-  ;  printf, logFileUnit, 'Creating 5pt dynamics tarball ...'
-  ;  spawn, 'tar czf '+date_dir+'.comp.'+wave_type+$
-  ;    '.daily_dynamics.5.tar.gz *.comp.'+wave_type+'.dynamics.5.fts.gz'
-  ;  printf, logFileUnit, 'Creating 5pt polarization tarball ...'
-  ;  spawn, 'tar czf '+date_dir+'.comp.'+wave_type+$
-  ;    '.daily_polarization.5.tar.gz *.comp.'+wave_type+'.polarization.5.fts.gz'
-  ;endif
 
   mg_log, 'done', name='comp', /info
 end

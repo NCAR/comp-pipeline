@@ -7,6 +7,7 @@ GIT=/usr/bin/git
 
 REVISION:=$(shell $(GIT) rev-parse --short HEAD)
 PHONE=$(shell cat $(HOME)/.phonenumber 2> /dev/null)
+EMAIL=$(USER)@ucar.edu
 
 ifeq ($(QUIET), 1)
   ECHO_PREFIX=@
@@ -28,6 +29,7 @@ endif
 
 MACHINE=$(shell comp_get_hostname.sh)
 CONFIG=config/comp.$(USER).$(MACHINE)$(FLAGS).cfg
+CONFIG_FILENAME:=$(shell mktemp)
 
 SSW_DIR=$(PWD)/ssw
 GEN_DIR=$(PWD)/gen
@@ -61,13 +63,16 @@ help:
 	@echo " sswdeps          find the SSW dependencies not in ssw dir"
 
 pipe:
+	$(ECHO_PREFIX)cp $(CONFIG) $(CONFIG_FILENAME)
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH) -e "comp_run_pipeline, config_filename='$(CONFIG)'"
-	@if [ "$(PHONE)" ]; then \
-	echo "Sending message to $(PHONE)..."; \
-	$(ECHO_PREFIX)sms -n $(PHONE) -m "Done processing pipeline with $(shell basename $(CONFIG))"; \
-	else \
-	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
-	fi
+#	@if [ "$(PHONE)" ]; then \
+#	echo "Sending message to $(PHONE)..."; \
+#	$(ECHO_PREFIX)sms -n $(PHONE) -m "Done processing pipeline with $(shell basename $(CONFIG))"; \
+#	else \
+#	echo "Put phone number in $(HOME)/.phonenumber to be notified when done"; \
+#	fi
+	$(ECHO_PREFIX)mail_results.sh $(CONFIG) $(CONFIG_FILENAME) $(EMAIL)
+	$(ECHO_PREFIX)rm $(CONFIG_FILENAME)
 
 cal:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH):"+$(FULL_SSW_DIR)" -e ".run comp_cal_example_script"

@@ -58,17 +58,6 @@ pro comp_distribute_l1, date_dir, wave_type
   if (~file_test(frdir, /directory)) then file_mkdir, frdir
   if (~file_test(frdir, /group, /write)) then file_chmod, frdir, /g_write
 
-  ; zip L1 (and background) files
-  mg_log, 'zipping L1 files...', name='comp', /info
-  zip_cmd = string(date_dir, wave_type, $
-                   format='(%"gzip -f %s.*.comp.%s.*.fts")')
-  spawn, zip_cmd, result, error_result, exit_status=status
-  if (status ne 0L) then begin
-    mg_log, 'problem zipping files with command: %s', zip_cmd, $
-            name='comp', /error
-    mg_log, '%s', error_result, name='comp', /error
-  endif
-
   ; copy L1 FITS files to archive
   mg_log, 'copying FITS files...', name='comp', /info
   l1_files = comp_find_l1_file(date_dir, wave_type, /all, $

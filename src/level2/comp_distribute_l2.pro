@@ -56,7 +56,7 @@ pro comp_distribute_l2, date_dir, wave_type
   endfor
 
   daily_types = ['daily_dynamics', 'daily_polarization']
-  points = ['3', '5']
+  points = ['3']
   for t = 0L, n_elements(types) - 1L do begin
     for p = 0L, n_elements(points) - 1L do begin
       files = file_search(string(wave_type, types[t], points[p], $

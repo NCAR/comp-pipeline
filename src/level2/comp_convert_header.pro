@@ -61,6 +61,8 @@ function comp_convert_header, in_header, $
     sxaddpar, out_header, 'LEVEL',  'L2', ' '
     sxaddpar, out_header, 'EXTEND', 'T', 'file may contain extensions', $
               after='NAXIS'
+
+    comp_l2_update_version, out_header
   endelse
 
   return, out_header

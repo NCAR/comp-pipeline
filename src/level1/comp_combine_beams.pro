@@ -45,6 +45,7 @@ pro comp_combine_beams, images, headers, date_dir, $
                         wave_type=wave_type
   compile_opt strictarr
   @comp_constants_common
+  @comp_config_common
 
   comp_inventory_header, headers, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
@@ -90,7 +91,7 @@ pro comp_combine_beams, images, headers, date_dir, $
 
       ; foreground part (with background subtracted); note: the He background
       ; is contaminated, so don't subtract
-      if (wave_type eq '1083') then begin
+      if (wave_type eq '1083' || ~subtract_background) then begin
         images_combine[*, *, i * nw + j] = 0.5 * (fgplus + fgminus)
       endif else begin
         images_combine[*, *, i * nw + j] = 0.5 * (fgplus - bgminus + fgminus - bgplus)
@@ -103,9 +104,10 @@ pro comp_combine_beams, images, headers, date_dir, $
       sxdelpar, hplus, 'BEAM'
       sxaddpar, hplus, 'NAVERAGE', $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
-      headers_combine[*, i * nw + j] = hplus
+
+      headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
       sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i]
-      headers_combine[*, np * nw + i * nw + j] = hplus
+      headers_combine[0, np * nw + i * nw + j] = reform(hplus, n_elements(hplus), 1)
     endfor
   endfor
 end

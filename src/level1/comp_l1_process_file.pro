@@ -27,9 +27,17 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   @comp_constants_common
   @comp_mask_constants_common
+  @comp_config_common
 
   comp_read_data, filename, images, headers, header0
-  comp_apply_flats_darks, images, headers, date_dir
+
+  comp_apply_flats_darks, images, headers, date_dir, error=error
+  if (error ne 0L) then begin
+    mg_log, 'skipping %s (no flats/darks)', $
+            file_basename(filename), name='comp', /error
+    return
+  endif
+
   comp_demodulate, images, headers, images_demod, headers_demod
   comp_inventory_header, headers_demod, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
@@ -37,14 +45,16 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; depending on which polarizations are present, call the appropriate
   ; cross-talk correction routines
 
-  if (total(pol eq 'V') gt 0) then begin
-    mg_log, 'fixing V crosstalk', name='comp/l1_process', /info
-    comp_fix_vxtalk, date_dir, images_demod, headers_demod, filename
-  endif
+  if (correct_crosstalk) then begin
+    if (total(pol eq 'V') gt 0) then begin
+      mg_log, 'fixing V crosstalk', name='comp/l1_process', /info
+      comp_fix_vxtalk, date_dir, images_demod, headers_demod, filename
+    endif
 
-  if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
-    mg_log, 'fixing QU crosstalk', name='comp/l1_process', /info
-    comp_fix_quxtalk, date_dir, images_demod, headers_demod, filename
+    if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
+      mg_log, 'fixing QU crosstalk', name='comp/l1_process', /info
+      comp_fix_quxtalk, date_dir, images_demod, headers_demod, filename
+    endif
   endif
 
   ; split the foreground (on-band) and background (continuum) beams into

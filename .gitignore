@@ -1,4 +1,7 @@
 /api-docs
 /api-userdocs
-/config
+/config/comp.mgalloy.*.cfg
 /ROUTINES
+/analysis/flat-medians.csv
+/analysis/flat-medians.ps
+/analysis/flat-outliers.txt

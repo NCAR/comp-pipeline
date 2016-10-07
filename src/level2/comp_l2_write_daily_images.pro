@@ -1,20 +1,20 @@
 ; docformat = 'rst'
 
 ;+
-; Creates the daily jpgs for the website from the L2 fits files, i.e., write
-; out jpgs for hover and fullr for filesize issues, but pngs with a better
+; Creates the daily images for the website from the L2 fits files, i.e., write
+; out JPEGs for hover and fullr for filesize issues, but PNGs with a better
 ; quality for the dashboard.
 ;
 ; :Examples:
 ;   For example, call like::
 ;
-;     comp_l2_create_jpgs, '20130520', '1074', nwl=5, /seq
+;     comp_l2_create_jpgs, '20130520', '1074'
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
-;   comp_make_mask, comp_aia_lct, comp_transparent_logo, colorbar2,
-;   anytim2tai, sxpar, headfits, fitshead2struct, merge_struct, readfits,
-;   mg_log
+;   comp_azimuth, comp_make_mask, comp_aia_lct, comp_transparent_logo,
+;   colorbar2, anytim2tai, sxpar, headfits, fitshead2struct, merge_struct,
+;   readfits, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -23,12 +23,8 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
-;    nwl : in, required, type=integer
-;      number of lines, 3 or 5
-;    seq : in, optional, type=boolean
-;      set to look for longest continuous sequence
-;    n_avrg : in, optional, type=integer
-;      number of files, must be specified if `SEQ` is not set
+;    n_avrg : in, optional, type=integer, default=50
+;      number of files to average over
 ;
 ; :Author:
 ;   Christian Bethge
@@ -36,12 +32,12 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
+pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
 
-  mg_log, 'wave_type: %s %2d', wave_type, nwl, name='comp', /info
+  mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
@@ -49,209 +45,62 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
 
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
-  nwlst = strcompress(string(nwl), /remove_all)
-  
-  rest = double(center1074)
-  c = 299792.458D
+  ; read images from quick invert file
+  quick_invert_format = '(%"%s.comp.%s.quick_invert.fts.gz")'
+  quick_invert_filename = filepath(string(date_dir, wave_type, $
+                                          format=quick_invert_format), $
+                                   root=l2_process_dir)
 
-  gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
-  if (~file_test(gbu_file)) then begin
-    mg_log, '%s does not exist, skipping', gbu_file, name='comp', /warning
+  ; use quick invert images and eliminate reading L1 files
+
+  if (~file_test(quick_invert_filename)) then begin
+    mg_log, 'quick invert file %s not found, skipping', $
+            file_basename(quick_invert_filename), $
+            name='comp', /debug
     goto, skip
   endif
-  gbu = comp_read_gbu(gbu_file)
-  for ii = 0L, n_elements(gbu) - 1L do begin
-    gbu[ii].l1file = filepath(gbu[ii].l1file + '.gz', root=l1_process_dir)
-  endfor
 
-  ; only want the good measurements
-  num_gf = where(gbu.quality eq 'Good' and gbu.wavelengths eq nwl, ng)
-  if (ng eq 0 || (keyword_set(seq) && ng lt 3)) then goto, skip
-  gbu = gbu[num_gf]
+  fits_open, quick_invert_filename, quick_invert_fcb
+  fits_read, quick_invert_fcb, intensity, intensity_header, exten_no=1
+  fits_read, quick_invert_fcb, stks_q, stks_q_header, exten_no=2
+  fits_read, quick_invert_fcb, stks_u, stks_u_header, exten_no=3
+  fits_read, quick_invert_fcb, lpol, lpol_header, exten_no=4
+  fits_read, quick_invert_fcb, azimuth, azimuth_header, exten_no=5
+  fits_read, quick_invert_fcb, velocity, velocity_header, exten_no=7
+  fits_read, quick_invert_fcb, width, width_header, exten_no=8
+  fits_close, quick_invert_fcb
 
-  if (keyword_set(seq)) then begin
-    ; lets look for the longest contiguous sequence
-    times = anytim2tai(gbu.time_obs)
-    dt = abs(deriv(times))
+  ; create enhanced intensity
+  enhanced_intensity = comp_intensity_enhancement(intensity, intensity_header)
 
-    dips = comp_uniq(dt)
-    len = intarr(n_elements(dips))
-    start = intarr(n_elements(dips))
-    finish = intarr(n_elements(dips))
-    for ii = 0L, n_elements(dips) - 1L do begin
-      if (ii eq 0) then begin
-        len[ii] = dips[0]
-        start[ii] = 0
-        finish[ii] = dips[0]
-      endif
-
-      if (ii ne 0 and ii ne n_elements(dips) - 1) then begin
-        len[ii] = dips[ii + 1] - dips[ii]
-        start[ii] = dips[ii] + 1
-        finish[ii] = dips[ii + 1]
-      endif
-
-      if (ii eq n_elements(dips) - 1) then begin
-        len[ii] = ng - dips[ii]
-        start[ii] = dips[ii]
-        finish[ii] = ng - 1
-      endif
-    endfor
-    best = max(len, maxdex)
-    gbu  = gbu[start[maxdex]:finish[maxdex]]
-  endif else begin
-    if (~keyword_set(n_avrg)) then begin
-      mg_log, 'n_avrg must be defined', name='comp', /warn
-      return
-    endif
-    if (n_elements(gbu) gt n_avrg) then begin
-      gbu = gbu[0:n_avrg-1]
-    endif
-  endelse
-
-  qu_files = intarr(n_elements(gbu))
-  nt = n_elements(gbu)
-
-  mg_log, '%d files...', nt, name='comp', /info
-
-  ; distinguish between Q/U files and V files
-  for ii = 0, nt - 1L do begin
-    case nwl of
-      3: whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=4), 'EXTNAME'), 0, 1)
-      5: whatisthis = strmid(sxpar(headfits(gbu[ii].l1file, exten=6), 'EXTNAME'), 0, 1)
-    endcase
-    if (whatisthis eq 'Q') then qu_files[ii] = 1
-  endfor
-
-  for ii = 0, nt - 1L do begin
-    hdr = headfits(gbu[ii].l1file)
-    if (ii eq 0) then begin
-      ehdr = headfits(gbu[ii].l1file, ext=1)
-      index = fitshead2struct(hdr)
-      nx = sxpar(ehdr, 'NAXIS1')
-      ny = sxpar(ehdr, 'NAXIS2')
-      nz = 7
-      comp_data = fltarr(nx, ny, nz, nt)
-    endif
-    if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
-    comp_make_mask, date_dir, hdr, mask
-    mask = double(mask)
-
-    l2_d_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'dynamics.' + nwlst + '.fts'
-    l2_p_file = strmid(file_basename(gbu[ii].l1file), 0, 26) + 'polarization.' + nwlst + '.fts'
-
-    comp_data[*, *, 0, ii] = readfits(l2_d_file, ext=1, /silent)   ; Intensity
-    comp_data[*, *, 1, ii] = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
-    comp_data[*, *, 2, ii] = readfits(l2_d_file, ext=3, /silent)   ; corrected LOS velocity
-    comp_data[*, *, 3, ii] = readfits(l2_d_file, ext=4, /silent)   ; Line Width
-    if (qu_files[ii] eq 1) then begin
-      comp_data[*, *, 4, ii] = readfits(l2_p_file, ext=3, /silent)  ; integrated Stokes Q
-      comp_data[*, *, 5, ii] = readfits(l2_p_file, ext=4, /silent)  ; integrated Stokes U
-    endif else begin
-      comp_data[*, *, 4, ii] = fltarr(nx, ny)
-      comp_data[*, *, 5, ii] = fltarr(nx, ny)
-      comp_data[*, *, 4, ii] = !VALUES.F_NAN
-      comp_data[*, *, 5, ii] = !VALUES.F_NAN
-    endelse
-    comp_data[*, *, 6, ii] = mask   ; mask
-  endfor
-
-  obasefilename = filepath(date_dir + '.comp.' + wave_type, $
-                           subdir='movies', $
-                           root=l2_process_dir)
-
-  ;=== prepare and write out daily images ===
+  ; prepare and write out daily images
   mg_log, 'creating daily JPGs now...', name='comp', /info
 
-  mean_qu = fltarr(nx, ny, 2)
-  for zz = 4, 5 do begin
-    for yy = 0L, ny - 1L do begin
-      for xx = 0L, nx - 1L do begin
-        mean_qu[xx, yy, zz - 4] = mean(comp_data[xx, yy, zz, *],/nan)
-      endfor
-    endfor
-  endfor
+  comp_make_mask, date_dir, intensity_header, mask
+  good_ind = where(mask eq 1 and intensity gt int_thresh, complement=mask_ind)
 
-  ; slow and complicated, I know - necessary though to treat the NAN values
-  ; properly...
-  mean_corr_data = reform(comp_data[*, *, *, 0] - comp_data[*, *, *, 0])
-  for zz = 0, 3 do begin
-    for yy = 0L, ny - 1L do begin
-      for xx = 0L, nx - 1L do begin
-        tmp_var = reform(comp_data[xx, yy, zz, *])
-        good_val = where(finite(tmp_var) eq 1.)
-        if ((size(good_val))[0] eq 1) then begin
-          mean_corr_data[xx, yy, zz] = median(tmp_var[good_val])
-        endif else begin
-          mean_corr_data[xx, yy, zz] = 0.
-        endelse
-      endfor
-    endfor
-  endfor
-  comp_data  = 0
-  mintensity = reform(mean_corr_data[*, *, 0])
-  mint_enh   = reform(mean_corr_data[*, *, 1])
-  velocity   = reform(mean_corr_data[*, *, 2])
-  width      = reform(mean_corr_data[*, *, 3])
-  mean_corr_data[*, *, 4:5] = mean_qu
-  mean_qu = 0
+  p   = sqrt(stks_q^2. + stks_u^2.)
+  poi = float(p) / float(intensity)
 
-  stks_q     = reform(mean_corr_data[*, *, 4])
-  stks_u     = reform(mean_corr_data[*, *, 5])
-  p_angle    = sxpar(hdr, 'SOLAR_P0')
-  azimuth    = (0.5 * atan(stks_u, stks_q) * 180. / !pi) - p_angle + 45.
-  azimuth    = azimuth mod 180.
-  bad_az     = where(azimuth lt 0.)
-  if ((size(bad_az))[0] eq 1) then azimuth[bad_az] += 180.
-  p          = sqrt(stks_q^2. + stks_u^2.)
-  poi        = float(p) / float(mintensity)
-  ;get the intensity from the original
-  ;fits files without the cosmetics
-  ;(so that the full FOV is visible and
-  ; no data is cut out for the website)
-  intensity = fltarr(nx, ny)
-  nmask = fltarr(nx, ny)
-  for jj = 0L, nt - 1L do begin
-    if (nwl eq 3) then intensity += readfits(gbu[jj].l1file, exten_no=2, /silent)
-    if (nwl eq 5) then intensity += readfits(gbu[jj].l1file, exten_no=3, /silent)
-    hdr = headfits(gbu[jj].l1file, ext=0)
-    tmp_mask = fltarr(nx, ny)
-    comp_make_mask, date_dir, hdr, ntmp_mask
-    tmp_mask = ntmp_mask
-    nmask += tmp_mask
-  endfor
-  intensity = float(intensity) / float(nt)
-  nmask     = float(nmask) / float(nt)
-  nmask[where(nmask ne 0)] = 1.
-
-  for xx = 0L, nx - 1L do begin
-    for yy = 0L, ny - 1L do begin
-      if (nmask[xx,yy] eq 0) then intensity[xx,yy] = 0.
-    endfor
-  endfor
-
-  thresh_masked = where(nmask eq 1 and mintensity gt int_thresh, $
-                        complement=thresh_unmasked)
-
-  int_enh   = mint_enh
-  stks_q[thresh_unmasked]   = 0.
-  stks_u[thresh_unmasked]   = 0.
-  azimuth[thresh_unmasked]  = 0.
-  poi[thresh_unmasked]      = 0.
-  velocity[thresh_unmasked] = 0.
-  width[thresh_unmasked]    = 0.
+  stks_q[mask_ind] = 0.0
+  stks_u[mask_ind] = 0.0
+  azimuth[mask_ind] = 0.0
+  poi[mask_ind] = 0.0
+  velocity[mask_ind] = 0.0
+  width[mask_ind] = 0.0
 
   ; get some info
-  all_files = file_basename(file_search(filepath('*.comp.' + wave_type + '*.*.fts', $
+  all_files = file_basename(file_search(filepath(date_dir + '.*.comp.' + wave_type $
+                                                   + '*.*.fts.gz', $
                                                  root=l1_process_dir), $
-                                        count=no_of_files))
-  no_of_files = n_elements(all_files)
+                                        count=n_l1_files))
+
   first_dt = strmid(all_files[0], 9, 6)
   first_file_time = string(strmid(first_dt, 0, 2), $
                            strmid(first_dt, 2, 2), $
                            strmid(first_dt, 4, 2), $
                            format='(%"%s:%s:%s UT")')
-  last_dt = strmid(all_files[no_of_files - 1], 9, 6)
+  last_dt = strmid(all_files[n_l1_files - 1], 9, 6)
   last_file_time = string(strmid(last_dt, 0, 2), $
                           strmid(last_dt, 2, 2), $
                           strmid(last_dt, 4, 2), $
@@ -268,21 +117,21 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   tvlct, old_r, old_g, old_b, /get
   erase, 255
 
-  bad_val = where(finite(velocity) ne 1)
+  undef_velocity_ind = where(finite(velocity) ne 1, n_undef_velocity)
 
   ; plot L_tot/I in b/w
   loadct, 0, /silent
   poi = alog10(poi)
   poi = bytscl(poi, min=-2.3, max=-0.3, /nan)
-  if ((size(bad_val))[0] eq 1) then poi[bad_val] = 0.
+  if (n_undef_velocity gt 0) then poi[undef_velocity_ind] = 0.
   tv, poi, 4 * 5, 4 * 5
 
   ; plot doppler velocity
   restore, filepath('my_doppler_ct.sav', root=mg_src_root())
   tvlct, r, g, b
   vel = bytscl(velocity, min=-10, max=10, top=253)
-  vel[thresh_unmasked] = 254
-  if ((size(bad_val))[0] eq 1) then vel[bad_val] = 254
+  vel[mask_ind] = 254
+  if (n_undef_velocity gt 0) then vel[undef_velocity] = 254
   tv, vel, 4 * 165, 4 * 5
 
   ; plot intensity and enhanced intensity
@@ -290,7 +139,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   int = sqrt(intensity)
   int = bytscl(int, min=1, max=5)
   tv, int, 4 * 5, 4 * 165
-  tv, int_enh, 4 * 165, 4 * 165
+  tv, enhanced_intensity, 4 * 165, 4 * 165
 
   ; plot line width
   loadct, 4, /silent
@@ -298,7 +147,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   b[255] = 0
   tvlct, r, g, b
   width = bytscl(width, min=25, max=55, top=254)
-  if ((size(bad_val))[0] eq 1) then width[bad_val] = 0.
+  if (n_undef_velocity gt 0) then width[undef_velocity] = 254
   tv, width, 4 * 325, 4 * 5
 
   ; print image info
@@ -321,7 +170,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   xyouts, 4 * 403, 4 * 100 + 4 * 160, first_file_time, charsize=5, /device, color=0
   xyouts, 4 * 326, 4 * 80 + 4 * 160, 'Last image:', charsize=5, /device, color=0
   xyouts, 4 * 403, 4 * 80 + 4 * 160, last_file_time, charsize=5, /device, color=0
-  xyouts, 4 * 326, 4 * 60 + 4 * 160, 'Total # of images:  ' + strtrim(no_of_files, 2), $
+  xyouts, 4 * 326, 4 * 60 + 4 * 160, 'Total # of images:  ' + strtrim(n_l1_files, 2), $
           charsize=5, /device, color=0
 
   tvlct, rtemp, gtemp, btemp, /get
@@ -375,11 +224,16 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
              font=-1, divisions=10, color=255, ncolors=254
   tvlct, old_r, old_g, old_b
 
+  obasefilename = filepath(date_dir + '.comp.' + wave_type, $
+                           subdir='movies', $
+                           root=l2_process_dir)
+
   fhover = tvrd(/true)
-  write_jpeg,  obasefilename + '.daily_fullr.' + nwlst + '.jpg', fhover, $
+  write_jpeg,  obasefilename + '.daily_fullr.3.jpg', fhover, $
                true=1, quality=75
+
   hover = rebin(fhover, 3, 485, 325)
-  write_jpeg, obasefilename + '.daily_hover.' + nwlst + '.jpg', hover, $
+  write_jpeg, obasefilename + '.daily_hover.3.jpg', hover, $
                true=1, quality=50
 
   ; plot the files for the dashboard
@@ -423,10 +277,10 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
 
   ; plot Q/I in b/w
   loadct, 0, /silent
-  qoi = float(stks_q) / float(mintensity)
-  qoi[thresh_unmasked] = 0.
+  qoi = float(stks_q) / float(intensity)
+  qoi[mask_ind] = 0.
   qoi = bytscl(qoi, min=-0.3, max=0.3)
-  qoi[thresh_unmasked] = 0.
+  qoi[mask_ind] = 0B
   tv, qoi
   colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
              range=[-0.3, 0.3], font=-1, divisions=4, format='(F6.2)'
@@ -459,10 +313,10 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
 
   ; plot U/I in b/w
   loadct, 0, /silent
-  uoi = float(stks_u) / float(mintensity)
-  uoi[thresh_unmasked] = 0.
+  uoi = float(stks_u) / float(intensity)
+  uoi[mask_ind] = 0.
   uoi = bytscl(uoi, min=-0.3, max=0.3)
-  uoi[thresh_unmasked] = 0.
+  uoi[mask_ind] = 0.
   tv, uoi
   colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
              range=[-0.3, 0.3], font=-1, divisions=4, format='(F6.2)'
@@ -563,7 +417,7 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
 
   ; plot enhanced intensity
   comp_aia_lct, wave=193, /load
-  tv, int_enh
+  tv, enhanced_intensity
   loadct, 0, /silent
   xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255
   xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255
@@ -666,20 +520,16 @@ pro comp_l2_create_jpgs, date_dir, wave_type, nwl=nwl, seq=seq, n_avrg=n_avrg
   azimuth = tvrd(/true)
   erase
 
-  write_png, obasefilename + '.daily_intensity.' + nwlst + '.png', intensity
-  write_png, obasefilename + '.daily_enhanced_intensity.' + nwlst + '.png', $
+  write_png, obasefilename + '.daily_intensity.3.png', intensity
+  write_png, obasefilename + '.daily_enhanced_intensity.3.png', $
              enhanced_intensity
-  write_png, obasefilename + '.daily_corrected_velocity.' + nwlst + '.png', $
+  write_png, obasefilename + '.daily_corrected_velocity.3.png', $
              corr_velo
-  write_png, obasefilename + '.daily_line_width.' + nwlst + '.png', line_width
-  write_png, obasefilename + '.daily_azimuth.' + nwlst + '.png', azimuth
-  write_png, obasefilename + '.daily_ltot.' + nwlst + '.png', ltot
-  write_png, obasefilename + '.daily_q.' + nwlst + '.png', qoveri
-  write_png, obasefilename + '.daily_u.' + nwlst + '.png', uoveri
-
-  ;  set_plot, 'X'
-  ;  !p.font=-1
-  ;  loadct, 0, /silent
+  write_png, obasefilename + '.daily_line_width.3.png', line_width
+  write_png, obasefilename + '.daily_azimuth.3.png', azimuth
+  write_png, obasefilename + '.daily_ltot.3.png', ltot
+  write_png, obasefilename + '.daily_q.3.png', qoveri
+  write_png, obasefilename + '.daily_u.3.png', uoveri
 
   ;=== end of plotting daily images ===
 

@@ -28,8 +28,9 @@ function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
   lock_file = filepath('.lock', root=raw_dir)
   processed_file = filepath('.processed', root=raw_dir)
 
+  available = ~file_test(lock_file) && ~file_test(processed_file)
+
   if (keyword_set(lock)) then begin
-    available = ~file_test(lock_file) && ~file_test(processed_file)
     if (available) then begin
       openw, lun, lock_file, /get_lun
       free_lun, lun
@@ -50,4 +51,6 @@ function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
     free_lun, lun
     return, 1B
   endif
+
+  return, available
 end

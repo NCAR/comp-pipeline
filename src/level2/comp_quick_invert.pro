@@ -3,7 +3,7 @@
 ;+
 ; Procedure to perform an approximate 'quick' inversion of some parameters from
 ; the comp averaged Level_2 data file. This routine reads the
-; YYYYMMDD.comp.wwww.mean.fts which was computed with `comp_average`, where
+; YYYYMMDD.comp.wwww.median.fts which was computed with `comp_average`, where
 ; "wwww" is the wave_type and "YYYYMMDD" is the date.
 ;
 ; The output is a FITS file written to the process directory named
@@ -15,6 +15,7 @@
 ;   U - approximated by the Stokes U image rearest line center
 ;   Linear Polarization - computed as sqrt( Q^2 + U^2)
 ;   Azimuth - computed as 0.5 atan( U / Q)
+;   Radial Azimuth
 ;   Doppler Velocity - computed from the analytic gaussian fit of the intensity
 ;                      of the three images nearest line center
 ;   Line Width - computed from the analytic gaussian fit of the intensity of
@@ -28,8 +29,8 @@
 ;
 ; :Uses:
 ;   comp_simulate_common, comp_constants_common, comp_config_common,
-;   comp_analytic_gauss_fit2, fits_open, fits_read, fits_write, fits_close,
-;   sxpar, sxaddpar, sxdelpar, mg_log
+;   comp_azimuth, comp_analytic_gauss_fit2, fits_open, fits_read, fits_write,
+;   fits_close, sxpar, sxaddpar, sxdelpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -80,79 +81,107 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   ; create filename and open input FITS file
   if (process_synthetic eq 1) then begin
-    file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts")')
+    file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
   endif else begin
-    file = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts")')
+    file = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
-    mg_log, 'file %s does not exist, exiting', file, name='comp/quick_invert', /info
+    mg_log, '%s does not exist, exiting', file, name='comp/quick_invert', /warn
     return
   endif
 
   fits_open, file, fcb
   n = fcb.nextend
 
-  ; copy the primary header from the mean file to the output file
+  comp_inventory, fcb, beam, wavelengths
+
+  ; copy the primary header from the median file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
+
+  sxdelpar, primary_header, 'OBS_PLAN'
+  sxdelpar, primary_header, 'OBS_ID'
 
   ntune = sxpar(primary_header, 'NTUNE', count=nrecords)
   if (nrecords eq 0L) then ntune = sxpar(primary_header, 'NTUNES')
-  nstokes = 4
-  center_index = ntune / 2
+
+  nstokes = n / ntune - 1L   ; don't count BKG
+
+  ; find standard 3 pt wavelength indices
+  wave_indices = comp_3pt_indices(wave_type, wavelengths, error=error)
+  if (error ne 0L) then begin
+    mg_log, 'standard 3pt wavelengths not found in %s', $
+            file_basename(file), name='comp', /error
+  endif
 
   ; read data
-
   comp_obs = fltarr(nx, nx, nstokes, ntune)
   wave = fltarr(ntune)
 
-  i = 1
+  e = 1
   for is = 0L, nstokes - 1L do begin
     for iw = 0L, ntune - 1L do begin
-      fits_read, fcb, dat, header, exten_no=i
+      fits_read, fcb, dat, h, exten_no=e
       comp_obs[*, *, is, iw] = dat
-      wave[iw] = sxpar(header, 'WAVELENG')
-      ++i
+      wave[iw] = sxpar(h, 'WAVELENG')
+      ++e
     endfor
   endfor
 
+  ; use header for center wavelength for I as template
+  fits_read, fcb, dat, header, exten_no=ntune / 2
+
   fits_close, fcb
 
-  sxaddpar, primary_header, 'N_EXT', 7, /savecomment
-  sxaddpar, primary_header, 'VERSION', code_revision, ' Software Subversion Revision'
+  sxaddpar, primary_header, 'N_EXT', 8, /savecomment
+
+  case wave_type of
+    '1074': rest = double(center1074)
+    '1079': rest = double(center1079)
+    '1083': rest = double(center1083)
+  endcase
+  c = 299792.458D
+
+  ; update version
+  comp_l2_update_version, primary_header
 
   ; compute parameters
-  i = comp_obs[*, *, 0, center_index]
-  q = comp_obs[*, *, 1, center_index]
-  u = comp_obs[*, *, 2, center_index]
+  i = comp_obs[*, *, 0, wave_indices[1]]
+  q = comp_obs[*, *, 1, wave_indices[1]]
+  u = comp_obs[*, *, 2, wave_indices[1]]
 
-  p_angle = sxpar(header,'SOLAR_P0')
+  p_angle = sxpar(header, 'SOLAR_P0')
 
   zero = where(i eq 0, count)
   if (count eq 0) then mg_log, 'no zeros', name='comp/quick_invert', /warn
 
   ; compute azimuth and adjust for p-angle, correct azimuth for quadrants  
-  azimuth = 0.5 * atan(u, q) * 180. / !pi - p_angle + 45.
-  ;azimuth = -90. > azimuth < 90.
-  azimuth = azimuth mod 180.
-  bad = where(azimuth lt 0., count)
-  if (count gt 0L) then azimuth[bad] = azimuth[bad] + 180.
+  azimuth = comp_azimuth(u, q, p_angle, radial_azimuth=radial_azimuth)
 
-  i[zero] = 0.
-  azimuth[zero] = 0.
+  i[zero] = 0.0
+  azimuth[zero] = 0.0
+  radial_azimuth[zero] = 0.0
 
   ; compute linear polarization
   l = sqrt(q^2 + u^2)
 
   ; compute doppler shift and linewidth from analytic gaussian fit
-  i1 = comp_obs[*, *, 0L, center_index - 1L]
-  i2 = comp_obs[*, *, 0L, center_index]
-  i3 = comp_obs[*, *, 0L, center_index + 1L]
-  d_lambda = abs(wave[center_index] - wave[center_index - 1L])
+  i1 = comp_obs[*, *, 0L, wave_indices[0]]
+  i2 = comp_obs[*, *, 0L, wave_indices[1]]
+  i3 = comp_obs[*, *, 0L, wave_indices[2]]
+  d_lambda = abs(wave[wave_indices[1]] - wave[wave_indices[0]])
 
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, i_cent
-  dop *= 3.e5 / wave[center_index]   ; convert to km/s
-  width *= 3.e5 / wave[center_index]
+  dop += rest
+  ; TODO: should this be divided by sqrt(2.0) to give sigma?
+  width *= c / wave[wave_indices[1]]
+
+  pre_corr = dblarr(nx, ny, 2)
+  pre_corr[*, *, 0] = i_cent
+  pre_corr[*, *, 1] = dop
+
+  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
+  corrected_dop = reform(post_corr[*, *, 1])
 
   ; write fit parameters to output file
 
@@ -160,7 +189,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
                                  format='(%"%s.comp.%s.quick_invert.fts")')
   fits_open, quick_invert_filename, fcbout, /write
 
-  ; copy the primary header from the mean file to the output file
+  ; copy the primary header from the median file to the output file
   fits_write, fcbout, 0, primary_header
 
   sxdelpar, header, 'POLSTATE'
@@ -168,42 +197,44 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxdelpar, header, 'DATATYPE'
   sxdelpar, header, 'FILTER'
   sxdelpar, header, 'COMMENT'
+
   sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
-  sxaddpar, header, 'DATAMIN', min(i), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(i), ' MAXIMUM DATA VALUE'
-
+  sxaddpar, header, 'DATAMIN', min(i, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(i, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, i, header, extname='I'
 
-  sxaddpar, header, 'DATAMIN', min(q), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(q), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(q, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(q, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, q, header, extname='Q'
 
-  sxaddpar, header, 'DATAMIN', min(u), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(u), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(u, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(u, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, u, header, extname='U'
 
   sxdelpar, header, 'COMMENT'
-  sxaddpar, header, 'DATAMIN', min(l), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(l), ' MAXIMUM DATA VALUE'
-
+  sxaddpar, header, 'DATAMIN', min(l, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(l, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, l, header, extname='Linear Polarization'
 
   sxaddpar, header, 'COMMENT', $
             'Azimuth is measured positive counter-clockwise from the horizontal.'
-  sxaddpar, header, 'DATAMIN', min(azimuth), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(azimuth), ' MAXIMUM DATA VALUE'
-
+  sxaddpar, header, 'DATAMIN', min(azimuth, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(azimuth, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, azimuth, header, extname='Azimuth'
   sxdelpar, header, 'COMMENT'
 
-  fits_write, fcbout, dop, header, extname='Doppler Velocity'
-  sxaddpar, header, 'DATAMIN', min(dop), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(dop), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
 
+  sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
+
+  sxaddpar, header, 'DATAMIN', min(width, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(width, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, width, header, extname='Line Width'
-  sxaddpar, header, 'DATAMIN', min(width), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(width), ' MAXIMUM DATA VALUE'
 
   fits_close, fcbout
 

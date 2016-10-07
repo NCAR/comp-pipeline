@@ -32,16 +32,20 @@
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;-
-function comp_read_gbu, gbu_file
+function comp_read_gbu, gbu_file, count=count
   compile_opt strictarr
 
   nlines = file_lines(gbu_file)
+  count = nlines - 1
   sarr = strarr(nlines)
   openr, unit, gbu_file, /get_lun
   readf, unit, sarr
   free_lun, unit
 
-  mg_log, 'CoMP GBU file has %d entries', nlines - 1, name='comp', /debug
+  mg_log, 'GBU file %s has %d entries', file_basename(gbu_file), count, $
+          name='comp', /debug
+
+  if (count eq 0) then return, !null
 
   for ii = 1L, n_elements(sarr) - 1L do begin
     str = {l1file:'', $
@@ -55,10 +59,8 @@ function comp_read_gbu, gbu_file
     x = x[best]
     str.l1file = x[0]
 
-    ;ttt = str_sep(x[0],'.gz')
-    ;file = ttt[0]
     file = x[0]
-    ttt = str_sep(file, '.fts')
+    ttt = str_sep(file, '.fts.gz')
     ttt = str_sep(ttt[0], '/')
     base = ttt[n_elements(ttt) - 1]
 
@@ -94,19 +96,18 @@ function comp_read_gbu, gbu_file
   mg_log, name='comp', logger=logger
   logger->getProperty, level=level
   if (level eq 5) then begin  ; 5 = debug
-    good = where(gbu.quality eq 'Good', ngf)
-    mg_log, 'Directory file has %d Good images', ngf, name='comp', /debug
+    good = where(gbu.quality eq 'Good', n_good)
+    bad = where(gbu.quality eq 'Bad', n_bad)
+    ugly = where(gbu.quality eq 'Ugly', n_ugly)
+
+    mg_log, 'GBU file %s has %d good, %d bad, and %d ugly images', $
+            file_basename(gbu_file), n_good, n_bad, n_ugly, $
+            name='comp', /debug
 
     nfive = where(gbu.quality eq 'Good' and gbu.wavelengths eq 5, ng5)
     nthree = where(gbu.quality eq 'Good' and gbu.wavelengths eq 3, ng3)
-    mg_log, '...of those, there are %d 5pt and %d 3pt measurements', $
+    mg_log, '%d good 5pt files and %d good 3pt files', $
             ng5, ng3, name='comp', /debug
-
-    bad = where(gbu.quality eq 'Bad', nbf)
-    mg_log, 'Directory file has %d Bad images', nbf, name='comp', /debug
-
-    ugly = where(gbu.quality eq 'Ugly', nuf)
-    mg_log, 'Directory file has %d Ugly images', nuf, name='comp', /debug
   endif
 
   return, gbu

@@ -68,7 +68,7 @@ pro comp_file_type, date_dir
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   file_mkdir, process_dir
 
-  regions = [1074.7, 1079.8, 1083.]
+  regions = [center1074, center1079, center1083]
 
   openw, lun_1074, filepath('1074_files.txt', root=process_dir), /get_lun
   openw, lun_1079, filepath('1079_files.txt', root=process_dir), /get_lun
@@ -101,7 +101,8 @@ pro comp_file_type, date_dir
     uniq_waves = wave[comp_uniq(wave, sort(wave))]   ; find unique wavelengths
     ; recent failure modes create files with one wavelength - skip these
     if (n_elements(uniq_waves) eq 1 and cover eq 1) then begin
-      mg_log, 'bad file', name='comp', /warn
+      mg_log, 'bad file: %s', file_basename(files[i]), name='comp', /warn
+      fits_close, fcb
       continue
     endif
     uniq_pols = pol[comp_uniq(pol, sort(pol))]   ; find unique polarization states

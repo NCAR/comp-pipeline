@@ -79,7 +79,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
   nwave = sxpar(header, 'NTUNES')
 
-  ; number of images in file
+  ; number of images in file (not background)
   ndat = fcb.nextend - nwave
   dat = fltarr(nx, nx, ndat)
   wav = strarr(ndat)
@@ -115,21 +115,27 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                   min=histogram_xrange[0], max=histogram_xrange[1])
 
     mo = moment(d[good])
+    cutoff = 5000.0
+    mo0_format = abs(mo[0]) gt cutoff ? '(%"%0.2e")' : '(%"%0.2f")'
+    mo0 = string(mo[0], format=mo0_format)
+    mo1_format = abs(mo[1]) gt cutoff ? '(%"%0.2e")' : '(%"%0.2f")'
+    mo1 = string(mo[1], format=mo1_format)
 
     histogram_plot = plot(x, h, $
-                          title=string(wav[i], pol[i], mo[0], mo[1], $
-                                       format='(%"%4d %1s, %5.2f, %5.2f")'), $
+                          title=string(wav[i], pol[i], mo0, mo1, $
+                                       format='(%"%4d %1s, %s, %s")'), $
+                          font_size=4, $
                           xrange=histogram_xrange, $
                           yrange=[0, 1.2 * max(h)], $
-                          layout=[5, 4, i + 1], $
-                          margin=[.3, .2, .1, .2], $
+                          layout=[nwave, (ndat + nwave - 1) / nwave, i + 1], $
+                          margin=[0.3, 0.1, 0.1, 0.1], $
                           /current, $
-                          buffer=buffer)
+                          /buffer)
   endfor
 
   histogram_plot->save, filepath(file_dir + '.his.gif', root=eng_dir), $
-                        /landscape, /bitmap, xmargin=1, $
-                        width=9.5, ymargin=0
+                        /landscape, xmargin=1.0, ymargin=0.0, $
+                        width=19.0
   histogram_plot->close
   mg_log, 'wrote histogram plot', name='comp', /info
 
@@ -162,13 +168,10 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
     dd = bytscl(d, xmin, xmax)
 
-    row = 3 - fix(i / 5)
-    column = i mod 5
-
     im = image(rebin(dd, nx / 2, nx / 2), $
-               layout=[5, 4, row * 5 + column + 1], $
+               layout=[nwave, (ndat + nwave - 1) / nwave, i + 1], $
                /current, $
-               buffer=buffer, $
+               /buffer, $
                margin=0)
   endfor
 
@@ -197,7 +200,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
                         LINESTYLE='none', $
                         symbol='.', $
                         /current, $
-                        buffer=buffer)
+                        /buffer)
 
     coef = poly_fit(i[good], v[good], 1)
 
@@ -206,7 +209,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
     y = poly(x, coef)
     ;oplot,x,y
-    corr_plot = plot(x, y, /overplot, buffer=buffer)
+    corr_plot = plot(x, y, /overplot, /buffer)
 
     ;  xyouts,.4,0.,file,/norm,chars=2
     ;  outfile=file+'.cor.bmp'

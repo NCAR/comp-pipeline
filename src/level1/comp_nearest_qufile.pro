@@ -27,7 +27,7 @@ function comp_nearest_qufile, date_dir, headers, filename
   @comp_config_common
   @comp_mask_constants_common
 
-  wave_regions = [1074.7, 1079.8, 1083.]
+  wave_regions = [center1074, center1079, center1083]
   wave_types = ['1074', '1079', '1083']
   wl = sxpar(reform(headers[*, 0]), 'WAVELENG')
   !null = min(abs(wave_regions - wl), region_index)
@@ -43,7 +43,7 @@ function comp_nearest_qufile, date_dir, headers, filename
   ; get the days and times from the filenames
   nfiles = n_elements(datafiles)
   if (nfiles eq '') then begin
-    mg_log, 'no files in inventory file for wave type %s', _line, /warn, $
+    mg_log, 'no files in inventory file for wave type %s', line, /warn, $
             name='comp'
     return, ''
   endif

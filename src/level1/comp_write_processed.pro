@@ -186,6 +186,13 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                 ' Median of masked line center background', format='(F10.3)', $
                 after='ND-TRANS'
 
+      ind = where(finite(images[*, *, i]) eq 0, n_nans)
+      if (n_nans gt 0L) then begin
+        mg_log, '%d NaNs in %s ext %s', $
+                n_nans, file_basename(output_filename), i + 1, $
+                name='comp', /warn
+      endif
+
       fits_write, fcb_out, images[*, *, i], header, extname=ename
     endelse
   endfor

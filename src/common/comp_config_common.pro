@@ -21,10 +21,20 @@ common comp_config, binary_dir, $
                     fix_crosstalk_log_level, $
                     find_image_center_log_level, $
                     find_post_log_level, $
+                    dry_run, $
+                    perform_gbu, $
                     create_flatsdarks, $
                     create_l1, $
+                    correct_crosstalk, $
                     distribute_l1, $
                     create_l2, $
+                    create_average, $
+                    create_quick_invert, $
+                    find_systematics, $
+                    create_analysis, $
+                    create_daily_images, $
+                    create_movies, $
+                    create_daily_summaries, $
                     distribute_l2, $
                     mail_warnings, $
                     send_to_hpss, $
@@ -33,6 +43,8 @@ common comp_config, binary_dir, $
                     update_database, $
                     code_version, $
                     code_revision, $
+                    subtract_background, $
+                    remove_stray_light, $
                     flat_avg_skip_first, $
                     read_flats_beam_multiplies_wave, $
                     make_flat_beam_multiplies_wave, $
@@ -40,4 +52,10 @@ common comp_config, binary_dir, $
                     make_flat_destraying, $
                     make_flat_fill, $
                     make_flat_spectral_correction, $
-                    cache_flats
+                    cache_flats, $
+                    averaging_max_n_files, $
+                    averaging_min_n_cluster_files, $
+                    averaging_max_cadence_interval, $
+                    averaging_max_n_noncluster_files, $
+                    compute_mean, $
+                    compute_median
