@@ -54,7 +54,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   ; use quick invert images and eliminate reading L1 files
 
   if (~file_test(quick_invert_filename)) then begin
-    mg_log, 'quick invert file %s not found, skipping', quick_invert_filename, $
+    mg_log, 'quick invert file %s not found, skipping', $
+            file_basename(quick_invert_filename), $
             name='comp', /debug
     goto, skip
   endif
