@@ -520,16 +520,16 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   azimuth = tvrd(/true)
   erase
 
-  write_png, obasefilename + '.daily_intensity.3.png', intensity
-  write_png, obasefilename + '.daily_enhanced_intensity.3.png', $
+  write_png, obasefilename + '.daily_intensity.png', intensity
+  write_png, obasefilename + '.daily_enhanced_intensity.png', $
              enhanced_intensity
-  write_png, obasefilename + '.daily_corrected_velocity.3.png', $
+  write_png, obasefilename + '.daily_corrected_velocity.png', $
              corr_velo
-  write_png, obasefilename + '.daily_line_width.3.png', line_width
-  write_png, obasefilename + '.daily_azimuth.3.png', azimuth
-  write_png, obasefilename + '.daily_ltot.3.png', ltot
-  write_png, obasefilename + '.daily_q.3.png', qoveri
-  write_png, obasefilename + '.daily_u.3.png', uoveri
+  write_png, obasefilename + '.daily_line_width.png', line_width
+  write_png, obasefilename + '.daily_azimuth.png', azimuth
+  write_png, obasefilename + '.daily_ltot.png', ltot
+  write_png, obasefilename + '.daily_q.png', qoveri
+  write_png, obasefilename + '.daily_u.png', uoveri
 
   ;=== end of plotting daily images ===
 
