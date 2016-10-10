@@ -11,19 +11,17 @@
 ;     Stokes U
 ;   q : in, required, type=fltarr
 ;     Stokes Q
-;   p_angle : in, required, type=float
-;     p angle
 ;
 ; :Keywords:
 ;    radial_azimuth : out, optional, type=fltarr
 ;      set to a named variable to retrieve the radial azimuth
 ;-
-function comp_azimuth, u, q, p_angle, radial_azimuth=radial_azimuth
+function comp_azimuth, u, q, radial_azimuth=radial_azimuth
   compile_opt strictarr
   @comp_constants_common
 
-  ; compute azimuth and adjust for p-angle, correct azimuth for quadrants
-  azimuth = 0.5 * atan(u, q) * 180.0 / !pi - p_angle + 45.0
+  ; compute azimuth, correct azimuth for quadrants
+  azimuth = 0.5 * atan(u, q) * 180.0 / !pi + 45.0
   azimuth mod= 180.0
   bad = where(azimuth lt 0., count)
   if (count gt 0) then azimuth[bad] += 180.0

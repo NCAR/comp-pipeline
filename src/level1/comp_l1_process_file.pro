@@ -9,7 +9,8 @@
 ;   comp_read_data, comp_apply_flats_darks, comp_demodulate,
 ;   comp_inventory_header, comp_fix_vxtalk, comp_fix_quxtalk,
 ;   comp_combine_beams, comp_promote_primary_header_l1, comp_write_processed,
-;   comp_constants_common, comp_mask_constants_common
+;   comp_constants_common, comp_mask_constants_common,
+;   comp_heliographic_correction
 ;
 ; :Params:
 ;   filename : in, required, type=string
@@ -44,7 +45,6 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   ; depending on which polarizations are present, call the appropriate
   ; cross-talk correction routines
-
   if (correct_crosstalk) then begin
     if (total(pol eq 'V') gt 0) then begin
       mg_log, 'fixing V crosstalk', name='comp/l1_process', /info
@@ -65,6 +65,10 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                       image_geometry=image_geometry, $
                       wave_type=wave_type
+
+  ; perform heliographic coordinate transformation
+  p_angle = sxpar(header0, 'SOLAR_P0')
+  comp_heliographic_correction, images_combine, headers_combine, p_angle
 
   ; double precision not required in output
   images_combine = float(images_combine)

@@ -422,8 +422,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; plot azimuth
     if (qu_files[ii] eq 1) then begin
-      p_angle = float(index[ii].solar_p0)
-      azimuth = comp_azimuth(stks_u, stks_q, p_angle)
+      azimuth = comp_azimuth(stks_u, stks_q)
 
       loadct, 4, /silent
       tvlct, r, g, b, /get
