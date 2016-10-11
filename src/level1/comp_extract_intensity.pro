@@ -1,10 +1,9 @@
 ; docformat = 'rst'
 
 ;+
-; Procedure to extract CoMP intensity images from all of the Level_1 files in
+; Procedure to extract CoMP intensity images from all of the Level 1 files in
 ; a directory. The intensity image is defined as the Stokes I image closest to
-; line center. This routine outputs the intensity images to FITS files and also
-; creates GIF images.
+; line center. This routine outputs GIF images.
 ;
 ; The intensity image extracted from each file is written to an output FITS
 ; files with the name date.time.comp.wwww.intensity.fts where date and time are
@@ -38,7 +37,7 @@
 ; :Author:
 ;   sitongia
 ;
-; :Modification History:
+; :History:
 ;   removed gzip Oct 1 2014  GdT
 ;-
 pro comp_extract_intensity, date_dir, wave_type, error=error
