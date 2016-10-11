@@ -35,7 +35,8 @@
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
 ;
-; :Author: Sitongia
+; :Author:
+;   sitongia
 ;
 ; :Modification History:
 ;   removed gzip Oct 1 2014  GdT
