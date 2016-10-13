@@ -11,7 +11,7 @@
 ;     raw image
 ;   scale : in, required, type=float
 ;     normalization scale for derivative
-
+;
 ; :History:
 ;   used compound assignment operators to save memory.   Oct 3 2013 GdT 
 ;-
