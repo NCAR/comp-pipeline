@@ -68,7 +68,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   ; perform heliographic coordinate transformation
   p_angle = sxpar(header0, 'SOLAR_P0')
-  comp_heliographic_correction, images_combine, headers_combine, p_angle
+  comp_polarimetric_correction, images_combine, headers_combine, p_angle
 
   ; double precision not required in output
   images_combine = float(images_combine)

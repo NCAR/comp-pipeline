@@ -11,7 +11,7 @@
 ;   p_angle : in, required, type=float
 ;     p-angle
 ;-
-pro comp_heliographic_correction, images, headers, p_angle
+pro comp_polarimetric_correction, images, headers, p_angle
   compile_opt strictarr
 
   comp_inventory_header, headers, beam, wave, pol
@@ -27,7 +27,7 @@ pro comp_heliographic_correction, images, headers, p_angle
   endif
 
   for i = 0L, q_count - 1L do begin
-    comp_heliographic_transform, images[*, *, q_ind[i]], $
+    comp_polarimetric_transform, images[*, *, q_ind[i]], $
                                  images[*, *, u_ind[i]], $
                                  p_angle, $
                                  new_q=new_q, $
