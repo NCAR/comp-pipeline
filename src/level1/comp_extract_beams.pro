@@ -58,9 +58,9 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   x = rebin(findgen(nx) - x0, nx, nx)
   y = transpose(rebin(findgen(nx) - y0, nx, nx))
 
-  angle = p_angle + 180.0   ; don't know why Tomczyk added 180 here
-  xp = x * cos(angle * !pi / 180.0) - y * sin(angle * !pi / 180.0)
-  yp = x * sin(angle * !pi / 180.0) + y * cos(angle * !pi / 180.0)
+  angle = p_angle + 180.0   ; raw image oriented south up
+  xp = x * cos(angle * !dtor) - y * sin(angle * !dtor)
+  yp = x * sin(angle * !dtor) + y * cos(angle * !dtor)
 
   ; compute image offsets
   xpp1 = xp + x0 + image_geometry.occulter1.x
