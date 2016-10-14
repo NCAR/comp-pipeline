@@ -158,7 +158,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   i[zero] = 0.0
   azimuth[zero] = 0.0
-  radial_azimuth[zero] = 0.0
+  radial_azimuth[zero] = -999.0
 
   ; compute linear polarization
   l = sqrt(q^2 + u^2)
