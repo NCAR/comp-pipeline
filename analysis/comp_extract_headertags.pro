@@ -100,7 +100,7 @@ function comp_extract_headertags, root_dir, tagnames, $
     day   = long(strmid(date_dirs[d], 6, 2))
 
     if (keyword_set(interactive)) then begin
-      p = mg_progress(files, total=n_files, title=date_dirs[d])
+      p = mg_progress(files, title=date_dirs[d])
     endif else begin
       p = files
     endelse
@@ -128,14 +128,17 @@ function comp_extract_headertags, root_dir, tagnames, $
           tags[tagnames[t]] = value
         endfor
         headertags->add, tags->toStruct()
+        obj_destroy, tags
       endfor
 
       fits_close, fcb
-      if (keyword_set(interactive)) then p->update, 1
     endforeach
+    if (keyword_set(interactive)) then obj_destroy, p
   endfor
 
-  return, headertags->toArray()
+  htags = headertags->toArray()
+  obj_destroy, headertags
+  return, htags
 end
 
 
@@ -143,6 +146,11 @@ end
 
 root = '/export/data1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
-results = comp_extract_headertags(root, 'OVRLPANG', start_date='20161015', /interactive)
+results = comp_extract_headertags(root, 'OVRLPANG', start_date='20160101', $
+                                  /interactive)
+;results = comp_extract_headertags(root, 'SOLAR_P0', start_date='20160101', $
+;                                  /interactive)
+;write_csv, 'pangle.csv', results.date, results.solar_p0, header=['date', 'pangle']
+write_csv, 'ovrlpang.csv', results.date, results.solar_p0, header=['date', 'OVRLPANG']
 
 end
