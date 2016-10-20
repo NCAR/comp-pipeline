@@ -151,6 +151,6 @@ results = comp_extract_headertags(root, 'OVRLPANG', start_date='20160101', $
 ;results = comp_extract_headertags(root, 'SOLAR_P0', start_date='20160101', $
 ;                                  /interactive)
 ;write_csv, 'pangle.csv', results.date, results.solar_p0, header=['date', 'pangle']
-write_csv, 'ovrlpang.csv', results.date, results.solar_p0, header=['date', 'OVRLPANG']
+write_csv, 'ovrlpang.csv', results.date, results.ovrlpang, header=['date', 'OVRLPANG']
 
 end
