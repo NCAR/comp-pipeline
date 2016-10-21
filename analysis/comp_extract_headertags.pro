@@ -41,7 +41,9 @@ function comp_extract_headertags, root_dir, tagnames, $
   path = filepath(pattern, root=root_dir)
   date_dirs = file_search(path, count=n_date_dirs, /test_directory)
 
-  if (n_date_dirs eq 0L) then return, []
+  if (n_date_dirs eq 0L) then begin
+    message, 'no date directories found in ' + root_dir
+  endif
 
   date_dirs = file_basename(date_dirs)
   date_dirs = date_dirs[sort(date_dirs)]
@@ -52,14 +54,18 @@ function comp_extract_headertags, root_dir, tagnames, $
     start_index = value_locate(date_dirs, start_date) > 0
     if (date_dirs[start_index] ne start_date) then ++start_index
   endelse
-  if (start_index ge n_elements(date_dirs)) then return, []
+  if (start_index ge n_elements(date_dirs)) then begin
+    message, 'start date is after all date directories'
+  endif
 
   if (n_elements(end_date) eq 0L) then begin
     end_index = n_elements(date_dirs) - 1L
   endif else begin
     end_index = value_locate(date_dirs, end_date)
   endelse
-  if (end_index lt 0L) then return, []
+  if (end_index lt 0L) then begin
+    message, 'end date is before all date directories'
+  endif
 
   if (end_index lt start_index) then begin
     message, 'end date before start date'
@@ -85,30 +91,28 @@ function comp_extract_headertags, root_dir, tagnames, $
 
     l1_re = '^' + date_dirs[d] + '\.[[:digit:]]{6}\.comp\.' $
            + (n_elements(wave_type) eq 0L ? '.*' : wave_type) $
-           + '\.[iquv]+\.[[:digit:]]+' $
+           + '(\.[iquv]+\.[[:digit:]]+)?' $
            + (keyword_set(background) ? '\.bkg' : '') $
            + '\.fts(\.gz)?'
     l1_files_check = stregex(files, l1_re, /boolean)
 
     ind = where(l0_files_check or l1_files_check, n_files)
 
-    if (n_files eq 0L) then continue
+    if (n_files eq 0L) then begin
+      print, date_dirs[d], format='(%"skipping %s, no files")'
+      continue
+    endif
     files = files[ind]
 
     year  = long(strmid(date_dirs[d], 0, 4))
     month = long(strmid(date_dirs[d], 4, 2))
     day   = long(strmid(date_dirs[d], 6, 2))
 
-    if (keyword_set(interactive)) then begin
-      p = mg_progress(files, title=date_dirs[d])
-    endif else begin
-      p = files
-    endelse
-
+    p = mg_progress(files, title=date_dirs[d], hide=~keyword_set(interactive))
     foreach file, p, f do begin
-      hour = long(strmid(files[f], 9, 2))
-      min  = long(strmid(files[f], 11, 2))
-      sec  = long(strmid(files[f], 13, 2))
+      hour = long(strmid(file, 9, 2))
+      min  = long(strmid(file, 11, 2))
+      sec  = long(strmid(file, 13, 2))
 
       fits_open, filepath(file, root=dir), fcb
 
@@ -133,7 +137,7 @@ function comp_extract_headertags, root_dir, tagnames, $
 
       fits_close, fcb
     endforeach
-    if (keyword_set(interactive)) then obj_destroy, p
+    obj_destroy, p
   endfor
 
   htags = headertags->toArray()
@@ -146,11 +150,12 @@ end
 
 root = '/export/data1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
-results = comp_extract_headertags(root, 'OVRLPANG', start_date='20160101', $
+results = comp_extract_headertags(root, 'OVRLPANG', $
+                                  start_date='20140601', end_date='20151231', $
                                   /interactive)
 ;results = comp_extract_headertags(root, 'SOLAR_P0', start_date='20160101', $
 ;                                  /interactive)
 ;write_csv, 'pangle.csv', results.date, results.solar_p0, header=['date', 'pangle']
-write_csv, 'ovrlpang.csv', results.date, results.ovrlpang, header=['date', 'OVRLPANG']
+write_csv, 'ovrlpang-2014-15.csv', results.date, results.ovrlpang, header=['date', 'OVRLPANG']
 
 end
