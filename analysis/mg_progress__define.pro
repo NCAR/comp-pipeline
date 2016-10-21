@@ -51,8 +51,9 @@
 ;     endforeach
 ;     p->advance
 ;
-;   Note, that in the case of setting the `MANUAL` property, an extra `advance`
-;   call is needed for the progress bar to show 100% completion.
+;   Note, that in the case of setting the `MANUAL` property and using the
+;   `TOTAL` property, an extra `advance` call is needed for the progress bar to
+;   show 100% completion.
 ;
 ;   For an example of using advance with a constant amount of work in each
 ;   iteration and not looping over the progress bar object itself, let's
@@ -194,20 +195,18 @@ end
 ;-
 function mg_progress::_overloadForeach, value, key
   compile_opt strictarr
+  on_error, 2
 
   if (n_elements(key) eq 0L) then self.start_time = systime(/seconds)
   now = systime(/seconds)
 
-  it = *self.iterable
-  if (isa(it, 'IDL_OBJECT')) then begin
-    more_elements = it->_overloadForeach(value, key)
+  iterable = *self.iterable
+  if (isa(iterable, 'IDL_OBJECT')) then begin
+    more_elements = iterable->_overloadForeach(value, key)
   endif else begin
-    if (n_elements(key) eq 0L) then key = 0L
-    value = it[key < (self.n - 1L)]
-
-    ;more_elements = self.manual ? (self.current lt self.total) : (key lt self.n)
+    if (n_elements(key) eq 0L) then key = 0L else key += 1
     more_elements = key lt self.n
-    key += 1
+    value = iterable[key < (self.n - 1)]
   endelse
 
   self.counter = (self.counter + 1) < self.n
@@ -351,7 +350,8 @@ foreach w, h, i do begin
   wait, w
   p->advance, work=w
 endforeach
-p->advance   ; extra advance needed when not looping on the progress bar
+; extra advance needed when not looping on the progress bar and using TOTAL
+p->advance
 
 ; example of using with a FOR loop
 
@@ -363,7 +363,6 @@ for f = 0L, n_files - 1L do begin
   ; process files[f]
   p->advance
 endfor
-p->advance   ; extra advance needed when not looping on the progress bar
 print, 'Done'
 
 end
