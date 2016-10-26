@@ -1,5 +1,51 @@
 ; docformat = 'rst'
 
+
+pro comp_extract_headertags_processfile, file, dir, tagnames, headertags, $
+                                         error=error, $
+                                         by_extension=by_extension, $
+                                         month=month, day=day, year=year
+  compile_opt strictarr
+
+  catch, error
+  if (error ne 0L) then begin
+    catch, /cancel
+    if (size(fcb, /type) eq 8) then fits_close, fcb
+    if (obj_valid(tags)) then obj_destroy, tags
+    return
+  endif
+
+  hour = long(strmid(file, 9, 2))
+  min  = long(strmid(file, 11, 2))
+  sec  = long(strmid(file, 13, 2))
+
+  fits_open, filepath(file, root=dir), fcb
+
+  if (size(fcb, /type) ne 8) then return
+
+  if (keyword_set(by_extension)) then begin
+    e_start = 1L
+    e_end = fcb.nextend
+  endif else begin
+    e_start = 0L
+    e_end = 0L
+  endelse
+
+  for e = e_start, e_end do begin
+    fits_read, fcb, data, header, /header_only, exten_no=e
+    tags = hash('date', julday(month, day, year, hour, min, sec))
+    for t = 0L, n_elements(tagnames) - 1L do begin
+      value = sxpar(header, tagnames[t])
+      tags[tagnames[t]] = value
+    endfor
+    headertags->add, tags->toStruct()
+    obj_destroy, tags
+  endfor
+
+  fits_close, fcb
+end
+
+
 ;+
 ; Utility routine to pull out header information from raw or L1 data files.
 ;
@@ -110,32 +156,10 @@ function comp_extract_headertags, root_dir, tagnames, $
 
     p = mg_progress(files, title=date_dirs[d], hide=~keyword_set(interactive))
     foreach file, p, f do begin
-      hour = long(strmid(file, 9, 2))
-      min  = long(strmid(file, 11, 2))
-      sec  = long(strmid(file, 13, 2))
-
-      fits_open, filepath(file, root=dir), fcb
-
-      if (keyword_set(by_extension)) then begin
-        e_start = 1L
-        e_end = fcb.nextend
-      endif else begin
-        e_start = 0L
-        e_end = 0L
-      endelse
-
-      for e = e_start, e_end do begin
-        fits_read, fcb, data, header, /header_only, exten_no=e
-        tags = hash('date', julday(month, day, year, hour, min, sec))
-        for t = 0L, n_elements(tagnames) - 1L do begin
-          value = sxpar(header, tagnames[t])
-          tags[tagnames[t]] = value
-        endfor
-        headertags->add, tags->toStruct()
-        obj_destroy, tags
-      endfor
-
-      fits_close, fcb
+      comp_extract_headertags_processfile, file, dir, tagnames, headertags, $
+                                           error=error, $
+                                           by_extension=by_extension, $
+                                           month=month, day=day, year=year
     endforeach
     obj_destroy, p
   endfor
@@ -152,6 +176,7 @@ root = '/export/data1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
 results = comp_extract_headertags(root, 'OVRLPANG', $
                                   start_date='20140601', end_date='20151231', $
+;                                  start_date='20140806', end_date='20140807', $
                                   /interactive)
 ;results = comp_extract_headertags(root, 'SOLAR_P0', start_date='20160101', $
 ;                                  /interactive)
