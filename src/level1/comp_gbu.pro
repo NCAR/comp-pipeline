@@ -28,26 +28,26 @@
 ;
 ; Output files::
 ;
-;   synoptic_wwww_files.txt
+;   YYYYMMDD.synoptic.WWWW.files.txt
 ;     - file containing the filenames and metadata for the good synoptic data
 ;       files for that day
-;   good_wwww_files.txt
+;   YYYYMMDD.good.iqu.WWWW.files.txt
 ;     - file containing the filenames and metadata for the all good
 ;       polarization data files for that day (before 9.1.2016 only good 5-pt
 ;       files, now all good files with Q and U)
-;   good_all_wwww.txt
+;   YYYYMMDD.good.all.WWWW.files.txt
 ;     - file containing the filenames and metadata for all good data files that
 ;       day (polarization and waves)
-;   good_wave_wwww_files.txt
+;   YYYYMMDD.good.waves.WWWW.files.txt
 ;     - file containing the filenames and metadata for all good waves data
 ;       files that day
-;   GBU.wwww.log
+;   YYYYMMDD.GBU.WWWW.log
 ;     - file containing the filenames, the the background, the sigma parameter
 ;       and the good_files parameter
 ;
-; where `wwww` is the wavelength range ('1074', '1079' or '1083'). The 'synoptic'
-; data are defined as the polarization data taken before the first waves
-; sequence.
+; where `WWWWW` is the wavelength range ('1074', '1079' or '1083') and
+; `YYYYMMDD` is the date of the data acquisition. The 'synoptic' data are
+; defined as the polarization data taken before the first waves sequence.
 ;
 ;   postscript plot of the background
 ;   postscript plot of the sigma parameter
@@ -111,8 +111,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
   cd, process_dir
 
-  files = wave_type + '_files.txt'   ; file with list of filenames
-  n_files = file_lines(files)        ; get number of filenames in file
+  all_files = wave_type + '_files.txt'    ; get number of filenames in file
+  n_files = file_lines(all_files)         ; get number of filenames in file
 
   if (n_files lt 1L) then begin
     mg_log, 'no files for wave type %s', wave_type, /warning, name='comp'
@@ -135,7 +135,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   polstates = strarr(n_files)
 
   str = ''
-  openr, lun, files, /get_lun
+  openr, lun, all_files, /get_lun
 
   for ifile = 0L, n_files - 1L do begin
     readf, lun, str
@@ -309,20 +309,28 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   ; make new text file for synoptic program (first files with n_waves = 5)
-  openw, synoptic_lun, 'synoptic_' + files, /get_lun
+  openw, synoptic_lun, $
+         string(date_dir, wave_type, format='(%"%s.synoptic.%s.files.txt")'), $
+         /get_lun
   synoptic_flag = 1
 
   ; make new text file for good waves files
-  openw, good_waves_lun, 'good_waves_' + files, /get_lun
+  openw, good_waves_lun, $
+         string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")'), $
+         /get_lun
 
   ; make new text file with only good filenames
-  openw, good_lun, 'good_' + files, /get_lun
+  openw, good_lun, $
+         string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")'), $
+         /get_lun
 
   ; GBU log file
   openw, gbu_lun, 'GBU.' + wave_type + '.log', /get_lun
 
   ; make new file for all good files (both 5 wave and 3 wave)
-  openw, good_all_lun, 'good_all_' + files, /get_lun
+  openw, good_all_lun, $
+         string(date_dir, wave_type, format='(%"%s.good.all.%s.files.txt")'), $
+         /get_lun
 
   printf, gbu_lun, 'Filename                                   Quality     Back     Sigma   #waves  Reason'
   for i = 0L, n_files - 1L do begin

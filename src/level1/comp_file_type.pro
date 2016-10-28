@@ -34,7 +34,7 @@
 ; :Examples:
 ;   For example, call it like::
 ;
-;     file_type, '20131119'
+;     comp_file_type, '20131119'
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_initialize,
@@ -69,6 +69,7 @@ pro comp_file_type, date_dir
   file_mkdir, process_dir
 
   regions = [center1074, center1079, center1083]
+  wave_types = ['1074', '1079', '1083']
 
   openw, lun_1074, filepath('1074_files.txt', root=process_dir), /get_lun
   openw, lun_1079, filepath('1079_files.txt', root=process_dir), /get_lun
@@ -133,14 +134,26 @@ pro comp_file_type, date_dir
     if (nopal eq ntotal) then ifile = 4   ; if all opal images, write to opal_files
     if (cal_pol eq '1' or cal_ret eq '1') then ifile = 5
 
-    mg_log, '%s   %7.1f     %5.0f ms   %4d Data   %3d Dark   %3d Opal %s%s%s', $
-            files[i], regions[ireg], expose, ndata, ndark, nopal, str_cover, $
+    if (ifile lt 3) then begin
+      polarizations = strmid(uniq_pols, 2, 1)
+      uniq_polarizations = polarizations[uniq(polarizations, sort(polarizations))]
+      pol_tag = 'i' + strjoin(strlowcase(uniq_polarizations))
+      l1_filename = string(comp_ut_filename(files[i]), wave_types[ifile], $
+                           pol_tag, n_elements(uniq_waves), $
+                           format='(%"     %s.comp.%d.%s.%d.fts.gz")')
+    endif else begin
+      l1_filename = ''
+    endelse
+
+    mg_log, '%s%s   %7.1f     %5.0f ms   %4d Data   %3d Dark   %3d Opal %s%s%s', $
+            files[i], l1_filename, regions[ireg], expose, $
+            ndata, ndark, nopal, str_cover, $
             string(uniq_waves, format='(20f9.2)'), $
             string(uniq_pols, format='(20(2x,a))'), $
             name='comp', /debug
 
-    printf, luns[ifile], files[i], expose, ndata, ndark, nopal, str_cover, $
-            format='($,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)'
+    printf, luns[ifile], files[i], l1_filename, expose, ndata, ndark, nopal, str_cover, $
+            format='($,a,a,4x,f5.0,1x,"ms",3x,i4," Data",3x,i3," Dark",3x,i3," Opal",a)'
 
     printf, luns[ifile], format='($,21f9.2)', uniq_waves
     printf, luns[ifile], format='(20(2x,a))', uniq_pols

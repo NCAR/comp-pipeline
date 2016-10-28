@@ -30,11 +30,11 @@
 ;
 ;     comp_average, '20110902', '1074', /synoptic
 ;
-;   will use filename 'synoptic_1074_files.txt' as input filename. Finally::
+;   will use filename '20110902.synoptic.1074.files.txt' as input filename. Finally::
 ;
 ;     comp_average, '20131026', '1074'
 ;
-;   will use 'good_1074_files.txt' as input filename.
+;   will use '20131026.good.iqu.1074.files.txt' as input filename.
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,

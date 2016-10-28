@@ -80,12 +80,16 @@ pro comp_distribute_l1, date_dir, wave_type
                /overwrite
   endif
 
-  ; save the .txt files
+  ; save and distribute the .txt files
   mg_log, 'copying .txt files...', name='comp', /info
   txt_files = file_search('*' + wave_type + '*.txt', count=n_txt_files)
-  for t = 0L, n_txt_files - 1L do begin
-    file_copy, txt_files[t], eng_dir, /overwrite
-  endfor
+  if (n_txt_files gt 0L) then begin
+    file_copy, txt_files, adir, /overwrite
+    file_copy, txt_files, eng_dir, /overwrite
+  endif else begin
+    mg_log, 'no text files to distribute for wave type %s', wave_type, $
+            name='comp', /warn
+  endelse
 
   ; tar and send to HPSS
   if (send_to_hpss) then begin
