@@ -28,9 +28,9 @@ function comp_overlap_mask, radius, angle, dx=dx, dy=dy
   @comp_constants_common
   @comp_mask_constants_common
 
-  mask = fltarr(nx, ny) + 1.
+  mask = fltarr(nx, ny) + 1.0
 
-  x = rebin(indgen(nx) - nx / 2., nx, ny)
+  x = rebin(indgen(nx) - nx / 2.0, nx, ny)
   y = transpose(x)
   if (n_elements(dx) gt 0 or n_elements(dy) gt 0) then begin
     x = x - dx
@@ -40,10 +40,11 @@ function comp_overlap_mask, radius, angle, dx=dx, dy=dy
   r = sqrt(x^2 + y^2)
 
   ; mask out field stop overlap
+
   ; lower right
-  x0 = (2 * radius - field_overlap) * cos((360. - angle) / !RADEG)
-  y0 = (2 * radius - field_overlap) * sin((360. - angle) / !RADEG)
-  mask[where(sqrt((x - x0)^2 + (y - y0)^2) lt radius, count)] = 0.
+  x0 = (2.0 * radius - field_overlap) * cos((360.0 - angle) / !radeg)
+  y0 = (2.0 * radius - field_overlap) * sin((360.0 - angle) / !radeg)
+  mask[where(sqrt((x - x0)^2 + (y - y0)^2) lt radius, count)] = 0.0
 
   ; upper left
   x0 = (2 * radius - field_overlap) * cos((180. - angle) / !RADEG)
