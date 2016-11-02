@@ -32,10 +32,10 @@ function comp_find_l1_file, date, wave_type, $
 
   _datetime = n_elements(datetime) gt 0L ? datetime : '*'
   filename_pattern = _datetime + '.comp.' + wave_type + '*.*.fts{,.gz}'
-  filenames = file_search(filepath(filename_pattern, $
-                                   subdir=[date, 'level1'], $
-                                   root=process_basedir), $
-                          count=n_files)
+  full_pattern = filepath(filename_pattern, $
+                          subdir=[date, 'level1'], $
+                          root=process_basedir)
+  filenames = file_search(full_pattern, count=n_files)
 
   _datetime = n_elements(datetime) gt 0L ? datetime : '[[:digit:]]{8}\.[[:digit:]]{6}'
   base_re = _datetime + '\.comp\.' + wave_type + '\.[iquv]+\.[[:digit:]]{1,2}'
