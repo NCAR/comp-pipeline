@@ -260,6 +260,25 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
     endif
 
+    if (check_l1) then begin
+      ; check metrics of final L1 data
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        mg_log, 'checking %s L1 data', process_wavelengths[w], $
+                name='comp', /info
+        check_l1_t0 = systime(/seconds)
+        if (~dry_run) then begin
+          comp_l1_check, date_dir, process_wavelengths[w]
+        endif
+        check_l1_t1 = systime(/seconds)
+        mg_log, 'Total time for COMP_L1_CHECK: %0.1f seconds', $
+                check_l1_t1 - check_l1_t0, $
+                name='comp', /debug
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif
+
     if (~create_l1) then begin
       mg_log, 'skipping L1 processing', name='comp', /info
     endif

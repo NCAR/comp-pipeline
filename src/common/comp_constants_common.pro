@@ -12,6 +12,7 @@ common comp_constants, nx, ny, $
                        dispexp1074, dispexp1079, dispexp1083, $
                        stokes, n_stokes, $
                        debug, $
+                       overlap_angle_tolerance, $
                        int_thresh, diff_thresh, $
                        i_to_q_xtalk, $
                        i_to_u_xtalk, $
