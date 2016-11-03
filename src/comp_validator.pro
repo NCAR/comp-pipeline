@@ -51,7 +51,7 @@ function comp_validator, date_dir
 
   done_file = date_dir + '.comp.t1.log'
   if (~file_test(done_file)) then begin
-    mg_log, 'no t1.log file', name='comp', /warn
+    mg_log, 'no t1.log file', name='comp', /info
     return, 0
   endif
 
