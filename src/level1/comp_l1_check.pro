@@ -38,29 +38,19 @@ pro comp_l1_check, date_dir, wave_type
 
   send_warning = overlap_angle_warning
   if (send_warning && notification_email ne '') then begin
-    t = 1000.D * systime(/seconds)
-    length = strtrim(fix(alog10(t)) + 1L > 15, 2)
-    timestamp = string(t, format='(I0' + length + ')')
-    tmp_filename = filepath(string(timestamp, format='(%"comp-%s.txt")'), /tmp)
+    body = list()
+    if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
 
-    openw, lun, tmp_filename, /get_lun
-    if (overlap_angle_warning) then printf, lun, 'overlap angle exceeds tolerance'
-
-    printf, lun, ''
+    body->add, ''
     log_filename = filepath(date_dir + '.log', root=log_dir)
-    printf, lun, log_filename, format='(%"See warnings in log %s for details")'
-    free_lun, lun
+    body->add, string(log_filename, format='(%"See warnings in log %s for details")')
+
+    body_text = body->toArray()
+    obj_destroy, body
 
     subject = string(date_dir, wave_type, $
-                     format='(%"Warnings for CoMP on %s (%s)")')
-    mail_cmd = string(subject, notification_email, tmp_filename, $
-                      format='(%"mail -s ''%s'' %s < %s")')
-    spawn, mail_cmd, result, error_result, exit_status=status
-    if (status ne 0L) then begin
-      mg_log, 'problem with mail command: %s', mail_cmd, name='comp', /error
-      mg_log, error_result, name='comp', /error
-    endif
+                     format='(%"Warnings for CoMP on %s (%s nm)")')
 
-    file_delete, tmp_filename
+    comp_send_mail, notification_email, subject, body_text
   endif
 end

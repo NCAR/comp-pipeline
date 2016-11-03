@@ -84,14 +84,9 @@ function comp_validator, date_dir
     mg_log, 'errors in validating files transferred from MLSO for %s', $
             date_dir, name='comp', /error
     if (mail_warnings && notification_email ne '') then begin
-      msg = 'Errors in validating files transferred from MLSO for CoMP'
-      mail_cmd = string(msg, date_dir, notification_email, $
-                        format='(%"mail -s ''%s on %s'' %s < /dev/null ")')
-      spawn, mail_cmd, result, error_result, exit_status=status
-      if (status ne 0L) then begin
-        mg_log, 'problem with mail command: %s', mail_cmd, name='comp', /error
-        mg_log, error_result, name='comp', /error
-      endif
+      subject = string(date_dir, $
+                       format='(%"Errors validating raw files for CoMP on %s")'
+      comp_send_mail, notification_email, subject
     endif
     return, ~invalid
   endif else begin
