@@ -12,7 +12,7 @@ pro comp_plot_ovrlpang
   ind = where(dates gt shutoff_date)
 
   new_dates = dblarr(n_elements(dates) + 1L)
-help, new_dates, ind, ind[0]
+
   new_dates[0:ind[0] - 1] = dates[0:ind[0] - 1]
   new_dates[ind[0]] = shutoff_date
   new_dates[ind[0] + 1:*] = dates[ind[0]:*]
