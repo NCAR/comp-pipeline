@@ -60,8 +60,8 @@ function comp_image_geometry, images, headers, date_dir
   pang2 = sxpar(flat_header, 'POSTANG2')
 
   ; overlap P angle (from the field stop)
-  delta_x = sxpar(flat_header, 'FXCNTER2') - sxpar(flat_header, 'FXCNTER1')
-  delta_y = sxpar(flat_header, 'FYCNTER1') - sxpar(flat_header, 'FYCNTER2')
+  delta_x = sxpar(flat_header, 'OXCNTER2') - sxpar(flat_header, 'OXCNTER1')
+  delta_y = sxpar(flat_header, 'OYCNTER1') - sxpar(flat_header, 'OYCNTER2')
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
   dims = size(images, /dimensions)

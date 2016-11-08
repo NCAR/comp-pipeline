@@ -68,6 +68,10 @@ pro comp_configuration, config_filename=config_filename
   find_post_log_level         = config->get('find_post', section='log', $
                                             default=log_level, type=3)
 
+  ; notifications
+  notification_email = config->get('email', section='notifications', default='')
+
+
   ; engineering files
   engineering_dir = config->get('engineering_dir', section='engineering')
 
@@ -77,6 +81,8 @@ pro comp_configuration, config_filename=config_filename
   create_l1           = config->get('create_l1', section='actions', $
                                     /boolean, default=1B)
   perform_gbu         = config->get('perform_gbu', section='actions', $
+                                    /boolean, default=create_l1)
+  check_l1            = config->get('check_l1', section='actions', $
                                     /boolean, default=create_l1)
   create_flatsdarks   = config->get('create_flatsdarks', section='actions', $
                                     /boolean, default=create_l1)

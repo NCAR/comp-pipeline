@@ -9,6 +9,7 @@ common comp_config, binary_dir, $
                     movie_dir, $
                     fullres_dir, $
                     log_dir, $
+                    notification_email, $
                     engineering_dir, $
                     ffmpeg_dir, $
                     git_dir, $
@@ -23,6 +24,7 @@ common comp_config, binary_dir, $
                     find_post_log_level, $
                     dry_run, $
                     perform_gbu, $
+                    check_l1, $
                     create_flatsdarks, $
                     create_l1, $
                     correct_crosstalk, $

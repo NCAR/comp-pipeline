@@ -150,17 +150,15 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   q = comp_obs[*, *, 1, wave_indices[1]]
   u = comp_obs[*, *, 2, wave_indices[1]]
 
-  p_angle = sxpar(header, 'SOLAR_P0')
-
   zero = where(i eq 0, count)
   if (count eq 0) then mg_log, 'no zeros', name='comp/quick_invert', /warn
 
   ; compute azimuth and adjust for p-angle, correct azimuth for quadrants  
-  azimuth = comp_azimuth(u, q, p_angle, radial_azimuth=radial_azimuth)
+  azimuth = comp_azimuth(u, q, radial_azimuth=radial_azimuth)
 
   i[zero] = 0.0
   azimuth[zero] = 0.0
-  radial_azimuth[zero] = 0.0
+  radial_azimuth[zero] = -999.0
 
   ; compute linear polarization
   l = sqrt(q^2 + u^2)

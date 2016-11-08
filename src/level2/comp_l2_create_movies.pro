@@ -117,24 +117,20 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     l2_p_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
                                + 'polarization.' + strtrim(nwl, 2) + '.fts.gz'))[0]
 
-    if (file_test(l2_d_file) eq 0L) then begin
-      mg_log, 'dynamics file not found', file_basename(gbu[ii].l1file), $
+    if (file_test(l2_d_file)) then begin
+      mg_log, 'dynamics: %s', l2_d_file, name='comp', /debug
+    endif else begin
+      mg_log, 'dynamics file not found: %s', file_basename(gbu[ii].l1file), $
               name='comp', /warn
       continue
-    endif
+    endelse
 
-    if (qu_files[ii] eq 1 and file_test(l2_p_file) eq 0) then begin
+    if (file_test(l2_p_file)) then begin
+      mg_log, 'polarization file: %s', l2_d_file, name='comp', /debug
+    endif else if (qu_files[ii] eq 1) then begin
       mg_log, 'polarization file not found: %s', file_basename(gbu[ii].l1file), $
               name='comp', /warn
       continue
-    endif
-
-    if (file_test(l2_d_file)) then begin
-      mg_log, 'dynamics: %s', l2_d_file, name='comp', /debug
-    endif
-
-    if (file_test(l2_p_file)) then begin
-      mg_log, 'polarization file: %s %s', l2_d_file, name='comp', /debug
     endif
 
     intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
@@ -422,8 +418,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; plot azimuth
     if (qu_files[ii] eq 1) then begin
-      p_angle = float(index[ii].solar_p0)
-      azimuth = comp_azimuth(stks_u, stks_q, p_angle)
+      azimuth = comp_azimuth(stks_u, stks_q)
 
       loadct, 4, /silent
       tvlct, r, g, b, /get
@@ -498,7 +493,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                  + ' -vcodec libx264' $
                  + ' -passlogfile %s' $
                  + ' -b:v %s -g 3' $
-                 + ' %s.comp.%s.%s.%d.mp4")'
+                 + ' %s.comp.%s.%s.mp4")'
   infile_ext = '.' + wave_type + '.%04d.png'
 
   ; 2-pass encoding with ffmpeg and x264
@@ -509,7 +504,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'int', '2000k', $
                                    date_dir, wave_type, 'daily_intensity', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -522,7 +516,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'enh_int', '3000k', $
                                    date_dir, wave_type, 'daily_enhanced_intensity', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -535,7 +528,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'corr_velo', '3000k', $
                                    date_dir, wave_type, 'daily_corrected_velocity', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -548,7 +540,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'line_width', '3000k', $
                                    date_dir, wave_type, 'daily_line_width', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -561,7 +552,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'lin_pol', '3000k', $
                                    date_dir, wave_type, 'daily_ltot', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -574,7 +564,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'stks_q', '3000k', $
                                    date_dir, wave_type, 'daily_q', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -587,7 +576,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'stks_u', '3000k', $
                                    date_dir, wave_type, 'daily_u', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -600,7 +588,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'azi', '3000k', $
                                    date_dir, wave_type, 'daily_azimuth', $
-                                   n_points, $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug

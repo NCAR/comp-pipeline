@@ -12,7 +12,7 @@
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
-;   comp_azimuth, comp_make_mask, comp_aia_lct, comp_transparent_logo,
+;   comp_make_mask, comp_aia_lct, comp_transparent_logo,
 ;   colorbar2, anytim2tai, sxpar, headfits, fitshead2struct, merge_struct,
 ;   readfits, mg_log
 ;
@@ -66,6 +66,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   fits_read, quick_invert_fcb, stks_u, stks_u_header, exten_no=3
   fits_read, quick_invert_fcb, lpol, lpol_header, exten_no=4
   fits_read, quick_invert_fcb, azimuth, azimuth_header, exten_no=5
+  fits_read, quick_invert_fcb, radial_azimuth, radial_azimuth_header, exten_no=6
   fits_read, quick_invert_fcb, velocity, velocity_header, exten_no=7
   fits_read, quick_invert_fcb, width, width_header, exten_no=8
   fits_close, quick_invert_fcb
@@ -520,16 +521,62 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   azimuth = tvrd(/true)
   erase
 
-  write_png, obasefilename + '.daily_intensity.3.png', intensity
-  write_png, obasefilename + '.daily_enhanced_intensity.3.png', $
+  ; plot radial azimuth
+  ncolors = 256 - 1 - 1   ; one for annotation color, one for bad data
+  loadct, 6, /silent, ncolors=ncolors
+  tvlct, r, g, b, /get
+  r[0:ncolors - 1] = shift(r[0:ncolors - 1], ncolors / 2)
+  g[0:ncolors - 1] = shift(g[0:ncolors - 1], ncolors / 2)
+  b[0:ncolors - 1] = shift(b[0:ncolors - 1], ncolors / 2)
+  tvlct, r, g, b
+  ;tvlct, 128B, 128B, 128B, 254L   ; bad values are grey
+  tvlct, 0B, 0B, 0B, 254L   ; bad values are black
+  tvlct, 255B, 255B, 255B, 255L   ; annotation color is white
+  bad_ind = where(radial_azimuth lt -90, n_bad_ind)
+  rad_azi = bytscl(radial_azimuth, min=-90.0, max=90.0, top=ncolors - 1)
+  if (n_bad_ind gt 0L) then rad_azi[bad_ind] = 254B
+  tv, rad_azi
+  colorbar2, position=colbarpos, charsize=1.25, title='Radial Azimuth [degrees]',$
+             range=[-90, 90], font=-1, divisions=6, color=255, ncolors=ncolors
+  loadct, 0, /silent
+  xyouts, 620 / 2, 4 * 78, 'Radial Azimuth', charsize=6, /device, color=255, alignment=0.5
+  !p.font = -1
+  xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
+  xyouts, 4 * 131, 4 * 151.5, $
+          strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
+            + '-' + strmid(date_dir, 6, 2), $
+          charsize=1, /device, color=255
+  !p.font = 1
+
+  ; display HAO logo
+  tvlct, rtemp, gtemp, btemp, /get
+  tvlct, rhao, ghao, bhao
+  tv, haologo
+  tvlct, rtemp, gtemp, btemp
+
+  ; display NSF/NCAR logo
+  backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+  nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+  tv, nsflogo, true=3, 619 - 134, 0
+
+  ; display N-W
+  backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
+  nwlogo   = comp_transparent_logo(nwimage, backgnd)
+  tv, nwlogo, true=3, 4, 555
+  radial_azimuth = tvrd(/true)
+  erase
+
+  write_png, obasefilename + '.daily_intensity.png', intensity
+  write_png, obasefilename + '.daily_enhanced_intensity.png', $
              enhanced_intensity
-  write_png, obasefilename + '.daily_corrected_velocity.3.png', $
+  write_png, obasefilename + '.daily_corrected_velocity.png', $
              corr_velo
-  write_png, obasefilename + '.daily_line_width.3.png', line_width
-  write_png, obasefilename + '.daily_azimuth.3.png', azimuth
-  write_png, obasefilename + '.daily_ltot.3.png', ltot
-  write_png, obasefilename + '.daily_q.3.png', qoveri
-  write_png, obasefilename + '.daily_u.3.png', uoveri
+  write_png, obasefilename + '.daily_line_width.png', line_width
+  write_png, obasefilename + '.daily_azimuth.png', azimuth
+  write_png, obasefilename + '.daily_radial_azimuth.png', radial_azimuth
+  write_png, obasefilename + '.daily_ltot.png', ltot
+  write_png, obasefilename + '.daily_q.png', qoveri
+  write_png, obasefilename + '.daily_u.png', uoveri
 
   ;=== end of plotting daily images ===
 

@@ -9,7 +9,8 @@
 ;
 ; :Params:
 ;   list_filename : in, required, type=string
-;     filename of candidate files, in the format of good_{wave_type}_files.txt, etc.
+;     filename of candidate files, in the format of
+;     {date}.good.{wave_type}.files.txt, etc.
 ;   flat_times : in, required, type=fltarr
 ;     times of the flats in hours from local midnight
 ;
@@ -164,16 +165,16 @@ function comp_find_average_files, date_dir, wave_type, $
 
   count = 0L
 
-  ; 1. using good_waves_{wave_type}_files.txt, group files into clusters where
+  ; 1. using {date}.good.waves.{wave_type}.files.txt, group files into clusters where
   ;    files: 
   ;      - are within MAX_CADENCE_INTERVAL (3 min now) of each other
   ;      - are using the same flat
   ;    a. use the first cluster which has at least MIN_N_CLUSTER_FILES (50 now),
   ;       cutting it down to the first MAX_N_FILES (150 now) if it has more than
   ;       that
-  ; 2. if step 1. didn't yield files, try it with good_{wave_type}_files.txt
+  ; 2. if step 1. didn't yield files, try it with {date}.good.iqu.{wave_type}.files.txt
   ; 3. if no files found yet, take the first files in
-  ;    good_{wave_type}_files.txt up to MAX_N_NONCLUSTER_FILES (50 now)
+  ;    {date}.good.{wave_type}.files.txt up to MAX_N_NONCLUSTER_FILES (50 now)
 
   ; candidate filenames and their corresponding times
   l1_process_dir = filepath('level1', subdir=date_dir, root=process_basedir)
@@ -198,7 +199,7 @@ function comp_find_average_files, date_dir, wave_type, $
   flat_times += 10.0 / 24.0   ; adjust from local to UTC
 
   ; step 1.
-  basename = string(wave_type, format='(%"good_waves_%s_files.txt")')
+  basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
   list_filename = filepath(basename, root=l1_process_dir)
   files = comp_find_average_files_findclusters(list_filename, flat_times, $
                                                max_cadence_interval=_max_cadence_interval, $
@@ -209,7 +210,7 @@ function comp_find_average_files, date_dir, wave_type, $
   if (count gt 0L) then return, files
 
   ; step 2.
-  basename = string(wave_type, format='(%"good_%s_files.txt")')
+  basename = string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")')
   list_filename = filepath(basename, root=l1_process_dir)
   files = comp_find_average_files_findclusters(list_filename, flat_times, $
                                                max_cadence_interval=_max_cadence_interval, $

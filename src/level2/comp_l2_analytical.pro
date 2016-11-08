@@ -204,7 +204,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
     outfilename = filepath(strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                             + 'dynamics.' + strtrim(nwl, 2) + '.fts', $
+                             + 'dynamics.fts', $
                            root=l2_process_dir)
     writefits, outfilename, blank, primary_header
 
@@ -261,7 +261,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     if (qu_files[ii] eq 1) then begin
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
       outfilename = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                      + 'polarization.' + strtrim(nwl, 2) + '.fts'
+                      + 'polarization.fts'
       writefits, outfilename, blank, primary_header
 
       ; intensity

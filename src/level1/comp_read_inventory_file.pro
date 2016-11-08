@@ -50,7 +50,7 @@ pro comp_read_inventory_file, filename, datafiles, exptimes, $
 
   ; standard inventory file will have wavelengths begin at 10th
   ; space-delimited field
-  iwave0 = 10
+  iwave0 = 11
 
   ; read each line of the file...
   while (~eof(lun)) do begin
@@ -95,11 +95,11 @@ pro comp_read_inventory_file, filename, datafiles, exptimes, $
       linesplit = strtrim(strsplit(lines[i], /extract))
       nls = n_elements(linesplit)
       datafiles[i] = linesplit[0]
-      exptimes[i] = linesplit[1]
-      ndata[i] = long(linesplit[3])
-      ndark[i] = long(linesplit[5])
-      nopal[i] = long(linesplit[7])
-      open[i] = linesplit[9]
+      exptimes[i] = linesplit[2]
+      ndata[i] = long(linesplit[4])
+      ndark[i] = long(linesplit[6])
+      nopal[i] = long(linesplit[8])
+      open[i] = linesplit[10]
       waves[i, 0:nws[i] - 1] = linesplit[iwave0:iwave0 + nws[i] - 1]
       polstates[i, 0:npols[i] - 1] = linesplit[nls - npols[i]:nls - 1]
     endfor

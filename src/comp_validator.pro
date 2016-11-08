@@ -51,7 +51,7 @@ function comp_validator, date_dir
 
   done_file = date_dir + '.comp.t1.log'
   if (~file_test(done_file)) then begin
-    mg_log, 'no t1.log file', name='comp', /warn
+    mg_log, 'no t1.log file', name='comp', /info
     return, 0
   endif
 
@@ -83,14 +83,10 @@ function comp_validator, date_dir
   if (invalid) then begin
     mg_log, 'errors in validating files transferred from MLSO for %s', $
             date_dir, name='comp', /error
-    if (mail_warnings) then begin
-      mail_cmd = "mail -s 'Errors in validating files transferred from MLSO for CoMP on " $
-                   + date_dir + "' ldm@hao.ucar.edu < /dev/null"
-      spawn, mail_cmd, result, error_result, exit_status=status
-      if (status ne 0L) then begin
-        mg_log, 'problem with mail command: %s', mail_cmd, name='comp', /error
-        mg_log, error_result, name='comp', /error
-      endif
+    if (mail_warnings && notification_email ne '') then begin
+      subject = string(date_dir, $
+                       format='(%"Errors validating raw files for CoMP on %s")'
+      comp_send_mail, notification_email, subject
     endif
     return, ~invalid
   endif else begin
