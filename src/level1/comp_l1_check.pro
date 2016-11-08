@@ -19,6 +19,11 @@ pro comp_l1_check, date_dir, wave_type
   l1_files = comp_find_l1_file(date_dir, wave_type, /all, count=n_l1_files)
 
   overlap_angle_warning = 0B
+  background = fltarr(n_l1_files)
+
+  ; TODO: other things to check for:
+  ;   - annulus not inside CCD
+  ;   - check temperatures
 
   for f = 0L, n_l1_files - 1L do begin
     mg_log, 'checking %s', file_basename(l1_files[f]), name='comp', /info
@@ -27,6 +32,7 @@ pro comp_l1_check, date_dir, wave_type
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0
     overlap_angle = sxpar(primary_header, 'OVRLPANG')
+    background[f] = sxpar(primary_header, 'BACKGRND')
     fits_close, fcb
 
     if (abs(overlap_angle - 45.0) gt overlap_angle_tolerance) then begin
@@ -36,10 +42,16 @@ pro comp_l1_check, date_dir, wave_type
     endif
   endfor
 
+  med_background = median(background)
+
   send_warning = overlap_angle_warning
   if (send_warning && notification_email ne '') then begin
     body = list()
     if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
+    if (med_background gt background_limit) then begin
+      body->add, string(med_background, background_limit, $
+                        format='(%"median background %0.1f exceeds limit %0.1f")')
+    endif
 
     body->add, ''
     log_filename = filepath(date_dir + '.log', root=log_dir)

@@ -75,6 +75,8 @@ pro comp_initialize, date_dir
   debug = comp_initialize_readconfig('debug', date_dir, options, /boolean)
   overlap_angle_tolerance = comp_initialize_readconfig('overlap_angle_tolerance', $
                                                        date_dir, options, type=4)
+  background_limit = comp_initialize_readconfig('background_limit', $
+                                                date_dir, options, type=4)
 
   ; level 1 image dimensions
   nx = comp_initialize_readconfig('nx', date_dir, options, type=3)

@@ -13,6 +13,7 @@ common comp_constants, nx, ny, $
                        stokes, n_stokes, $
                        debug, $
                        overlap_angle_tolerance, $
+                       background_limit, $
                        int_thresh, diff_thresh, $
                        i_to_q_xtalk, $
                        i_to_u_xtalk, $
