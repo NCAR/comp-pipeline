@@ -34,6 +34,7 @@ pro comp_extract_headertags_processfile, file, dir, tagnames, headertags, $
   for e = e_start, e_end do begin
     fits_read, fcb, data, header, /header_only, exten_no=e
     tags = hash('date', julday(month, day, year, hour, min, sec))
+    tags['dt'] = strmid(file, 0, 15)
     for t = 0L, n_elements(tagnames) - 1L do begin
       value = sxpar(header, tagnames[t])
       tags[tagnames[t]] = value
@@ -172,15 +173,24 @@ end
 
 ; main-level example program
 
+wave_types = ['1074', '1079', '1083']
+;root = '/export/data1/Data/CoMP/process.overlap'
 root = '/export/data1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
-results = comp_extract_headertags(root, 'OVRLPANG', $
-                                  start_date='20140601', end_date='20151231', $
+
+for w = 0L, n_elements(wave_types) - 1L do begin
+  results = comp_extract_headertags(root, 'OVRLPANG', $
+                                    start_date='20140609', end_date='20140613', $
+                                    wave_type=wave_types[w], $
+;                                  start_date='20140601', end_date='20151231', $
 ;                                  start_date='20140806', end_date='20140807', $
-                                  /interactive)
-;results = comp_extract_headertags(root, 'SOLAR_P0', start_date='20160101', $
-;                                  /interactive)
-;write_csv, 'pangle.csv', results.date, results.solar_p0, header=['date', 'pangle']
-write_csv, 'ovrlpang-2014-15.csv', results.date, results.ovrlpang, header=['date', 'OVRLPANG']
+                                    /interactive)
+
+  if (n_elements(results) gt 0L) then begin
+    write_csv, 'ovrlpang-process-' + wave_types[w] + '.csv', $
+               results.date, results.dt, results.ovrlpang, $
+               header=['date', 'datetime', 'OVRLPANG']
+  endif
+endfor
 
 end
