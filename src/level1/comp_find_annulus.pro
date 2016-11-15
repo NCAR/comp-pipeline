@@ -21,10 +21,11 @@
 pro comp_find_annulus, im, occulter, field, error=error
   compile_opt idl2
 
-  occulter_radius_guess = 226.
-  field_radius_guess = 297.
+  occulter_radius_guess = 226.0
+  field_radius_guess = 297.0
 
-  c_occulter = comp_find_image_center(im, radius_guess=occulter_radius_guess, error=error)
+  c_occulter = comp_find_image_center(im, radius_guess=occulter_radius_guess, $
+                                      error=error)
   if (error ne 0L) then return
 
   ; set result if too far from guess
@@ -33,7 +34,9 @@ pro comp_find_annulus, im, occulter, field, error=error
     c_occulter[2] = occulter_radius_guess
   endif
 
-  c_field = comp_find_image_center(im, radius_guess=field_radius_guess, /neg_pol, error=error)
+  c_field = comp_find_image_center(im, radius_guess=field_radius_guess, $
+                                   /neg_pol, $
+                                   error=error)
   if (error ne 0L) then return
 
   ; set result if too far from guess

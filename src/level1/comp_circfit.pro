@@ -11,7 +11,7 @@
 ; :Examples:
 ;   For example, call like::
 ;
-;     a = circfit(theta, r)
+;     a = comp_circfit(theta, r)
 ;
 ; :Uses:
 ;   comp_fitc_common

@@ -79,7 +79,6 @@ function comp_find_image_center, dat, $
     rfit = c[0] * cos(theta - c[1]) $
              + sqrt(c[0]^2 * cos(theta - c[1])^2 - c[0]^2 +c[2]^2)
     oplot, theta, rfit
-    ;print,'chisq:',chisq
     read, 'enter return', ans
   endif
 
