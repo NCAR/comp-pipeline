@@ -159,7 +159,7 @@ function mg_progress::_termcolumns, default=default
     geo_info = widget_info(self.label_widget, /geometry)
     test_string = '##########'
     dims = widget_info(self.label_widget, string_size=test_string)
-    n_cols = geo_info.scr_xsize / dims[0] * strlen(test_string)
+    n_cols = long(geo_info.scr_xsize / dims[0] * strlen(test_string))
   endif else begin
     n_cols = mg_termcolumns()
   endelse
@@ -206,7 +206,7 @@ end
 ;-
 function mg_progress::_overloadForeach, value, key
   compile_opt strictarr
-  on_error, 2
+;  on_error, 2
 
   if (n_elements(key) eq 0L) then self.start_time = systime(/seconds)
   now = systime(/seconds)
