@@ -68,6 +68,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Calibration processing software version'
   sxaddpar, primary_header, 'REVISION', code_revision, $
             ' Calibration processing software revision'
+  sxaddpar, primary_header, 'BRANCH', code_branch, $
+            ' Calibration processing software branch'
 
   sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'

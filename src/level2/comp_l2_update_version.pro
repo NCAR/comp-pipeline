@@ -26,9 +26,13 @@ pro comp_l2_update_version, header, from_l2=from_l2
   endif
 
   version = comp_find_code_version(revision=revision, branch=branch)
-  sxaddpar, header, 'VERSION', version, ' Calibration processing software version'
-  sxaddpar, header, 'REVISION', revision, ' Calibration processing software revision'
-  sxaddpar, header, 'BRANCH', revision, ' Calibration processing software branch'
+  sxaddpar, header, 'VERSION', version, $
+            ' Calibration processing software version'
+  sxaddpar, header, 'REVISION', revision, $
+            ' Calibration processing software revision'
+  sxaddpar, header, 'BRANCH', revision, $
+            ' Calibration processing software branch', $
+            after='REVISION'
 
   if (n_l1version gt 0) then begin
     sxaddpar, header, 'L1VER', l1version, $
