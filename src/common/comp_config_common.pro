@@ -45,6 +45,7 @@ common comp_config, binary_dir, $
                     update_database, $
                     code_version, $
                     code_revision, $
+                    code_branch, $
                     subtract_background, $
                     remove_stray_light, $
                     flat_avg_skip_first, $

@@ -118,6 +118,8 @@ pro comp_make_flat, date_dir, error=error
             ' Calibration processing software version'
   sxaddpar, primary_header, 'REVISION', code_revision, $
             ' Calibration processing software revision'
+  sxaddpar, primary_header, 'BRANCH', code_branch, $
+            ' Calibration processing software branch'
 
   fits_write, fcbout, 0, primary_header
 

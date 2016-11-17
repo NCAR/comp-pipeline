@@ -25,9 +25,10 @@ pro comp_l2_update_version, header, from_l2=from_l2
     l1revision = sxpar(header, 'REVISION', count=n_l1revision)
   endif
 
-  version = comp_find_code_version(revision=revision)
-  sxaddpar, header, 'VERSION', version, ' Calibration software version'
-  sxaddpar, header, 'REVISION', revision, ' Calibration software revision'
+  version = comp_find_code_version(revision=revision, branch=branch)
+  sxaddpar, header, 'VERSION', version, ' Calibration processing software version'
+  sxaddpar, header, 'REVISION', revision, ' Calibration processing software revision'
+  sxaddpar, header, 'BRANCH', revision, ' Calibration processing software branch'
 
   if (n_l1version gt 0) then begin
     sxaddpar, header, 'L1VER', l1version, $

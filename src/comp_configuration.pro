@@ -118,8 +118,10 @@ pro comp_configuration, config_filename=config_filename
                                 /boolean, default=1B)
 
   ; processing code version
-  code_version = comp_find_code_version(revision=revision)
+  code_version = comp_find_code_version(revision=revision, branch=branch)
   code_revision = revision
+  code_branch = branch
+
 
   ; options
   subtract_background = config->get('subtract_background', $
