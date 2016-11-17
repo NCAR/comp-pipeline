@@ -85,7 +85,7 @@ function comp_validator, date_dir
             date_dir, name='comp', /error
     if (mail_warnings && notification_email ne '') then begin
       subject = string(date_dir, $
-                       format='(%"Errors validating raw files for CoMP on %s")'
+                       format='(%"Errors validating raw files for CoMP on %s")')
       comp_send_mail, notification_email, subject
     endif
     return, ~invalid
