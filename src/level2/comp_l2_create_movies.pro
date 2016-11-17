@@ -113,14 +113,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     mask = double(mask)
 
     l2_d_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                               + 'dynamics.' + strtrim(nwl, 2) + '.fts.gz'))[0]
+                               + 'dynamics.fts.gz'))[0]
     l2_p_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                               + 'polarization.' + strtrim(nwl, 2) + '.fts.gz'))[0]
+                               + 'polarization.fts.gz'))[0]
 
     if (file_test(l2_d_file)) then begin
       mg_log, 'dynamics: %s', l2_d_file, name='comp', /debug
     endif else begin
-      mg_log, 'dynamics file not found: %s', file_basename(gbu[ii].l1file), $
+      mg_log, 'dynamics file not found for %s', file_basename(gbu[ii].l1file), $
               name='comp', /warn
       continue
     endelse
