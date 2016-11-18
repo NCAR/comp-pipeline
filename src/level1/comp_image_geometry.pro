@@ -33,13 +33,42 @@ function comp_image_geometry, images, headers, date_dir
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
 
+  ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
+
+  ; TODO: actually use COMP_FIND_ANNULUS to find, don't just
+  ; read from flats
+
+  ind = where(beam gt 0)
+  im = comp_extract1(reform(images[*, *, ind[0]]))
+  comp_find_annulus, im, calc_occulter1, calc_field1
+  calc_occulter1.x += nx / 2
+  calc_occulter1.y += 1024 - ny / 2
+  calc_field1.x += nx / 2
+  calc_field1.y += 1024 - ny / 2
+
+  mg_log, '%f, %f, %f', time, calc_occulter1.x, calc_occulter1.y, $
+          name='calc_occ_ul', /debug
+
+  mg_log, '%f, %f, %f', time, calc_field1.x, calc_field1.y, $
+          name='calc_field_ul', /debug
+
+  ind = where(beam lt 0)
+  im = comp_extract2(reform(images[*, *, ind[0]]))
+  comp_find_annulus, im, calc_occulter2, calc_field2
+  calc_occulter2.x += 1024 - nx / 2
+  calc_occulter2.y += ny / 2
+  calc_field2.x += 1024 - nx / 2
+  calc_field2.y += ny / 2
+
+  mg_log, '%f, %f, %f', time, calc_occulter2.x, calc_occulter2.y, $
+          name='calc_occ_lr', /debug
+
+  mg_log, '%f, %f, %f', time, calc_field2.x, calc_field2.y, $
+          name='calc_field_lr', /debug
+
   ; TODO: are the below correct? are we correcting for difference between
   ; FITS and IDL standards (off by 1)?
 
-  ; TODO: (0, 0) is bottom left or top right?
-  
-  ; TODO: actually use COMP_FIND_ANNULUS to find, don't just
-  ; read from flats
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2, $
                y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2, $
                r:sxpar(flat_header, 'ORADIUS1')}
@@ -55,6 +84,19 @@ function comp_image_geometry, images, headers, date_dir
             y:sxpar(flat_header, 'FYCNTER2') - ny / 2, $
             r:sxpar(flat_header, 'FRADIUS2')}
 
+  mg_log, '%f, %f, %f', $
+          time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, $
+          name='flat_occ_ul', /debug
+  mg_log, '%f, %f, %f', $
+          time, field1.x + nx / 2, field1.y + 1024 - nx / 2, $
+          name='flat_field_ul', /debug
+  mg_log, '%f, %f, %f', $
+          time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, $
+          name='flat_occ_lr', /debug
+  mg_log, '%f, %f, %f', $
+          time, field2.x + 1024 - nx / 2, field2.y + ny / 2, $
+          name='flat_field_lr', /debug
+
   ; P angles of post
   pang1 = sxpar(flat_header, 'POSTANG1')
   pang2 = sxpar(flat_header, 'POSTANG2')
@@ -64,23 +106,23 @@ function comp_image_geometry, images, headers, date_dir
   delta_y = sxpar(flat_header, 'OYCNTER1') - sxpar(flat_header, 'OYCNTER2')
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
-  dims = size(images, /dimensions)
-  for i = 0L, dims[2] - 1L do begin
-    if (beam[i] gt 0L) then begin
-      background = comp_extract1(images[*, *, i])
-    endif else begin
-      background = comp_extract2(images[*, *, i])
-    endelse
-    comp_find_annulus, background, occulter, field, error=error
-    if (error eq 0L) then begin
-      mg_log, 'unable to find center', name='test', /info
-    endif else begin
-      mg_log, strjoin(strtrim([beam[i], $
-                              occulter.x, occulter.y, occulter.r, $
-                              field.x, field.y, field.r], 2), ', '), $
-              name='test', /info
-    endelse
-  endfor
+;  dims = size(images, /dimensions)
+;  for i = 0L, dims[2] - 1L do begin
+;    if (beam[i] gt 0L) then begin
+;      background = comp_extract1(images[*, *, i])
+;    endif else begin
+;      background = comp_extract2(images[*, *, i])
+;    endelse
+;    comp_find_annulus, background, occulter, field, error=error
+;    if (error eq 0L) then begin
+;      mg_log, 'unable to find center', name='comp', /info
+;    endif else begin
+;      mg_log, strjoin(strtrim([beam[i], $
+;                               occulter.x, occulter.y, occulter.r, $
+;                               field.x, field.y, field.r], 2), ', '), $
+;              name='comp', /info
+;    endelse
+;  endfor
 
   return, { occulter1: occulter1, $
             occulter2: occulter2, $

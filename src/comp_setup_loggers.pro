@@ -65,10 +65,18 @@ pro comp_setup_loggers_date, date_dir
                          filename=filepath(basename, root=eng_dir)
   endfor
 
-  mg_log, name='test', logger=logger
-  logger->setProperty, format='%(message)s', $
-                       level=5, $
-                       filename=filepath('pointing.txt', root=eng_dir)
+  ; TODO: remove this when done figuring out centering
+  types = ['calc', 'flat']
+  names = ['occ_ul', 'occ_lr', 'field_ul', 'field_lr']
+  for t = 0L, n_elements(types) - 1L do begin
+    for n = 0L, n_elements(names) - 1L do begin
+      name = types[t] + '_' + names[n]
+      mg_log, name=name, logger=logger
+      logger->setProperty, format='%(message)s', $
+                           level=5, $
+                           filename=filepath(name + '.csv', root=eng_dir)
+    endfor
+  endfor
 end
 
 

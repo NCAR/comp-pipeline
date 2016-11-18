@@ -53,22 +53,3 @@ pro comp_find_annulus, im, occulter, field, error=error
   occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2]}
   field = {x:c_field[0], y:c_field[1], r:c_field[2]}
 end
-
-
-; main-level test program
-
-comp_initialize, '20150624'
-
-filename = '/export/data1/Data/CoMP/raw.timetest/20150624/20150624.070335.FTS'
-
-fits_open, filename, fcb
-fits_read, fcb, im, header, exten_no=1
-fits_close, fcb
-
-help, sxpar(header, 'BEAM')
-im1 = comp_extract1(im)
-im2 = comp_extract2(im)
-
-comp_find_annulus, im2, occulter, field
-
-end
