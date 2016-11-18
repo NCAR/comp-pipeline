@@ -18,6 +18,11 @@ pro comp_l1_check, date_dir, wave_type
 
   l1_files = comp_find_l1_file(date_dir, wave_type, /all, count=n_l1_files)
 
+  if (n_l1_files eq 0L) then begin
+    mg_log, 'no L1 files to check', name='comp', /info
+    return
+  endif
+
   overlap_angle_warning = 0B
   background = fltarr(n_l1_files)
 
