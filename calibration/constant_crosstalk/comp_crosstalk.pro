@@ -17,7 +17,8 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   wave_type = '1074'
 
   dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
-  filename = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
+  ;filename = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
+  filename = string(date_dir, wave_type, format='(%"%s.comp.%s.mean.fts.gz")')
 
   if (keyword_set(debug)) then begin
     window, 0, xsize=2 * 500, ysize=500
@@ -99,9 +100,9 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     !p.multi = [0, 2, 1, 0, 0]
   endif
 
-  i_cont = stokes_i[*, *, 0]
+  i_cont = stokes_i[*, *, 0]   ; TODO: background_i[*, *, nc]
   x = i_cont[faint]
-  q_cont = stokes_q[*, *, 0]
+  q_cont = stokes_q[*, *, 0]   ; TODO: background_q[*, *, nc]
   y = q_cont[faint]
   i_to_q = median(y / x)
 
@@ -117,7 +118,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   print, i_to_q, format='(%"i_to_q_xtalk    : %f")'
 
-  u_cont = stokes_u[*, *, 0]
+  u_cont = stokes_u[*, *, 0]  ; TODO: background_u[*, *, nc]
   y = u_cont[faint]
   i_to_u = median(y / x)
 
