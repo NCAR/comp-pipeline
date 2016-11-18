@@ -60,7 +60,6 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; split the foreground (on-band) and background (continuum) beams into
   ; separate images, and subtract the backgrounds from the foregrounds. Store
   ; each into its own set of images with updated headers.
-  mg_log, 'processing %s', filename, name='test', /info
   comp_combine_beams, images_demod, headers_demod, date_dir, $
                       images_combine, headers_combine, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
