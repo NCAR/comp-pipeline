@@ -40,17 +40,16 @@ function comp_circfit, theta, r, chisq=chisq, error=error
   compile_opt strictarr
   @comp_fitc_common
 
-  ans = ' '
-  debug = 0
+  debug = 0B
   error = 0L
 
   x = theta
   y = r
-  a = [0., 0., mean(y)]
+  a = [0.0, 0.0, mean(y)]
   count = 1
 
   while (count gt 0) do begin
-    a = amoeba(1.e-4, p0=a, function_name='comp_circ_func', scale=60., $
+    a = amoeba(1.e-4, p0=a, function_name='comp_circ_func', scale=60.0, $
                function_value=fval, nmax=10000)
     mg_log, 'chi^2: %0.3f', fval[0], name='comp/circfit', /debug
 
