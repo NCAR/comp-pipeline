@@ -23,7 +23,7 @@ echo -e "\n# HPSS error messages from $hpss_log_name\n" >> $output 2>&1
 grep FAILED $hpss_log_name >> $output 2>&1
 
 # email results
-recipient="iguana@ucar.edu, detoma@ucar.edu, mgalloy@ucar.edu"
+recipient="iguana@ucar.edu, detoma@ucar.edu, mgalloy@ucar.edu, berkey@ucar.edu"
 mail -s "CoMP messages from $yesterday logs" "$recipient" < $output
 
 # clean up
