@@ -56,7 +56,7 @@ function comp_find_image_center, dat, $
   if (keyword_set(radius_guess)) then begin
     radius_guess = radius_guess
   endif else begin
-    if (keyword_set(neg_pol)) then radius_guess = 295. else radius_guess = 224.
+    if (keyword_set(neg_pol)) then radius_guess = 295.0 else radius_guess = 224.0
   endelse
 
   ; if number of points around radius is input, use it, otherwise use default value
