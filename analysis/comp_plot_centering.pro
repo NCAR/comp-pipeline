@@ -29,72 +29,72 @@ pro comp_plot_centering, dir, output_filename
   ; occ UL x
   plot, calc_occ_ul.field1, calc_occ_ul.field2, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL x-coord', $
-        yrange=mg_range(calc_occ_ul.field2)
+        yrange=mg_range([calc_occ_ul.field2, flat_occ_ul.field2])
   oplot, calc_occ_ul.field1, calc_occ_ul.field2, color=calc_color
   oplot, flat_occ_ul.field1, flat_occ_ul.field2, color=flat_color
 
   ; occ UL y
   plot, calc_occ_ul.field1, calc_occ_ul.field3, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL y-coord', $
-        yrange=mg_range(calc_occ_ul.field3)
+        yrange=mg_range([calc_occ_ul.field3, flat_occ_ul.field3])
   oplot, calc_occ_ul.field1, calc_occ_ul.field3, color=calc_color
   oplot, flat_occ_ul.field1, flat_occ_ul.field3, color=flat_color
 
   ; occ LR x
   plot, calc_occ_lr.field1, calc_occ_lr.field2, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR x-coord', $
-        yrange=mg_range(calc_occ_lr.field2)
+        yrange=mg_range([calc_occ_lr.field2, flat_occ_lr.field2])
   oplot, calc_occ_lr.field1, calc_occ_lr.field2, color=calc_color
   oplot, flat_occ_lr.field1, flat_occ_lr.field2, color=flat_color
 
   ; occ LR y
   plot, calc_occ_lr.field1, calc_occ_lr.field3, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR y-coord', $
-        yrange=mg_range(calc_occ_lr.field3)
+        yrange=mg_range([calc_occ_lr.field3, flat_occ_lr.field3])
   oplot, calc_occ_lr.field1, calc_occ_lr.field3, color=calc_color
   oplot, flat_occ_lr.field1, flat_occ_lr.field3, color=flat_color
 
   ; field UL x
   plot, calc_field_ul.field1, calc_field_ul.field2, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Field UL x-coord', $
-        yrange=mg_range(calc_field_ul.field2)
+        yrange=mg_range([calc_field_ul.field2, flat_field_ul.field2])
   oplot, calc_field_ul.field1, calc_field_ul.field2, color=calc_color
   oplot, flat_field_ul.field1, flat_field_ul.field2, color=flat_color
 
   ; field UL y
   plot, calc_field_ul.field1, calc_field_ul.field3, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Field UL y-coord', $
-        yrange=mg_range(calc_field_ul.field3)
+        yrange=mg_range([calc_field_ul.field3, flat_field_ul.field3])
   oplot, calc_field_ul.field1, calc_field_ul.field3, color=calc_color
   oplot, flat_field_ul.field1, flat_field_ul.field3, color=flat_color
 
   ; field LR x
   plot, calc_field_lr.field1, calc_field_lr.field2, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Field LR x-coord', $
-        yrange=mg_range(calc_field_lr.field2)
+        yrange=mg_range([calc_field_lr.field2, flat_field_lr.field2])
   oplot, calc_field_lr.field1, calc_field_lr.field2, color=calc_color
   oplot, flat_field_lr.field1, flat_field_lr.field2, color=flat_color
 
   ; field LR y
   plot, calc_field_lr.field1, calc_field_lr.field3, /nodata, $
         xstyle=9, ystyle=9, $
-        xtitle='pixels', ytitle='time (hrs)', $
+        xtitle='time (hours)', ytitle='pixels', $
         title='Field LR y-coord', $
-        yrange=mg_range(calc_field_lr.field3)
+        yrange=mg_range([calc_field_lr.field3, flat_field_lr.field3])
   oplot, calc_field_lr.field1, calc_field_lr.field3, color=calc_color
   oplot, flat_field_lr.field1, flat_field_lr.field3, color=flat_color
 
@@ -105,7 +105,7 @@ end
 
 ; main-level example program
 
-dir = '/hao/mahidata1/Data/CoMP/engineering.centering/2016/11/12'
+dir = '/hao/mahidata1/Data/CoMP/engineering.centering2/2016/11/12'
 output_filename = 'centering.ps'
 
 comp_plot_centering, dir, output_filename
