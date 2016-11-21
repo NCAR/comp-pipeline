@@ -30,6 +30,10 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   @comp_mask_constants_common
   @comp_config_common
 
+  ; TODO: remove when done
+  @comp_testing_common
+  current_l1_filename = filename
+
   comp_read_data, filename, images, headers, header0
 
   comp_apply_flats_darks, images, headers, date_dir, error=error

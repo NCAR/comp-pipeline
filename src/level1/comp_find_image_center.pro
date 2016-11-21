@@ -29,6 +29,8 @@
 ;     set to a named variable to retrieve the chi^2 of the fit
 ;   radius_guess : in, optional, type=float, default=295. or 224.
 ;     the optional guess of the radius of the discontinuity
+;   center_guess : in, optional, type=fltarr(2)
+;     guess for the center; if not provided, use center of `data`
 ;   drad : in, optional, type=float, default=40.0
 ;     the +/- size of the radius which to scan
 ;   neg_pol : in, optional, type=boolean
@@ -43,9 +45,11 @@
 function comp_find_image_center, dat, $
                                  chisq=chisq, $
                                  radius_guess=radius_guess, $
+                                 center_guess=center_guess, $
                                  drad=drad, $
                                  neg_pol=neg_pol, $
-                                 error=error
+                                 error=error, $
+                                 points=points
   compile_opt strictarr
   @comp_fitc_common
 
@@ -64,7 +68,8 @@ function comp_find_image_center, dat, $
   if (keyword_set(drad)) then drad = drad else drad = 40.
 
   ; find limb positions, array of angles (theta) and limb positions (r) is returned
-  r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol)
+  r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol, $
+                      center_guess=center_guess, points=points)
 
   c = comp_circfit(theta, r, error=error)
   if (error ne 0L) then return, -1L

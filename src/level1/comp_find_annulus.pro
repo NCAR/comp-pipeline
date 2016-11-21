@@ -15,17 +15,37 @@
 ;     structure of the form `{x:0., y:0., r:0.}`
 ;
 ; :Keywords:
+;   occulter_guess : in, optional, type=fltarr(3)
+;     guess for center/radius of occulter, in the order x, y, r
+;   field_guess : in, optional, type=fltarr(3)
+;     guess for center/radius of field, in the order x, y, r
 ;   error : out, optional, type=long
 ;     0 if no error
 ;-
-pro comp_find_annulus, im, occulter, field, error=error
+pro comp_find_annulus, im, occulter, field, $
+                       occulter_guess=occulter_guess, field_guess=field_guess, $
+                       error=error, $
+                       occulter_points=occulter_points, field_points=field_points
   compile_opt idl2
 
-  occulter_radius_guess = 226.0
-  field_radius_guess = 297.0
+  if (n_elements(occulter_guess) eq 0L) then begin
+    occulter_radius_guess = 226.0
+  endif else begin
+    occulter_center_guess = occulter_guess[0:1]
+    occulter_radius_guess = occulter_guess[2]
+  endelse
 
-  c_occulter = comp_find_image_center(im, radius_guess=occulter_radius_guess, $
-                                      error=error)
+  if (n_elements(field_guess) eq 0L) then begin
+    field_radius_guess = 297.0
+  endif else begin
+    field_center_guess = field_guess[0:1]
+    field_radius_guess = field_guess[2]
+  endelse
+
+  c_occulter = comp_find_image_center(im, $
+                                      center_guess=occulter_center_guess, $
+                                      radius_guess=occulter_radius_guess, $
+                                      error=error, points=occulter_points)
   if (error ne 0L) then return
 
   ; set result if too far from guess
@@ -34,9 +54,11 @@ pro comp_find_annulus, im, occulter, field, error=error
     c_occulter[2] = occulter_radius_guess
   endif
 
-  c_field = comp_find_image_center(im, radius_guess=field_radius_guess, $
+  c_field = comp_find_image_center(im, $
+                                   center_guess=field_center_guess, $
+                                   radius_guess=field_radius_guess, $
                                    /neg_pol, $
-                                   error=error)
+                                   error=error, points=field_points)
   if (error ne 0L) then return
 
   ; set result if too far from guess

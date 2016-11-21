@@ -8,10 +8,7 @@
 ; between positive and negative discontinuities, depending on the input keyword
 ; `neg_pol`. Positive polarity is the default.
 ;
-; Output:
-;   the the array of radial positions is returned (pixels)
-;   theta - the of array of angles used (radians)
-;
+
 ; :Examples:
 ;   For example, call it like::
 ;
@@ -21,12 +18,13 @@
 ;   parabola
 ;
 ; :Returns:
-;   `dblarr(360)`
+;   `dblarr(360)`, the array of radial positions is returned (pixels)
 ;
 ; :Params:
 ;   data : in, required, type=fltarr
 ;     the data image to analyze
 ;   theta : in, required, type=float
+;     the of array of angles used (radians)
 ;   radius : in, required, type=float
 ;     the approximate radius of the discontinuity (pixels)
 ;   dr : in
@@ -36,6 +34,8 @@
 ;   neg_pol : in, optional, type=boolean
 ;     this determines the polarity of the discontinuity, `neg_pol=1` for
 ;     negative polarity
+;   center_guess : in, optional, type=fltarr(2)
+;     guess for the center; if not provided, use center of `data`
 ;
 ; :Author:
 ;   Tomczyk
@@ -43,7 +43,8 @@
 ; :History:
 ;   added comments, 10/24/14 ST
 ;-
-function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol
+function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
+                          center_guess=center_guess, points=points
   compile_opt strictarr
   on_error, 2
 
@@ -55,20 +56,26 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol
   nx = s[1]
   ny = s[2]
 
-  nscan = 360   ; number of radial scans around circumference
-  theta = fltarr(nscan)
+  nscan = 360L   ; number of radial scans around circumference
+  theta = dblarr(nscan)
 
   cent = dblarr(nscan)
 
   ; make initial guess of x and y positions the center of the array
-  x0 = double(nx) / 2.D0
-  y0 = double(ny) / 2.D0
+  if (n_elements(center_guess) gt 0L) then begin
+    x0 = center_guess[0]
+    y0 = center_guess[1]
+  endif else begin
+    x0 = double(nx) / 2.D0
+    y0 = double(ny) / 2.D0
+  endelse
 
   nvals = dr * 2   ; number of points in interpolated radial scan
 
-  ;if debug eq 1 then tvwin,data
-
   ; make radial scans
+
+  ; TODO: remove when done
+  points = fltarr(2, nscan)
 
   for i = 0L, nscan - 1L do begin
     ; angle for radial scan
@@ -91,7 +98,10 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol
     ;if debug eq 1 then plots, xx, yy, color=200, /device
 
     ; compute radial intensity scan
-    rad = interpolate(data, xx, yy, cubic=-0.5, missing=0.0)
+    rad = interpolate(double(data), xx, yy, cubic=-0.5, missing=0.0, /double)
+
+    ; TODO: remove when done
+    mg_log, 'type of rad: %d', size(rad, /type), name='comp', /debug
 
     rad = deriv(rad)    ; take derivative of radial intensity scan
 
@@ -103,18 +113,21 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol
     if (imax gt nvals - 3) then imax = nvals - 3
     if (imax lt 2) then imax=2
 
+    points[0, i] = xx[imax]
+    points[1, i] = yy[imax]
+
     cent[i] = radius - dr $
                 + parabola([double(imax - 1.), $
                             double(imax), $
                             double(imax + 1.)], $
                            [rad[imax - 1], $
-                            rad[imax],$
+                            rad[imax], $
                             rad[imax + 1]])
 
     if (debug eq 1) then begin
       mg_log, 'theta: %s', strjoin(strtrim(theta, 2), ', '), name='comp', /debug
       plot, rad
-      oplot, [cent[i] - radius + dr, cent[i] - radius + dr], [0., 2. * mx]
+      oplot, [cent[i] - radius + dr, cent[i] - radius + dr], [0.0, 2.0 * mx]
       read, 'enter return:', ans
     endif
   endfor

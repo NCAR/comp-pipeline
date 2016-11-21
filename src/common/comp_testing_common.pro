@@ -1,1 +1,1 @@
-common comp_testing, l1_process_time
+common comp_testing, l1_process_time, current_l1_filename
