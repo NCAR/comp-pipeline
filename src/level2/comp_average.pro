@@ -170,6 +170,7 @@ pro comp_average, date_dir, wave_type, error=error
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
   sxdelpar, primary_header, 'DATE_HST'
   sxdelpar, primary_header, 'TIME_HST'
+  sxdelpar, primary_header, 'METHOD'
   sxaddpar, primary_header, 'LEVEL   ', 'L2'
   fits_close, fcb
 
