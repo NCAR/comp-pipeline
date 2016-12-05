@@ -35,7 +35,7 @@ function comp_convert_header, in_header, $
 
   ; if EXTEN is present and 1 or more
   if (keyword_set(exten)) then begin
-    rtags = ['POLSTATE', 'NAVERAGE', 'FILTER', 'PCOUNT', 'GCOUNT', 'DATATYPE', $
+    rtags = ['POLSTATE', 'FILTER', 'PCOUNT', 'GCOUNT', 'DATATYPE', $
              'BODYTEMP', 'BASETEMP', 'RACKTEMP', 'EXPOSURE', 'OPTRTEMP', $
              'DEMULT', 'FILTTEMP', 'FITMNLIN', 'FITVRLIN', 'FLATFILE']
 
