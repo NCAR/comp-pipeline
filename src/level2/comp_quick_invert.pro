@@ -79,11 +79,13 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
     process_synthetic = 0
   endelse
 
+  method = 'median'
+
   ; create filename and open input FITS file
   if (process_synthetic eq 1) then begin
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
   endif else begin
-    file = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
+    file = string(date_dir, method, wave_type, format='(%"%s.comp.%s.%s.fts.gz")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
@@ -141,6 +143,8 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
     '1083': rest = double(center1083)
   endcase
   c = 299792.458D
+
+  sxaddpar, primary_header, 'METHOD', 'Input file type used for quick invert'
 
   ; update version
   comp_l2_update_version, primary_header
