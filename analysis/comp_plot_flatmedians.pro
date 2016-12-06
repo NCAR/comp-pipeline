@@ -181,7 +181,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   cgLegend, symColors=['0000ff'x, '00a5ff'x, 'ff0000'x, '00ff00'x], $
             psyms=[1, 1, 2, 2], $
             symsize=0.5, $
-            location=[0.775, 0.9], $
+            location=[0.85, 0.9], $
             titles=['1074.62', '1074 morning', '1083.0', '1083.0 morning'], $
             charsize=0.85, tt_font='Helvetica', /hardware, $
             length=0.0

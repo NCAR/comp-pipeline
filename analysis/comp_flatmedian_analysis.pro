@@ -36,10 +36,15 @@ pro comp_flatmedian_analysis_lc, line_centers, flat_fcb, dark_fcb, $
 end
 
 
-pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_filename
+pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_filename, $
+                              start_date=start_date
   compile_opt strictarr
 
-  after = '20140100'
+  if (n_elements(start_date) eq 0L) then begin
+    after = '20140100'
+  endif else begin
+    after = start_date
+  endelse
 
   openw, flat_lun, flat_output_filename, /get_lun
   openw, dark_lun, dark_output_filename, /get_lun
@@ -128,6 +133,6 @@ end
 
 ;process_dir = '/hao/compdata1/Data/CoMP/process.flats'
 process_dir = '/hao/mahidata1/Data/CoMP/process'
-comp_flatmedian_analysis, process_dir, 'flat-medians-new.csv', 'dark-medians-new.csv'
+comp_flatmedian_analysis, process_dir, 'flat-medians-new.csv', 'dark-medians-new.csv', start_date='20160906'
 
 end
