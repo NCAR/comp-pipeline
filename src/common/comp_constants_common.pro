@@ -1,5 +1,5 @@
 common comp_constants, nx, ny, $
-                       k1, k2, $
+                       distortion_coeffs_file, $
                        wavefwhm, $
                        center1074, center1079, center1083, $
                        wavelengths_3pt_1074, $
