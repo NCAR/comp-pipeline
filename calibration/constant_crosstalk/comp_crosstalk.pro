@@ -16,8 +16,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   wave_type = '1074'
 
-  dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
-  ;filename = string(date_dir, wave_type, format='(%"%s.comp.%s.median.fts.gz")')
+  dir = filepath('level2', subdir=date_dir, root=process_basedir)
   filename = string(date_dir, wave_type, format='(%"%s.comp.%s.mean.fts.gz")')
 
   if (keyword_set(debug)) then begin
@@ -30,7 +29,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   loadct, 0
 
   ; read data
-  if (keyword_set(debug)) then print, 'reading data'
+  mg_log, 'reading data', name='comp', /info
 
   fits_open, filepath(filename, root=dir), fcb
   num = fcb.nextend
@@ -39,14 +38,17 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   ntune = sxpar(p_header, 'NTUNES')
 
   ; compute center wavelength index (0 is first)
-  nc = fix(ntune / 2)                 
+  nc = fix(ntune / 2)
 
   ; create arrays
-  stokes_i   = fltarr(nx, nx, ntune)
-  stokes_q   = fltarr(nx, nx, ntune)
-  stokes_u   = fltarr(nx, nx, ntune)
-  stokes_v   = fltarr(nx, nx, ntune)
-  background = fltarr(nx, nx, ntune)
+  stokes_i     = fltarr(nx, nx, ntune)
+  stokes_q     = fltarr(nx, nx, ntune)
+  stokes_u     = fltarr(nx, nx, ntune)
+  stokes_v     = fltarr(nx, nx, ntune)
+  background_i = fltarr(nx, nx, ntune)
+  background_q = fltarr(nx, nx, ntune)
+  background_u = fltarr(nx, nx, ntune)
+  background_v = fltarr(nx, nx, ntune)
 
   ; create mask
   erode_s = bytarr(25, 25) + 1B
@@ -66,9 +68,18 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     ; read stokes V
     fits_read, fcb, data, header, exten_no=i + 1 + 3 * ntune
     stokes_v[*, *, i] = data * mask
-    ; read background
+    ; read background I
     fits_read, fcb, data, header, exten_no=i + 1 + 4 * ntune
-    background[*, *, i] = data * mask
+    background_i[*, *, i] = data * mask
+    ; read background Q
+    fits_read, fcb, data, header, exten_no=i + 1 + 5 * ntune
+    background_q[*, *, i] = data * mask
+    ; read background U
+    fits_read, fcb, data, header, exten_no=i + 1 + 6 * ntune
+    background_u[*, *, i] = data * mask
+    ; read background V
+    fits_read, fcb, data, header, exten_no=i + 1 + 7 * ntune
+    background_v[*, *, i] = data * mask
   endfor
 
   fits_close, fcb
@@ -88,23 +99,24 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   faint = where(mask eq 1.0 and corona gt 0.0 and corona lt 3.0)
 
   ; add background back into stokes_i
-  for i = 0, ntune - 1 do stokes_i[*, *, i] = stokes_i[*, *, i] + background[*, *, i]
+  for i = 0, ntune - 1 do stokes_i[*, *, i] = stokes_i[*, *, i] + background_i[*, *, i]
 
   ; determine stokes_i to q and u crosstalk (use continuum wavelength index 0,
   ; and faint pixels)
 
+  mg_log, 'computing I to Q and I to U crosstalk', name='comp', /info
   if (keyword_set(debug)) then begin
-    print, 'computing I to Q, U crosstalk'
-
     wset, 0
     !p.multi = [0, 2, 1, 0, 0]
   endif
 
-  i_cont = stokes_i[*, *, 0]   ; TODO: background_i[*, *, nc]
+  i_cont = stokes_i[*, *, 0]
   x = i_cont[faint]
-  q_cont = stokes_q[*, *, 0]   ; TODO: background_q[*, *, nc]
+  q_cont = stokes_q[*, *, 0]
   y = q_cont[faint]
   i_to_q = median(y / x)
+
+  i_to_q_background = median(background_q[*, *, nc] / background_i[*, *, nc])
 
   if (keyword_set(debug)) then begin
     xfit = findgen(100)
@@ -116,11 +128,14 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     oplot, xfit, yfit
   endif
 
-  print, i_to_q, format='(%"i_to_q_xtalk    : %f")'
+  mg_log, 'I to Q crosstalk             : %f', i_to_q, name='comp', /info
+  mg_log, 'I to Q crosstalk (background): %f', i_to_q_background, name='comp', /info
 
   u_cont = stokes_u[*, *, 0]  ; TODO: background_u[*, *, nc]
   y = u_cont[faint]
   i_to_u = median(y / x)
+
+  i_to_u = median(background_u[*, *, nc] / background_i[*, *, nc])
 
   if (keyword_set(debug)) then begin
     yfit = i_to_u * xfit
@@ -131,7 +146,8 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     oplot, xfit, yfit
   endif
 
-  print, i_to_u, format='(%"i_to_u_xtalk    : %f")'
+  mg_log, 'I to U crosstalk             : %f', i_to_u, name='comp', /info
+  mg_log, 'I to U crosstalk (background): %f', i_to_u_background, name='comp', /info
 
   ; correct stokes q and u for crosstalk from stokes I
   for i = 0, ntune - 1 do begin
@@ -148,9 +164,9 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   xi = transpose(xi)   ; direction vector
   powell, p, xi, ftol, fmin, 'comp_cross_min'
 
-  print, p[0], format='(%"i_to_v_xtalk    : %f")'
-  print, p[1], format='(%"q_to_v_xtalk    : %f")'
-  print, p[2], format='(%"u_to_v_xtalk    : %f")'
+  mg_log, 'I to V crosstalk    : %f', p[0], name='comp', /info
+  mg_log, 'Q to V crosstalk    : %f', p[1], name='comp', /info
+  mg_log, 'U to V crosstalk    : %f', p[2], name='comp', /info
 
   if (keyword_set(debug)) then begin
     print, fmin, format='(%"fmin            : %f")'

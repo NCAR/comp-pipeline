@@ -38,8 +38,8 @@
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,
-;   comp_make_mask, comp_find_l1_file, fits_open, fits_read, fits_write,
-;   fits_close, sxdelpar, sxaddpar, mg_log
+;   comp_make_mask, comp_find_average_files, comp_find_l1_file, fits_open,
+;   fits_read, fits_write, fits_close, sxdelpar, sxaddpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -51,6 +51,10 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
+;   calibration : in, optional, type=boolean
+;     set to indicate `COMP_AVERAGE` should produce output suitable for
+;     calculate empirical crosstalk coefficients: it should save background by
+;     polarization state and find appropriate files to average for calibration
 ;
 ; :Author:
 ;   Tomczyk, Sitongia
@@ -61,7 +65,7 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, error=error
+pro comp_average, date_dir, wave_type, error=error, calibration=calibration
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
@@ -86,7 +90,8 @@ pro comp_average, date_dir, wave_type, error=error
                                   max_cadence_interval=averaging_max_cadence_interval, $
                                   max_n_noncluster_files=averaging_max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
-                                  count=n_files)
+                                  count=n_files, $
+                                  calibration=calibration)
 
   if (n_files lt 1) then begin
     mg_log, 'no good %s files, exiting', wave_type, name='comp', /warn
