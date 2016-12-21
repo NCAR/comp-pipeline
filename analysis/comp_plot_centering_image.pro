@@ -41,10 +41,14 @@ end
 ; main-level program
 
 date = '20161112'
-time = '075921'   ; local time
+;time = '075921'   ; local time
+;time = '114004'   ; local time
+time = '074631'
+
+flags = '.centering3'
 
 data_dir = '/hao/mahidata1/Data/CoMP'
-eng_dir = filepath('engineering.centering2', root=data_dir)
+eng_dir = filepath('engineering' + flags, root=data_dir)
 log_dir = filepath('', subdir=comp_decompose_date(date), root=eng_dir)
 raw_dir = filepath(date, subdir='raw', root=data_dir)
 

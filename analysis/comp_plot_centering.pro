@@ -19,7 +19,7 @@ pro comp_plot_centering, dir, output_filename
   device, decomposed=1
 
   ; column 1: occulter centers, column 2: field centers
-  !p.multi = [0, 2, 4, 0, 1]
+  !p.multi = [0, 2, 6, 0, 1]
 
   ; plot calculated and flat together
 
@@ -44,6 +44,15 @@ pro comp_plot_centering, dir, output_filename
   oplot, calc_occ_ul.field1, calc_occ_ul.field3, color=calc_color
   oplot, flat_occ_ul.field1, flat_occ_ul.field3, color=flat_color
 
+  ; occ UL r
+  plot, calc_occ_ul.field1, calc_occ_ul.field4, /nodata, $
+        xstyle=9, ystyle=9, $
+        xtitle='time (hours)', ytitle='pixels', $
+        title='Occulter UL radius', $
+        yrange=mg_range([calc_occ_ul.field4, flat_occ_ul.field4])
+  oplot, calc_occ_ul.field1, calc_occ_ul.field4, color=calc_color
+  oplot, flat_occ_ul.field1, flat_occ_ul.field4, color=flat_color
+
   ; occ LR x
   plot, calc_occ_lr.field1, calc_occ_lr.field2, /nodata, $
         xstyle=9, ystyle=9, $
@@ -61,6 +70,15 @@ pro comp_plot_centering, dir, output_filename
         yrange=mg_range([calc_occ_lr.field3, flat_occ_lr.field3])
   oplot, calc_occ_lr.field1, calc_occ_lr.field3, color=calc_color
   oplot, flat_occ_lr.field1, flat_occ_lr.field3, color=flat_color
+
+  ; occ LR r
+  plot, calc_occ_lr.field1, calc_occ_lr.field4, /nodata, $
+        xstyle=9, ystyle=9, $
+        xtitle='time (hours)', ytitle='pixels', $
+        title='Occulter LR radius', $
+        yrange=mg_range([calc_occ_lr.field4, flat_occ_lr.field4])
+  oplot, calc_occ_lr.field1, calc_occ_lr.field4, color=calc_color
+  oplot, flat_occ_lr.field1, flat_occ_lr.field4, color=flat_color
 
   ; field UL x
   plot, calc_field_ul.field1, calc_field_ul.field2, /nodata, $
@@ -80,6 +98,15 @@ pro comp_plot_centering, dir, output_filename
   oplot, calc_field_ul.field1, calc_field_ul.field3, color=calc_color
   oplot, flat_field_ul.field1, flat_field_ul.field3, color=flat_color
 
+  ; field UL r
+  plot, calc_field_ul.field1, calc_field_ul.field4, /nodata, $
+        xstyle=9, ystyle=9, $
+        xtitle='time (hours)', ytitle='pixels', $
+        title='Field UL radius', $
+        yrange=mg_range([calc_field_ul.field4, flat_field_ul.field4])
+  oplot, calc_field_ul.field1, calc_field_ul.field4, color=calc_color
+  oplot, flat_field_ul.field1, flat_field_ul.field4, color=flat_color
+
   ; field LR x
   plot, calc_field_lr.field1, calc_field_lr.field2, /nodata, $
         xstyle=9, ystyle=9, $
@@ -98,6 +125,15 @@ pro comp_plot_centering, dir, output_filename
   oplot, calc_field_lr.field1, calc_field_lr.field3, color=calc_color
   oplot, flat_field_lr.field1, flat_field_lr.field3, color=flat_color
 
+  ; field LR r
+  plot, calc_field_lr.field1, calc_field_lr.field4, /nodata, $
+        xstyle=9, ystyle=9, $
+        xtitle='time (hours)', ytitle='pixels', $
+        title='Field LR radius', $
+        yrange=mg_range([calc_field_lr.field4, flat_field_lr.field4])
+  oplot, calc_field_lr.field1, calc_field_lr.field4, color=calc_color
+  oplot, flat_field_lr.field1, flat_field_lr.field4, color=flat_color
+
   !p.multi = 0
   mg_psend
 end
@@ -105,7 +141,11 @@ end
 
 ; main-level example program
 
-dir = '/hao/mahidata1/Data/CoMP/engineering.centering2/2016/11/12'
+date = '20161112'
+flags = '.centering5'
+
+dir = filepath('', subdir=comp_decompose_date(date), $
+               root='/hao/mahidata1/Data/CoMP/engineering' + flags)
 output_filename = 'centering.ps'
 
 comp_plot_centering, dir, output_filename
