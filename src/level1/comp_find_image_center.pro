@@ -65,7 +65,9 @@ function comp_find_image_center, dat, $
 
   ; if number of points around radius is input, use it, otherwise use default value
   ; number of points (+/-) around radius for determination
-  if (keyword_set(drad)) then drad = drad else drad = 40.
+;  if (keyword_set(drad)) then drad = drad else drad = 40.0
+
+  if (n_elements(drad) eq 0) then drad = 10.0
 
   ; find limb positions, array of angles (theta) and limb positions (r) is returned
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol, $

@@ -63,8 +63,13 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
 
   ; make initial guess of x and y positions the center of the array
   if (n_elements(center_guess) gt 0L) then begin
-    x0 = center_guess[0]
-    y0 = center_guess[1]
+    x0 = center_guess[0] + double(nx) / 2.0D
+    y0 = center_guess[1] + double(ny) / 2.0D
+
+    ; TODO: remove when done
+    mg_log, 'new guess: %f, %f, %f old guess: %f, %f, %f', $
+            x0, y0, radius, double(nx) / 2.0D, double(ny) / 2.0D, radius, $
+            name='comp', /debug
   endif else begin
     x0 = double(nx) / 2.D0
     y0 = double(ny) / 2.D0
@@ -99,9 +104,6 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
 
     ; compute radial intensity scan
     rad = interpolate(double(data), xx, yy, cubic=-0.5, missing=0.0, /double)
-
-    ; TODO: remove when done
-    mg_log, 'type of rad: %d', size(rad, /type), name='comp', /debug
 
     rad = deriv(rad)    ; take derivative of radial intensity scan
 

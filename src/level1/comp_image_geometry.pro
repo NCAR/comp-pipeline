@@ -65,12 +65,23 @@ function comp_image_geometry, images, headers, date_dir
   if (n_plus_beam gt 0) then begin
     im = comp_extract1(reform(images[*, *, ind1[0]]))
     comp_find_annulus, im, calc_occulter1, calc_field1, $
+                       occulter_guess=[occulter1.x, $
+                                       occulter1.y, $
+                                       occulter1.r], $
+                       field_guess=[field1.x, $
+                                    field1.y, $
+                                    field1.r], $
                        occulter_points=occulter_points1, $
                        field_points=field_points1
-    calc_occulter1.x += nx / 2
-    calc_occulter1.y += 1024 - ny / 2
-    calc_field1.x += nx / 2
-    calc_field1.y += 1024 - ny / 2
+
+    ;calc_occulter1.x += nx / 2
+    calc_occulter1.x += occulter1.x + nx / 2
+    ;calc_occulter1.y += 1024 - ny / 2
+    calc_occulter1.y += occulter1.y + 1024 - ny / 2
+    ;calc_field1.x += nx / 2
+    calc_field1.x += field1.x + nx / 2
+    ;calc_field1.y += 1024 - ny / 2
+    calc_field1.y += field1.y + 1024 - ny / 2
   
     mg_log, '%f, %f, %f, %f, %d', $
             time, calc_occulter1.x, calc_occulter1.y, calc_occulter1.r, ind1[0], $
@@ -85,12 +96,26 @@ function comp_image_geometry, images, headers, date_dir
   if (n_minus_beam gt 0) then begin
     im = comp_extract2(reform(images[*, *, ind2[0]]))
     comp_find_annulus, im, calc_occulter2, calc_field2, $
+                       occulter_guess=[occulter2.x, $
+                                       occulter2.y, $
+                                       occulter2.r], $
+                       field_guess=[field2.x, $
+                                    field2.y, $
+                                    field2.r], $
                        occulter_points=occulter_points2, $
                        field_points=field_points2
-    calc_occulter2.x += 1024 - nx / 2
-    calc_occulter2.y += ny / 2
-    calc_field2.x += 1024 - nx / 2
-    calc_field2.y += ny / 2
+
+    ;calc_occulter2.x += 1024 - nx / 2
+    calc_occulter2.x += field2.x + 1024 - nx / 2
+
+    ;calc_occulter2.y += ny / 2
+    calc_occulter2.y += occulter2.y + ny / 2
+
+    ;calc_field2.x += 1024 - nx / 2
+    calc_field2.x += field2.x + 1024 - nx / 2
+
+    ;calc_field2.y += ny / 2
+    calc_field2.y += field2.y + ny / 2
 
     mg_log, '%f, %f, %f, %f, %d', $
             time, calc_occulter2.x, calc_occulter2.y, calc_occulter2.r, ind2[0], $
@@ -113,7 +138,7 @@ function comp_image_geometry, images, headers, date_dir
           time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
           name='flat_occ_lr', /debug
   mg_log, '%f, %f, %f, %f', $
-          time, field2.x + 1024 - nx / 2, field2.y + ny / 2, field2.y, $
+          time, field2.x + 1024 - nx / 2, field2.y + ny / 2, field2.r, $
           name='flat_field_lr', /debug
 
   ; P angles of post
