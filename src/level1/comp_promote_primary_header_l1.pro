@@ -121,7 +121,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'COORDNAM', ' HELIOCENTRIC', 'COORDINATE SYSTEM NAME'
   sxaddpar, primary_header, 'CTYPE1', 'X', ' AXIS 1 TYPE: X [EAST->WEST ] HELIOCENTRIC'
   sxaddpar, primary_header, 'CTYPE2', 'Y', ' AXIS 2 TYPE: Y [SOUTH->NORTH] HELIOCENTRIC'
-  sxaddpar, primary_header, 'POLCOORD', 'heliocentric', ' Polarization coordinate frame'
+  sxaddpar, primary_header, 'POLFRAME', 'heliocentric', ' Polarization reference frame'
 
   ; occulter (Sun center) parameters
   sxaddpar, primary_header, 'CRPIX1', nx / 2 + 0.5, $
