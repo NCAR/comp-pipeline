@@ -41,15 +41,8 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
        pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
 
-  ; compute transformation arrays for distortion removal
-  x = rebin(findgen(nx), nx, nx)
-  y = transpose(x)
-
-  x1new = x * 0.5 * (1.0 + k1) + y * 0.5 * (1.0 - k1)
-  y1new = x * 0.5 * (1.0 - k1) + y * 0.5 * (1.0 + k1)
-
-  x2new = x * 0.5 * (1.0 + k2) + y * 0.5 * (1.0 - k2)
-  y2new = x * 0.5 * (1.0 - k2) + y * 0.5 * (1.0 + k2)
+  ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+  restore, filename=distortion_coeffs_file
 
   ; set up matrix for image rotation
   x0 = float(nx) / 2.0
@@ -73,15 +66,14 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   d2 = fltarr(nx, nx, nimg)
   for i = 0L, nimg - 1L do begin
     ; extract sub-arrays
-    d1[*, *, i] = comp_extract1(images[*, *, i])
-    d2[*, *, i] = comp_extract2(images[*, *, i])
+    sub1 = comp_extract1(images[*, *, i])
+    sub2 = comp_extract2(images[*, *, i])
 
     ; remove distortion
-    d1[*, *, i] = interpolate(d1[*, *, i], x1new, y1new, cubic=-0.5, missing=0.0)
-    d2[*, *, i] = interpolate(d2[*, *, i], x2new, y2new, cubic=-0.5, missing=0.0)
+    comp_apply_distortion, sub1, sub2, dx1_c, dy1_c, dx2_c, dy2_c
 
     ; translate and rotate images
-    d1[*, *, i] = interpolate(d1[*, *, i], xpp1, ypp1, missing=0.0, cubic=-0.5)
-    d2[*, *, i] = interpolate(d2[*, *, i], xpp2, ypp2, missing=0.0, cubic=-0.5)
+    d1[*, *, i] = interpolate(sub1, xpp1, ypp1, missing=0.0, cubic=-0.5)
+    d2[*, *, i] = interpolate(sub2, xpp2, ypp2, missing=0.0, cubic=-0.5)
   endfor
 end

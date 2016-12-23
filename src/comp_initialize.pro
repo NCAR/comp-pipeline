@@ -130,8 +130,8 @@ pro comp_initialize, date_dir
   n_stokes = n_elements(stokes)
 
   ; distortion coefficients
-  k1 = comp_initialize_readconfig('k1', date_dir, options, type=4)
-  k2 = comp_initialize_readconfig('k2', date_dir, options, type=4)
+  distortion_coeffs_file = comp_initialize_readconfig('distortion_coeffs_file', $
+                                                      date_dir, options)
 
   wavefwhm = comp_initialize_readconfig('wavefwhm', date_dir, options, type=4)
 
