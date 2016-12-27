@@ -44,38 +44,23 @@ pro comp_make_header, image, header, $
 
   mkhdr, header, image, /image
 
-  ; compute transformation arrays for distortion removal
-  x = rebin(findgen(nx), nx, nx)
-  y = transpose(x)
-
-  x1new = x * .5 * (1. + k1) + y * .5 * (1. - k1)
-  y1new = x * .5 * (1. - k1) + y * .5 * (1. + k1)
-
-  x2new = x * .5 * (1. + k2) + y * .5 * (1. - k2)
-  y2new = x * .5 * (1. - k2) + y * .5 * (1. + k2)
-
-  ; image 1
+  ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+  restore, filename=distortion_coeffs_file
 
   flat1 = comp_extract1(image)   ; extract the subimage
-
-  ; remove distortion (NOTE: these images will not be saved!)
-  flat1 = interpolate(flat1, x1new, y1new, cubic=-0.5, missing=0.)
-
-  comp_find_annulus, flat1, occulter1, field1, error=error
-  if (error ne 0L) then message, 'error finding image center'
-
-  comp_find_post, flat1, occulter1, field1, post_angle1
-
-  ; image 2
-
   flat2 = comp_extract2(image)   ; extract the subimage
 
   ; remove distortion (NOTE: these images will not be saved!)
-  flat2 = interpolate(flat2, x2new, y2new, cubic=-0.5, missing=0.)
+  comp_apply_distortion, flat1, flat2, dx1_c, dy1_c, dx2_c, dy2_c
 
+  ; image 1
+  comp_find_annulus, flat1, occulter1, field1, error=error
+  if (error ne 0L) then message, 'error finding image center'
+  comp_find_post, flat1, occulter1, field1, post_angle1
+
+  ; image 2
   comp_find_annulus, flat2, occulter2, field2, error=error
   if (error ne 0L) then message, 'error finding image center'
-
   comp_find_post, flat2, occulter2, field2, post_angle2
 
   ; occulter position
