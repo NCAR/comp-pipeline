@@ -23,16 +23,17 @@ pro comp_apply_distortion, dat1, dat2, dx1_c, dy1_c, dx2_c, dy2_c
 
   s = size(dat1)
   nx = s[1]
+  ny = s[2]
 
-  x = rebin(findgen(nx), nx, nx)
+  x = rebin(findgen(nx), nx, ny)
   y = transpose(x)
 
   dat1 = interpolate(dat1, $
-                     x + comp_eval_surf(dx1_c, x, y), $
-                     y + comp_eval_surf(dy1_c, x, y), $
+                     x + comp_eval_surf(dx1_c, findgen(nx), findgen(ny)), $
+                     y + comp_eval_surf(dy1_c, findgen(nx), findgen(ny)), $
                      cubic=-0.5, missing=0.0)
   dat2 = interpolate(dat2, $
-                     x + comp_eval_surf(dx2_c, x, y), $
-                     y + comp_eval_surf(dy2_c, x, y), $
+                     x + comp_eval_surf(dx2_c, findgen(nx), findgen(ny)), $
+                     y + comp_eval_surf(dy2_c, findgen(nx), findgen(ny)), $
                      cubic=-0.5, missing=0.0)
 end

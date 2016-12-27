@@ -31,6 +31,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                         image_geometry=image_geometry
   compile_opt strictarr
   @comp_constants_common
+  @comp_config_common
 
   comp_inventory_header, headers, beam, wave, pol, type, expose, cover, $
                          cal_pol, cal_ret
@@ -42,7 +43,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
        pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
 
   ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
-  restore, filename=distortion_coeffs_file
+  restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
 
   ; set up matrix for image rotation
   x0 = float(nx) / 2.0
