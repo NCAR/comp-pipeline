@@ -61,4 +61,5 @@ common comp_config, binary_dir, $
                     averaging_max_cadence_interval, $
                     averaging_max_n_noncluster_files, $
                     compute_mean, $
-                    compute_median
+                    compute_median, $
+                    average_background_by_polarization

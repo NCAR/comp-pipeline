@@ -55,8 +55,6 @@
 ;     set to indicate `COMP_AVERAGE` should produce output suitable for
 ;     calculate empirical crosstalk coefficients: it should save background by
 ;     polarization state and find appropriate files to average for calibration
-;   background_by_polarization : in, optional, type=boolean
-;     set to save background by Stokes polarizatin
 ;
 ; :Author:
 ;   Tomczyk, Sitongia
@@ -67,8 +65,7 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, error=error, calibration=calibration, $
-                  background_by_polarization=background_by_polarization
+pro comp_average, date_dir, wave_type, error=error, calibration=calibration
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
@@ -215,7 +212,7 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration, $
   mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp/average', /debug
 
   ; compute averages
-  if (keyword_set(background_by_polarization)) then begin
+  if (keyword_set(average_background_by_polarization)) then begin
     back = fltarr(nx, nx, n_stokes, n_waves)
   endif else begin
     back = fltarr(nx, nx, n_waves)
@@ -226,10 +223,10 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration, $
   num_averaged = lonarr(n_stokes, n_waves)
 
   ; background average depends on BACKGROUND_BY_POLARIZATION keyword
-  back_naverage = keyword_set(background_by_polarization) $
+  back_naverage = keyword_set(average_background_by_polarization) $
                     ? lonarr(n_stokes, n_waves) $
                     : lonarr(n_waves)
-  num_back_averaged = keyword_set(background_by_polarization) $
+  num_back_averaged = keyword_set(average_background_by_polarization) $
                         ? lonarr(n_stokes, n_waves) $
                         : lonarr(n_waves)
 
@@ -284,7 +281,7 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration, $
         average_times[1, ist, iw] = strmid(name, 9, 6)
 
         ; sum background images first time through
-        if (keyword_set(background_by_polarization)) then begin
+        if (keyword_set(average_background_by_polarization)) then begin
           background_filename = comp_find_l1_file(date_dir, wave_type, $
                                                   datetime=name, $
                                                   /background)
@@ -387,7 +384,7 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration, $
   endfor
 
   ; write mean background image to output files
-  if (keyword_set(background_by_polarization)) then begin
+  if (keyword_set(average_background_by_polarization)) then begin
     for ist = 0L, n_stokes - 1L do begin
       if (numof_stokes[ist] eq 0) then continue
 

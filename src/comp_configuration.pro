@@ -174,4 +174,7 @@ pro comp_configuration, config_filename=config_filename
   compute_median                   = config->get('compute_median', $
                                                  section='averaging', $
                                                  /boolean, default=1B)
+  average_background_by_polarization = config->get('background_by_polarization', $
+                                                   section='averaging', $
+                                                   /boolean, default=0B)
 end
