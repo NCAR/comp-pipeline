@@ -55,6 +55,8 @@
 ;     set to indicate `COMP_AVERAGE` should produce output suitable for
 ;     calculate empirical crosstalk coefficients: it should save background by
 ;     polarization state and find appropriate files to average for calibration
+;   background_by_polarization : in, optional, type=boolean
+;     set to save background by Stokes polarizatin
 ;
 ; :Author:
 ;   Tomczyk, Sitongia
@@ -65,7 +67,8 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, error=error, calibration=calibration
+pro comp_average, date_dir, wave_type, error=error, calibration=calibration, $
+                  background_by_polarization=background_by_polarization
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
@@ -148,7 +151,7 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration
   ; construct FITS standard strings
   date_str = utyear + '-' + utmonth + '-' + utday
   time_str = uthour + ':' + utminute + ':' + utsecond
-  
+
   for i = 0L, n_stokes - 1L do begin
     mg_log, '%d image files for Stokes %s', numof_stokes[i], stokes[i], $
             name='comp', /info
@@ -212,13 +215,24 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration
   mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp/average', /debug
 
   ; compute averages
-  back = fltarr(nx, nx, n_waves)
+  if (keyword_set(background_by_polarization)) then begin
+    back = fltarr(nx, nx, n_stokes, n_waves)
+  endif else begin
+    back = fltarr(nx, nx, n_waves)
+  endelse
 
   ; summation of number of files going into average
   naverage = lonarr(n_stokes, n_waves)
   num_averaged = lonarr(n_stokes, n_waves)
-  back_naverage = lonarr(n_waves)
-  num_back_averaged = lonarr(n_waves)
+
+  ; background average depends on BACKGROUND_BY_POLARIZATION keyword
+  back_naverage = keyword_set(background_by_polarization) $
+                    ? lonarr(n_stokes, n_waves) $
+                    : lonarr(n_waves)
+  num_back_averaged = keyword_set(background_by_polarization) $
+                        ? lonarr(n_stokes, n_waves) $
+                        : lonarr(n_waves)
+
   average_times = strarr(2, n_stokes, n_waves)
 
   for ist = 0L, n_stokes - 1L do begin
@@ -229,7 +243,8 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration
               strjoin(strtrim(waves[iw], 2), ', '), $
               name='comp/average', /debug
 
-      data = reform(fltarr(nx, nx, numof_stokes[ist], /nozero), nx, nx, numof_stokes[ist])
+      data = reform(fltarr(nx, nx, numof_stokes[ist], /nozero), $
+                    nx, nx, numof_stokes[ist])
 
       header = !null
       for ifile = 0L, numof_stokes[ist] - 1L do begin
@@ -269,7 +284,18 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration
         average_times[1, ist, iw] = strmid(name, 9, 6)
 
         ; sum background images first time through
-        if (ist eq 0) then begin
+        if (keyword_set(background_by_polarization)) then begin
+          background_filename = comp_find_l1_file(date_dir, wave_type, $
+                                                  datetime=name, $
+                                                  /background)
+          fits_open, background_filename, bkg_fcb
+          fits_read, bkg_fcb, dat, bkg_header, $
+                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')
+          back[*, *, ist, iw] += dat * mask
+          back_naverage[ist, iw] += sxpar(bkg_header, 'NAVERAGE')
+          num_back_averaged[ist, iw] += 1
+          fits_close, bkg_fcb
+        endif else if (ist eq 0) then begin
           background_filename = comp_find_l1_file(date_dir, wave_type, $
                                                   datetime=name, $
                                                   /background)
@@ -361,32 +387,67 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration
   endfor
 
   ; write mean background image to output files
-  for iw = 0L, n_waves - 1L do begin
-    back[*, *, iw] /= float(numof_stokes[0])
-    sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
-    sxaddpar, header, 'NAVERAGE', back_naverage[iw]
-    sxaddpar, header, 'NFILES', num_back_averaged[iw], ' Number of files used', $
-              after='NAVERAGE'
-    sxaddpar, header, 'DATAMIN', min(back[*, *, iw]), ' MINIMUM DATA VALUE'
-    sxaddpar, header, 'DATAMAX', max(back[*, *, iw]), ' MAXIMUM DATA VALUE'
-    sxaddpar, header, 'POLSTATE', 'BKG'
-    ename = 'B, ' + string(format='(f7.2)', waves[iw])
-    if (compute_median) then begin
-      nans = where(finite(back[*, *, iw], /nan), count)
-      if (count gt 0) then begin
-        mg_log, 'found NaNs in median values of background', name='comp', /warn
-      endif
-      fits_write, fcbmed, back[*, *, iw], header, extname=ename
-    endif
-    if (compute_mean) then begin
-      nans = where(finite(back[*, *, iw], /nan), count)
-      if (count gt 0) then begin
-        mg_log, 'found NaNs in mean values of background', name='comp', /warn
-      endif
+  if (keyword_set(background_by_polarization)) then begin
+    for ist = 0L, n_stokes - 1L do begin
+      if (numof_stokes[ist] eq 0) then continue
 
-      fits_write, fcbavg, back[*, *, iw], header, extname=ename
-    endif
-  endfor
+      for iw = 0L, n_waves - 1L do begin
+        back[*, *, ist, iw] /= float(numof_stokes[ist])
+        sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
+        sxaddpar, header, 'NAVERAGE', back_naverage[ist, iw]
+        sxaddpar, header, 'NFILES', num_back_averaged[ist, iw], ' Number of files used', $
+                  after='NAVERAGE'
+        sxaddpar, header, 'DATAMIN', min(back[*, *, ist, iw]), ' MINIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMAX', max(back[*, *, ist, iw]), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, 'POLSTATE', 'BKG'
+        ename = string(stokes[ist], waves[iw], format='(%"B%s, %7.2f")')
+        if (compute_median) then begin
+          nans = where(finite(back[*, *, ist, iw], /nan), count)
+          if (count gt 0) then begin
+            mg_log, 'found %d NaNs in median values of background', count, $
+                    name='comp', /warn
+          endif
+          fits_write, fcbmed, back[*, *, ist, iw], header, extname=ename
+        endif
+        if (compute_mean) then begin
+          nans = where(finite(back[*, *, ist, iw], /nan), count)
+          if (count gt 0) then begin
+            mg_log, 'found %d NaNs in mean values of background', count, $
+                    name='comp', /warn
+          endif
+
+          fits_write, fcbavg, back[*, *, ist, iw], header, extname=ename
+        endif
+      endfor
+    endfor
+  endif else begin
+    for iw = 0L, n_waves - 1L do begin
+      back[*, *, iw] /= float(numof_stokes[0])
+      sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
+      sxaddpar, header, 'NAVERAGE', back_naverage[iw]
+      sxaddpar, header, 'NFILES', num_back_averaged[iw], ' Number of files used', $
+                after='NAVERAGE'
+      sxaddpar, header, 'DATAMIN', min(back[*, *, iw]), ' MINIMUM DATA VALUE'
+      sxaddpar, header, 'DATAMAX', max(back[*, *, iw]), ' MAXIMUM DATA VALUE'
+      sxaddpar, header, 'POLSTATE', 'BKG'
+      ename = 'B, ' + string(format='(f7.2)', waves[iw])
+      if (compute_median) then begin
+        nans = where(finite(back[*, *, iw], /nan), count)
+        if (count gt 0) then begin
+          mg_log, 'found NaNs in median values of background', name='comp', /warn
+        endif
+        fits_write, fcbmed, back[*, *, iw], header, extname=ename
+      endif
+      if (compute_mean) then begin
+        nans = where(finite(back[*, *, iw], /nan), count)
+        if (count gt 0) then begin
+          mg_log, 'found NaNs in mean values of background', name='comp', /warn
+        endif
+
+        fits_write, fcbavg, back[*, *, iw], header, extname=ename
+      endif
+    endfor
+  endelse
 
   ; close files
   if (compute_median) then begin
