@@ -23,10 +23,10 @@
 ;-
 function comp_image_geometry, images, headers, date_dir
   @comp_constants_common
+  @comp_config_common
 
   ; TODO: remove when done
   @comp_testing_common
-  @comp_config_common
 
   ; scan the headers to find out what observations the files contain
   comp_inventory_header, headers, beam, wave, pol, type, expose, $
@@ -37,6 +37,9 @@ function comp_image_geometry, images, headers, date_dir
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
+
+  ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+  restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
 
   ; TODO: are the below correct? are we correcting for difference between
   ; FITS and IDL standards (off by 1)?
@@ -64,6 +67,11 @@ function comp_image_geometry, images, headers, date_dir
   ind1 = where(beam gt 0, n_plus_beam)
   if (n_plus_beam gt 0) then begin
     im = comp_extract1(reform(images[*, *, ind1[0]]))
+    sub1 = im
+
+    ; remove distortion
+    comp_apply_distortion, sub1, im, dx1_c, dy1_c, dx2_c, dy2_c
+
     comp_find_annulus, im, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
                                        occulter1.y, $
@@ -95,6 +103,11 @@ function comp_image_geometry, images, headers, date_dir
   ind2 = where(beam lt 0, n_minus_beam)
   if (n_minus_beam gt 0) then begin
     im = comp_extract2(reform(images[*, *, ind2[0]]))
+    sub2 = im
+
+    ; remove distortion
+    comp_apply_distortion, im, sub2, dx1_c, dy1_c, dx2_c, dy2_c
+
     comp_find_annulus, im, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $
                                        occulter2.y, $
