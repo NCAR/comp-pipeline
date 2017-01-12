@@ -28,113 +28,120 @@ pro comp_plot_centering, dir, output_filename, note
   flat_color = '0000ff'x
   charsize = 1.1
 
+  occ_radius_range = [227.0, 234.0]
+  field_radius_range = [298.0, 305.0]
+  ul_x_range = [286.0, 316.0]
+  ul_y_range = [710.0, 740.0]
+  lr_x_range = [690.0, 720.0]
+  lr_y_range = [303.0, 323.0]
+
   ; occ UL x
   plot, calc_occ_ul.field1, calc_occ_ul.field2, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL x-coord', $
-        yrange=mg_range([calc_occ_ul.field2, flat_occ_ul.field2])
-  oplot, calc_occ_ul.field1, calc_occ_ul.field2, color=calc_color
-  oplot, flat_occ_ul.field1, flat_occ_ul.field2, color=flat_color
+        yrange=ul_x_range
+  oplot, calc_occ_ul.field1, calc_occ_ul.field2, color=calc_color, /noclip
+  oplot, flat_occ_ul.field1, flat_occ_ul.field2, color=flat_color, /noclip
 
   ; occ UL y
   plot, calc_occ_ul.field1, calc_occ_ul.field3, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL y-coord', $
-        yrange=mg_range([calc_occ_ul.field3, flat_occ_ul.field3])
-  oplot, calc_occ_ul.field1, calc_occ_ul.field3, color=calc_color
-  oplot, flat_occ_ul.field1, flat_occ_ul.field3, color=flat_color
+        yrange=ul_y_range
+  oplot, calc_occ_ul.field1, calc_occ_ul.field3, color=calc_color, /noclip
+  oplot, flat_occ_ul.field1, flat_occ_ul.field3, color=flat_color, /noclip
 
   ; occ UL r
   plot, calc_occ_ul.field1, calc_occ_ul.field4, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL radius', $
-        yrange=mg_range([calc_occ_ul.field4, flat_occ_ul.field4])
-  oplot, calc_occ_ul.field1, calc_occ_ul.field4, color=calc_color
-  oplot, flat_occ_ul.field1, flat_occ_ul.field4, color=flat_color
+        yrange=occ_radius_range
+  oplot, calc_occ_ul.field1, calc_occ_ul.field4, color=calc_color, /noclip
+  oplot, flat_occ_ul.field1, flat_occ_ul.field4, color=flat_color, /noclip
 
   ; occ LR x
   plot, calc_occ_lr.field1, calc_occ_lr.field2, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR x-coord', $
-        yrange=mg_range([calc_occ_lr.field2, flat_occ_lr.field2])
-  oplot, calc_occ_lr.field1, calc_occ_lr.field2, color=calc_color
-  oplot, flat_occ_lr.field1, flat_occ_lr.field2, color=flat_color
+        yrange=lr_x_range
+  oplot, calc_occ_lr.field1, calc_occ_lr.field2, color=calc_color, /noclip
+  oplot, flat_occ_lr.field1, flat_occ_lr.field2, color=flat_color, /noclip
 
   ; occ LR y
   plot, calc_occ_lr.field1, calc_occ_lr.field3, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR y-coord', $
-        yrange=mg_range([calc_occ_lr.field3, flat_occ_lr.field3])
-  oplot, calc_occ_lr.field1, calc_occ_lr.field3, color=calc_color
-  oplot, flat_occ_lr.field1, flat_occ_lr.field3, color=flat_color
+        yrange=lr_y_range
+  oplot, calc_occ_lr.field1, calc_occ_lr.field3, color=calc_color, /noclip
+  oplot, flat_occ_lr.field1, flat_occ_lr.field3, color=flat_color, /noclip
 
   ; occ LR r
   plot, calc_occ_lr.field1, calc_occ_lr.field4, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR radius', $
-        yrange=mg_range([calc_occ_lr.field4, flat_occ_lr.field4])
-  oplot, calc_occ_lr.field1, calc_occ_lr.field4, color=calc_color
-  oplot, flat_occ_lr.field1, flat_occ_lr.field4, color=flat_color
+        yrange=occ_radius_range
+  oplot, calc_occ_lr.field1, calc_occ_lr.field4, color=calc_color, /noclip
+  oplot, flat_occ_lr.field1, flat_occ_lr.field4, color=flat_color, /noclip
 
   ; field UL x
   plot, calc_field_ul.field1, calc_field_ul.field2, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field UL x-coord', $
-        yrange=mg_range([calc_field_ul.field2, flat_field_ul.field2])
-  oplot, calc_field_ul.field1, calc_field_ul.field2, color=calc_color
-  oplot, flat_field_ul.field1, flat_field_ul.field2, color=flat_color
+        yrange=ul_x_range
+  oplot, calc_field_ul.field1, calc_field_ul.field2, color=calc_color, /noclip
+  oplot, flat_field_ul.field1, flat_field_ul.field2, color=flat_color, /noclip
 
   ; field UL y
   plot, calc_field_ul.field1, calc_field_ul.field3, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field UL y-coord', $
-        yrange=mg_range([calc_field_ul.field3, flat_field_ul.field3])
-  oplot, calc_field_ul.field1, calc_field_ul.field3, color=calc_color
-  oplot, flat_field_ul.field1, flat_field_ul.field3, color=flat_color
+        yrange=ul_y_range
+  oplot, calc_field_ul.field1, calc_field_ul.field3, color=calc_color, /noclip
+  oplot, flat_field_ul.field1, flat_field_ul.field3, color=flat_color, /noclip
 
   ; field UL r
   plot, calc_field_ul.field1, calc_field_ul.field4, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field UL radius', $
-        yrange=mg_range([calc_field_ul.field4, flat_field_ul.field4])
-  oplot, calc_field_ul.field1, calc_field_ul.field4, color=calc_color
-  oplot, flat_field_ul.field1, flat_field_ul.field4, color=flat_color
+        yrange=field_radius_range
+  oplot, calc_field_ul.field1, calc_field_ul.field4, color=calc_color, /noclip
+  oplot, flat_field_ul.field1, flat_field_ul.field4, color=flat_color, /noclip
 
   ; field LR x
   plot, calc_field_lr.field1, calc_field_lr.field2, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field LR x-coord', $
-        yrange=mg_range([calc_field_lr.field2, flat_field_lr.field2])
-  oplot, calc_field_lr.field1, calc_field_lr.field2, color=calc_color
-  oplot, flat_field_lr.field1, flat_field_lr.field2, color=flat_color
+        yrange=lr_x_range
+  oplot, calc_field_lr.field1, calc_field_lr.field2, color=calc_color, /noclip
+  oplot, flat_field_lr.field1, flat_field_lr.field2, color=flat_color, /noclip
 
   ; field LR y
   plot, calc_field_lr.field1, calc_field_lr.field3, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field LR y-coord', $
-        yrange=mg_range([calc_field_lr.field3, flat_field_lr.field3])
-  oplot, calc_field_lr.field1, calc_field_lr.field3, color=calc_color
-  oplot, flat_field_lr.field1, flat_field_lr.field3, color=flat_color
+        yrange=lr_y_range
+  oplot, calc_field_lr.field1, calc_field_lr.field3, color=calc_color, /noclip
+  oplot, flat_field_lr.field1, flat_field_lr.field3, color=flat_color, /noclip
 
   ; field LR r
   plot, calc_field_lr.field1, calc_field_lr.field4, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field LR radius', $
-        yrange=mg_range([calc_field_lr.field4, flat_field_lr.field4])
-  oplot, calc_field_lr.field1, calc_field_lr.field4, color=calc_color
-  oplot, flat_field_lr.field1, flat_field_lr.field4, color=flat_color
+        yrange=field_radius_range
+  oplot, calc_field_lr.field1, calc_field_lr.field4, color=calc_color, /noclip
+  oplot, flat_field_lr.field1, flat_field_lr.field4, color=flat_color, /noclip
 
   !p.multi = 0
   xyouts, 0.5, 0.995, output_filename + '!C!8' + note + '!X', $
@@ -146,17 +153,27 @@ end
 
 ; main-level example program
 
-;date = '20161112'
-date = '20161114'
-n = 8
+dates = '20161112'
+;dates = ['20161110', $
+;         '20161111', $
+;         '20161112', $
+;         '20161113', $
+;         '20161114', $
+;         '20161115', $
+;         '20161116', $
+;         '20161117', $
+;         '20161118']
+n = 11
 flags = '.centering' + strtrim(n, 2)
-note = 'drad=30.0'
+note = 'apply new dist (before finding centers)'
 
-dir = filepath('', subdir=comp_decompose_date(date), $
-               root='/hao/mahidata1/Data/CoMP/engineering' + flags)
-output_filename = string(n, date, format='(%"centering%d-%s.ps")')
+for d = 0L, n_elements(dates) - 1L do begin
+  dir = filepath('', subdir=comp_decompose_date(dates[d]), $
+                 root='/hao/mahidata1/Data/CoMP/engineering' + flags)
+  output_filename = string(n, dates[d], format='(%"centering%d-%s.ps")')
 
-print, 'Writing to ' + output_filename
-comp_plot_centering, dir, output_filename, note
+  print, 'Writing to ' + output_filename
+  comp_plot_centering, dir, output_filename, note
+endfor
 
 end
