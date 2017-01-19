@@ -1,4 +1,7 @@
-common comp_config, binary_dir, $
+common comp_config, doi_1074,$
+                    doi_1079, $
+                    doi_1083, $
+                    binary_dir, $
                     hot_file, $
                     raw_basedir, $
                     date_pattern, $

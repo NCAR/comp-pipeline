@@ -27,6 +27,11 @@ pro comp_configuration, config_filename=config_filename
 
   config = mg_read_config(_config_filename)
 
+  ; mission
+  doi_1074 = config->get('1074_doi_url', section='mission', default='')
+  doi_1079 = config->get('1079_doi_url', section='mission', default='')
+  doi_1083 = config->get('1083_doi_url', section='mission', default='')
+
   ; save files
   binary_dir    = mg_src_root()
   hot_file      = filepath('hothot.sav', root=binary_dir)

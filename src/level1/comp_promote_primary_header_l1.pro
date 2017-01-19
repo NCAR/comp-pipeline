@@ -71,6 +71,13 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'BRANCH', code_branch, $
             ' Calibration processing software branch'
 
+  case wave_type of
+    '1074': doi = doi_1074
+    '1079': doi = doi_1079
+    '1083': doi = doi_1083
+  endcase
+  sxaddpar, primary_header, 'DOI', doi, 'Digital Object Identifier (DOI)'
+
   sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
   sxaddpar, primary_header, 'WAVETYPE', wave_type, $
