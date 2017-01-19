@@ -186,12 +186,12 @@ function comp_image_geometry, images, headers, date_dir
   if (n_elements(current_l1_filename) gt 0L) then begin
     if (n_plus_beam gt 0) then begin
       bname = file_basename(current_l1_filename) + '.centering-ul.sav'
-      save, occulter_points1, field_points1, $
+      save, occulter_points1, field_points1, sub1, $
             filename=filepath(bname, root=engineering_dir)
     endif
     if (n_minus_beam gt 0) then begin
       bname = file_basename(current_l1_filename) + '.centering-lr.sav'
-      save, occulter_points2, field_points2, $
+      save, occulter_points2, field_points2, sub2, $
             filename=filepath(bname, root=engineering_dir)
     endif
   endif
