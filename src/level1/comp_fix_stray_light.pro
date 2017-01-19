@@ -46,7 +46,8 @@ pro comp_fix_stray_light, image, flat_header, fit
 
   ; create mask with cutoff inside of occulter and outside of field mask
 
-  image_mask = comp_annulus_1024(flat_header, o_offset=-20.0, f_offset=+28.0)
+  image_mask = comp_annulus_1024(flat_header, o_offset=-20.0, f_offset=+28.0, $
+                                 /uncorrected)
 
   ; identify pixels to use. Omit pixels in dark corners of flat image.
   ; the version of this line which does not omit the corners of the image is:

@@ -128,7 +128,9 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     endif
 
     if (make_flat_fill) then begin
-      mask_full_fill = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0)
+      mask_full_fill = comp_annulus_1024(flat_header, $
+                                         o_offset=0.0, f_offset=0.0, $
+                                         /uncorrected)
       good_pixels = where(mask_full_fill eq 1.0, n_good_pixels, $
                           complement=bad_pixels, ncomplement=n_bad_pixels)
       medflat = median(image[good_pixels])

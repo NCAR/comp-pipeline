@@ -81,9 +81,6 @@ pro comp_make_flat, date_dir, error=error
   ; destraying ('yes' or 'no') to subtract stray light
   destraying = make_flat_destraying   ; remove stray light
 
-  ; fill ('yes' or 'no') to fill region outside flat with fit values?
-  fill = make_flat_fill
-
   ; spectral correction ('yes' or 'no') to normalize by solar spectrum
   spectral_correction = make_flat_spectral_correction
 
@@ -194,7 +191,8 @@ pro comp_make_flat, date_dir, error=error
 
     if (make_flat_spectral_correction eq 0B) then begin
       ; Mask is not wavelength dependent
-      mask_full_fill = comp_annulus_1024(header, o_offset=0.0, f_offset=0.0)
+      mask_full_fill = comp_annulus_1024(header, o_offset=0.0, f_offset=0.0, $
+                                         /uncorrected)
     endif
 
     ; Process by wavelength
