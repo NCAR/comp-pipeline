@@ -85,3 +85,14 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         filename, wave_type
 end
+
+
+; main-level example program
+
+comp_configuration, config_filename='config/comp.mgalloy.mahi.centering.cfg'
+comp_initialize, '20161112'
+comp_l1_process_file, '/export/data1/Data/CoMP/raw/20161112/20161112.073640.FTS', $
+                      '20161112', $
+                      '1074'
+
+end
