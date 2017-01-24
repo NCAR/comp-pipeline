@@ -76,7 +76,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
     '1079': doi = doi_1079
     '1083': doi = doi_1083
   endcase
-  sxaddpar, primary_header, 'DOI', doi, 'Digital Object Identifier (DOI)'
+  sxaddpar, primary_header, 'DOI', doi, ' Digital Object Identifier (DOI)'
 
   sxaddpar, primary_header, 'NTUNES', num_wave, $
             ' Number of wavelength tunings', before='TNELNGTH'
