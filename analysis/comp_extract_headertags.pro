@@ -173,14 +173,15 @@ end
 
 ; main-level example program
 
-wave_types = ['1074', '1079', '1083']
+;wave_types = ['1074', '1079', '1083']
+wave_types = ['1074']
 ;root = '/export/data1/Data/CoMP/process.overlap'
-root = '/export/data1/Data/CoMP/process'
+root = '/hao/mahidata1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
 
 for w = 0L, n_elements(wave_types) - 1L do begin
   results = comp_extract_headertags(root, 'OVRLPANG', $
-                                    start_date='20140609', end_date='20140613', $
+                                    start_date='20161110', end_date='20161118', $
                                     wave_type=wave_types[w], $
 ;                                  start_date='20140601', end_date='20151231', $
 ;                                  start_date='20140806', end_date='20140807', $
