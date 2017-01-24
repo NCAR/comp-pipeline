@@ -39,9 +39,9 @@
 ;   Joseph Plowman
 ;-
 pro comp_combine_beams, images, headers, date_dir, $
-                        images_combine, headers_combine, $
+                        images_combine, headers_combine, primary_header, $
                         n_uniq_polstates=np, n_uniq_wavelengths=nw, $
-                        image_geometry=plus_image_geometry, $
+                        image_geometry=image_geometry, $
                         wave_type=wave_type
   compile_opt strictarr
   @comp_constants_common
@@ -72,8 +72,9 @@ pro comp_combine_beams, images, headers, date_dir, $
   minus_images = images[*, *, minus_indices]
   minus_headers = headers[*, minus_indices]
 
-  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
-  minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
+  image_geometry = comp_image_geometry(images, headers, date_dir, primary_header=primary_header)
+;  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
+;  minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
 
   for i = 0L, np - 1L do begin   ; loop over unique polarizations
     for j = 0L, nw - 1L do begin   ; loop over unique wavelengths
@@ -85,9 +86,9 @@ pro comp_combine_beams, images, headers, date_dir, $
 
       ; extract the foreground and background subimages from both
       comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus, $
-                          image_geometry=plus_image_geometry
+                          image_geometry=image_geometry
       comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus, $
-                          image_geometry=minus_image_geometry
+                          image_geometry=image_geometry
 
       ; foreground part (with background subtracted); note: the He background
       ; is contaminated, so don't subtract

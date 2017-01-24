@@ -21,7 +21,7 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-function comp_image_geometry, images, headers, date_dir
+function comp_image_geometry, images, headers, date_dir, primary_header=primary_header
   @comp_constants_common
   @comp_config_common
 
@@ -72,7 +72,7 @@ function comp_image_geometry, images, headers, date_dir
     ; remove distortion
     comp_apply_distortion, sub1, im, dx1_c, dy1_c, dx2_c, dy2_c
 
-    comp_find_annulus, im, calc_occulter1, calc_field1, $
+    comp_find_annulus, sub1, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
                                        occulter1.y, $
                                        occulter1.r], $
@@ -83,20 +83,26 @@ function comp_image_geometry, images, headers, date_dir
                        field_points=field_points1
 
     ;calc_occulter1.x += nx / 2
-    calc_occulter1.x += occulter1.x + nx / 2
+    calc_occulter1.x += occulter1.x
     ;calc_occulter1.y += 1024 - ny / 2
-    calc_occulter1.y += occulter1.y + 1024 - ny / 2
+    calc_occulter1.y += occulter1.y
     ;calc_field1.x += nx / 2
-    calc_field1.x += field1.x + nx / 2
+    calc_field1.x += field1.x
     ;calc_field1.y += 1024 - ny / 2
-    calc_field1.y += field1.y + 1024 - ny / 2
+    calc_field1.y += field1.y
   
     mg_log, '%f, %f, %f, %f, %d', $
-            time, calc_occulter1.x, calc_occulter1.y, calc_occulter1.r, ind1[0], $
+            time, $
+            calc_occulter1.x + nx / 2, $
+            calc_occulter1.y + 1024 - ny / 2, $
+            calc_occulter1.r, ind1[0], $
             name='calc_occ_ul', /debug
 
     mg_log, '%f, %f, %f, %f, %d', $
-            time, calc_field1.x, calc_field1.y, calc_field1.r, ind1[0], $
+            time, $
+            calc_field1.x + nx / 2, $
+            calc_field1.y + 1024 - ny / 2, $
+            calc_field1.r, ind1[0], $
             name='calc_field_ul', /debug
   endif
 
@@ -108,7 +114,7 @@ function comp_image_geometry, images, headers, date_dir
     ; remove distortion
     comp_apply_distortion, im, sub2, dx1_c, dy1_c, dx2_c, dy2_c
 
-    comp_find_annulus, im, calc_occulter2, calc_field2, $
+    comp_find_annulus, sub2, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $
                                        occulter2.y, $
                                        occulter2.r], $
@@ -119,23 +125,31 @@ function comp_image_geometry, images, headers, date_dir
                        field_points=field_points2
 
     ;calc_occulter2.x += 1024 - nx / 2
-    calc_occulter2.x += field2.x + 1024 - nx / 2
+    calc_occulter2.x += occulter2.x
 
     ;calc_occulter2.y += ny / 2
-    calc_occulter2.y += occulter2.y + ny / 2
+    calc_occulter2.y += occulter2.y
 
     ;calc_field2.x += 1024 - nx / 2
-    calc_field2.x += field2.x + 1024 - nx / 2
+    calc_field2.x += field2.x
 
     ;calc_field2.y += ny / 2
-    calc_field2.y += field2.y + ny / 2
+    calc_field2.y += field2.y
 
     mg_log, '%f, %f, %f, %f, %d', $
-            time, calc_occulter2.x, calc_occulter2.y, calc_occulter2.r, ind2[0], $
+            time, $
+            calc_occulter2.x + 1024 - nx / 2, $
+            calc_occulter2.y + ny / 2, $
+            calc_occulter2.r, $
+            ind2[0], $
             name='calc_occ_lr', /debug
 
     mg_log, '%f, %f, %f, %f, %d', $
-            time, calc_field2.x, calc_field2.y, calc_field2.r, ind2[0], $
+            time, $
+            calc_field2.x + 1024 - nx / 2, $
+            calc_field2.y + ny / 2, $
+            calc_field2.r, $
+            ind2[0], $
             name='calc_field_lr', /debug
   endif
 
@@ -154,13 +168,21 @@ function comp_image_geometry, images, headers, date_dir
           time, field2.x + 1024 - nx / 2, field2.y + ny / 2, field2.r, $
           name='flat_field_lr', /debug
 
+  mg_log, '%d, %d, %d', $
+          sxpar(primary_header, 'FOCUS'), $
+          sxpar(primary_header, 'H-OCCULT'), $
+          sxpar(primary_header, 'V-OCCULT'), $
+          name='occulter', /debug
+
   ; P angles of post
   pang1 = sxpar(flat_header, 'POSTANG1')
   pang2 = sxpar(flat_header, 'POSTANG2')
 
   ; overlap P angle (from the field stop)
-  delta_x = sxpar(flat_header, 'OXCNTER2') - sxpar(flat_header, 'OXCNTER1')
-  delta_y = sxpar(flat_header, 'OYCNTER1') - sxpar(flat_header, 'OYCNTER2')
+;  delta_x = sxpar(flat_header, 'OXCNTER2') - sxpar(flat_header, 'OXCNTER1')
+;  delta_y = sxpar(flat_header, 'OYCNTER1') - sxpar(flat_header, 'OYCNTER2')
+  delta_x = calc_occulter2.x - calc_occulter1.x
+  delta_y = calc_occulter1.y - calc_occulter2.y
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
 ;  dims = size(images, /dimensions)
@@ -197,8 +219,8 @@ function comp_image_geometry, images, headers, date_dir
   endif
 
 
-  return, { occulter1: occulter1, $
-            occulter2: occulter2, $
+  return, { occulter1: calc_occulter1, $
+            occulter2: calc_occulter2, $
             field1: field1, $
             field2: field2, $
             post_angle1: pang1, $

@@ -65,7 +65,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; separate images, and subtract the backgrounds from the foregrounds. Store
   ; each into its own set of images with updated headers.
   comp_combine_beams, images_demod, headers_demod, date_dir, $
-                      images_combine, headers_combine, $
+                      images_combine, headers_combine, header0, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                       image_geometry=image_geometry, $
                       wave_type=wave_type
