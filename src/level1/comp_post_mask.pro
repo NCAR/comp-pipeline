@@ -18,7 +18,6 @@
 function comp_post_mask, angle, post_width
   compile_opt idl2
   @comp_constants_common
-  @comp_mask_constants_common
 
   post_mask = fltarr(nx, nx) + 1.
 

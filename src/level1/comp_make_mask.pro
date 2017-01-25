@@ -95,7 +95,7 @@ pro comp_make_mask, date_dir, fits_header, mask
 
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
-    pmask = comp_post_mask(post_angle + 180. - p_angle, 32.0)
+    pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
 
     ; overlap mask
     omask = comp_overlap_mask(field.r, overlap_angle + p_angle, $

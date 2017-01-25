@@ -42,7 +42,9 @@ pro comp_find_post, image, occulter, field, pa
   new_th = rebin(findgen(new_nx) / float(new_nx) * (2. * !dpi), new_nx, new_ny)
 
   ; this is r from the occulter radius to the field stop radius
-  new_r = rebin(transpose((field.r - occulter.r) * findgen(new_ny) / float(new_ny - 1) + occulter.r), new_nx, new_ny)
+  new_r = rebin(transpose((field.r - occulter.r) * findgen(new_ny) / float(new_ny - 1) $
+                            + occulter.r), $
+                new_nx, new_ny)
 
   ; now convert to rectangular coordinates
   new_x = new_r * cos(new_th) + nx * 0.5 + occulter.x
@@ -51,13 +53,11 @@ pro comp_find_post, image, occulter, field, pa
   ; use bilinear to extract the values
   new_img = bilinear(image, new_x ,new_y)
 
-  ; Extract center of annulus to avoid overlap and off-center
-  ; Bottom trim 10 above occulter edge
-  ; Top trim 10 below field stop
-  new_img = new_img[*, 10:new_ny - 10]
+  ; extract center of annulus to avoid overlap and off-center
+  ; bottom trim 10 above occulter edge, top trim 20 below field stop
+  new_img = new_img[*, 10:new_ny - 20]
 
-  ; Average over y
-  ;theta_scan = average(new_img,2)
+  ; average over y
   theta_scan = mean(new_img, dimension=2)
 
   ; fit the inverted intensity with a gaussian, use the location of maximum as

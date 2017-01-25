@@ -146,6 +146,9 @@ pro comp_initialize, date_dir
   ; offset of occulter post (pixels), positive shifts post clockwise in mask
   post_rotation = comp_initialize_readconfig('post_rotation', date_dir, options, type=4)
 
+  ; width of the post (pixels)
+  post_width = comp_initialize_readconfig('post_width', date_dir, options, type=4)
+
   ; over or undersize occulter mask
   occulter_offset = comp_initialize_readconfig('occulter_offset', date_dir, options, type=4)
 
