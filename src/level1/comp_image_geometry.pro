@@ -82,13 +82,11 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
                        occulter_points=occulter_points1, $
                        field_points=field_points1
 
-    ;calc_occulter1.x += nx / 2
+    ; the output of comp_find_annulus is an offset from the original guess, so
+    ; so we must add the offsets together to get the final offset
     calc_occulter1.x += occulter1.x
-    ;calc_occulter1.y += 1024 - ny / 2
     calc_occulter1.y += occulter1.y
-    ;calc_field1.x += nx / 2
     calc_field1.x += field1.x
-    ;calc_field1.y += 1024 - ny / 2
     calc_field1.y += field1.y
   
     mg_log, '%f, %f, %f, %f, %d', $
@@ -124,16 +122,11 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
                        occulter_points=occulter_points2, $
                        field_points=field_points2
 
-    ;calc_occulter2.x += 1024 - nx / 2
+    ; the output of comp_find_annulus is an offset from the original guess, so
+    ; so we must add the offsets together to get the final offset
     calc_occulter2.x += occulter2.x
-
-    ;calc_occulter2.y += ny / 2
     calc_occulter2.y += occulter2.y
-
-    ;calc_field2.x += 1024 - nx / 2
     calc_field2.x += field2.x
-
-    ;calc_field2.y += ny / 2
     calc_field2.y += field2.y
 
     mg_log, '%f, %f, %f, %f, %d', $
@@ -181,8 +174,8 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   ; overlap P angle (from the field stop)
 ;  delta_x = sxpar(flat_header, 'OXCNTER2') - sxpar(flat_header, 'OXCNTER1')
 ;  delta_y = sxpar(flat_header, 'OYCNTER1') - sxpar(flat_header, 'OYCNTER2')
-  delta_x = calc_occulter2.x - calc_occulter1.x
-  delta_y = calc_occulter1.y - calc_occulter2.y
+  delta_x = calc_occulter2.x - calc_occulter1.x + 1024.0 - nx
+  delta_y = calc_occulter1.y - calc_occulter2.y + 1024.0 - ny
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
 ;  dims = size(images, /dimensions)
