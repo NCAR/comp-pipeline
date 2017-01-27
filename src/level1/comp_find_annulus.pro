@@ -23,7 +23,8 @@
 ;     0 if no error
 ;-
 pro comp_find_annulus, im, occulter, field, $
-                       occulter_guess=occulter_guess, field_guess=field_guess, $
+                       occulter_guess=occulter_guess, $
+                       field_guess=field_guess, $
                        error=error, $
                        occulter_points=occulter_points, field_points=field_points
   compile_opt idl2
