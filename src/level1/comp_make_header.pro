@@ -54,18 +54,34 @@ pro comp_make_header, image, header, $
 
   flat1 = comp_extract1(image)   ; extract the subimage
   flat2 = comp_extract2(image)   ; extract the subimage
-
+  
+  ; we need to find the occulter/field centers for both the distortion corrected
+  ; and uncorrected flats
   uncorrected_flat1 = flat1
   uncorrected_flat2 = flat2
 
   ; remove distortion (NOTE: these images will not be saved!)
   comp_apply_distortion, flat1, flat2, dx1_c, dy1_c, dx2_c, dy2_c
 
+  ; TODO: should check that exposure is 250.0 ms, might not work if not
+  uncorrected_occulter_guess1 = comp_find_flat_initial_guess(uncorrected_flat1)
+  uncorrected_occulter_guess2 = comp_find_flat_initial_guess(uncorrected_flat2)
+  corrected_occulter_guess1 = comp_find_flat_initial_guess(flat1)
+  corrected_occulter_guess2 = comp_find_flat_initial_guess(flat2)
+
   ; image 1
-  comp_find_annulus, flat1, occulter1, field1, error=error
+  comp_find_annulus, flat1, occulter1, field1, error=error, $
+                     occulter_guess=[corrected_occulter_guess1, 226.0], $
+                     field_guess=[corrected_occulter_guess1, 297.0], $
+                     occulter_points=corrected_occulter_points1, $
+                     field_points=corrected_field_points1
   if (error ne 0L) then message, 'error finding image center'
   comp_find_annulus, uncorrected_flat1, $
                      uncorrected_occulter1, uncorrected_field1, $
+                     occulter_guess=[uncorrected_occulter_guess1, 226.0], $
+                     field_guess=[uncorrected_occulter_guess1, 297.0], $
+                     occulter_points=uncorrected_occulter_points1, $
+                     field_points=uncorrected_field_points1, $
                      error=error
   if (error ne 0L) then message, 'error finding image center'
   comp_find_post, flat1, occulter1, field1, post_angle1
@@ -74,16 +90,55 @@ pro comp_make_header, image, header, $
                   uncorrected_post_angle1
 
   ; image 2
-  comp_find_annulus, flat2, occulter2, field2, error=error
+  comp_find_annulus, flat2, occulter2, field2, error=error, $
+                     occulter_guess=[corrected_occulter_guess2, 226.0], $
+                     field_guess=[corrected_occulter_guess2, 297.0], $
+                     occulter_points=corrected_occulter_points2, $
+                     field_points=corrected_field_points2
   if (error ne 0L) then message, 'error finding image center'
   comp_find_annulus, uncorrected_flat2, $
                      uncorrected_occulter2, uncorrected_field2, $
+                     occulter_guess=[uncorrected_occulter_guess2, 226.0], $
+                     field_guess=[uncorrected_occulter_guess2, 297.0], $
+                     occulter_points=uncorrected_occulter_points2, $
+                     field_points=uncorrected_field_points2, $
                      error=error
   if (error ne 0L) then message, 'error finding image center'
   comp_find_post, flat2, occulter2, field2, post_angle2
   comp_find_post, uncorrected_flat2, $
                   uncorrected_occulter2, uncorrected_field2, $
                   uncorrected_post_angle2
+
+  ; TODO: remove when done
+  @comp_testing_common
+  save, corrected_occulter_points1, $
+        corrected_occulter_points2, $
+        corrected_field_points1, $
+        corrected_field_points2, $
+        uncorrected_occulter_points1, $
+        uncorrected_occulter_points2, $
+        uncorrected_field_points1, $
+        uncorrected_field_points2, $
+        filename=filepath(current_flatname + '.centering-flat.sav', $
+                          root=engineering_dir)
+
+  occulter1.x += corrected_occulter_guess1[0]
+  occulter1.y += corrected_occulter_guess1[1]
+  occulter2.x += corrected_occulter_guess2[0]
+  occulter2.y += corrected_occulter_guess2[1]
+  field1.x += corrected_occulter_guess1[0]
+  field1.y += corrected_occulter_guess1[1]
+  field2.x += corrected_occulter_guess2[0]
+  field2.y += corrected_occulter_guess2[1]
+
+  uncorrected_occulter1.x += uncorrected_occulter_guess1[0]
+  uncorrected_occulter1.y += uncorrected_occulter_guess1[1]
+  uncorrected_occulter2.x += uncorrected_occulter_guess2[0]
+  uncorrected_occulter2.y += uncorrected_occulter_guess2[1]
+  uncorrected_field1.x += uncorrected_occulter_guess1[0]
+  uncorrected_field1.y += uncorrected_occulter_guess1[1]
+  uncorrected_field2.x += uncorrected_occulter_guess2[0]
+  uncorrected_field2.y += uncorrected_occulter_guess2[1]
 
   ; occulter position
   sxaddpar, header, 'OXCNTER1', occulter1.x + nx / 2, $
