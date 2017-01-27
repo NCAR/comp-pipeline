@@ -44,6 +44,9 @@ pro comp_make_flat, date_dir, error=error
   @comp_fit_common
   @comp_flats_common
 
+  ; TODO: remove when done
+  @comp_testing_common
+
   ; configure
   comp_initialize, date_dir
   comp_configuration
@@ -139,6 +142,9 @@ pro comp_make_flat, date_dir, error=error
     opalfile = ''
     readf, opal_lun, opalfile, format='(a19)'
     mg_log, 'opal %s', opalfile, name='comp', /info
+
+    ; TODO: remove when done
+    current_flatname = opalfile
 
     ; open flat file and average images at each wavelength
     fits_open, filepath(opalfile, root=raw_dir), fcbin
