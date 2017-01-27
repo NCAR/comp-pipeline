@@ -55,7 +55,7 @@ pro comp_find_post, image, occulter, field, pa
 
   ; extract center of annulus to avoid overlap and off-center
   ; bottom trim 10 above occulter edge, top trim 20 below field stop
-  new_img = new_img[*, 10:new_ny - 20]
+  new_img = new_img[*, 10:new_ny - 15]
 
   ; average over y
   theta_scan = mean(new_img, dimension=2)

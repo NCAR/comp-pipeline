@@ -1,6 +1,4 @@
 ;+
-; comp_extact_beams:
-;
 ; This subroutine extracts the two beams from a CoMP dual-beam
 ; (raw or close to raw) image set.
 ;
@@ -8,15 +6,15 @@
 ;   comp_inventory_header, comp_extract_time, comp_extract1, comp_extract2, sun
 ;
 ; :Params:
-;   images : in, required, type="fltarr(nx, ny, nimg)"
-;     the (array) of images which contain both beams on the same image plane
+;   images : in, required, type="fltarr(1024, 1024, nimg)"
+;     the array of images which contain both beams on the same image plane
 ;   headers : in, required, type="strarr(ntags, nimg)"
 ;     the headers corresponding to the images
 ;   date_dir : in, required, type=string
 ;     the directory for containing the files for the date in question, used to
-;     find the flat file.
+;     find the flat file
 ;   d1 : out, required, type="fltarr(620, 620, nimg)"
-;     the images from the upper left beam, sized 620x620
+;     the images from the upper left beam
 ;   d2 : out, required, type="fltarr(620, 620, nimg)"
 ;     the images from the lower right beam
 ;
@@ -62,10 +60,37 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   xpp2 = xp + x0 + image_geometry.occulter2.x
   ypp2 = yp + y0 + image_geometry.occulter2.y
 
-  nimg = n_elements(images[0, 0, *])
-  d1 = fltarr(nx, nx, nimg)
-  d2 = fltarr(nx, nx, nimg)
-  for i = 0L, nimg - 1L do begin
+  ; determine if UL beam if off the detector
+  off_left = image_geometry.field1.r gt (image_geometry.field1.x + nx / 2)
+  off_top = (image_geometry.field1.r + image_geometry.field1.y + 1024 - ny / 2) gt 1023
+  off1 = off_left || off_top
+
+  ; determine if the LR beam if off the detector
+  off_right = (image_geometry.field2.r + image_geometry.field2.x + 1024 - nx / 2) gt 1023
+  off_bottom = image_geometry.field2.r lt (image_geometry.field2.y + ny / 2)
+  off2 = off_right || off_bottom
+
+  if (off1) then begin
+    annulus_mask1 = comp_disk_mask(image_geometry.occulter1.r, $
+                                   dx=image_geometry.occulter1.x, $
+                                   dy=image_geometry.occulter1.y) $
+                      and comp_field_mask(image_geometry.field1.r, $
+                                          dx=image_geometry.field1.x, $
+                                          dy=image_geometry.field1.y)
+  endif
+  if (off2) then begin
+    annulus_mask2 = comp_disk_mask(image_geometry.occulter2.r, $
+                                   dx=image_geometry.occulter2.x, $
+                                   dy=image_geometry.occulter2.y) $
+                      and comp_field_mask(image_geometry.field2.r, $
+                                          dx=image_geometry.field2.x, $
+                                          dy=image_geometry.field2.y)
+  endif
+
+  n_images = n_elements(images[0, 0, *])
+  d1 = fltarr(nx, nx, n_images)
+  d2 = fltarr(nx, nx, n_images)
+  for i = 0L, n_images - 1L do begin
     ; extract sub-arrays
     sub1 = comp_extract1(images[*, *, i])
     sub2 = comp_extract2(images[*, *, i])
@@ -73,8 +98,18 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     ; remove distortion
     comp_apply_distortion, sub1, sub2, dx1_c, dy1_c, dx2_c, dy2_c
 
+    ; if background is in UL and it is off detector, then use mean of UL annulus
+    if (beam[i] gt 0.0 && off1) then begin
+      missing1 = total(sub1 * annulus_mask1) / total(annulus_mask1)
+    endif else missing1 = 0.0
+
+    ; if background is in LR and it is off detector, then use mean of LR annulus
+    if (beam[i] lt 0.0 && off2) then begin
+      missing2 = total(sub2 * annulus_mask2) / total(annulus_mask2)
+    endif else missing2 = 0.0
+
     ; translate and rotate images
-    d1[*, *, i] = interpolate(sub1, xpp1, ypp1, missing=0.0, cubic=-0.5)
-    d2[*, *, i] = interpolate(sub2, xpp2, ypp2, missing=0.0, cubic=-0.5)
+    d1[*, *, i] = interpolate(sub1, xpp1, ypp1, missing=missing1, cubic=-0.5)
+    d2[*, *, i] = interpolate(sub2, xpp2, ypp2, missing=missing2, cubic=-0.5)
   endfor
 end

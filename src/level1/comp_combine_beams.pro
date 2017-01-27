@@ -90,12 +90,14 @@ pro comp_combine_beams, images, headers, date_dir, $
       comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus, $
                           image_geometry=image_geometry
 
-      ; foreground part (with background subtracted); note: the He background
-      ; is contaminated, so don't subtract
+      ; foreground part (with background subtracted)
+      nonzero = (fgplus ne 0.0) + (fgminus ne 0.0)  ; 0.0's are missing (off detector)
+      nonzero >= 1.0                                ; don't divide by 0
       if (wave_type eq '1083' || ~subtract_background) then begin
-        images_combine[*, *, i * nw + j] = 0.5 * (fgplus + fgminus)
+        ; note: the He background is contaminated, so don't subtract
+        images_combine[*, *, i * nw + j] = (fgplus + fgminus) / nonzero
       endif else begin
-        images_combine[*, *, i * nw + j] = 0.5 * (fgplus - bgminus + fgminus - bgplus)
+        images_combine[*, *, i * nw + j] = (fgplus - bgplus +  fgminus - bgminus) / nonzero
       endelse
 
       ; background part
