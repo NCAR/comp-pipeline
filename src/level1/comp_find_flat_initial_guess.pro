@@ -16,7 +16,9 @@ function comp_find_flat_initial_guess, flat
   compile_opt strictarr
   @comp_constants_common
 
-  ; mask flat into in various in/out of annuli connected regions
+  ; TODO: this threshold should be a function of time
+
+  ; mask flat into various in/out of annuli connected regions
   threshold = 250.0
   lr = label_region(flat lt threshold)
 
