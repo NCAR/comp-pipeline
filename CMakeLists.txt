@@ -101,3 +101,10 @@ if (IDLdoc_FOUND)
   add_dependencies(dist doc)
 endif ()
 
+file(GLOB SH_FILES "*.sh")
+install(PROGRAMS
+          comp_get_hostname.sh
+          comp_run_latest.sh
+          comp_run_pipeline.sh
+        DESTINATION .)
+install(FILES Makefile DESTINATION .)
