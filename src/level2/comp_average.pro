@@ -395,7 +395,7 @@ pro comp_average, date_dir, wave_type, error=error
                   after='NAVERAGE'
         sxaddpar, header, 'DATAMIN', min(back[*, *, ist, iw]), ' MINIMUM DATA VALUE'
         sxaddpar, header, 'DATAMAX', max(back[*, *, ist, iw]), ' MAXIMUM DATA VALUE'
-        sxaddpar, header, 'POLSTATE', 'BKG'
+        sxaddpar, header, 'POLSTATE', string(stokes[ist], format='(%"BKG%s")')
         ename = string(stokes[ist], waves[iw], format='(%"B%s, %7.2f")')
         if (compute_median) then begin
           nans = where(finite(back[*, *, ist, iw], /nan), count)
