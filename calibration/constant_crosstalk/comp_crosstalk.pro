@@ -59,24 +59,31 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     ; read stokes I
     fits_read, fcb, data, header, exten_no=i + 1
     stokes_i[*, *, i] = data * mask
+
     ; read stokes Q
     fits_read, fcb, data, header, exten_no=i + 1 + ntune
     stokes_q[*, *, i] = data * mask
+
     ; read stokes U
     fits_read, fcb, data, header, exten_no=i + 1 + 2 * ntune
     stokes_u[*, *, i] = data * mask
+
     ; read stokes V
     fits_read, fcb, data, header, exten_no=i + 1 + 3 * ntune
     stokes_v[*, *, i] = data * mask
+
     ; read background I
     fits_read, fcb, data, header, exten_no=i + 1 + 4 * ntune
     background_i[*, *, i] = data * mask
+
     ; read background Q
     fits_read, fcb, data, header, exten_no=i + 1 + 5 * ntune
     background_q[*, *, i] = data * mask
+
     ; read background U
     fits_read, fcb, data, header, exten_no=i + 1 + 6 * ntune
     background_u[*, *, i] = data * mask
+
     ; read background V
     fits_read, fcb, data, header, exten_no=i + 1 + 7 * ntune
     background_v[*, *, i] = data * mask
@@ -210,8 +217,8 @@ end
 
 ; main-level example program
 
-process_basedir = '/hao/compdata1/Data/CoMP/process.crosstalk'
-date_dirs = ['20160725', '20160801', '20160802', '20160803']
+process_basedir = '/hao/mahidata1/Data/CoMP/process.empxtalk'
+date_dirs = ['20160519', '20160609', '20160726']
 
 for d = 0L, n_elements(date_dirs) - 1L do begin
   comp_initialize, date_dirs[d]
