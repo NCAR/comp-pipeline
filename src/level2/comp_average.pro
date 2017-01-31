@@ -51,10 +51,6 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
-;   calibration : in, optional, type=boolean
-;     set to indicate `COMP_AVERAGE` should produce output suitable for
-;     calculate empirical crosstalk coefficients: it should save background by
-;     polarization state and find appropriate files to average for calibration
 ;
 ; :Author:
 ;   Tomczyk, Sitongia
@@ -65,7 +61,7 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, error=error, calibration=calibration
+pro comp_average, date_dir, wave_type, error=error
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
@@ -82,6 +78,9 @@ pro comp_average, date_dir, wave_type, error=error, calibration=calibration
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
+
+  ; calibration mode if averaging backgrounds by polarization
+  calibration = average_background_by_polarization
 
   ; find the files to average
   files = comp_find_average_files(date_dir, wave_type, $
