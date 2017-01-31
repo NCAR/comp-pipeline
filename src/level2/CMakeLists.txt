@@ -1,3 +1,5 @@
+add_subdirectory(logos)
+
 get_filename_component(DIRNAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 
 file(GLOB PRO_FILES "*.pro")

@@ -106,5 +106,6 @@ install(PROGRAMS
           comp_get_hostname.sh
           comp_run_latest.sh
           comp_run_pipeline.sh
+	  mail_results.sh
         DESTINATION .)
 install(FILES Makefile DESTINATION .)
