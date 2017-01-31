@@ -138,6 +138,9 @@ end
 ;     corresponding file
 ;   count : out, optional, type=integer
 ;     set to a named variable to retrieve the number of files returned
+;   calibration : in, optional, type=boolean
+;     set to indicate that files suitable for producing mean file for
+;     calculting empirical crosstalk coefficients should be returned
 ;-
 function comp_find_average_files, date_dir, wave_type, $
                                   max_n_files=max_n_files, $
@@ -145,7 +148,8 @@ function comp_find_average_files, date_dir, wave_type, $
                                   max_cadence_interval=max_cadence_interval, $
                                   max_n_noncluster_files=max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
-                                  count=count
+                                  count=count, $
+                                  calibration=calibration
   compile_opt strictarr
   @comp_config_common
   @comp_constants_common
@@ -165,6 +169,8 @@ function comp_find_average_files, date_dir, wave_type, $
 
   count = 0L
 
+  ; 0. if producing a calibration mean file, use the 5 points files in before
+  ;    the second set of flats
   ; 1. using {date}.good.waves.{wave_type}.files.txt, group files into clusters where
   ;    files: 
   ;      - are within MAX_CADENCE_INTERVAL (3 min now) of each other
@@ -197,6 +203,19 @@ function comp_find_average_files, date_dir, wave_type, $
   flat_times = julday(month, day, year, flat_times)
 
   flat_times += 10.0 / 24.0   ; adjust from local to UTC
+
+  ; step 0.
+  if (keyword_set(calibration)) then begin
+    basename = string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")')
+    list_filename = filepath(basename, root=l1_process_dir)
+    files = comp_find_average_files_findclusters(list_filename, flat_times, $
+                                                 max_cadence_interval=10000.0, $
+                                                 min_n_cluster_files=1L, $
+                                                 max_n_files=1000L, $
+                                                 stokes_present=stokes_present, $
+                                                 count=count)
+    return, files
+  endif
 
   ; step 1.
   basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')

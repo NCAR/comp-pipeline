@@ -51,12 +51,12 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; cross-talk correction routines
   if (correct_crosstalk) then begin
     if (total(pol eq 'V') gt 0) then begin
-      mg_log, 'fixing V crosstalk', name='comp/l1_process', /info
+      mg_log, 'fixing V crosstalk', name='comp/l1_process', /debug
       comp_fix_vxtalk, date_dir, images_demod, headers_demod, filename
     endif
 
     if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
-      mg_log, 'fixing QU crosstalk', name='comp/l1_process', /info
+      mg_log, 'fixing QU crosstalk', name='comp/l1_process', /debug
       comp_fix_quxtalk, date_dir, images_demod, headers_demod, filename
     endif
   endif
