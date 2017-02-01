@@ -220,6 +220,10 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             post_angle2: pang2, $
             delta_x: delta_x, $
             delta_y: delta_y, $
-            overlap_angle: overlap_angle $
+            overlap_angle: overlap_angle, $
+            deltacenterx1: occulter1.x - calc_occulter1.x, $
+            deltacentery1: occulter1.y - calc_occulter1.y, $
+            deltacenterx2: occulter2.x - calc_occulter2.x, $
+            deltacentery2: occulter2.y - calc_occulter2.y $
           }
 end

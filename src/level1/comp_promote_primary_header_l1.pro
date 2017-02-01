@@ -142,7 +142,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'ORADIUS', $
             (image_geometry.occulter1.r + image_geometry.occulter2.r) / 2., $
             ' [pixels] Occulter Radius', format='(f8.2)'
-
+            
   sxaddpar, primary_header, 'CRPIX2', ny / 2 + 0.5, $
             ' Y [SOUTH->NORTH] SUN CENTER [PIXELS]', format='(F0.2)'
   sxaddpar, primary_header, 'CRVAL2', 0.0, $
@@ -151,6 +151,16 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' solar_Y coord increment [arcsec/pixel]', format='(F0.2)'
   sxaddpar, primary_header, 'CROTA2', 0.0, $
             ' Y [SOUTH->NORTH] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
+
+  sxaddpar, primary_header, 'DLTCTRX1', image_geometry.deltacenterx1, $
+            ' flat occ ctr X - image occ ctr X (upper left)', format='(f8.2)'
+  sxaddpar, primary_header, 'DLTCTRY1', image_geometry.deltacentery1, $
+            ' flat occ ctr Y - image occ ctr Y (upper left)', format='(f8.2)'
+
+  sxaddpar, primary_header, 'DLTCTRX2', image_geometry.deltacenterx1, $
+            ' flat occ ctr X - image occ ctr X (lower right)', format='(f8.2)'
+  sxaddpar, primary_header, 'DLTCTRY2', image_geometry.deltacentery1, $
+            ' flat occ ctr Y - image occ ctr Y (lower right)', format='(f8.2)'
 
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
