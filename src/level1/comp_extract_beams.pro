@@ -77,6 +77,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                       and comp_field_mask(image_geometry.field1.r, $
                                           dx=image_geometry.field1.x, $
                                           dy=image_geometry.field1.y)
+    mg_log, 'image off detector to top or left', name='comp', /warn
   endif
   if (off2) then begin
     annulus_mask2 = comp_disk_mask(image_geometry.occulter2.r, $
@@ -85,6 +86,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                       and comp_field_mask(image_geometry.field2.r, $
                                           dx=image_geometry.field2.x, $
                                           dy=image_geometry.field2.y)
+    mg_log, 'image off detector to bottom or right', name='comp', /warn
   endif
 
   n_images = n_elements(images[0, 0, *])
