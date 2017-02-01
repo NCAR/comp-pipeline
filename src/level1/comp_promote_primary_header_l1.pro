@@ -152,14 +152,14 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CROTA2', 0.0, $
             ' Y [SOUTH->NORTH] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
 
-  sxaddpar, primary_header, 'DLTCTRX1', image_geometry.deltacenterx1, $
+  sxaddpar, primary_header, 'DCENXUP', image_geometry.deltacenterx1, $
             ' flat occ ctr X - image occ ctr X (upper left)', format='(f8.2)'
-  sxaddpar, primary_header, 'DLTCTRY1', image_geometry.deltacentery1, $
+  sxaddpar, primary_header, 'DCENYUP', image_geometry.deltacentery1, $
             ' flat occ ctr Y - image occ ctr Y (upper left)', format='(f8.2)'
 
-  sxaddpar, primary_header, 'DLTCTRX2', image_geometry.deltacenterx1, $
+  sxaddpar, primary_header, 'DCENXLOW', image_geometry.deltacenterx1, $
             ' flat occ ctr X - image occ ctr X (lower right)', format='(f8.2)'
-  sxaddpar, primary_header, 'DLTCTRY2', image_geometry.deltacentery1, $
+  sxaddpar, primary_header, 'DCENYLOW', image_geometry.deltacentery1, $
             ' flat occ ctr Y - image occ ctr Y (lower right)', format='(f8.2)'
 
   ; field parameters
