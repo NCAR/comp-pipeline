@@ -15,6 +15,7 @@ pro comp_l1_check, date_dir, wave_type
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
+  @comp_check_common
 
   l1_files = comp_find_l1_file(date_dir, wave_type, /all, count=n_l1_files)
 
@@ -47,15 +48,24 @@ pro comp_l1_check, date_dir, wave_type
     endif
   endfor
 
+  if (n_images_off_detector gt 0L) then begin
+    mg_log, '%d images off detector', n_files_off_detector, name='comp', /warn
+  endif
+
   med_background = median(background)
 
-  send_warning = overlap_angle_warning
+  send_warning = overlap_angle_warning $
+                   || med_background gt background_limit $
+                   || n_images_off_detector gt 0L
   if (send_warning && notification_email ne '') then begin
     body = list()
     if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
     if (med_background gt background_limit) then begin
       body->add, string(med_background, background_limit, $
                         format='(%"median background %0.1f exceeds limit %0.1f")')
+    endif
+    if (n_images_off_detector gt 0L) then begin
+      body->add, string(n_images_off_detector, format='(%"%d images off detector")')
     endif
 
     body->add, ''

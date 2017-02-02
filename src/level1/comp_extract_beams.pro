@@ -30,6 +30,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
+  @comp_check_common
 
   comp_inventory_header, headers, beam, wave, pol, type, expose, cover, $
                          cal_pol, cal_ret
@@ -77,7 +78,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                       and comp_field_mask(image_geometry.field1.r, $
                                           dx=image_geometry.field1.x, $
                                           dy=image_geometry.field1.y)
-    mg_log, 'image off detector to top or left', name='comp', /warn
+    n_images_off_detector += 1
   endif
   if (off2) then begin
     annulus_mask2 = comp_disk_mask(image_geometry.occulter2.r, $
@@ -86,7 +87,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                       and comp_field_mask(image_geometry.field2.r, $
                                           dx=image_geometry.field2.x, $
                                           dy=image_geometry.field2.y)
-    mg_log, 'image off detector to bottom or right', name='comp', /warn
+    n_images_off_detector += 1
   endif
 
   n_images = n_elements(images[0, 0, *])

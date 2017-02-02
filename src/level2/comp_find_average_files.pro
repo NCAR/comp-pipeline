@@ -206,15 +206,8 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 0.
   if (keyword_set(calibration)) then begin
-    basename = string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")')
-    list_filename = filepath(basename, root=l1_process_dir)
-    files = comp_find_average_files_findclusters(list_filename, flat_times, $
-                                                 max_cadence_interval=10000.0, $
-                                                 min_n_cluster_files=1L, $
-                                                 max_n_files=1000L, $
-                                                 stokes_present=stokes_present, $
-                                                 count=count)
-    return, files
+    files = comp_find_l1_file(date_dir, wave_type, count=count, /all)
+    return, file_basename(files)
   endif
 
   ; step 1.

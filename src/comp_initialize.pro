@@ -69,6 +69,7 @@ pro comp_initialize, date_dir
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
+  @comp_check_common
 
   options = mg_read_config(filepath('epochs.cfg', root=mg_src_root()))
 
@@ -180,4 +181,6 @@ pro comp_initialize, date_dir
                    comp_initialize_readconfig('nd8', date_dir, options, type=4)]
 
   obj_destroy, options
+
+  n_images_off_detector = 0L
 end
