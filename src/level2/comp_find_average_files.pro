@@ -32,6 +32,7 @@
 ;     calculting empirical crosstalk coefficients should be returned
 ;-
 function comp_find_average_files_findclusters, list_filename, flat_times, $
+                                               date_dir=date_dir, wave_type=wave_type, $
                                                max_cadence_interval=max_cadence_interval, $
                                                min_n_cluster_files=min_n_cluster_files, $
                                                max_n_files=max_n_files, $
@@ -41,15 +42,15 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   compile_opt strictarr
   @comp_constants_common
 
-  if (~file_test(list_filename)) then begin
-    count = 0L
-    return, !null
-  endif
-
   if (keyword_set(calibration)) then begin
     candidate_files = comp_find_l1_file(date_dir, wave_type, count=n_candidate_files, /all)
     candidate_files = file_basename(candidate_files)
   endif else begin
+    if (~file_test(list_filename)) then begin
+      count = 0L
+      return, !null
+    endif
+
     n_candidate_files = file_lines(list_filename)
 
     ; can't have a cluster of at least min_n_cluster_files if there aren't at
@@ -227,7 +228,9 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 0.
   if (keyword_set(calibration)) then begin
-    files = comp_find_average_files_findclusters(stokes_present=stokes_present, $
+    files = comp_find_average_files_findclusters(date_dir=date_dir, $
+                                                 wave_type=wave_type, $
+                                                 stokes_present=stokes_present, $
                                                  count=count, $
                                                  /calibration)
     return, files
