@@ -28,7 +28,6 @@ pro comp_l1_check, date_dir, wave_type
   background = fltarr(n_l1_files)
 
   ; TODO: other things to check for:
-  ;   - annulus not inside CCD
   ;   - check temperatures
 
   for f = 0L, n_l1_files - 1L do begin
@@ -49,14 +48,14 @@ pro comp_l1_check, date_dir, wave_type
   endfor
 
   if (n_images_off_detector gt 0L) then begin
-    mg_log, '%d images off detector', n_files_off_detector, name='comp', /warn
+    mg_log, '%d images off detector', n_images_off_detector, name='comp', /warn
   endif
 
   med_background = median(background)
 
   send_warning = overlap_angle_warning $
-                   || med_background gt background_limit $
-                   || n_images_off_detector gt 0L
+                   || (med_background gt background_limit) $
+                   || (n_images_off_detector gt 0L)
   if (send_warning && notification_email ne '') then begin
     body = list()
     if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
