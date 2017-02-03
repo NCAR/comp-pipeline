@@ -10,9 +10,10 @@
 ; :Params:
 ;   list_filename : in, required, type=string
 ;     filename of candidate files, in the format of
-;     {date}.good.{wave_type}.files.txt, etc.
+;     {date}.good.{wave_type}.files.txt, not needed if `CALIBRATION` is set
 ;   flat_times : in, required, type=fltarr
-;     times of the flats in hours from local midnight
+;     times of the flats in hours from local midnight, not needed if
+;     `CALIBRATION` is set
 ;
 ; :Keywords:
 ;   max_cadence_interval : in, required, type=float
@@ -26,13 +27,17 @@
 ;     corresponding file
 ;   count : out, optional, type=long
 ;     set to a named variable to retrieve the number of files found
+;   calibration : in, optional, type=boolean
+;     set to indicate that files suitable for producing mean file for
+;     calculting empirical crosstalk coefficients should be returned
 ;-
 function comp_find_average_files_findclusters, list_filename, flat_times, $
                                                max_cadence_interval=max_cadence_interval, $
                                                min_n_cluster_files=min_n_cluster_files, $
                                                max_n_files=max_n_files, $
                                                stokes_present=stokes_present, $
-                                               count=count
+                                               count=count, $
+                                               calibration=calibration
   compile_opt strictarr
   @comp_constants_common
 
@@ -41,41 +46,54 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
     return, !null
   endif
 
-  n_candidate_files = file_lines(list_filename)
+  if (keyword_set(calibration)) then begin
+    candidate_files = comp_find_l1_file(date_dir, wave_type, count=n_candidate_files, /all)
+    candidate_files = file_basename(candidate_files)
+  endif else begin
+    n_candidate_files = file_lines(list_filename)
 
-  ; can't have a cluster of at least min_n_cluster_files if there aren't at
-  ; least that many candidates
-  if (n_candidate_files lt min_n_cluster_files) then begin
-    count = 0L
-    return, !null
-  endif
+    ; can't have a cluster of at least min_n_cluster_files if there aren't at
+    ; least that many candidates
+    if (n_candidate_files lt min_n_cluster_files) then begin
+      count = 0L
+      return, !null
+    endif
 
-  candidate_files = strarr(n_candidate_files)
+    candidate_files = strarr(n_candidate_files)
+
+    openr, lun, list_filename, /get_lun
+    line = ''
+    for f = 0L, n_candidate_files - 1L do begin
+      readf, lun, line
+
+      tokens = strsplit(line, /extract)
+      candidate_files[f] = tokens[0]
+    endfor
+    free_lun, lun
+  endelse
+
   times = dblarr(n_candidate_files)
   stokes_present = strarr(n_candidate_files)
 
-  openr, lun, list_filename, /get_lun
-  line = ''
   for f = 0L, n_candidate_files - 1L do begin
-    readf, lun, line
-
-    tokens = strsplit(line, /extract)
-    candidate_files[f] = tokens[0]
-
-    year   = long(strmid(line,  0, 4))
-    month  = long(strmid(line,  4, 2))
-    day    = long(strmid(line,  6, 2))
-    hour   = long(strmid(line,  9, 2))
-    minute = long(strmid(line, 11, 2))
-    second = long(strmid(line, 13, 2))
+    year   = long(strmid(candidate_files[f],  0, 4))
+    month  = long(strmid(candidate_files[f],  4, 2))
+    day    = long(strmid(candidate_files[f],  6, 2))
+    hour   = long(strmid(candidate_files[f],  9, 2))
+    minute = long(strmid(candidate_files[f], 11, 2))
+    second = long(strmid(candidate_files[f], 13, 2))
 
     times[f] = julday(month, day, year, hour, minute, second)
 
     for s = 0L, n_stokes - 1L do begin
-      if (strpos(line, stokes[s]) gt -1) then stokes_present[f] += stokes[s]
+      if (strpos(candidate_files[f], stokes[s]) gt -1) then stokes_present[f] += stokes[s]
     endfor
   endfor
-  free_lun, lun
+
+  if (keyword_set(calibration)) then begin
+    count = n_candidate_files
+    return, candidate_files
+  endif
 
   delta_time = times[1:*] - times[0:-2]
 
@@ -90,6 +108,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   ; it doesn't have at least min_n_cluster_files we will return 0 files anyway
   if (n_elements(check) lt (3L > min_n_cluster_files)) then begin
     count = 0L
+    stokes_present = []
     return, []
   endif
 
@@ -102,11 +121,13 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
     n_files = n_cluster_intervals + 1L
     if (n_files ge min_n_cluster_files) then begin
       count = n_files < max_n_files
+      stokes_present = (stokes_present[min(ind):max(ind) + 1])[0: count - 1]
       return, (candidate_files[min(ind):max(ind) + 1])[0:count - 1]
     endif
   endfor
 
   count = 0L
+  stokes_present = []
   return, []
 end
 
@@ -206,8 +227,10 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 0.
   if (keyword_set(calibration)) then begin
-    files = comp_find_l1_file(date_dir, wave_type, count=count, /all)
-    return, file_basename(files)
+    files = comp_find_average_files_findclusters(stokes_present=stokes_present, $
+                                                 count=count, $
+                                                 /calibration)
+    return, files
   endif
 
   ; step 1.
