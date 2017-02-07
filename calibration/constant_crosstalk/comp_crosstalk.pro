@@ -20,17 +20,20 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   filename = string(date_dir, wave_type, format='(%"%s.comp.%s.mean.fts.gz")')
 
   if (keyword_set(debug)) then begin
-    window, 0, xsize=2 * 500, ysize=500
-    window, 1, xsize=4 * nx, ysize=nx, title='Stokes I, Q, U, and V'
-    window, 2, xsize=5 * nx, ysize=nx, title='V crosstalk'
+    window, xsize=2 * 500, ysize=500, /free, title=date_dir
+    main_window = !d.window
+    window, xsize=4 * nx, ysize=nx, /free, $
+            title=string(date_dir, format='(%"Stokes I, Q, U, and V (%s)")')
+    iquv_window = !d.window
+    window, xsize=5 * nx, ysize=nx, /free, $
+            title=string(date_dir, format='(%"V crosstalk (%s)")')
+    v_window = !d.window
   endif
 
   device, decomposed=0
   loadct, 0
 
   ; read data
-  mg_log, 'reading data', name='comp', /info
-
   fits_open, filepath(filename, root=dir), fcb
   num = fcb.nextend
 
@@ -93,8 +96,8 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   ; display stokes images at center wavelength
   if (keyword_set(debug)) then begin
-    wset, 1
-    !p.multi = [0, 4, 1, 0, 0]
+    wset, iquv_window
+
     tv, bytscl(stokes_i[*, *, nc] * mask,  0.0,  25.0),  0
     tv, bytscl(stokes_q[*, *, nc] * mask, -0.8,   0.8),  1
     tv, bytscl(stokes_u[*, *, nc] * mask, -0.8,   0.8),  2
@@ -111,9 +114,8 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   ; determine stokes_i to q and u crosstalk (use continuum wavelength index 0,
   ; and faint pixels)
 
-  mg_log, 'computing I to Q and I to U crosstalk', name='comp', /info
   if (keyword_set(debug)) then begin
-    wset, 0
+    wset, main_window
     !p.multi = [0, 2, 1, 0, 0]
   endif
 
@@ -125,36 +127,37 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   i_to_q_background = median(background_q[*, *, nc] / background_i[*, *, nc])
 
+  format = '(%"%-30s :", F15)'
   if (keyword_set(debug)) then begin
     xfit = findgen(100)
     yfit = i_to_q * xfit
 
     i_to_q_rms = sqrt(mean((x * i_to_q - y)^2))
-    print, i_to_q_rms, format='(%"i_to_q_rms      : %f")'
+    print, 'I to Q RMS', i_to_q_rms, format=format
     plot, x, y, psym=3, xtitle='Stokes I', ytitle='Stokes Q', charsize=1.5
     oplot, xfit, yfit
   endif
 
-  mg_log, 'I to Q crosstalk             : %f', i_to_q, name='comp', /info
-  mg_log, 'I to Q crosstalk (background): %f', i_to_q_background, name='comp', /info
+  print, 'I to Q crosstalk', i_to_q, format=format
+  print, 'I to Q crosstalk (background)', i_to_q_background, format=format
 
   u_cont = stokes_u[*, *, 0]  ; TODO: background_u[*, *, nc]
   y = u_cont[faint]
   i_to_u = median(y / x)
 
-  i_to_u = median(background_u[*, *, nc] / background_i[*, *, nc])
+  i_to_u_background = median(background_u[*, *, nc] / background_i[*, *, nc])
 
   if (keyword_set(debug)) then begin
     yfit = i_to_u * xfit
 
     i_to_u_rms = sqrt(mean((x * i_to_u - y)^2))
-    print, i_to_u_rms, format='(%"i_to_u_rms      : %f")'
+    print, 'I to U RMS', i_to_u_rms, format=format
     plot, x, y, psym=3, xtitle = 'Stokes I', ytitle='Stokes U', charsize=1.5
     oplot, xfit, yfit
   endif
 
-  mg_log, 'I to U crosstalk             : %f', i_to_u, name='comp', /info
-  mg_log, 'I to U crosstalk (background): %f', i_to_u_background, name='comp', /info
+  print, 'I to U crosstalk', i_to_u, format=format
+  print, 'I to U crosstalk (background)', i_to_u_background, format=format
 
   ; correct stokes q and u for crosstalk from stokes I
   for i = 0, ntune - 1 do begin
@@ -171,17 +174,17 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   xi = transpose(xi)   ; direction vector
   powell, p, xi, ftol, fmin, 'comp_cross_min'
 
-  mg_log, 'I to V crosstalk    : %f', p[0], name='comp', /info
-  mg_log, 'Q to V crosstalk    : %f', p[1], name='comp', /info
-  mg_log, 'U to V crosstalk    : %f', p[2], name='comp', /info
+  print, 'I to V crosstalk', p[0], format=format
+  print, 'Q to V crosstalk', p[1], format=format
+  print, 'U to V crosstalk', p[2], format=format
 
   if (keyword_set(debug)) then begin
-    print, fmin, format='(%"fmin            : %f")'
+    print, 'fmin', fmin, format=format
 
     ; evaluate stokes V rms
     v_center = stokes_v[*, *, nc]
-    print, stdev(v_center[where(mask eq 1.)]), format='(%"V rms before    : %d")'
-    print, max(abs(stokes_v)), format='(%"Max(V) before   : %f")'
+    print, 'V RMS before', stdev(v_center[where(mask eq 1.)]), format=format
+    print, 'max(V) before', max(abs(stokes_v)), format=format
 
     ; apply crosstalk correction to stokes V
     for i = 0, ntune - 1 do begin
@@ -191,7 +194,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
                             - p[2] * stokes_u[*, *, i]
     endfor
 
-    wset, 2
+    wset, v_window
     !p.multi = [0, 5, 1, 0, 0]
     tv, bytscl(stokes_v[*, *, 0] * mask, -0.1, 0.1), 0
     tv, bytscl(stokes_v[*, *, 1] * mask, -0.1, 0.1), 1
@@ -202,20 +205,23 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     tmp = stokes_i[*, *, 0]
     low_ind = where(tmp[faint] lt 11.0, count)
     low_xy = array_indices([620, 620], faint[low_ind], /dimensions)
-    print, count, format='(%"Number < 11.0   : %d")'
+    print, 'number < 11.0', count, format='(%"%-30s :", I15)
 
     device, decomposed=1
     plots, low_xy[0, *], low_xy[1, *], /device, color='0000ff'x, psym=3
     device, decomposed=0
 
     v_center = stokes_v[*, *, nc]
-    print, stdev(v_center[where(mask eq 1.0)]), format='(%"V rms after     : %f")'
-    print, max(abs(stokes_v)), format='(%"Max(V) after    : %f")'
+    print, 'V RMS after', stdev(v_center[where(mask eq 1.0)]), format=format
+    print, 'max(V) after', max(abs(stokes_v)), format=format
   endif
 end
 
 
 ; main-level example program
+
+!except = 0
+!quiet = 1
 
 process_basedir = '/hao/mahidata1/Data/CoMP/process.empxtalk'
 date_dirs = ['20160519', '20160609', '20160726']
