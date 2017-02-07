@@ -141,7 +141,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   print, 'I to Q crosstalk', i_to_q, format=format
   print, 'I to Q crosstalk (background)', i_to_q_background, format=format
 
-  u_cont = stokes_u[*, *, 0]  ; TODO: background_u[*, *, nc]
+  u_cont = stokes_u[*, *, 0]
   y = u_cont[faint]
   i_to_u = median(y / x)
 
@@ -205,7 +205,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     tmp = stokes_i[*, *, 0]
     low_ind = where(tmp[faint] lt 11.0, count)
     low_xy = array_indices([620, 620], faint[low_ind], /dimensions)
-    print, 'number < 11.0', count, format='(%"%-30s :", I15)
+    print, 'number < 11.0', count, format='(%"%-30s :", I15)'
 
     device, decomposed=1
     plots, low_xy[0, *], low_xy[1, *], /device, color='0000ff'x, psym=3
