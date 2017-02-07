@@ -85,7 +85,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   if (process_synthetic eq 1) then begin
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
   endif else begin
-    file = string(date_dir, method, wave_type, format='(%"%s.comp.%s.%s.fts.gz")')
+    file = string(date_dir, wave_type, method, format='(%"%s.comp.%s.%s.fts.gz")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
@@ -184,6 +184,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
   corrected_dop = reform(post_corr[*, *, 1])
+  corrected_dop[zero] = !values.f_nan
 
   ; write fit parameters to output file
 
