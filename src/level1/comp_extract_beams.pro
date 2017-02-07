@@ -3,7 +3,8 @@
 ; (raw or close to raw) image set.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_extract_time, comp_extract1, comp_extract2, sun
+;   comp_inventory_header, comp_extract_time, comp_extract1, comp_extract2, sun,
+;   comp_apply_distortion
 ;
 ; :Params:
 ;   images : in, required, type="fltarr(1024, 1024, nimg)"
@@ -99,7 +100,8 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     sub2 = comp_extract2(images[*, *, i])
 
     ; remove distortion
-    comp_apply_distortion, sub1, sub2, dx1_c, dy1_c, dx2_c, dy2_c
+    sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
+    sub2 = comp_apply_distortion(sub2, dx2_c, dy2_c)
 
     ; if background is in UL and it is off detector, then use mean of UL annulus
     if (beam[i] gt 0.0 && off1) then begin

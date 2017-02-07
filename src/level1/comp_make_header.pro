@@ -6,7 +6,7 @@
 ;
 ; :Uses:
 ;   comp_constants_common, comp_find_annulus, comp_find_post, comp_extract1,
-;   comp_extract2, mkhdr, sxaddpar
+;   comp_extract2, mkhdr, sxaddpar, comp_apply_distortion
 ;
 ; :Params:
 ;   image : in
@@ -61,7 +61,8 @@ pro comp_make_header, image, header, $
   uncorrected_flat2 = flat2
 
   ; remove distortion (NOTE: these images will not be saved!)
-  comp_apply_distortion, flat1, flat2, dx1_c, dy1_c, dx2_c, dy2_c
+  flat1 = comp_apply_distortion(flat1, dx1_c, dy1_c)
+  flat2 = comp_apply_distortion(flat2, dx2_c, dy2_c)
 
   ; TODO: should check that exposure is 250.0 ms, might not work if not
   uncorrected_occulter_guess1 = comp_find_flat_initial_guess(uncorrected_flat1)

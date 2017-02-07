@@ -4,7 +4,8 @@
 ; Extract various image geometry parameters from the appropriate flat file.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_extract_time, comp_read_flats, sxpar
+;   comp_inventory_header, comp_extract_time, comp_read_flats, sxpar,
+;   comp_apply_distortion
 ;
 ; :Returns:
 ;   structure
@@ -66,11 +67,11 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
 
   ind1 = where(beam gt 0, n_plus_beam)
   if (n_plus_beam gt 0) then begin
-    im = comp_extract1(reform(images[*, *, ind1[0]]))
+    sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
     sub1 = im
 
     ; remove distortion
-    comp_apply_distortion, sub1, im, dx1_c, dy1_c, dx2_c, dy2_c
+    sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
 
     comp_find_annulus, sub1, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
@@ -106,11 +107,10 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
 
   ind2 = where(beam lt 0, n_minus_beam)
   if (n_minus_beam gt 0) then begin
-    im = comp_extract2(reform(images[*, *, ind2[0]]))
-    sub2 = im
+    sub2 = comp_extract2(reform(images[*, *, ind2[0]]))
 
     ; remove distortion
-    comp_apply_distortion, im, sub2, dx1_c, dy1_c, dx2_c, dy2_c
+    sub2 = comp_apply_distortion(sub2, dx2_c, dy2_c)
 
     comp_find_annulus, sub2, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $
