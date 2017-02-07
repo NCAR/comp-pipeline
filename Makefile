@@ -3,9 +3,6 @@
 FLAGS=
 QUIET=0
 
-GIT=/usr/bin/git
-
-REVISION:=$(shell $(GIT) rev-parse --short HEAD)
 PHONE=$(shell cat $(HOME)/.phonenumber 2> /dev/null)
 EMAIL=$(USER)@ucar.edu
 
