@@ -48,13 +48,6 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
 
   n_candidate_files = file_lines(list_filename)
 
-  ; can't have a cluster of at least min_n_cluster_files if there aren't at
-  ; least that many candidates
-  if (n_candidate_files lt min_n_cluster_files) then begin
-    count = 0L
-    return, !null
-  endif
-
   times = dblarr(n_candidate_files)
   stokes_present = strarr(n_candidate_files)
 
@@ -86,6 +79,13 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   if (keyword_set(calibration)) then begin
     count = n_candidate_files
     return, candidate_files
+  endif
+
+  ; can't have a cluster of at least min_n_cluster_files if there aren't at
+  ; least that many candidates
+  if (n_candidate_files lt min_n_cluster_files) then begin
+    count = 0L
+    return, !null
   endif
 
   delta_time = times[1:*] - times[0:-2]
