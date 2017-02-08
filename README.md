@@ -13,7 +13,7 @@ To configure the CoMP pipeline for your system, do the following from the top-le
     mkdir build
     cmake \
       -DCMAKE_INSTALL_PREFIX:PATH=~/software/comp-pipeline \
-      -DIDL_ROOT_DIR:PATH=/opt/share/idl8.5/idl85
+      -DIDL_ROOT_DIR:PATH=/opt/share/idl8.5/idl85 \
     ..
 
 There are example configuration scripts, `linux_configure.sh` and `mac_configure.sh`, in the pipeline source code.
@@ -33,7 +33,7 @@ A configuration file is needed to run the pipeline. See the `config` directory o
 
     comp.{username}.{machine_name}.cfg
 
-and edit it for where your data is and what options you want to run with.
+with your username and machine name filled in. Edit this file, indicating where your data is and what options you want to run with.
 
 To run the pipeline, from the installation root directory, do:
 
@@ -42,24 +42,16 @@ To run the pipeline, from the installation root directory, do:
 
 ## Run unit tests
 
-To run the unit tests:
+If you specified a valid [mgunit] location in your installation configuration, you can run the unit tests. To run the unit tests:
 
     make unit
-
-This requires an [mgunit] installation. The Makefile will look for mgunit in your `software` directory, but any location can be specified:
-
-    make unit MGUNIT_DIR=$HOME/projects/mgunit/src
 
 
 ## Generate API documentation
 
-To generate the API documentation:
+If you specified a valid [IDLdoc] location in your installation configuration, you can generate the API documentation. To generate the API documentation from the build directory, simply do:
 
     make doc
-
-This requires an [IDLdoc] and [mglib] installation. The Makefile will look for IDLdoc in your `projects` directory and mglib in your `software` directory, but any location can be specified:
-
-    make doc IDLDOC_DIR=$HOME/software/idldoc/src MGUNIT_DIR=$HOME/projects/mglib/src
 
 
 
