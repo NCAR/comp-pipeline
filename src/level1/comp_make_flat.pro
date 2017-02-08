@@ -208,7 +208,7 @@ pro comp_make_flat, date_dir, error=error
       if (error_status ne 0L) then begin
         mg_log, 'error making flat, skipping this opal image', $
                 name='comp', /warn
-        mg_log, /last_error, name='comp'
+        mg_log, /last_error, /error, name='comp'
         continue
       endif
 
@@ -242,7 +242,7 @@ pro comp_make_flat, date_dir, error=error
 
       ; detrend across large image
       if (make_flat_detrending) then begin
-        ; TODO: use post_angle1 for second post because second is in wrong position
+        ; use post_angle1 for second post because second is in wrong position
         comp_fix_trend, image, $
                         occulter1, occulter2, $
                         field1, field2, post_angle1, post_angle1, fit
