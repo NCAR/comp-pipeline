@@ -54,7 +54,7 @@ pro comp_make_header, image, header, $
 
   flat1 = comp_extract1(image)   ; extract the subimage
   flat2 = comp_extract2(image)   ; extract the subimage
-  
+
   ; we need to find the occulter/field centers for both the distortion corrected
   ; and uncorrected flats
   uncorrected_flat1 = flat1
