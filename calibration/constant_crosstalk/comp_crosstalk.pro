@@ -22,6 +22,9 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   if (keyword_set(debug)) then begin
     window, xsize=2 * 500, ysize=500, /free, title=date_dir
     main_window = !d.window
+    window, xsize=2 * 500, ysize=500, /free, $
+            title=string(date_dir, format='(%"Faint I histogram (%s)")')
+    hist_window = !d.window
     window, xsize=4 * nx, ysize=nx, /free, $
             title=string(date_dir, format='(%"Stokes I, Q, U, and V (%s)")')
     iquv_window = !d.window
@@ -106,10 +109,20 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
 
   ; determine bright and faint intensity pixels
   corona = stokes_i[*, *, nc]
-  faint = where(mask eq 1.0 and corona gt 0.0 and corona lt 3.0)
+  blue_wing = stokes_i[*, *, 0]
+  faint = where(mask eq 1.0 and corona gt 0.4 and corona lt 3.0 and blue_wing gt 0.0, $
+                n_faint)
 
   ; add background back into stokes_i
   for i = 0, ntune - 1 do stokes_i[*, *, i] = stokes_i[*, *, i] + background_i[*, *, i]
+
+  if (keyword_set(debug)) then begin
+    masked = where(mask eq 1.0, n_masked)
+    wset, hist_window
+    !p.multi = 0
+    h = histogram((stokes_i[*, *, 2])[masked], nbins=100, loc=loc)
+    plot, loc, h, psym=10
+  endif
 
   ; determine stokes_i to q and u crosstalk (use continuum wavelength index 0,
   ; and faint pixels)
@@ -128,6 +141,9 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   i_to_q_background = median(background_q[*, *, nc] / background_i[*, *, nc])
 
   format = '(%"%-30s :", F15)'
+
+  print, 'number of pts used', n_faint, format='(%"%-30s :", I15)'
+
   if (keyword_set(debug)) then begin
     xfit = findgen(100)
     yfit = i_to_q * xfit
