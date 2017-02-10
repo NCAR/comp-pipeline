@@ -21,7 +21,8 @@ function comp_azimuth, u, q, radial_azimuth=radial_azimuth
   @comp_constants_common
 
   ; compute azimuth, correct azimuth for quadrants
-  azimuth = 0.5 * atan(u, q) * !radeg + 45.0
+  ; TODO: removing 45.0 now that Q and U are now properly transformed
+  azimuth = 0.5 * atan(u, q) * !radeg
   azimuth mod= 180.0
   bad = where(azimuth lt 0., count)
   if (count gt 0) then azimuth[bad] += 180.0
