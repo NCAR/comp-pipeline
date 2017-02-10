@@ -12,6 +12,7 @@ else
   ECHO_PREFIX=
 endif
 
+unexport IDL_DIR
 IDL=idl85
 SSWDEPS_IDL=idl85
 
