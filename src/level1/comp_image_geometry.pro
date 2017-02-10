@@ -68,7 +68,6 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   ind1 = where(beam gt 0, n_plus_beam)
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
-    sub1 = im
 
     ; remove distortion
     sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
