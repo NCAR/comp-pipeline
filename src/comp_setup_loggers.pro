@@ -100,5 +100,12 @@ pro comp_setup_loggers
     logger->setProperty, format=log_fmt, $
                          time_format=log_time_fmt, $
                          level=levels[i]
-   endfor
+  endfor
+
+  mg_log, 'starting loggers...', name='comp', /debug
+  version = comp_find_code_version(revision=revision, branch=branch)
+  mg_log, 'running comp-pipeline %s (%s on %s)', version, revision, branch, $
+          name='comp', /debug
+  mg_log, 'using IDL %s on %s', !version.release, !version.os_name, $
+          name='comp', /debug
 end
