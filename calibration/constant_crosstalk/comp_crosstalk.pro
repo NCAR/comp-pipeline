@@ -20,11 +20,17 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   filename = string(date_dir, wave_type, format='(%"%s.comp.%s.mean.fts.gz")')
 
   if (keyword_set(debug)) then begin
-    window, xsize=2 * 500, ysize=500, /free, title=date_dir
+    window, xsize=2 * 500, ysize=500, /free, $
+            title=string(date_dir, format='(%"Foreground plots (%s)")')
     main_window = !d.window
+    window, xsize=2 * 500, ysize=500, /free, $
+            title=string(date_dir, format='(%"Background plots (%s)")')
+    back_window = !d.window
+
     window, xsize=2 * 500, ysize=500, /free, $
             title=string(date_dir, format='(%"Faint I histogram (%s)")')
     hist_window = !d.window
+
     window, xsize=4 * nx, ysize=nx, /free, $
             title=string(date_dir, format='(%"Stokes I, Q, U, and V (%s)")')
     iquv_window = !d.window
@@ -110,7 +116,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   ; determine bright and faint intensity pixels
   corona = stokes_i[*, *, nc]
   blue_wing = stokes_i[*, *, 0]
-  faint = where(mask eq 1.0 and corona gt 0.4 and corona lt 3.0 and blue_wing gt 0.0, $
+  faint = where(mask eq 1.0 and corona lt 5.0, $
                 n_faint)
 
   ; add background back into stokes_i
@@ -127,18 +133,18 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   ; determine stokes_i to q and u crosstalk (use continuum wavelength index 0,
   ; and faint pixels)
 
-  if (keyword_set(debug)) then begin
-    wset, main_window
-    !p.multi = [0, 2, 1, 0, 0]
-  endif
-
   i_cont = stokes_i[*, *, 0]
-  x = i_cont[faint]
+  fg_i = i_cont[faint]
   q_cont = stokes_q[*, *, 0]
-  y = q_cont[faint]
-  i_to_q = median(y / x)
+  fg_q = q_cont[faint]
+  i_to_q = median(fg_q / fg_i)
 
-  i_to_q_background = median(background_q[*, *, nc] / background_i[*, *, nc])
+  i_back = background_i[*, *, nc]
+  bg_i = i_back[faint]
+  q_back = background_q[*, *, nc]
+  bg_q = q_back[faint]
+
+  i_to_q_background = median(bg_q / bg_i)
 
   format = '(%"%-30s :", F15)'
 
@@ -148,9 +154,20 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     xfit = findgen(100)
     yfit = i_to_q * xfit
 
-    i_to_q_rms = sqrt(mean((x * i_to_q - y)^2))
+    i_to_q_rms = sqrt(mean((fg_i * i_to_q - fg_q)^2))
     print, 'I to Q RMS', i_to_q_rms, format=format
-    plot, x, y, psym=3, xtitle='Stokes I', ytitle='Stokes Q', charsize=1.5
+
+    wset, main_window
+    !p.multi = [0, 2, 1, 0, 0]
+    plot, fg_i, fg_q, psym=3, xtitle='Stokes I', ytitle='Stokes Q', charsize=1.5
+    oplot, xfit, yfit
+
+    yfit = i_to_q_background * xfit
+
+    wset, back_window
+    !p.multi = [0, 2, 1, 0, 0]
+    plot, bg_i, bg_q, $
+          psym=3, xtitle='Stokes I', ytitle='Stokes Q', charsize=1.5
     oplot, xfit, yfit
   endif
 
@@ -158,17 +175,31 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   print, 'I to Q crosstalk (background)', i_to_q_background, format=format
 
   u_cont = stokes_u[*, *, 0]
-  y = u_cont[faint]
-  i_to_u = median(y / x)
+  fg_u = u_cont[faint]
+  i_to_u = median(fg_u / fg_i)
 
-  i_to_u_background = median(background_u[*, *, nc] / background_i[*, *, nc])
+  u_back = background_u[*, *, nc]
+  bg_u = u_back[faint]
+
+  i_to_u_background = median(bg_u / bg_i)
 
   if (keyword_set(debug)) then begin
     yfit = i_to_u * xfit
 
-    i_to_u_rms = sqrt(mean((x * i_to_u - y)^2))
+    i_to_u_rms = sqrt(mean((fg_i * i_to_u - fg_u)^2))
     print, 'I to U RMS', i_to_u_rms, format=format
-    plot, x, y, psym=3, xtitle = 'Stokes I', ytitle='Stokes U', charsize=1.5
+
+    wset, main_window
+    !p.multi = [1, 2, 1, 0, 0]
+    plot, fg_i, fg_u, psym=3, xtitle = 'Stokes I', ytitle='Stokes U', charsize=1.5
+    oplot, xfit, yfit
+
+    yfit = i_to_u_background * xfit
+
+    wset, back_window
+    !p.multi = [1, 2, 1, 0, 0]
+    plot, bg_i, bg_u, $
+          psym=3, xtitle='Stokes I', ytitle='Stokes U', charsize=1.5
     oplot, xfit, yfit
   endif
 
