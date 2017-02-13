@@ -48,6 +48,11 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
 
   n_candidate_files = file_lines(list_filename)
 
+  if (n_candidate_files eq 0L) then begin
+    count = 0L
+    return, !null
+  endif
+
   times = dblarr(n_candidate_files)
   stokes_present = strarr(n_candidate_files)
 
