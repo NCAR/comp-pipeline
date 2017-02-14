@@ -10,11 +10,14 @@
 ;     an array of FITS extension headers, one for each image in the array
 ;   p_angle : in, required, type=float
 ;     p-angle in degrees
+;   overlap_angle, in, required, type=float
+;     overlap angle in degrees
 ;-
-pro comp_polarimetric_correction, images, headers, p_angle
+pro comp_polarimetric_correction, images, headers, p_angle, overlap_angle
   compile_opt strictarr
 
-  mg_log, 'p_angle %0.3f degrees', p_angle, name='comp', /debug
+  mg_log, 'p_angle %0.3f degrees, overlap_angle %0.3f degrees', $
+          p_angle, overlap_angle, name='comp', /debug
 
   comp_inventory_header, headers, beam, wave, pol
 
@@ -37,7 +40,7 @@ pro comp_polarimetric_correction, images, headers, p_angle
             name='comp', /debug
     comp_polarimetric_transform, images[*, *, q_ind[i]], $
                                  images[*, *, u_ind[i]], $
-                                 p_angle, $
+                                 p_angle, overlap_angle, $
                                  new_q=new_q, $
                                  new_u=new_u
 

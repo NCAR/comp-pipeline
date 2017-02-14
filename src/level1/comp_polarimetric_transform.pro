@@ -11,6 +11,8 @@
 ;     Stokes U
 ;   p_angle : in, required, type=float
 ;     p-angle in degrees
+;   overlap_angle : in, required, type=float
+;     overlap angle in degrees
 ;
 ; :Keywords:
 ;   new_q : out, optional, type=fltarr
@@ -18,11 +20,12 @@
 ;   new_u : out, optional, type=fltarr
 ;     transformed Stokes U
 ;-
-pro comp_polarimetric_transform, q, u, p_angle, new_q=new_q, new_u=new_u
+pro comp_polarimetric_transform, q, u, p_angle, overlap_angle, $
+                                 new_q=new_q, new_u=new_u
   compile_opt strictarr
 
-  ; TODO: we should add or subtract the overlap angle here
-  p_angle_radians = (p_angle - 45.0) * !dtor
+  ; TODO: is the overlap angle used correctly here?
+  p_angle_radians = (p_angle - overlap_angle) * !dtor
 
   new_q =   q * cos(2.0 * p_angle_radians) + u * sin(2.0 * p_angle_radians)
   new_u = - q * sin(2.0 * p_angle_radians) + u * cos(2.0 * p_angle_radians)
