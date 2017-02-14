@@ -36,12 +36,16 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   comp_read_data, filename, images, headers, header0
 
-  comp_apply_flats_darks, images, headers, date_dir, error=error
+  comp_apply_flats_darks, images, headers, date_dir, error=error, $
+                          uncorrected_images=uncorrected_images
   if (error ne 0L) then begin
     mg_log, 'skipping %s (no flats/darks)', $
             file_basename(filename), name='comp', /error
     return
   endif
+
+  ; TODO: do uncorrected_images need to be demodulated and corrected for
+  ; crosstalk?
 
   comp_demodulate, images, headers, images_demod, headers_demod
   comp_inventory_header, headers_demod, beam, wave, pol, type, expose, $
@@ -68,7 +72,8 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       images_combine, headers_combine, header0, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                       image_geometry=image_geometry, $
-                      wave_type=wave_type
+                      wave_type=wave_type, $
+                      uncorrected_images=uncorrected_images
 
   ; double precision not required in output
   images_combine = float(images_combine)
@@ -80,7 +85,9 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   ; perform heliographic coordinate transformation
   p_angle = sxpar(header0, 'SOLAR_P0')
-  comp_polarimetric_correction, images_combine, headers_combine, p_angle
+  overlap_angle = sxpar(header0, 'OVRLPANG')
+  comp_polarimetric_correction, images_combine, headers_combine, $
+                                p_angle, overlap_angle
 
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         filename, wave_type

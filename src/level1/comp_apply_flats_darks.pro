@@ -9,9 +9,9 @@
 ;   comp_dark_interp, comp_read_flats, comp_fix_hot, sxpar, sgn, sxaddpar
 ;
 ; :Params:
-;   images : in, required, type="fltarr(nx, ny, nimg)"
+;   images : in, required, type="fltarr(nx, ny, n_images)"
 ;     the array of CoMP images. Will be dark and flat corrected on output
-;   headers : in, out, required, type="strarr(ntags, nimg)"
+;   headers : in, out, required, type="strarr(ntags, n_images)"
 ;     FITS headers for each of the images; the name of the flat file will be
 ;     added on output
 ;   date_dir : in, required, type=string
@@ -21,6 +21,8 @@
 ; :Keywords:
 ;   flat_header : out, optional, type=strarr
 ;     flat header
+;   uncorrected_images : out, optional, type="fltarr(nx, ny, n_images)"
+;     the array of CoMP images, not flat corrected, but corrected in other ways
 ;   error : out, optional, type=long
 ;     set to a named variable to retrieve whether there was an error in applying
 ;     flats and darks; 0 indicates no error
@@ -28,11 +30,14 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header, error=error
+pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header, $
+                            uncorrected_images=uncorrected_images, error=error
   compile_opt strictarr
   @comp_config_common
 
   error = 0L
+
+  uncorrected_images = images
 
   ; figure out what's in our image array
   comp_inventory_header, headers, beam, wave, pol, type, expose, $
@@ -99,11 +104,19 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header, 
                 ' Stray Light Fit Variance for Line'
     endif
 
+    ; don't flat correct the uncorrected images
+    uncorrected_tmp_image = tmp_image
     if (flat_found[iflat]) then begin
       tmp_image /= flat[*, *, iflat]
     endif
+
     tmp_image = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
+    uncorrected_tmp_image = comp_fix_hot(temporary(uncorrected_tmp_image), $
+                                         hot=hot, adjacent=adjacent)
+
+    ; store images
     images[*, *, i] = temporary(tmp_image)
+    uncorrected_images[*, *, i] = temporary(uncorrected_tmp_image)
 
     nd = comp_get_nd_filter(date_dir, wave_type, header)
     transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
