@@ -77,10 +77,11 @@ pro comp_setup_loggers_date, date_dir
                            filename=filepath(name + '.csv', root=eng_dir)
     endfor
   endfor
+
   mg_log, name='occulter', logger=logger
   logger->setProperty, format='%(message)s', $
                        level=5, $
-                       filename=filepath(name + '.csv', root=eng_dir)
+                       filename=filepath('occulter.csv', root=eng_dir)
 end
 
 
