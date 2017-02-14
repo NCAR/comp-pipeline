@@ -87,9 +87,9 @@ pro comp_initialize, date_dir
   ; thresholds for cutting out bad data in the L2 products
 
   ; millionths of solar disk intensity
-  int_thresh  = comp_initialize_readconfig('int_thresh', date_dir, options, type=3)
+  int_thresh  = comp_initialize_readconfig('int_thresh', date_dir, options, type=4)
   ; difference between measured and calculated line center intensity
-  diff_thresh = comp_initialize_readconfig('diff_thresh', date_dir, options, type=3)
+  diff_thresh = comp_initialize_readconfig('diff_thresh', date_dir, options, type=4)
 
   ; line center wavelengths
   center1074 = comp_initialize_readconfig('center_1074', date_dir, options, type=4)
