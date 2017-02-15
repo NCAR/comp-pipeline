@@ -212,9 +212,9 @@ pro comp_average, date_dir, wave_type, error=error
 
   ; compute averages
   if (keyword_set(average_background_by_polarization)) then begin
-    back = fltarr(nx, nx, n_stokes, n_waves)
+    back = fltarr(nx, ny, n_stokes, n_waves)
   endif else begin
-    back = fltarr(nx, nx, n_waves)
+    back = fltarr(nx, ny, n_waves)
   endelse
 
   ; summation of number of files going into average
@@ -239,8 +239,9 @@ pro comp_average, date_dir, wave_type, error=error
               strjoin(strtrim(waves[iw], 2), ', '), $
               name='comp/average', /debug
 
-      data = reform(fltarr(nx, nx, numof_stokes[ist], /nozero), $
-                    nx, nx, numof_stokes[ist])
+      ; REFORM to make sure IDL doesn't drop a dimension of size 1
+      data = reform(fltarr(nx, ny, numof_stokes[ist], /nozero), $
+                    nx, ny, numof_stokes[ist])
 
       header = !null
       for ifile = 0L, numof_stokes[ist] - 1L do begin
@@ -388,7 +389,7 @@ pro comp_average, date_dir, wave_type, error=error
       if (numof_stokes[ist] eq 0) then continue
 
       for iw = 0L, n_waves - 1L do begin
-        back[*, *, ist, iw] /= float(numof_stokes[ist])
+        back[*, *, ist, iw] /= float(num_back_averaged[ist, iw])
         sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
         sxaddpar, header, 'NAVERAGE', back_naverage[ist, iw]
         sxaddpar, header, 'NFILES', num_back_averaged[ist, iw], ' Number of files used', $
@@ -418,7 +419,7 @@ pro comp_average, date_dir, wave_type, error=error
     endfor
   endif else begin
     for iw = 0L, n_waves - 1L do begin
-      back[*, *, iw] /= float(numof_stokes[0])
+      back[*, *, iw] /= float(num_back_averaged[iw])
       sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
       sxaddpar, header, 'NAVERAGE', back_naverage[iw]
       sxaddpar, header, 'NFILES', num_back_averaged[iw], ' Number of files used', $
