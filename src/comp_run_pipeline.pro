@@ -143,6 +143,9 @@ pro comp_run_pipeline, config_filename=config_filename
       process_config_filename = filepath('comp.cfg', root=l1_process_dir)
       file_copy, _config_filename, process_config_filename, /overwrite
 
+      ; write constants used for given day to engineering directory
+      comp_write_epochs, date_dir
+
       ; take inventory of the data for this day
       mg_log, 'determining file types', name='comp', /info
       file_type_t0 = systime(/seconds)
