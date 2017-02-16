@@ -24,11 +24,9 @@ pro comp_l1_check, date_dir, wave_type
     return
   endif
 
+  n_images_bad_temp = 0L
   overlap_angle_warning = 0B
   background = fltarr(n_l1_files)
-
-  ; TODO: other things to check for:
-  ;   - check temperatures
 
   for f = 0L, n_l1_files - 1L do begin
     mg_log, 'checking %s', file_basename(l1_files[f]), name='comp', /info
@@ -38,13 +36,25 @@ pro comp_l1_check, date_dir, wave_type
     fits_read, fcb, data, primary_header, exten_no=0
     overlap_angle = sxpar(primary_header, 'OVRLPANG')
     background[f] = sxpar(primary_header, 'BACKGRND')
-    fits_close, fcb
 
     if (abs(overlap_angle - 45.0) gt overlap_angle_tolerance) then begin
       overlap_angle_warning = 1B
       mg_log, 'overlap angle %0.2f exceeds tolerance', overlap_angle, $
               name='comp', /warn
     endif
+    
+    for e = 1L, fcb.nextend do begin
+      fits_read, fcb, date, header, exten_no=e
+      lcvr6temp = sxpar(header, 'LCVR6TMP')
+      ; TODO: check other temps to check? what is a good temp range?
+      if (lcvr6temp lt 25.0 || lcvr6temp gt 35.0) then begin
+        n_images_bad_temp += 1
+        mg_log, 'LCVR6TMP %0.2f exceeds tolerance', lcvr6temp, $
+                name='comp', /warn
+      endif
+    endfor
+
+    fits_close, fcb
   endfor
 
   if (n_images_off_detector gt 0L) then begin
@@ -55,7 +65,8 @@ pro comp_l1_check, date_dir, wave_type
 
   send_warning = overlap_angle_warning $
                    || (med_background gt background_limit) $
-                   || (n_images_off_detector gt 0L)
+                   || (n_images_off_detector gt 0L) $
+                   || (n_images_bad_temp gt 0L)
   if (send_warning && notification_email ne '') then begin
     body = list()
     if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
@@ -65,6 +76,10 @@ pro comp_l1_check, date_dir, wave_type
     endif
     if (n_images_off_detector gt 0L) then begin
       body->add, string(n_images_off_detector, format='(%"%d images off detector")')
+    endif
+    if (n_images_bad_temp gt 0L) then begin
+      body->add, string(n_images_bad_temp, $
+                        format='(%"%d images with bad temperature (LCVR6TMP)")')
     endif
 
     body->add, ''
