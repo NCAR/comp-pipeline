@@ -30,6 +30,11 @@
 ;   uncorrected_post_angle2 : out
 ;     the position angle of the post for distortion uncorrected subimage 2 (degrees)
 ;
+; :Keywords:
+;   error : out, optional, type=long
+;     error status of making the header, 0 for success, anything else indicates
+;     an error
+;
 ; :Author:
 ;   sitongia, modified by Tomczyk
 ;
@@ -42,7 +47,8 @@ pro comp_make_header, image, header, $
                       uncorrected_post_angle1, $
                       uncorrected_occulter2, $
                       uncorrected_field2, $
-                      uncorrected_post_angle2
+                      uncorrected_post_angle2, $
+                      error=error
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -76,7 +82,11 @@ pro comp_make_header, image, header, $
                      field_guess=[corrected_occulter_guess1, 297.0], $
                      occulter_points=corrected_occulter_points1, $
                      field_points=corrected_field_points1
-  if (error ne 0L) then message, 'error finding image center'
+  if (error ne 0L) then begin
+    mg_log, 'error finding image center', name='comp', /warn
+    return
+  endif
+
   comp_find_annulus, uncorrected_flat1, $
                      uncorrected_occulter1, uncorrected_field1, $
                      occulter_guess=[uncorrected_occulter_guess1, 226.0], $
@@ -84,7 +94,11 @@ pro comp_make_header, image, header, $
                      occulter_points=uncorrected_occulter_points1, $
                      field_points=uncorrected_field_points1, $
                      error=error
-  if (error ne 0L) then message, 'error finding image center'
+  if (error ne 0L) then begin
+    mg_log, 'error finding image center', name='comp', /warn
+    return
+  endif
+
   comp_find_post, flat1, occulter1, field1, post_angle1
   comp_find_post, uncorrected_flat1, $
                   uncorrected_occulter1, uncorrected_field1, $
@@ -96,7 +110,11 @@ pro comp_make_header, image, header, $
                      field_guess=[corrected_occulter_guess2, 297.0], $
                      occulter_points=corrected_occulter_points2, $
                      field_points=corrected_field_points2
-  if (error ne 0L) then message, 'error finding image center'
+  if (error ne 0L) then begin
+    mg_log, 'error finding image center', name='comp', /warn
+    return
+  endif
+
   comp_find_annulus, uncorrected_flat2, $
                      uncorrected_occulter2, uncorrected_field2, $
                      occulter_guess=[uncorrected_occulter_guess2, 226.0], $
@@ -104,7 +122,11 @@ pro comp_make_header, image, header, $
                      occulter_points=uncorrected_occulter_points2, $
                      field_points=uncorrected_field_points2, $
                      error=error
-  if (error ne 0L) then message, 'error finding image center'
+  if (error ne 0L) then begin
+    mg_log, 'error finding image center', name='comp', /warn
+    return
+  endif
+
   comp_find_post, flat2, occulter2, field2, post_angle2
   comp_find_post, uncorrected_flat2, $
                   uncorrected_occulter2, uncorrected_field2, $

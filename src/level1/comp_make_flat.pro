@@ -55,8 +55,6 @@ pro comp_make_flat, date_dir, error=error
 
   mg_log, 'starting', name='comp', /info
 
-  ; Establish error handler. When errors occur, the index of the
-  ; error is returned in the variable Error_status:
   catch, error
   if (error ne 0L) then begin
     catch, /cancel
@@ -182,7 +180,12 @@ pro comp_make_flat, date_dir, error=error
     ; make FITS extension header for the images with masking parameters included
     comp_make_header, image, header, $
                       occulter1, field1, post_angle1, $
-                      occulter2, field2, post_angle2
+                      occulter2, field2, post_angle2, $
+                      error=error
+    if (error ne 0L) then begin
+      mg_log, 'skipping flat creation for %s', opalfile, name='comp', /warn
+      continue
+    endif
 
     sxaddpar, header, 'FILENAME', opalfile, ' Name of raw opal file'
     sxaddpar, header, 'EXPOSURE', exposure
