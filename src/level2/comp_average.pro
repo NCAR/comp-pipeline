@@ -343,7 +343,9 @@ pro comp_average, date_dir, wave_type, error=error
           sumx2 = total(data[ia, ib, *]^2)
           xbar = sumx / m
           var = (sumx2 - 2.0 * xbar * sumx + m * xbar^2) / (m - 1.0)
-          sigma[ia, ib] = sqrt(var) / sm
+          ; TODO
+          ;sigma[ia, ib] = sqrt(var) / sm
+          sigma[ia, ib] = sqrt(var)
         endfor
       endfor
 
