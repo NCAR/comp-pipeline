@@ -14,7 +14,7 @@ pro comp_write_epochs, date_dir
   @comp_mask_constants_common
   @comp_config_common
 
-  filename = filepath(string(date_dir, format='(%s.epochs.cfg)'), $
+  filename = filepath(string(date_dir, format='(%"%s.epochs.cfg")'), $
                       subdir=comp_decompose_date(date_dir), $
                       root=engineering_dir)
   openw, lun, filename, /get_lun
