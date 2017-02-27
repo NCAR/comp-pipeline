@@ -205,3 +205,21 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             deltacentery2: occulter2.y - calc_occulter2.y $
           }
 end
+
+
+; main-level example program
+
+date = '20150418'
+time = '092841'
+
+comp_configuration, config_filename='../../config/comp.mgalloy.mahi.expan_factor_azi.cfg'
+comp_initialize, date
+
+@comp_config_common
+
+filename = filepath(date + '.' + time + '.FTS', subdir=date, root=raw_basedir)
+print, 'before processing...'
+comp_l1_process_file, filename, date, '1074'
+print, 'after processing...'
+
+end
