@@ -42,6 +42,9 @@
 ;
 ; :History:
 ;   added comments, 10/24/14 ST
+;
+; :Requires:
+;   IDL 8.2.3
 ;-
 function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
                           center_guess=center_guess, points=points
