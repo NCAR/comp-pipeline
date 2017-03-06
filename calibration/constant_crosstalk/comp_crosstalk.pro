@@ -270,8 +270,9 @@ end
 !except = 0
 !quiet = 1
 
-process_basedir = '/hao/mahidata1/Data/CoMP/process.empxtalk'
-date_dirs = ['20160519', '20160609', '20160726']
+process_basedir = '/hao/mahidata1/Data/CoMP/process.empxtalk2'
+;date_dirs = ['20160519', '20160609', '20160726']
+date_dirs = ['20160519', '20160609']
 
 for d = 0L, n_elements(date_dirs) - 1L do begin
   comp_initialize, date_dirs[d]
