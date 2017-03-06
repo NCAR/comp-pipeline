@@ -77,6 +77,8 @@ pro comp_combine_beams, images, headers, date_dir, $
 
   image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
                                        primary_header=primary_header)
+;  image_geometry = comp_image_geometry(images, headers, date_dir, $
+;                                       primary_header=primary_header)
 ;  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
 ;  minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
 

@@ -49,7 +49,7 @@ function comp_circfit, theta, r, chisq=chisq, error=error
   count = 1
 
   while (count gt 0) do begin
-    a = amoeba(1.e-4, p0=a, function_name='comp_circ_func', scale=60.0, $
+    a = amoeba(1.e-4, p0=a, function_name='comp_circ_func', scale=2.0, $
                function_value=fval, nmax=10000)
     mg_log, 'chi^2: %0.3f', fval[0], name='comp/circfit', /debug
 
