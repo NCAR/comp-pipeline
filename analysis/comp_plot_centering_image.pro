@@ -32,16 +32,16 @@ function comp_plot_centering_image_getgeo, eng_dir, date, time
            'calc_occ_ul.csv', $
            'flat_field_ul.csv', $
            'flat_occ_ul.csv']
+  files = ['calc_occ_lr.csv', $
+           'flat_occ_lr.csv', $
+           'calc_occ_ul.csv', $
+           'flat_occ_ul.csv']
   files = filepath(files, subdir=comp_decompose_date(date), root=eng_dir)
 
-  return, {calc_field_lr: comp_plot_centering_image_readfile(files[0], time), $
-           calc_occ_lr: comp_plot_centering_image_readfile(files[1], time), $
-           flat_field_lr: comp_plot_centering_image_readfile(files[2], time), $
-           flat_occ_lr: comp_plot_centering_image_readfile(files[3], time), $
-           calc_field_ul: comp_plot_centering_image_readfile(files[4], time), $
-           calc_occ_ul: comp_plot_centering_image_readfile(files[5], time), $
-           flat_field_ul: comp_plot_centering_image_readfile(files[6], time), $
-           flat_occ_ul: comp_plot_centering_image_readfile(files[7], time)}
+  return, {calc_occ_lr: comp_plot_centering_image_readfile(files[0], time), $
+           flat_occ_lr: comp_plot_centering_image_readfile(files[1], time), $
+           calc_occ_ul: comp_plot_centering_image_readfile(files[2], time), $
+           flat_occ_ul: comp_plot_centering_image_readfile(files[3], time)}
 end
 
 
@@ -76,8 +76,8 @@ pro comp_plot_centering_image, date, time, sav_dir, l1_process_dir, dark, geo
   ; UL
   plots, occulter_points1[0, *], occulter_points1[1, *] + 1024 - 620, $
          /device, color=occ_color
-  plots, field_points1[0, *], field_points1[1, *] + 1024 - 620, $
-         /device, color=field_color
+;  plots, field_points1[0, *], field_points1[1, *] + 1024 - 620, $
+;         /device, color=field_color
 
   plots, geo.calc_occ_ul[2] * cos(theta) + geo.calc_occ_ul[0] + 1024, $
          geo.calc_occ_ul[2] * sin(theta) + geo.calc_occ_ul[1], $
@@ -85,17 +85,17 @@ pro comp_plot_centering_image, date, time, sav_dir, l1_process_dir, dark, geo
   plots, [geo.calc_occ_ul[0]] + 1024, [geo.calc_occ_ul[1]], psym=1, symsize=1.0, $
          /device, color=occ_color
 
-  plots, geo.calc_field_ul[2] * cos(theta) + geo.calc_field_ul[0] + 1024, $
-         geo.calc_field_ul[2] * sin(theta) + geo.calc_field_ul[1], $
-         /device, color=field_color
-  plots, [geo.calc_field_ul[0]] + 1024, [geo.calc_field_ul[1]], psym=1, symsize=1.0, $
-         /device, color=field_color
+;  plots, geo.calc_field_ul[2] * cos(theta) + geo.calc_field_ul[0] + 1024, $
+;         geo.calc_field_ul[2] * sin(theta) + geo.calc_field_ul[1], $
+;         /device, color=field_color
+;  plots, [geo.calc_field_ul[0]] + 1024, [geo.calc_field_ul[1]], psym=1, symsize=1.0, $
+;         /device, color=field_color
 
   ; LR
   plots, occulter_points2[0, *] + 1024 - 620, occulter_points2[1, *], $
          /device, color=occ_color
-  plots, field_points2[0, *] + 1024 - 620, field_points2[1, *], $
-         /device, color=field_color
+;  plots, field_points2[0, *] + 1024 - 620, field_points2[1, *], $
+;         /device, color=field_color
 
   plots, geo.calc_occ_lr[2] * cos(theta) + geo.calc_occ_lr[0] + 1024, $
          geo.calc_occ_lr[2] * sin(theta) + geo.calc_occ_lr[1], $
@@ -103,28 +103,31 @@ pro comp_plot_centering_image, date, time, sav_dir, l1_process_dir, dark, geo
   plots, [geo.calc_occ_lr[0]] + 1024, [geo.calc_occ_lr[1]], psym=1, symsize=1.0, $
          /device, color=occ_color
 
-  plots, geo.calc_field_lr[2] * cos(theta) + geo.calc_field_lr[0] + 1024, $
-         geo.calc_field_lr[2] * sin(theta) + geo.calc_field_lr[1], $
-         /device, color=field_color
-  plots, [geo.calc_field_lr[0]] + 1024, [geo.calc_field_lr[1]], psym=1, symsize=1.0, $
-         /device, color=field_color
+;  plots, geo.calc_field_lr[2] * cos(theta) + geo.calc_field_lr[0] + 1024, $
+;         geo.calc_field_lr[2] * sin(theta) + geo.calc_field_lr[1], $
+;         /device, color=field_color
+;  plots, [geo.calc_field_lr[0]] + 1024, [geo.calc_field_lr[1]], psym=1, symsize=1.0, $
+;         /device, color=field_color
 end
 
 
 ; main-level program
 
-date = '20161112'
+;20150418.092841.FTS
+;20150418.092811.FTS
+
+date = '20150418'
 ;time = '075921'   ; local time
 ;time = '114004'   ; local time
-time = '074631'
+time = '092811'
 
-flags = '.centering10'
+flags = '.expan_factor_azi3'
 
 data_dir = '/hao/mahidata1/Data/CoMP'
 eng_dir = filepath('engineering' + flags, root=data_dir)
 log_dir = filepath('', subdir=comp_decompose_date(date), root=eng_dir)
 
-raw_dir = filepath(date, subdir='raw', root=data_dir)
+raw_dir = filepath(date, subdir='raw.expan_factor_azi', root=data_dir)
 
 process_dir = filepath(date, subdir='process' + flags, root=data_dir)
 l1_dir = filepath('level1', root=process_dir)
