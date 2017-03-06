@@ -129,14 +129,24 @@ pro comp_configuration, config_filename=config_filename
 
 
   ; options
-  subtract_background = config->get('subtract_background', $
-                                    section='options', $
-                                    /boolean, default=1B)
-  remove_stray_light  = config->get('remove_stray_light', $
-                                    section='options', $
-                                    /boolean, default=0B)
-  correct_crosstalk   = config->get('correct_crosstalk', section='options', $
-                                    /boolean, default=create_l1)
+  subtract_background    = config->get('subtract_background', $
+                                       section='options', $
+                                       /boolean, default=1B)
+  remove_stray_light     = config->get('remove_stray_light', $
+                                       section='options', $
+                                       /boolean, default=0B)
+  empirical_crosstalk_calculation_mode $
+      = config->get('empirical_crosstalk_calculation_mode' $
+                    /boolean, default=0B)
+  correct_crosstalk      = config->get('correct_crosstalk', $
+                                       section='options', $
+                                       /boolean, $
+                                       default=~empirical_crosstalk_calculation_mode)
+  perform_polarimetric_transform = config->get('perform_polarimetric_transform', $
+                                               section='options', $
+                                               /boolean, $
+                                               default=~empirical_crosstalk_calculation_mode)
+
 
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
@@ -181,5 +191,6 @@ pro comp_configuration, config_filename=config_filename
                                                  /boolean, default=1B)
   average_background_by_polarization = config->get('background_by_polarization', $
                                                    section='averaging', $
-                                                   /boolean, default=0B)
+                                                   /boolean, $
+                                                   default=empirical_crosstalk_calculation_mode)
 end

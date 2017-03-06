@@ -84,10 +84,12 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                                   headers_combine=headers_combine
 
   ; perform heliographic coordinate transformation
-  p_angle = sxpar(header0, 'SOLAR_P0')
-  overlap_angle = sxpar(header0, 'OVRLPANG')
-  comp_polarimetric_correction, images_combine, headers_combine, $
-                                p_angle, overlap_angle
+  if (perform_polarimetric_transform) then begin
+    p_angle = sxpar(header0, 'SOLAR_P0')
+    overlap_angle = sxpar(header0, 'OVRLPANG')
+    comp_polarimetric_correction, images_combine, headers_combine, $
+                                  p_angle, overlap_angle
+  endif
 
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         filename, wave_type
