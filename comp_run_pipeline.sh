@@ -9,6 +9,10 @@ PIPE_DIR=$(dirname ${SCRIPT_LOC})
 
 IDL=/opt/share/exelis/idl82/bin/idl
 
+# this prevents IDL_DEFAULT in the IDL_PATH from being interpreted as using
+# other versions of IDL
+unset IDL_DIR
+
 SSW_DIR=${PIPE_DIR}/ssw
 GEN_DIR=${PIPE_DIR}/gen
 LIB_DIR=${PIPE_DIR}/lib
