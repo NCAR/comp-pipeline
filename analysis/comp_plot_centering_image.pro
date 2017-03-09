@@ -137,7 +137,7 @@ fits_open, dark_filename, fcb
 fits_read, fcb, dark, dark_header, exten_no=1
 fits_close, fcb
 
-geo = comp_plot_centering_image_getgeo(eng_dir, date, time)
-comp_plot_centering_image, date, time, eng_dir, raw_dir, dark, geo
+geo = comp_plot_centering_image_getgeo(log_dir, date, time)
+comp_plot_centering_image, date, time, log_dir, raw_dir, dark, geo
 
 end

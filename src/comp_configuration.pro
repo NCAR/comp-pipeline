@@ -60,9 +60,11 @@ pro comp_configuration, config_filename=config_filename
   ; notifications
   notification_email = config->get('email', section='notifications', default='')
 
-
   ; engineering files
   engineering_dir = config->get('engineering_dir', section='engineering')
+  centering_diagnostics       = config->get('centering_diagnostics', $
+                                            section='engineering', $
+                                            /boolean, default=0B)
 
   ; actions
   dry_run             = config->get('dry_run', section='actions', $

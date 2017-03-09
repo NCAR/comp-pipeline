@@ -62,9 +62,6 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
 
   ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
 
-  ; TODO: actually use COMP_FIND_ANNULUS to find, don't just
-  ; read from flats
-
   ind1 = where(beam gt 0, n_plus_beam)
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
@@ -89,12 +86,14 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     calc_occulter1.x += occulter1.x
     calc_occulter1.y += occulter1.y
   
-    mg_log, '%f, %f, %f, %f, %d', $
-            time, $
-            calc_occulter1.x + nx / 2, $
-            calc_occulter1.y + 1024 - ny / 2, $
-            calc_occulter1.r, ind1[0], $
-            name='calc_occ_ul', /debug
+    if (centering_diagnostics) then begin
+      mg_log, '%f, %f, %f, %f, %d', $
+              time, $
+              calc_occulter1.x + nx / 2, $
+              calc_occulter1.y + 1024 - ny / 2, $
+              calc_occulter1.r, ind1[0], $
+              name='calc_occ_ul', /debug
+    endif
   endif
 
   ind2 = where(beam lt 0, n_minus_beam)
@@ -121,74 +120,62 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     calc_occulter2.x += occulter2.x
     calc_occulter2.y += occulter2.y
 
-    mg_log, '%f, %f, %f, %f, %d', $
-            time, $
-            calc_occulter2.x + 1024 - nx / 2, $
-            calc_occulter2.y + ny / 2, $
-            calc_occulter2.r, $
-            ind2[0], $
-            name='calc_occ_lr', /debug
+    if (centering_diagnostics) then begin
+      mg_log, '%f, %f, %f, %f, %d', $
+              time, $
+              calc_occulter2.x + 1024 - nx / 2, $
+              calc_occulter2.y + ny / 2, $
+              calc_occulter2.r, $
+              ind2[0], $
+              name='calc_occ_lr', /debug
+    endif
   endif
 
   ; write flat centers
 
-  mg_log, '%f, %f, %f, %f', $
-          time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
-          name='flat_occ_ul', /debug
-  mg_log, '%f, %f, %f, %f', $
-          time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
-          name='flat_occ_lr', /debug
+  if (centering_diagnostics) then begin
+    mg_log, '%f, %f, %f, %f', $
+            time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
+            name='flat_occ_ul', /debug
+    mg_log, '%f, %f, %f, %f', $
+            time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
+            name='flat_occ_lr', /debug
 
-  mg_log, '%d, %d, %d', $
-          sxpar(primary_header, 'FOCUS'), $
-          sxpar(primary_header, 'H-OCCULT'), $
-          sxpar(primary_header, 'V-OCCULT'), $
-          name='occulter', /debug
+    mg_log, '%d, %d, %d', $
+            sxpar(primary_header, 'FOCUS'), $
+            sxpar(primary_header, 'H-OCCULT'), $
+            sxpar(primary_header, 'V-OCCULT'), $
+            name='occulter', /debug
+  endif
 
   ; P angles of post
   pang1 = sxpar(flat_header, 'POSTANG1')
   pang2 = sxpar(flat_header, 'POSTANG2')
 
   ; overlap P angle (from the field stop)
-;  delta_x = sxpar(flat_header, 'OXCNTER2') - sxpar(flat_header, 'OXCNTER1')
-;  delta_y = sxpar(flat_header, 'OYCNTER1') - sxpar(flat_header, 'OYCNTER2')
   delta_x = calc_occulter2.x - calc_occulter1.x + 1024.0 - nx
   delta_y = calc_occulter1.y - calc_occulter2.y + 1024.0 - ny
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
-;  dims = size(images, /dimensions)
-;  for i = 0L, dims[2] - 1L do begin
-;    if (beam[i] gt 0L) then begin
-;      background = comp_extract1(images[*, *, i])
-;    endif else begin
-;      background = comp_extract2(images[*, *, i])
-;    endelse
-;    comp_find_annulus, background, occulter, field, error=error
-;    if (error eq 0L) then begin
-;      mg_log, 'unable to find center', name='comp', /info
-;    endif else begin
-;      mg_log, strjoin(strtrim([beam[i], $
-;                               occulter.x, occulter.y, occulter.r, $
-;                               field.x, field.y, field.r], 2), ', '), $
-;              name='comp', /info
-;    endelse
-;  endfor
-
-  ; TODO: remove when done
   mg_log, '%s', current_l1_filename, name='comp', /debug
-  if (n_elements(current_l1_filename) gt 0L) then begin
-    if (n_plus_beam gt 0) then begin
-      bname = file_basename(current_l1_filename) + '.centering-ul.sav'
-      save, occulter_points1, sub1, $
-            filename=filepath(bname, root=engineering_dir)
-    endif
-    if (n_minus_beam gt 0) then begin
-      bname = file_basename(current_l1_filename) + '.centering-lr.sav'
-      save, occulter_points2, sub2, $
-            filename=filepath(bname, root=engineering_dir)
+  if (centering_diagnostics) then begin
+    if (n_elements(current_l1_filename) gt 0L) then begin
+      if (n_plus_beam gt 0) then begin
+        bname = file_basename(current_l1_filename) + '.centering-ul.sav'
+        save, occulter_points1, sub1, $
+              filename=filepath(bname, $
+                                subdir=comp_decompose_date(date_dir), $
+                                root=engineering_dir)
+      endif
+      if (n_minus_beam gt 0) then begin
+        bname = file_basename(current_l1_filename) + '.centering-lr.sav'
+        save, occulter_points2, sub2, $
+              filename=filepath(bname, $
+                                subdir=comp_decompose_date(date_dir), $
+                                root=engineering_dir)
+      endif
     endif
   endif
-
 
   return, { occulter1: calc_occulter1, $
             occulter2: calc_occulter2, $
