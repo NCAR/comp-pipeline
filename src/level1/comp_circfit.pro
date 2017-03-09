@@ -51,13 +51,13 @@ function comp_circfit, theta, r, chisq=chisq, error=error
   while (count gt 0) do begin
     a = amoeba(1.e-4, p0=a, function_name='comp_circ_func', scale=2.0, $
                function_value=fval, nmax=10000)
-    mg_log, 'chi^2: %0.3f', fval[0], name='comp/circfit', /debug
+    mg_log, 'chi^2: %0.3f', fval[0], name='comp', /debug
 
     ; check if amoeba failed: it returns -1 but usually returns an array, so
     ; use following hack rather than directly checking return value!
     if (size(a, /n_dimensions) eq 0) then begin
       error = 1L
-      mg_log, 'AMOEBA failed', name='comp/circfit', /debug
+      mg_log, 'AMOEBA failed', name='comp', /debug
       return, -1
     endif
 
@@ -74,7 +74,7 @@ function comp_circfit, theta, r, chisq=chisq, error=error
       mg_log, '  %d bad point%s', $
               count, $
               count gt 1 ? 's' : '', $
-              name='comp/circfit', /debug
+              name='comp', /debug
     endif
   endwhile
 

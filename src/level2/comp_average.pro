@@ -208,7 +208,7 @@ pro comp_average, date_dir, wave_type, error=error
   if (compute_mean) then fits_write, fcbavg, 0, primary_header
   fits_write, fcbsig, 0, primary_header
 
-  mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp/average', /debug
+  mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp', /debug
 
   ; compute averages
   if (keyword_set(average_background_by_polarization)) then begin
@@ -237,7 +237,7 @@ pro comp_average, date_dir, wave_type, error=error
       mg_log, 'Stokes %s wave %s', $
               strjoin(strtrim(stokes[ist], 2), ', '), $
               strjoin(strtrim(waves[iw], 2), ', '), $
-              name='comp/average', /debug
+              name='comp', /debug
 
       ; REFORM to make sure IDL doesn't drop a dimension of size 1
       data = reform(fltarr(nx, ny, numof_stokes[ist], /nozero), $
@@ -253,7 +253,7 @@ pro comp_average, date_dir, wave_type, error=error
                 strtrim(stokes[ist], 2), $
                 strtrim(waves[iw], 2), $
                 name, $
-                name='comp/average', /debug
+                name='comp', /debug
 
         fits_open, filename, fcb
         fits_read, fcb, d, theader, /header_only, exten_no=0

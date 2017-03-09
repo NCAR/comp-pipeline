@@ -56,22 +56,6 @@ pro comp_configuration, config_filename=config_filename
   log_dir                     = config->get('log_dir', section='log')
   log_level                   = config->get('level', section='log', $
                                             default=4L, type=3)
-  l1_process_log_level        = config->get('l1_process_level', section='log', $
-                                            default=log_level, type=3)
-  circfit_log_level           = config->get('circfit_level', section='log', $
-                                            default=log_level, type=3)
-  quick_invert_log_level      = config->get('quick_invert_level', section='log', $
-                                            default=log_level, type=3)
-  average_log_level           = config->get('average_level', section='log', $
-                                            default=log_level, type=3)
-  dark_interp_log_level       = config->get('dark_interp_level', section='log', $
-                                            default=log_level, type=3)
-  fix_crosstalk_log_level     = config->get('fix_crosstalk_level', section='log', $
-                                            default=log_level, type=3)
-  find_image_center_log_level = config->get('find_image_center', section='log', $
-                                            default=log_level, type=3)
-  find_post_log_level         = config->get('find_post', section='log', $
-                                            default=log_level, type=3)
 
   ; notifications
   notification_email = config->get('email', section='notifications', default='')

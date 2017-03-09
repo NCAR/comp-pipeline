@@ -49,21 +49,21 @@ function comp_dark_interp, date_dir, time, exposure
   ; check for time beyond endpoints
   if (time le min(times[good])) then begin   ; time before first bias
     fits_read, fcb, bias, exten_no=good[0] + 1
-    mg_log, '%d at %f', good[0], times[good[0]], name='comp/dark_interp', /debug
+    mg_log, '%d at %f', good[0], times[good[0]], name='comp', /debug
   endif else begin
     if (time ge max(times[good])) then begin   ; time after last bias
       fits_read, fcb, bias, exten_no=good[count-1] + 1
       mg_log, 'ext %d for %s', $
               good[count - 1L] + 1, $
               comp_times2str(times[good[count - 1L]]), $
-              name='comp/dark_interp', /debug
+              name='comp', /debug
     endif else begin
       ;  otherwise interpolate for time
       closest = min(abs(times[good] - time), tmin)
       time_diff = times[good[tmin]] - time
       mg_log, 'time: %f, tmin: %d, good times: %s', $
               time, tmin, strjoin(strtrim(times[good], 2), ', '), $
-              name='comp/dark_interp', /debug
+              name='comp', /debug
       if (time_diff le 0) then begin
         i1 = good[tmin]
         i2 = good[tmin + 1L]
@@ -74,7 +74,7 @@ function comp_dark_interp, date_dir, time, exposure
 
       mg_log, 'times: %s', $
               strjoin(str_times[good], ', '), $
-              name='comp/dark_interp', /debug
+              name='comp', /debug
 
       fits_read, fcb, bias1, header1, exten_no=i1 + 1
       fits_read, fcb, bias2, header2, exten_no=i2 + 1
@@ -84,14 +84,14 @@ function comp_dark_interp, date_dir, time, exposure
               i1 + 1, $
               str_times[i2], $
               i2 + 1, $
-              name='comp/dark_interp', /debug
+              name='comp', /debug
 
       f1 = (times[i2] - time) / (times[i2] - times[i1])
       f2 = (time - times[i1]) / (times[i2] - times[i1])
 
       mg_log, 'bias=%0.3f*dark[%s]+%0.3f*dark[%s]', $
               f1, str_times[i1], f2, str_times[i2], $
-              name='comp/dark_interp', /debug
+              name='comp', /debug
 
       bias = f1 * bias1 + f2 * bias2
     endelse

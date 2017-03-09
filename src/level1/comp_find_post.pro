@@ -71,7 +71,7 @@ pro comp_find_post, image, occulter, field, pa
                   estimates=[max(y), x[max_pixel], 15., 0., 0.])
 
   mg_log, 'coeff: %s', strjoin(string(coeff, format='(%"%0.3f")'), ', '), $
-          name='comp/find_post', /debug
+          name='comp', /debug
 
   if (debug eq 1) then begin
     plot, x, y, xtitle='Angle (degrees)', ytitle='Intensity', title='find_post'

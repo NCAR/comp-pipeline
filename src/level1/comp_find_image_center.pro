@@ -77,7 +77,7 @@ function comp_find_image_center, dat, $
   if (error ne 0L) then return, -1L
 
   mg_log, 'h: %0.3f, alpha: %0.3f, radius: %0.3f', c[0], c[1], c[2], $
-          name='comp/find_image_center', /debug
+          name='comp', /debug
 
   if (debug eq 1) then begin
     plot, theta, r, psym=3, yrange=[200, 340], ystyle=1, $
