@@ -60,8 +60,7 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   mg_log, 'quick invert %s', wave_type, name='comp', /info
 
-  ; Establish error handler. When errors occur, the index of the
-  ; error is returned in the variable Error_status:
+  ; establish error handler for a crash in this routine
   catch, error
   if (error ne 0L) then begin
     catch, /cancel
@@ -69,7 +68,6 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
     return
   endif
 
-  l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
 
