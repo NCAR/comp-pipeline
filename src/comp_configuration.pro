@@ -99,6 +99,8 @@ pro comp_configuration, config_filename=config_filename
                                     /boolean, default=create_l2)
   create_quick_invert = config->get('create_quick_invert', section='actions', $
                                     /boolean, default=create_l2)
+  create_full_invert = config->get('create_full_invert', section='actions', $
+                                    /boolean, default=0B)
   find_systematics    = config->get('find_systematics', section='actions', $
                                     /boolean, default=create_l2)
   create_analysis     = config->get('create_analysis', section='actions', $

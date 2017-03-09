@@ -37,6 +37,7 @@ common comp_config, doi_1074,$
                     create_l2, $
                     create_average, $
                     create_quick_invert, $
+                    create_full_invert, $
                     find_systematics, $
                     create_analysis, $
                     create_daily_images, $

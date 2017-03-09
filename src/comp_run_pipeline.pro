@@ -358,6 +358,24 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'skipping quick invert', name='comp', /info
     endelse
 
+    if (create_full_invert) then begin
+      ; perform 'full' inversion
+      mg_log, 'creating full invert', name='comp', /info
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (process_wavelengths[w] ne '1083') then begin
+          if (~dry_run) then begin
+            comp_analyze, date_dir, process_wavelengths[w], error=error
+            if (error ne 0) then continue
+          endif
+        endif
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif else begin
+      mg_log, 'skipping full invert', name='comp', /info
+    endelse
+
     if (find_systematics) then begin
       ; evaluate systematic errors in comp data
       mg_log, 'finding systematics', name='comp', /info
