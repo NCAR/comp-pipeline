@@ -138,7 +138,7 @@ pro comp_configuration, config_filename=config_filename
                                        section='options', $
                                        /boolean, default=0B)
   empirical_crosstalk_calculation_mode $
-      = config->get('empirical_crosstalk_calculation_mode' $
+      = config->get('empirical_crosstalk_calculation_mode', $
                     /boolean, default=0B)
   correct_crosstalk      = config->get('correct_crosstalk', $
                                        section='options', $
