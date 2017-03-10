@@ -11,7 +11,7 @@ Correction of the spatially varying Stokes V crosstalk happens at the demodulati
 
 	- A set of L0 Stokes V (i.e., I+V and I-V) is passed into comp_fix_vxtalk, along with the date directory, headers, and the fits file name.
 	- The closest file (in time) with Stokes Q and U measurements is found.
-	- The Q/U file is loaded, flat & dark corrected, and demodulated (into I, Q, and U). The data are also averaged over wavelength, but the beams are not combined in the usual way. Instead, a 1k by 1k image with only the continuum channels is computed (i.e., both beam positions in the image show the continuum, and the on-band part is masked off).
+	- The Q/U file is loaded, flat & dark corrected, and demodulated (into I, Q, and U). The data are also averaged over wavelength, but the beams are not combined in the usual way. Instead, a 1k by 1k image with only the continuum channels is computed (i.e., both beam positions in the image show the continuum, and the on-band part is masked off). **Note that this statement applies to doing the crosstalk correction BEFORE demodulation**
 	- The same treatment is applied to the continuum Stokes V measurement in the input (Stokes V) file.
 	- This Stokes V continuum (background), averaged over wavelength, is fit with the following linear combination of the I, Q, U continuum images:
 	  ; V =   I * (aI + bI * x + cI * y + dI * x * y)
@@ -124,6 +124,8 @@ Now run the line fitting script, comp_stokes_fit_script_allpx.pro. This loads th
 	
 		This loads the average files, and runs comp_crosstalk_script. After that, it updates the image array with the corrected Stokes V, modifies the variances to de-emphasize the I, Q, U, and the red & blue wings in the fit, and fits the line at each pixel that isn't masked out. Parameters of interest include:
 		
+			nx_rebin: number of pixels to rebin in x from full resolution (620)
+			ny_rebin: number of pixels to rebin in y from full resolution (620)
 			ivar_scale = 2.0 ; Factor to scale the Stokes I variances
 			quvar_scale = 2.0 ; Factor to scale the Stokes Q & U variances
 			redvar_scale = 10.0 ; Additional factor to scale reddest wavelength variance
@@ -151,9 +153,11 @@ There is also a script which will attempt to compute crosstalk coefficients from
 
 Even shorter rundown of processing:
 
+----------------- In new pipeline branch -----------------------------
 	1. Edit Pipeline config script to point to correct date_dir
 	2. Run make pipe on command line in pipeline directory 
 	3. Optionally, cull and rerun (see above for directions) pipeline
+----------------- In stokes V code directory -------------------------	
 	4. Edit comp_coalign_script.pro to point to correct (process) date_dir and run it
 	5. Edit comp_coaligned_average_script.pro to point to correct (process) date_dir and run it
 	6. Edit comp_stokes_fit_script_allpx.pro to point to correct (process) date_dir and run it
