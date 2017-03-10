@@ -1,0 +1,188 @@
+Crosstalk removal in pipeline:
+
+Assumptions: The crosstalk removal and line fitting make the following assumption about the spectral line and crosstalk:
+
+	- The spectral line and continuum are affected by crosstalk in the same way.
+	- The continuum Stokes V measurements contain only crosstalk.
+	- The linear polarization measurements are linearly independent, so that they contain enough linear polarization information to remove all linear polarization from Stokes V.
+	- The background (continuum) subtraction performed as part of the level 1 processing removes all continuum contamination except for a linearly varying correction to Stokes I (i.e., of the form a*lambda+b).
+	
+Correction of the spatially varying Stokes V crosstalk happens at the demodulation stage of the processing from L0 to L1 data. The code in the current pipeline that does this is called 'comp_fix_vxtalk', and it is basically the same as the spatially varying crosstalk code but with the spatially varying bits stripped out. Restoring those parts is straightforward and self-contained. The way the spatially varying crosstalk is computed and removed in this code is as follows:
+
+	- A set of L0 Stokes V (i.e., I+V and I-V) is passed into comp_fix_vxtalk, along with the date directory, headers, and the fits file name.
+	- The closest file (in time) with Stokes Q and U measurements is found.
+	- The Q/U file is loaded, flat & dark corrected, and demodulated (into I, Q, and U). The data are also averaged over wavelength, but the beams are not combined in the usual way. Instead, a 1k by 1k image with only the continuum channels is computed (i.e., both beam positions in the image show the continuum, and the on-band part is masked off).
+	- The same treatment is applied to the continuum Stokes V measurement in the input (Stokes V) file.
+	- This Stokes V continuum (background), averaged over wavelength, is fit with the following linear combination of the I, Q, U continuum images:
+	  ; V =   I * (aI + bI * x + cI * y + dI * x * y)
+	  ;     + Q * (aQ + bQ * x + cQ * y + dQ * x * y)
+	  ;     + U(...)
+	- aI, bI, cI, dI, aQ, bQ, etc. are all constants, so that's 12 parameters to fit the entire Stokes V image. If the Stokes V continuum image is all crosstalk from I, Q, & U and the crosstalk varies at most bilinearly (i.e., proportional to x*y, x & y alone, and/or constant), then this procedure will result in a good fit to the Stokes V image (there must also be a statistically significant I, Q, and U signal in the I/Q/U data). The constants aI, bI, etc are then the coefficients of the crosstalk fit (as defined by the formula above). They are be used to estimate and remove the crosstalk from I, Q, and U in the input Stokes V file using that formula. To apply that, simply replace comp_fix_vxtalk in the current (as of Feb. 10, 2017) pipeline with the file of the same name in this directory and run the pipeline like normal. 
+	
+	All of this happens at the demodulate stage, before the beams are subtracted to remove the continuum from the line. The crosstalk fit happens across the detector plane, and there is no specific assumption about the crosstalk pattern being duplicated between the two beams. This is potentially at odds with the simultaneous on-band/off-band nature of CoMP, because it can add different amounts of crosstalk correction (from I, Q, and U) to the on-band and off-band beam. Ideally, we might expect the cross-talk to be the same between the beams, so we should either lock crosstalk fits for the two beams together or perform the fit after beam combining. In principal, these should be equivalent fixes to the problem, although there are some drawbacks to each:
+	
+	- Performing the crosstalk fits after beam combining would require some amount of rewriting of the pipeline. I'm not sure how much it would be, but I estimate 1-3 days of work.
+	
+	- Performing the fits before beam combining and locking the two beams together requires specifying the two image centers, and would not incorporate any of the distortion correction carried out by the pipeline. The quality of the fit would therefore suffer.
+	
+	- There is no guarantee that the two beams should have the same crosstalk correction in any case, since the backgrounds in the two beams are not taken at the same time. Moreover, the I, Q, and U data used to compute the crosstalk are also not from the same time, so they will not be affected by rapidly seeing variations in the same way. However, it ought to be the case that the crosstalk correction computed for the corresponding background beam should be the most appropriate for the foreground beam, provided there are no additional sources of crosstalk (genuine or otherwise) upstream of the beam splitter.
+
+Update 030617: Made changes to the pipeline so that the crosstalk correction can be done before or after beam combining... Note that the beam combining also averages the beam swapped states, and the crosstalk correction is computed from wavelength averaged backgrounds. It may be the case that a more granular crosstalk correction would be more effective.
+
+Noteworthy changes made to the L0->L1 processing pipeline include:
+
+	Reinstated the spatially varying empirical Stokes V crosstalk correction by putting the calls to comp_find_vxtalk back into comp_fix_vxtalk
+	Added diagnostic plotting of the L0 data to the pipeline - these are placed in the day's subdirectory within the engineering directory (e.g., engineering/2014/10/30). They are generated by a new routine, comp_l0_diagnostic_plot, which is called in comp_l1_process_file. The files show wavelength averaged L0 data after darks, flats, and demodulation but before beam combining, beam-swapping averages, or crosstalk correction.
+	Added diagnostic plotting of the spatially varying Stokes V crosstalk correction. These are placed in the day's subdirectory in the engineering directory. They are generated by a new subroutines, comp_plot_vxtalk, which is called by comp_fix_vxtalk. The plots show the wavelength averaged continuum I, Q, U, and V (on the bottom row) and on the top row the I, Q, U correction coefficients as well as the residuals after applying the correction to the wavelength averaged continuum Stokes V.
+	Fixed missing application of crosstalk correction and polarimetric clock angle correction to the background Q, U, and V data.
+	Modified the crosstalk correction routines so that the corrections can be applied either before or after the beam combining. As it stands, the crosstalk correction is done before beam combining, and the V crosstalk correction on the L0 is enabled. 
+	
+Coalignment: 
+
+After the level 1 processing with crosstalk removal, the data must be coaligned. The code for this is in the post-L1 directory, and at present it is run using comp_coalign_script.pro. The way it works is by minimizing chi squared between a fixed reference file (which should be a good quality file at the middle of the time range of interest) and each other file in the image sequence. Could also minimize the chi squared between adjacent files instead, but that would result in the coalignment random walking with error in the parameters scaling like sqrt(n_files) times the error in the individual coalignment fits. A middle ground would be to have a sequence of reference files instead of just one. In any case, the parameters of the minimization are the shift and rotation between each pair of files (reference and others). The minimization is done with Powell's method, which is somewhat slow, but effective as long as the parameters are in the basin of the correct minimum. 
+
+After alignment, a jpg sequence of the coalignment is placed in the process directory for the day. The coalignment parameters are also saved to a text file in that directory, which is named 'coalign_parms1074.txt'. The columns in this file contain, in order, the file name, it's x shift, y shift, rotation angle (in degrees), and chi squared. These are as interpreted by the functions comp_coreg_resamp and comp_coreg_pwlfunc, both in comp_coregister.pro. This file can be read by comp_read_coalign_parms.pro.
+
+Time averaging:
+
+After the coalignment is computed, the coaligned files are averaged. Files with coaligned chi squared over some threshold (e.g., 20) are omitted from the average. The sample variance from these files is also computed at this step and saved to an associated output file. For purposes of shot noise estimation and additional crosstalk correction, the backgrounds are likewise averaged. Both of these averagings are done by comp_coaligned_average_script.pro.
+
+L1 crosstalk removal:
+
+This is done in the same way as the L0 crosstalk removal, by fitting a simple spatially varying shape (see above). The same crosstalk-finding subroutine is used in both cases, the difference being that the crosstalk coefficients are computed by fitting the background (continuum) average files computed in the previous step, and then applied to the on-band line average files computed at the same time. This is done by the comp_crosstalk_script.pro, and usually this is called by the line fitting scripts which work on the crosstalk corrected data in memory rather than saving the corrected data to new fits files. Switching this behavior is not likely to be terribly difficult. Plots of the crosstalk correction are made at this time.
+
+Line Fitting:
+
+The next step is to perform the line fitting. This is done across the entire image by comp_stokes_fit_script_allpx.pro, and there is also a version that will interactively show the fit pixel-by-pixel - comp_stokes_fit_script_pxpeep.pro. To perform the fit, a Gaussian profile is integrated against the filter response functions (an interpolation table is used to speed this integration) to produce a set of synthetic intensities at each wavelength, and a chi squared is computed from the difference between the synthetic intensities and the data. The parameters of this profile are then tuned using IDL's curvefit procedure to minimize chi squared. The resulting fit thus incorporates the effect of the instrument filter response in a self-consistent fashion. The parameters of the fit are as follows:
+
+ 0: Line center
+ 1: Line width
+ 2: Flat offset to Stokes I
+ 3: Sloped offset to Stokes I, centered at center wavelength
+ 4,5,6,7: Independent Gaussian amplitudes in each of Stokes I, Q, U, and V (in the case of Stokes V, this symmetric component is due to crosstalk).
+ 8: Derivative of Gaussian fit to Stokes V - This is the `actual' Stokes V amplitude we're interested in, which comes from the Zeeman effect. Because it is the wavelength derivative of the gaussian, this amplitude is reduced in size compared to the others by a dimensionful factor related to the line width (in this case dimensions are cm and the line width is of order an angstrom, so the factor is of order 10^-9), as well as the other factors that depend on the magnetic field. blos_plot_script incorporates these factors to relate this Stokes V amplitude to the magnetic field (see below).
+ 9: Additional crosstalk coefficient applying the flat+sloped offset to Stokes I to Stokes V.
+
+The numbers above correspond to the indices of the fits returned by the fitting routines. Curvefit requires a good initial guess in order to converge, and this is computed by the fitting routine (comp_line_fit.pro) prior to running curvefit. Some other fitting routine (e.g., Powell's method) may  be more robust, but convergence properties appear to be adequate at present. 
+
+As the scripts are currently written, the errors are computed from the sample variances computed as part of the averaging, although estimates from the shot noise can also be used. These two estimates appear to be consistent except for high SNR data (primarily Stokes I), where the variances are dominated by solar dynamics and image drift. Note that, for purposes of fitting, the I, Q, and U variances are multiplied by a factor of two to allow the Stokes V data have a stronger influence in the fitting. Because of issues with far red and blue wavelengths in the data, there are additional multipliers on those variances - 2 for the blue and 10 for the red (which is the most problematic). These factors are applied within the scripts, just before the fitting loop. 
+
+In the same place as the variance rescaling is some code (currently commented out) that can rebin the data for a fit with lower resolution but higher SNR (systematics are not in general improved by such binning, however). These are set independently in both comp_stokes_fit_allpx.pro and comp_stokes_fit_pxpeep.pro. The latter attempts to use the fits from the former (or from the BLOS script, if that has also been run) for display purposes, which causes issues if the binning is set differently between the scripts.
+
+Computing and plotting BLOS:
+
+After the fitting has been done, blos_plot_script.pro will estimate BLOS and plot it. There are a number of dimensional factors involved in making this plot, summarized in the following equation:
+
+BLOS = (2/3)*(V/(L+I))*(4.0*!pi*me*c^2/(e0*lambda^2))
+
+where L=sqrt(Q^2+u^2), me is the mass of the electron, e0 is its charge (absolute value), and c is the speed of lights - cgs units should be used consistently throughout. The script then plots this magnetic field estimate. If comp_stokes_fit_script_pxpeep.pro is run after this point, it will use the BLOS as the reference image for pixel peeping.
+
+Note on color scales: When I'm plotting a quantity that can be either positive or negative with respect to some neutral value (Q, U, V, magnetic field, doppler shift etc), I have been using a scale which shows negative as purple and positive as green, with black being the neutral value (most often zero) and brightness increasing with the magnitude of the quantity. The rationale here is that black is pretty clearly distinguishable as the zero point and positive and negative can be clearly distinguished on the basis of their hue. When similar plots are made on a monochromatic color scale, it's difficult to distinguish between the two (e.g., with zero as middle gray intensity it can be very difficult to decide if one is looking at a positive or negative shift in various parts of the image - only local gradients are apparent). The reason for the choice of these two colors are (1) the purple is simply an equal combination of the red and blue channels of a RGB display, and the green is just the green channel; (2) the eye is considerably more sensitive to green than to red or blue (so using green/red or green/blue tends to make the image look like it's dominated by green), and using red and blue together helps compensate for this. As far as I'm aware, this color combination is workable for most forms of colorblindness and it conveys the necessary information in a way that's simple to implement.
+
+Summary of running the code, inputs of interest, etc:
+
+Level 0 processing:
+
+	To process the level 0 data, edit the machine's pipeline config file (e.g., comp.plowman.perch.cfg) to select the correct date range and run 'make pipe' in the pipeline directory. See Mike for more details on installing and running this. To turn Stokes V crosstalk correction on and off in the pipeline, comment or uncomment the comp_fix_vxtalk line in comp_l1_process_file. This will produce the usual L1 files in the process directory (specified in the piepline config file). It also produces the following new plots in the date-specific subdirectory of the engineering directory:
+
+	-l0_diagnostic_plots: Wavelength-averaged plots of the data in the file. These are flat-corrected, dark-corrected, and demodulated, but have no crosstalk correction or beam combining.
+	-stokesv_crosstalk_plots: Plots of the crosstalk correction to Stokes V (if the correction is turned on).
+	
+	At this point, if it's desired to cull bad data from the processed files, make two copies of the l0_diagnostic_plots directory (name one, e.g., l0_diagnostic_plots_good and the other l0_diagnostic_plot_all) and remove the files you don't want from l0_diagnostic_plots_good. Then, run bad_raw_script.pro, editing the directory names at the beginning as desired, to move the files that aren't in l0_diagnostic_plots_good to the bad raw directory that the script specifies. Then you'll need to wipe the process directory and run 'make pipe' again to reprocess with only the good files.
+
+----------------------------------------------------------
+
+Shorter rundown of Level 1 processing:
+	
+	The next step is to run comp_coalign_script.pro. This computes the coalignment as described above, and the beginning of the script sets a variety of strings telling it where to look for files. It uses a GBU file in a process directory to decide which files to coalign. One other important parameter in the file is tend, which specifies the end time for files - it won't use files with GMT times after that date. This may not be quite what's desireable since CoMP observation times (local Hawaii time) can run over into the next day GMT. It'll have to be modified if you want to specifically exclude those later afternoon times which run past 2359 GMT. It makes the following output:
+	
+	-Inside the corresponding process directory, it makes a directory called 'aligned_jpgs', where it shows the coalignment quality for each.
+	-It stores the coalignment parameters in a file in the process directory (coalign_parms*.txt).
+	
+Next make the average files using comp_coaligned_average_script.pro. This sets up filename strings in much the same way as comp_coalign_script.pro, and it reads the file produced by it. An important parameter in this script is chi2_max -- the script omits any file whose coaligment chi squared is greater than this value from the average. The default value here is 20. It produces the following 4 output files in the level process directory (for 1074):
+
+	coaligned_average.comp.1074.bkg.fts - Coaligned average of background (continuum).
+	coaligned_average.comp.1074.bkg.var.fts - Variance of background (continuum) average.
+	coaligned_average.comp.1074.fts - Coaligned average of line.
+	coaligned_average.comp.1074.var.fts - Variance of line average.
+	
+An important input is the reference file for the coalignment - all images are aligned so they match this files as closely as possible. Currently this is chosen to be the file with the lowest background according to the GBU, and is specified by the variable iref. One final variable of interest for the coalignment is the mask used for coalignment. This is produced in the subroutine comp_coalign_image_setup within comp_coregister, and set by the keywords occ_fac and fld_fac (in the call to comp_make_mask2) to enlarge the occulter by 1.05 and reduce the size of the open outer field by 0.935.
+
+Now run the line fitting script, comp_stokes_fit_script_allpx.pro. This loads the files produced by the averaging (strings at the top of the script control where it looks), corrects the crosstalk, and fits the lines. Crosstalk correction is performed by calling another script, comp_crosstalk_script.pro, from within comp_stokes_fit_script_allpx.pro. The crosstalk script is written so that it can also be called on its own, but that has not been tested lately, and may require debugging if it's to be run without first having run the line fitting script. The two scripts have the following important parameters to tune and produce the following results:
+
+	comp_crosstalk_script.pro:
+		This applies a mask when computing crosstalk corrections which removes regions with overlarge SNR. The mask is defined in terms of the median absolute deviation, removing regions which are over 6 (by default) median absolute deviations above the median - that threshold is set by the variable bgmask_thold. As with the coalignment, the mask is computed by comp_make_mask2 and has a restricted occulter and field stop (1.03 and 0.935 in this case). The outputs are as follows:
+		
+		xtparms: the parameters of the crosstalk
+		ivxtalk, qvxtalk, uvxtalk: Images showing the crosstalk coefficients at each pixel
+		vxtalk: The estimated v crosstalk in the on-band images, one for each wavelength
+		vcorr: The corrected stokes v (i.e., by subtracting off vxtalk)
+	
+	These are all in the form of arrays in memory, and are not saved to disk. It does save to diagnostic plots, comp_vcrosstalk_correction_fglinecenter and comp_vcrosstalk_correction_bg, which show the crosstalk correction applied to the on-band center wavelength and averaged continuum Stokes V, respectively.
+	
+	comp_stokes_fit_allpx.pro:
+	
+		This loads the average files, and runs comp_crosstalk_script. After that, it updates the image array with the corrected Stokes V, modifies the variances to de-emphasize the I, Q, U, and the red & blue wings in the fit, and fits the line at each pixel that isn't masked out. Parameters of interest include:
+		
+			ivar_scale = 2.0 ; Factor to scale the Stokes I variances
+			quvar_scale = 2.0 ; Factor to scale the Stokes Q & U variances
+			redvar_scale = 10.0 ; Additional factor to scale reddest wavelength variance
+			bluvar_scale = 2.0 ; Additional factor to scale bluest wavelength variance
+			
+		A mask is also used to restrict the fitting area, but is less restricted than that for coalignment and crosstalk removal (occ_fac=1.0, fld_fac=0.98).
+		
+		The outputs are stored in several arrays:
+			fitarr: the amplitudes at each pixel and wavelength which best fit the data
+			parmarr: The parameters of the Gaussian fit
+			parmerrarr: The errors in the fit parameters as estimated by curvefit (not sure how trustworthy these are, but may be useful)
+			chisqarr: The chi squareds resulting from the fit
+
+		The code also writes a plot of the chi squared with name of the form date_dir+'chisq.eps'
+		
+After running the line fitting script, run blos_plot_script.pro. this will produce a plot of BLOS, of the form comp_blos_date.jpg. Two important values in this plotting are stokesimin (default: 10), which masks out pixels with Stokes I amplitude less than this value, and vrelerr_max (default: 0.1), which masks out pixels with relative Stokes V error (roughly estimated across all 5 wavelengths) greater than this value. It may be better to use the error estimate resulting from curvefit (parmerrarr[*,*,8]) instead of this rough error estimate.  In addition to making a plot, the line-of-sight field is placed in an array called 'blos'.
+
+This is the best point to run comp_stokes_fit_script_pxpeep.pro to select and plot the line profiles at individual pixels. The structure of this is largely redundant with comp_stokes_fit_allpx.pro... The advantage of running at this point is that it will use the blos image (if it exists) as the reference for selecting pixels. The plots show 3 different aspects of the fit:
+	
+	1. The data points, which can be identified by their accompanying with error bars
+	2. The fit to the underlying line profile, which is shown as a dashed line. This will not necessarily pass through the data points, because the line profile is related to observable values by integrating it against the instrument wavelength response functions -- the curve shows the line profile in the absence of instrumental width and similar effects.
+	3. The 'synthetic' data points, computed from integrating the line profile against the wavelength response functions. These are shown as diamonds, and they should agree with the data points.
+
+There is also a script which will attempt to compute crosstalk coefficients from the symmetric component for the Stokes V fit, called vxtalk_fit_plot_script.pro. I haven't used this in a few days, so it may require some debugging.
+
+Even shorter rundown of processing:
+
+	1. Edit Pipeline config script to point to correct date_dir
+	2. Run make pipe on command line in pipeline directory 
+	3. Optionally, cull and rerun (see above for directions) pipeline
+	4. Edit comp_coalign_script.pro to point to correct (process) date_dir and run it
+	5. Edit comp_coaligned_average_script.pro to point to correct (process) date_dir and run it
+	6. Edit comp_stokes_fit_script_allpx.pro to point to correct (process) date_dir and run it
+	7. Run blos_plot_script
+	8. Optionally, edit comp_stokes_fit_script_pxpeep.pro to point to correct date_dir and run it (shows fits to line profiles).
+	
+This will produce the following results:
+
+	1. L1 processed files in the usual pipeline fashion 
+	2. L0 diagnostic plots in engineering/YYYY/MM/DD/l0_diagnostic_plots
+	3. Plots of L0 Stokes V crosstalk in engineering/YYYY/MM/DD/stokesv_crosstalk_plots
+	4. Coalignment parameters for each file in (for example) process/date_dir/coalign_parms1074.txt
+	5. Plots of coalignment for each file in process/date_dir/aligned_jpgs
+	6. Coaligned continuum and on-band average and variance files in process/date_dir:
+		coaligned_average.comp.1074.fts
+		coaligned_average.comp.1074.var.fts
+		coaligned_average.comp.1074.bkg.fts
+		coaligned_average.comp.1074.bkg.var.fts
+	7. Plots of crosstalk correction computed for and applied to L1 files, e.g.:
+		comp_vcrosstalk_correction_fglinecenter20141111.jpg
+		comp_vcrosstalk_correction_bg20141111.jpg
+	8. Plot of BLOS, e.g.:
+		comp_blos_20141111.jpg
+	9. Arrays of data, fit parameters, and errors resident in memory. Includes:
+		parmarr: Stokes V line fit parameters - see above for listing of contents
+		parmerrarr: Formal errors estimated by IDL curvefit; may or may not be trustworthy
+		chisqarr: Chi squared resulting from the fit
+		imagearr: Image array at each wavelength
+		vararr: variance array at each wavelength
+		bgimagearr: Background image array at each wavelength
+		bgvararr: Background variance array at each wavelength
+
