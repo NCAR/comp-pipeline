@@ -53,6 +53,9 @@ pro comp_make_header, image, header, $
   @comp_constants_common
   @comp_config_common
 
+  ; TODO: remove when done
+  @comp_testing_common
+
   mkhdr, header, image, /image
 
   ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
@@ -132,18 +135,19 @@ pro comp_make_header, image, header, $
                   uncorrected_occulter2, uncorrected_field2, $
                   uncorrected_post_angle2
 
-  ; TODO: remove when done
-  @comp_testing_common
-  save, corrected_occulter_points1, $
-        corrected_occulter_points2, $
-        corrected_field_points1, $
-        corrected_field_points2, $
-        uncorrected_occulter_points1, $
-        uncorrected_occulter_points2, $
-        uncorrected_field_points1, $
-        uncorrected_field_points2, $
-        filename=filepath(current_flatname + '.centering-flat.sav', $
-                          root=engineering_dir)
+  if (centering_diagnostics) then begin
+    save, corrected_occulter_points1, $
+          corrected_occulter_points2, $
+          corrected_field_points1, $
+          corrected_field_points2, $
+          uncorrected_occulter_points1, $
+          uncorrected_occulter_points2, $
+          uncorrected_field_points1, $
+          uncorrected_field_points2, $
+          filename=filepath(current_flatname + '.centering-flat.sav', $
+                            subdir=comp_decompose_date(date_dir), $
+                            root=engineering_dir)
+  endif
 
   occulter1.x += corrected_occulter_guess1[0]
   occulter1.y += corrected_occulter_guess1[1]
