@@ -45,13 +45,39 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_find_vxtalk, Iin, Qin, Uin, Vin, vcerrs, xtmask, $
+pro comp_find_vxtalk, date_dir, Iin, Qin, Uin, Vin, headers, $
                       IVxtalk, QVxtalk, UVxtalk, xtparms
   compile_opt strictarr
+
+  ; Get mask to ensure we don't try to fit areas obscured by occulter or field stop:
+  mask0 = comp_raw_mask(date_dir, headers, $
+                        upper_left_mask=mask1, lower_right_mask=mask2)
+
+  xtmask = mask1 or mask2
   nxtalks = 3   ; one each for I, Q, and U
 
-  vcross = Vin * xtmask
-  quvparms = [[[Iin]], [[Qin]], [[Uin]]]
+  ; wavelength average (if more than one wavelength) and apply mask
+  if (n_elements(Iin[0, 0, *]) gt 1) then begin  
+    vcross = mean(Vin, dimension=3) * xtmask
+    quvparms = [[[mean(Iin, dimension=3)]], $
+                [[mean(Qin, dimension=3)]], $
+                [[mean(Uin,dimension=3)]]]
+  endif else begin
+    vcross = Vin * xtmask
+    quvparms = [[[Iin]], [[Qin]], [[Uin]]]
+  endelse
+
+  ; estimate of shot noise
+  photfac = double(1.0/875.0)
+  vcerrs = sqrt(Iin * photfac) * xtmask
+
+  snrfac_mask = 6 ; Mask out pixels with SNR above this value.
+  snrp1 = 1+abs(vcross)/vcerrs
+  snrp1_med = median(snrp1[where(xtmask)])
+  snrp1_mad = median(abs(snrp1_med-snrp1[where(xtmask)]))
+  xtmask = xtmask*(snrp1 lt (snrp1_med+snrfac_mask*snrp1_mad))
+  vcerrs *= xtmask
+  vcross *= xtmask
   for i = 0L, nxtalks - 1L do quvparms[*, *, i] *= xtmask
 
   nx = n_elements(vcross[*, 0])

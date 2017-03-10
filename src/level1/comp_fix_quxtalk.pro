@@ -46,5 +46,15 @@ pro comp_fix_quxtalk, date_dir, images, headers, filename
       stokesI = comp_get_component(images, headers, 'I', beams[i], waves[i], /noskip)
       images[*, *, i] -= i_to_u_xtalk * stokesI + q_to_u_xtalk * stokesQ
     endif
+    if (pols[i] eq 'BKGQ') then begin
+      stokesI = comp_get_component(images, headers, 'BKGI', beams[i], waves[i], /noskip)
+      stokesU = comp_get_component(images, headers, 'BKGU', beams[i], waves[i], /noskip)
+      images[*, *, i] -= i_to_q_xtalk * stokesI + u_to_q_xtalk * stokesU
+    endif
+    if (pols[i] eq 'BKGU') then begin
+      stokesQ = comp_get_component(images, headers, 'BKGQ', beams[i], waves[i], /noskip)
+      stokesI = comp_get_component(images, headers, 'BKGI', beams[i], waves[i], /noskip)
+      images[*, *, i] -= i_to_u_xtalk * stokesI + q_to_u_xtalk * stokesQ
+    endif
   endfor
 end

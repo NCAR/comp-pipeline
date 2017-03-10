@@ -36,34 +36,18 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   comp_read_data, filename, images, headers, header0
 
-  comp_apply_flats_darks, images, headers, date_dir, error=error, $
-                          uncorrected_images=uncorrected_images
+  comp_apply_flats_darks, images, headers, date_dir, error=error
   if (error ne 0L) then begin
     mg_log, 'skipping %s (no flats/darks)', $
             file_basename(filename), name='comp', /error
     return
   endif
 
-  ; TODO: do uncorrected_images need to be demodulated and corrected for
-  ; crosstalk?
-
   comp_demodulate, images, headers, images_demod, headers_demod
+  comp_l0_diagnostic_plot, date_dir, filename, images_demod, headers_demod
+
   comp_inventory_header, headers_demod, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
-
-  ; depending on which polarizations are present, call the appropriate
-  ; cross-talk correction routines
-  if (correct_crosstalk) then begin
-    if (total(pol eq 'V') gt 0) then begin
-      mg_log, 'fixing V crosstalk', name='comp/l1_process', /debug
-      comp_fix_vxtalk, date_dir, images_demod, headers_demod, filename
-    endif
-
-    if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
-      mg_log, 'fixing QU crosstalk', name='comp/l1_process', /debug
-      comp_fix_quxtalk, date_dir, images_demod, headers_demod, filename
-    endif
-  endif
 
   ; split the foreground (on-band) and background (continuum) beams into
   ; separate images, and subtract the backgrounds from the foregrounds. Store
@@ -72,23 +56,37 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       images_combine, headers_combine, header0, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                       image_geometry=image_geometry, $
-                      wave_type=wave_type, $
-                      uncorrected_images=uncorrected_images
+                      wave_type=wave_type
+  beams_combined=1
 
-  ; double precision not required in output
-  images_combine = float(images_combine)
-
-  ; update the primary header and write the processed data to the output file
+  ; update the primary header:
   comp_promote_primary_header_l1, headers, header0, date_dir, wave_type, $
                                   image_geometry=image_geometry, $
                                   headers_combine=headers_combine
 
+  ; depending on which polarizations are present, call the appropriate
+  ; cross-talk correction routines
+  if (correct_crosstalk) then begin
+    if (total(pol eq 'V') gt 0) then begin
+;      mg_log, '**NOT** fixing V crosstalk (see comp_l1_process_file)', name='comp/l1_process', /debug
+      mg_log, 'Fixing V crosstalk (in comp_l1_process_file)', name='comp/l1_process', /debug
+      comp_fix_vxtalk, date_dir, images_combine, headers_combine, filename, beam_combined=beams_combined, wave_type=wave_type, header0=header0
+    endif
+
+    if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
+      mg_log, 'fixing QU crosstalk', name='comp/l1_process', /debug
+      comp_fix_quxtalk, date_dir, images_combine, headers_combine, filename
+    endif
+  endif
+
+  ; double precision not required in output
+  images_combine = float(images_combine)
+
   ; perform heliographic coordinate transformation
   p_angle = sxpar(header0, 'SOLAR_P0')
-  overlap_angle = sxpar(header0, 'OVRLPANG')
-  comp_polarimetric_correction, images_combine, headers_combine, $
-                                p_angle, overlap_angle
+  comp_polarimetric_correction, images_combine, headers_combine, p_angle
 
+  ; Write the processed data to the output file:
   comp_write_processed, images_combine, headers_combine, header0, date_dir, $
                         filename, wave_type
 end

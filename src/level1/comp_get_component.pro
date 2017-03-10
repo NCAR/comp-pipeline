@@ -30,7 +30,9 @@
 ;   skipall : in, optional, type=boolean
 ;     skip the first image at every wavelength
 ;   count : out, optional, type=long
-;     the number of images averaged at each wavelength
+;     the cumulative number of images averaged at each wavelength (including all previous averaging reflected in the headers).
+;   navg: out, optional, type=long
+;     the number of images averaged by the present call of this routine.
 ;   headersout : out, optional, type="strarr(varies, nimg)"
 ;     an updated set of headers (adds or updates the 'NAVERAGE' flag)
 ;   average_wavelengths : in, optional, type=boolean
@@ -48,6 +50,7 @@
 function comp_get_component, images, headers, polstate, beam, wave, $
                              skipall=skipall, $
                              count=count, $
+                             navg=navg, $
                              headersout=headersout, $
                              average_wavelengths=average_wavelengths, $
                              n_wavelengths=n_wavelengths, $
@@ -75,6 +78,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then check1[0] = 0
 
   count = lonarr(nw)
+  navg = lonarr(nw)
   imgout = images[*, *, 0L:nw - 1L]
   headersout = strarr(ntags, nw)
 
@@ -108,6 +112,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
               ' Number of images averaged together', $
               after='EXPOSURE'
     headersout[*, i] = headertemp
+    navg[i] = counti
   endfor
 
   ; average over all wavelengths if AVERAGE_WAVELENGTHS is set
@@ -120,6 +125,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
       end_index = (start_index + n_wavelengths - 1L) < (nw - 1L)
     endelse
     imgout = mean(imgout[*, *, start_index:end_index], dimension=3L)
+    navg = total(navg[start_index:end_index])
     count = total(count)
     headersout = headersout[*, 0L]
     sxaddpar, headersout, 'NAVERAGE', count, $

@@ -72,6 +72,7 @@ pro comp_make_mask, date_dir, fits_header, mask
                                  dy=(occulter.y - field.y))
 
     mask = dmask * field_mask
+        
   endif else begin
     occulter = {x:sxpar(fits_header, 'CRPIX1'), $
                 y:sxpar(fits_header, 'CRPIX2'), $
@@ -103,5 +104,6 @@ pro comp_make_mask, date_dir, fits_header, mask
                               dy=(occulter.y - field.y))
 
     mask = dmask * field_mask * pmask * omask
+        
   endelse
 end

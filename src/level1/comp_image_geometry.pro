@@ -72,22 +72,22 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     ; remove distortion
     sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
 
-    comp_find_annulus, sub1, calc_occulter1, $
+    comp_find_annulus, sub1, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
                                        occulter1.y, $
                                        occulter1.r], $
+                       field_guess=[field1.x, $
+                                    field1.y, $
+                                    field1.r], $
                        occulter_points=occulter_points1, $
-                       /occulter_only, $
-                       error=error
-    if (error ne 0L) then begin
-      mg_log, 'error finding center', name='comp', /warn
-      ; TODO: skip this image
-    endif
+                       field_points=field_points1
 
     ; the output of comp_find_annulus is an offset from the original guess, so
     ; so we must add the offsets together to get the final offset
     calc_occulter1.x += occulter1.x
     calc_occulter1.y += occulter1.y
+    calc_field1.x += field1.x
+    calc_field1.y += field1.y
   
     mg_log, '%f, %f, %f, %f, %d', $
             time, $
@@ -95,6 +95,13 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             calc_occulter1.y + 1024 - ny / 2, $
             calc_occulter1.r, ind1[0], $
             name='calc_occ_ul', /debug
+
+    mg_log, '%f, %f, %f, %f, %d', $
+            time, $
+            calc_field1.x + nx / 2, $
+            calc_field1.y + 1024 - ny / 2, $
+            calc_field1.r, ind1[0], $
+            name='calc_field_ul', /debug
   endif
 
   ind2 = where(beam lt 0, n_minus_beam)
@@ -104,22 +111,22 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     ; remove distortion
     sub2 = comp_apply_distortion(sub2, dx2_c, dy2_c)
 
-    comp_find_annulus, sub2, calc_occulter2, $
+    comp_find_annulus, sub2, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $
                                        occulter2.y, $
                                        occulter2.r], $
+                       field_guess=[field2.x, $
+                                    field2.y, $
+                                    field2.r], $
                        occulter_points=occulter_points2, $
-                       /occulter_only, $
-                       error=error
-    if (error ne 0L) then begin
-      mg_log, 'error finding center', name='comp', /warn
-      ; TODO: skip this image
-    endif
+                       field_points=field_points2
 
     ; the output of comp_find_annulus is an offset from the original guess, so
     ; so we must add the offsets together to get the final offset
     calc_occulter2.x += occulter2.x
     calc_occulter2.y += occulter2.y
+    calc_field2.x += field2.x
+    calc_field2.y += field2.y
 
     mg_log, '%f, %f, %f, %f, %d', $
             time, $
@@ -128,6 +135,14 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             calc_occulter2.r, $
             ind2[0], $
             name='calc_occ_lr', /debug
+
+    mg_log, '%f, %f, %f, %f, %d', $
+            time, $
+            calc_field2.x + 1024 - nx / 2, $
+            calc_field2.y + ny / 2, $
+            calc_field2.r, $
+            ind2[0], $
+            name='calc_field_lr', /debug
   endif
 
   ; write flat centers
@@ -136,8 +151,14 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
           time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
           name='flat_occ_ul', /debug
   mg_log, '%f, %f, %f, %f', $
+          time, field1.x + nx / 2, field1.y + 1024 - nx / 2, field1.r, $
+          name='flat_field_ul', /debug
+  mg_log, '%f, %f, %f, %f', $
           time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
           name='flat_occ_lr', /debug
+  mg_log, '%f, %f, %f, %f', $
+          time, field2.x + 1024 - nx / 2, field2.y + ny / 2, field2.r, $
+          name='flat_field_lr', /debug
 
   mg_log, '%d, %d, %d', $
           sxpar(primary_header, 'FOCUS'), $
@@ -179,12 +200,12 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   if (n_elements(current_l1_filename) gt 0L) then begin
     if (n_plus_beam gt 0) then begin
       bname = file_basename(current_l1_filename) + '.centering-ul.sav'
-      save, occulter_points1, sub1, $
+      save, occulter_points1, field_points1, sub1, $
             filename=filepath(bname, root=engineering_dir)
     endif
     if (n_minus_beam gt 0) then begin
       bname = file_basename(current_l1_filename) + '.centering-lr.sav'
-      save, occulter_points2, sub2, $
+      save, occulter_points2, field_points2, sub2, $
             filename=filepath(bname, root=engineering_dir)
     endif
   endif
