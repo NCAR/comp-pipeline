@@ -242,7 +242,7 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
           print, ix, iy, iter
           print, guess
           print, a
-          print, xi[0, 0], xi[1, 1], xi[2, 2], xi[3, 3], xi[4, 4)], xi[5, 5]
+          print, xi[0, 0], xi[1, 1], xi[2, 2], xi[3, 3], xi[4, 4], xi[5, 5]
           
           window, 0, xsize=800, ysize=800, xpos=300
           plot, tunings, obs[0, *], psym=1, title='Stokes I'
@@ -330,7 +330,6 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
     mg_log, '%s', error_result, name='comp', /error
   endif
 
-  
   ; write starting guesses
   fits_open, date_dir + '.comp.' + wave_type + '.guesses.fts', fcbout, /write
   fits_write, fcbout, fit_guesses[*,*,0], header, extname='Intensity'
