@@ -45,7 +45,7 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_find_vxtalk_standalone, Iin, Qin, Uin, Vin, vcerrs, xtmask, $
+pro comp_find_vxtalk, Iin, Qin, Uin, Vin, vcerrs, xtmask, $
                       IVxtalk, QVxtalk, UVxtalk, xtparms
   compile_opt strictarr
   nxtalks = 3   ; one each for I, Q, and U

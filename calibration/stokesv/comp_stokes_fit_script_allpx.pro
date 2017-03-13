@@ -9,7 +9,7 @@
 .compile fitting_code/comp_stokes_profiles.pro
 .compile fitting_code/comp_line_fit.pro
 
-date_dir = '20141111'
+if(n_elements(date_dir) eq 0) then date_dir = '20141111'
 filename = '/hao/solar4/plowman/CoMP/process/'+date_dir+'/level1/coaligned_average.comp.1074.fts'
 
 ; Get the header information, primarily for the extension number:
@@ -50,13 +50,17 @@ y=0
 wcen = waves(floor(0.5*nt))
 nimg = n_elements(imagearr[0,0,*])
 
+
+; Rebin the images and variances, if desired, by changing nx_rebin and ny_rebin to a multiple of 620:
 nx0 = n_elements(imagearr[*,0,0])
 ny0 = n_elements(imagearr[0,*,0])
 nx_rebin = 620
 ny_rebin = 620
+xscl = nx0/nx_rebin
+yscl = ny0/ny_rebin
 if(nx_rebin ne nx0 or ny_rebin ne ny0) then begin &$
-	imagearr_rebin = rebin(imagearr,310,310,nimg) &$
-	vararr_rebin = rebin(vararr,310,310,nimg)/4.0 &$
+	imagearr_rebin = rebin(imagearr,nx_rebin,ny_rebin,nimg) &$
+	vararr_rebin = rebin(vararr,nx_rebin,ny_rebin,nimg)/(xscl*yscl) &$
 endif else begin &$
 	imagearr_rebin = imagearr &$
 	vararr_rebin = vararr &$

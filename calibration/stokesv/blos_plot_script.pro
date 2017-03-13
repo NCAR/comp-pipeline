@@ -37,7 +37,7 @@ device,set_resolution=[1280,896]
 if(n_elements(stokesimin) eq 0) then stokesimin = 10
 if(n_elements(vrelerr_max) eq 0) then vrelerr_max = 0.1
 mask = mask0_rebin*(Verr_rel lt vrelerr_max)*(I gt stokesimin)
-plot_image,blos*mask, min=-50,max=50,top=254,bottom=1,scale=[index0.cdelt1,index0.cdelt2],origin=origin,ytitle='Solar Latitude (Arcseconds)'
+plot_image,blos*mask, min=-50,max=50,top=254,bottom=1,scale=[index0.cdelt1*xscl,index0.cdelt2*yscl],origin=origin,ytitle='Solar Latitude (Arcseconds)'
 
 colorbar,bottom=1,ncolors=254,/vertical,range=[-50,50]
 

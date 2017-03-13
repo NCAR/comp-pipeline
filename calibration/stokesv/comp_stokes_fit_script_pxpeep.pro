@@ -10,7 +10,7 @@
 .compile fitting_code/comp_line_fit.pro
 
 if(n_elements(date_dir) eq 0) then date_dir = '20141111'
-filename = '/hao/solar4/plowman/CoMP/process/'+date_dir+'/level1/coaligned_average.comp.1074.fts'
+filename = '/hao/solar4/plowman/CoMP/process/'+strtrim(string(date_dir),2)+'/level1/coaligned_average.comp.1074.fts'
 
 ; Get the header information, primarily for the extension number:
 comp_read_data, filename, imagearr, headerarr, header0
@@ -24,8 +24,6 @@ nt = ntune
 nstokes = 4
 if(nstokes eq 3) then npar = 7
 if(nstokes eq 4) then npar = 10
-
-comp_make_mask2,sxpar(header0,'DATE-OBS'),header0,mask0,occ_fac=1.01,fld_fac=0.99
 
 waves = dblarr(nt)
 for i=0,nt-1 do waves[i] = sxpar(headerarr[*,i],'WAVELENG')
@@ -53,9 +51,11 @@ nx0 = n_elements(imagearr[*,0,0])
 ny0 = n_elements(imagearr[0,*,0])
 nx_rebin = 620
 ny_rebin = 620
+xscl = nx0/nx_rebin
+yscl = ny0/ny_rebin
 if(nx_rebin ne nx0 or ny_rebin ne ny0) then begin &$
-	imagearr_rebin = rebin(imagearr,310,310,nimg) &$
-	vararr_rebin = rebin(vararr,310,310,nimg)/4.0 &$
+	imagearr_rebin = rebin(imagearr,nx_rebin,ny_rebin,nimg) &$
+	vararr_rebin = rebin(vararr,nx_rebin,ny_rebin,nimg)/(xscl*yscl) &$
 endif else begin &$
 	imagearr_rebin = imagearr &$
 	vararr_rebin = vararr &$
@@ -105,8 +105,8 @@ while !pi gt 0 do begin &$
 	print,round(x),round(y) &$
 	intens = reform(imagearr_rebin[round(x),round(y),0:(nstokes*nt-1)]) &$
 	vars = reform(vararr_rebin[round(x),round(y),0:(nstokes*nt-1)]) > 0.0 &$
-;	print,intens &$
-;	print,vars &$
+	print,intens &$
+	print,vars &$
 	comp_line_fit, waves, intens, vars, a, aerr, chi2, fit &$
 ;	a = parmarr[round(x),round(y),*] &$
 	print,chi2 &$
