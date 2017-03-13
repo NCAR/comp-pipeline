@@ -42,7 +42,8 @@ pro comp_make_header, image, header, $
                       uncorrected_post_angle1, $
                       uncorrected_occulter2, $
                       uncorrected_field2, $
-                      uncorrected_post_angle2
+                      uncorrected_post_angle2, $
+                      error=error
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
