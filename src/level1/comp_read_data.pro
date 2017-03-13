@@ -30,7 +30,7 @@ pro comp_read_data, filename, images, headers, header0
   fits_open, filename, fcb
   nxt = fcb.nextend
 
-  mg_log, '%d images in file', nxt, name='comp/l1_process', /debug
+  mg_log, '%d images in file', nxt, name='comp', /debug
 
   if (nxt le 1) then message, filename + ' contains no data'
 

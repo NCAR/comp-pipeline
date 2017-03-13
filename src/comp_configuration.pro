@@ -68,6 +68,9 @@ pro comp_configuration, config_filename=config_filename
   flat_corrected_output       = config->get('flat_corrected_output', $
                                             section='engineering', $
                                             /boolean, default=0B)
+  demodulated_output          = config->get('demodulated_output', $
+                                            section='engineering', $
+                                            /boolean, default=0B)
 
   ; actions
   dry_run             = config->get('dry_run', section='actions', $

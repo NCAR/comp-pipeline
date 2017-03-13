@@ -58,7 +58,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
     readf, infiles_lun, in_filename, format='(a19)'
     mg_log, 'processing file %d/%d @ %s: %s', $
             file_count + 1L, n_file_lines, wave_type, in_filename, $
-            name='comp/l1_process', /info
+            name='comp', /info
     filename = filepath(in_filename, subdir=date_dir, root=raw_basedir)
     comp_l1_process_file, filename, date_dir, wave_type
   endfor

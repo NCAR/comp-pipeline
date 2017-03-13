@@ -35,18 +35,28 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   comp_read_data, filename, images, headers, header0
 
   comp_apply_flats_darks, images, headers, date_dir, error=error, $
-                          uncorrected_images=uncorrected_images, $
-                          primary_header=header0
+                          uncorrected_images=uncorrected_images
   if (error ne 0L) then begin
     mg_log, 'skipping %s (no flats/darks)', $
             file_basename(filename), name='comp', /error
     return
   endif
 
+  if (flat_corrected_output) then begin
+    comp_write_intermediate, header0, images, headers, wave_type, date_dir, $
+                             filename, 'flatcor'
+  endif
+
   ; TODO: do uncorrected_images need to be demodulated and corrected for
   ; crosstalk?
 
   comp_demodulate, images, headers, images_demod, headers_demod
+
+  if (demodulated_output) then begin
+    comp_write_intermediate, header0, images, headers, wave_type, date_dir, $
+                             filename, 'demod'
+  endif
+
   comp_inventory_header, headers_demod, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
 
