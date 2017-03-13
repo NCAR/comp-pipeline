@@ -31,8 +31,8 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
             title=string(date_dir, format='(%"Faint I histogram (%s)")')
     hist_window = !d.window
 
-    window, xsize=4 * nx, ysize=nx, /free, $
-            title=string(date_dir, format='(%"Stokes I, Q, U, and V (%s)")')
+    window, xsize=5 * nx, ysize=nx, /free, $
+            title=string(date_dir, format='(%"Stokes I, Q, U, and V (%s) plus mask")')
     iquv_window = !d.window
     window, xsize=5 * nx, ysize=nx, /free, $
             title=string(date_dir, format='(%"V crosstalk (%s)")')
@@ -116,11 +116,22 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   ; determine bright and faint intensity pixels
   corona = stokes_i[*, *, nc]
   blue_wing = stokes_i[*, *, 0]
-  faint = where(mask eq 1.0 and corona lt 5.0, $
+  faint = where(mask eq 1.0 and corona lt 1.5, $
                 n_faint)
 
+  if (keyword_set(debug)) then begin
+    faint_mask = bytarr(620, 620)
+    faint_mask[faint] = 1B
+    tvscl, faint_mask, 4
+  endif
+
   ; add background back into stokes_i
-  for i = 0, ntune - 1 do stokes_i[*, *, i] = stokes_i[*, *, i] + background_i[*, *, i]
+  for i = 0, ntune - 1 do begin
+    stokes_i[*, *, i] = stokes_i[*, *, i] + background_i[*, *, i]
+    stokes_q[*, *, i] = stokes_q[*, *, i] + background_q[*, *, i]
+    stokes_u[*, *, i] = stokes_u[*, *, i] + background_u[*, *, i]
+    stokes_v[*, *, i] = stokes_v[*, *, i] + background_v[*, *, i]
+  endfor
 
   if (keyword_set(debug)) then begin
     masked = where(mask eq 1.0, n_masked)
