@@ -52,9 +52,7 @@ pro comp_make_header, image, header, $
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
-
-  ; TODO: remove when done
-  @comp_testing_common
+  @comp_diagnostics_common
 
   mkhdr, header, image, /image
 

@@ -15,6 +15,7 @@ common comp_config, doi_1074,$
                     notification_email, $
                     engineering_dir, $
                     centering_diagnostics, $
+                    flat_corrected_output, $
                     ffmpeg_dir, $
                     git_dir, $
                     log_level, $

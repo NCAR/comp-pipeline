@@ -14,7 +14,7 @@
 pro comp_run_pipeline, config_filename=config_filename
   compile_opt strictarr
   @comp_config_common
-  @comp_testing_common
+  @comp_diagnostics_common
 
   _config_filename = file_expand_path(n_elements(config_filename) eq 0L $
                        ? filepath('comp.cfg', root=mg_src_root()) $

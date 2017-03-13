@@ -30,8 +30,11 @@
 ; :Author:
 ;   Joseph Plowman
 ;-
-pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header, $
-                            uncorrected_images=uncorrected_images, error=error
+pro comp_apply_flats_darks, images, headers, date_dir, $
+                            flat_header=flat_header, $
+                            uncorrected_images=uncorrected_images, $
+                            primary_header=primary_header, $
+                            error=error
   compile_opt strictarr
   @comp_config_common
 
@@ -141,5 +144,26 @@ pro comp_apply_flats_darks, images, headers, date_dir, flat_header=flat_header, 
   endfor
 
   headers = headersout
+
+  if (flat_corrected_output) then begin
+    n_wave = n_elements(uniq(wave, sort(wave)))
+    _pol = strmid(pol, 0, 1)
+    _pol = _pol[uniq(_pol, sort(_pol))]
+    pol_tag = strlowcase(strjoin(_pol))
+
+    eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+    basename = string(file_basename(current_l1_filename, '.FTS'), $
+                      wave_type, pol_tag, n_wave, $
+                      format='(%"%s.comp.%s.%s.%d.flatcor.fts")')
+    filename = filepath(basename, root=eng_dir)
+
+    fits_open, filename, fcb, /write
+    fits_write, fcb, 0.0, primary_header
+    for e = 1L, n_elements(images[0, 0, *]) - 1L do begin
+      ename = pol[e - 1] + ', ' + string(wave[i], format='(f7.2)')
+      fits_write, images[*, *, e - 1], headers[*, e - 1], ename=ename
+    endfor
+    fits_close, fcb
+  endif
 end
   

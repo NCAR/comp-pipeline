@@ -65,6 +65,9 @@ pro comp_configuration, config_filename=config_filename
   centering_diagnostics       = config->get('centering_diagnostics', $
                                             section='engineering', $
                                             /boolean, default=0B)
+  flat_corrected_output       = config->get('flat_corrected_output', $
+                                            section='engineering', $
+                                            /boolean, default=0B)
 
   ; actions
   dry_run             = config->get('dry_run', section='actions', $

@@ -25,9 +25,7 @@
 function comp_image_geometry, images, headers, date_dir, primary_header=primary_header
   @comp_constants_common
   @comp_config_common
-
-  ; TODO: remove when done
-  @comp_testing_common
+  @comp_diagnostics_common
 
   ; scan the headers to find out what observations the files contain
   comp_inventory_header, headers, beam, wave, pol, type, expose, $

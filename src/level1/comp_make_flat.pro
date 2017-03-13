@@ -43,9 +43,7 @@ pro comp_make_flat, date_dir, error=error
   @comp_config_common
   @comp_fit_common
   @comp_flats_common
-
-  ; TODO: remove when done
-  @comp_testing_common
+  @comp_diagnostics_common
 
   ; configure
   comp_initialize, date_dir

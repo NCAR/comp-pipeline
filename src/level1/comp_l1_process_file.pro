@@ -29,15 +29,14 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   @comp_constants_common
   @comp_mask_constants_common
   @comp_config_common
-
-  ; TODO: remove when done
-  @comp_testing_common
+  @comp_diagnostics_common
   current_l1_filename = filename
 
   comp_read_data, filename, images, headers, header0
 
   comp_apply_flats_darks, images, headers, date_dir, error=error, $
-                          uncorrected_images=uncorrected_images
+                          uncorrected_images=uncorrected_images, $
+                          primary_header=header0
   if (error ne 0L) then begin
     mg_log, 'skipping %s (no flats/darks)', $
             file_basename(filename), name='comp', /error
