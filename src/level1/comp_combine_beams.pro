@@ -34,8 +34,6 @@
 ;     image geometry specifications
 ;   wave_type : in, required, type=string
 ;     wavelength to process, '1074', '1079', etc.
-;   uncorrected_images : in, optional, type="fltarr(nx, ny, n_images)"
-;     the array of CoMP images, not flat corrected, but corrected in other ways
 ;
 ; :Author:
 ;   Joseph Plowman
@@ -44,8 +42,7 @@ pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine, primary_header, $
                         n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                         image_geometry=image_geometry, $
-                        wave_type=wave_type, $
-                        uncorrected_images=uncorrected_images
+                        wave_type=wave_type
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -75,8 +72,7 @@ pro comp_combine_beams, images, headers, date_dir, $
   minus_images = images[*, *, minus_indices]
   minus_headers = headers[*, minus_indices]
 
-  image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
-                                       primary_header=primary_header)
+  image_geometry = comp_image_geometry(images, headers, date_dir, primary_header=primary_header)
 ;  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
 ;  minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
 
