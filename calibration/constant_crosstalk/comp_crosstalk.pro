@@ -32,7 +32,7 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
     hist_window = !d.window
 
     window, xsize=5 * nx, ysize=nx, /free, $
-            title=string(date_dir, format='(%"Stokes I, Q, U, and V (%s) plus mask")')
+            title=string(date_dir, format='(%"Mask and Stokes I, Q, U, and V (%s)")')
     iquv_window = !d.window
     window, xsize=5 * nx, ysize=nx, /free, $
             title=string(date_dir, format='(%"V crosstalk (%s)")')
@@ -107,10 +107,10 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   if (keyword_set(debug)) then begin
     wset, iquv_window
 
-    tv, bytscl(stokes_i[*, *, nc] * mask,  0.0,  25.0),  0
-    tv, bytscl(stokes_q[*, *, nc] * mask, -0.8,   0.8),  1
-    tv, bytscl(stokes_u[*, *, nc] * mask, -0.8,   0.8),  2
-    tv, bytscl(stokes_v[*, *, nc] * mask, -0.15,  0.15), 3
+    tv, bytscl(stokes_i[*, *, nc] * mask,  0.0,  25.0),  1
+    tv, bytscl(stokes_q[*, *, nc] * mask, -0.8,   0.8),  2
+    tv, bytscl(stokes_u[*, *, nc] * mask, -0.8,   0.8),  3
+    tv, bytscl(stokes_v[*, *, nc] * mask, -0.15,  0.15), 4
   endif
 
   ; determine bright and faint intensity pixels
@@ -122,15 +122,15 @@ pro comp_crosstalk, process_basedir, date_dir, debug=debug
   if (keyword_set(debug)) then begin
     faint_mask = bytarr(620, 620)
     faint_mask[faint] = 1B
-    tvscl, faint_mask, 4
+    tvscl, faint_mask, 0
   endif
 
   ; add background back into stokes_i
   for i = 0, ntune - 1 do begin
     stokes_i[*, *, i] = stokes_i[*, *, i] + background_i[*, *, i]
-    stokes_q[*, *, i] = stokes_q[*, *, i] + background_q[*, *, i]
-    stokes_u[*, *, i] = stokes_u[*, *, i] + background_u[*, *, i]
-    stokes_v[*, *, i] = stokes_v[*, *, i] + background_v[*, *, i]
+    ; stokes_q[*, *, i] = stokes_q[*, *, i] + background_q[*, *, i]
+    ; stokes_u[*, *, i] = stokes_u[*, *, i] + background_u[*, *, i]
+    ; stokes_v[*, *, i] = stokes_v[*, *, i] + background_v[*, *, i]
   endfor
 
   if (keyword_set(debug)) then begin
