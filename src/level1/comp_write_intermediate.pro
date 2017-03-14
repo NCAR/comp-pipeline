@@ -33,9 +33,9 @@ pro comp_write_intermediate, primary_header, images, headers, $
                          cover, cal_pol, cal_ret
 
   n_wave = n_elements(uniq(wave, sort(wave)))
-  _pol = strmid(pol, 0, 1)
+  _pol = strmid(pol, 2, 1)   ; take last char of I+Q, I-Q, I+U, etc.
   _pol = _pol[uniq(_pol, sort(_pol))]
-  pol_tag = strlowcase(strjoin(_pol))
+  pol_tag = strlowcase('I' + strjoin(_pol))
 
   eng_dir = filepath('', subdir=comp_decompose_date(date), root=engineering_dir)
   basename = string(file_basename(filename, '.FTS'), $

@@ -53,7 +53,8 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   comp_demodulate, images, headers, images_demod, headers_demod
 
   if (demodulated_output) then begin
-    comp_write_intermediate, header0, images, headers, wave_type, date_dir, $
+    comp_write_intermediate, header0, images_demod, headers_demod, $
+                             wave_type, date_dir, $
                              filename, 'demod'
   endif
 
