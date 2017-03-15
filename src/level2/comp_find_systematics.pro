@@ -105,7 +105,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
     good = where(d ne 0., count)
     if (count eq 0) then begin
-      mg_log, 'ext %d all 0.0 (%0.2f nm, %s)', i + 1, wav[i], pol[i], $
+      mg_log, 'ext %d all 0.0 (%0.2f nm, %s)', i + 1, wav[i], strtrim(pol[i], 2), $
               name='comp', /warn
       continue
     endif
