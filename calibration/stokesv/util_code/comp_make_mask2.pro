@@ -20,12 +20,8 @@ pro comp_make_mask2, date_dir, fits_header, mask, occ_fac=occ_fac, fld_fac=fld_f
 	if(n_elements(fld_fac) eq 0) then fld_fac = 1.0
 	if(n_elements(pst_fac) eq 0) then pst_fac = 1.0
 
-  common comp_constants, nx, ny, $
-    center1074, center1079, center1083,  $
-    stokes, n_stokes, debug, int_thresh, $
-    diff_thresh
-    
-  common mask_constants, post_rotation, occulter_offset, field_offset, field_overlap, plate_scale
+  @comp_constants_common
+  @comp_mask_constants_common
   
   ; Configure
   comp_initialize, date_dir
