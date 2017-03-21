@@ -1,8 +1,8 @@
 ; Currently this script is called from inside of comp_stokes_fit_script_allpx.pro and comp_stokes_fit_script_pxpeep.pro.
 ; It may work to call it on its own if filename is specified, but no guarantees - there are probably bugs or omissions.
-.compile /hao/solar4/plowman/CoMP/comp-pipeline/src/level1/comp_get_component.pro
+.compile ../../src/level1/comp_get_component.pro
 .compile comp_find_vxtalk.pro ; This is probably equivalent to the routine of the same name in my new pipeline branch.
-.compile /hao/solar4/plowman/CoMP/comp-pipeline/src/level1/comp_inventory_header.pro
+.compile ../../src/level1/comp_inventory_header.pro
 
 ; Read the data:
 fgfile = filename

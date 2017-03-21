@@ -9,8 +9,11 @@
 .compile fitting_code/comp_stokes_profiles.pro
 .compile fitting_code/comp_line_fit.pro
 
+devicelib
+imagelib
+
 if(n_elements(date_dir) eq 0) then date_dir = '20141111'
-filename = '/hao/solar4/plowman/CoMP/process/'+date_dir+'/level1/coaligned_average.comp.1074.fts'
+filename = '/hao/mahidata1/Data/CoMP/process.joe/'+date_dir+'/level1/coaligned_average.comp.1074.fts'
 
 ; Get the header information, primarily for the extension number:
 comp_read_data, filename, imagearr, headerarr, header0
@@ -47,7 +50,7 @@ wmax = max(waves)
 waves2 = wmin+(wmax-wmin)*findgen(nt2)/(nt2-1.0)
 x=0
 y=0
-wcen = waves(floor(0.5*nt))
+wcen = waves[floor(0.5*nt)]
 nimg = n_elements(imagearr[0,0,*])
 
 
