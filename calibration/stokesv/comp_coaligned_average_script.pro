@@ -18,9 +18,9 @@
 .compile coalign_code/comp_read_coalign_parms.pro
 
 ; Set up the file names:
-if(n_elements(process_dir) eq 0) then process_dir = '/hao/solar4/plowman/CoMP/process/' ; The top-level directory to look for processed files
+if(n_elements(process_dir) eq 0) then process_dir = '/hao/mahidata1/Data/CoMP/process.joe/' ; The top-level directory to look for processed files
 if(n_elements(wavestr) eq 0) then wavestr = '1074' ; Which wavelength to use (at present, this is pretty much always '1074')
-if(n_elements(date_dir) eq 0) then date_dir = '20130921' ; Which date directory to check...
+if(n_elements(date_dir) eq 0) then date_dir = '20141111' ; Which date directory to check...
 directory = process_dir+date_dir+'/level1/' ; The subdirectory where the processed files reside
 fits_suffix = '.comp.'+wavestr+'.fts' ; How the files with our wavelength are named
 fitsoutname = directory+'coaligned_average'+'.comp.'+wavestr+'.fts' ; Which file to store the coaligned average file
