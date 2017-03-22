@@ -126,7 +126,7 @@ while !pi gt 0 do begin &$
 	print,'Residuals: ' &$
 	print,(fit-intens)^2/vars &$
 
-	window,1 &$
+	comp_get_window, 1 &$
 	!p.multi = [0,2,2] &$
 
 	for i=0,nstokes-1 do begin &$
