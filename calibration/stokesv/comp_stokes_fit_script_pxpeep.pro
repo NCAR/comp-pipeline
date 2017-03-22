@@ -9,8 +9,16 @@
 .compile fitting_code/comp_stokes_profiles.pro
 .compile fitting_code/comp_line_fit.pro
 
+common comp_inten_calc_comblk, interptab, interptab_deriv, na, nl0, nl, logamin, logamax, l0min, l0max, lmin, lmax
+
+restore, filename='allvars.sav'
+
+; required to run Joe's scripts
+devicelib
+imagelib
+
 if(n_elements(date_dir) eq 0) then date_dir = '20141111'
-filename = '/hao/solar4/plowman/CoMP/process/'+strtrim(string(date_dir),2)+'/level1/coaligned_average.comp.1074.fts'
+filename = '/hao/mahidata1/Data/CoMP/process.joe/'+strtrim(string(date_dir),2)+'/level1/coaligned_average.comp.1074.fts'
 
 ; Get the header information, primarily for the extension number:
 comp_read_data, filename, imagearr, headerarr, header0
@@ -36,7 +44,10 @@ comp_read_data, fgvar_filename, vararr, varheaderarr, varheader0
 vararr_est = comp_estimate_var2(fgimagearr, fgheaderarr, bgimagearr, bgheaderarr)
 imagearr0=imagearr
 
+mg_log, 'before COMP_CROSSTALK_SCRIPT'
 @comp_crosstalk_script.pro ; Compute the crosstalk correction.
+mg_log, 'after COMP_CROSSTALK_SCRIPT'
+
 imagearr[*,*,15:19]=vcorr ; Update Stokes V data with correction.
 
 comp_make_mask2,sxpar(header0,'DATE-OBS'),header0,mask0,occ_fac=1.00,fld_fac=0.98
@@ -84,13 +95,14 @@ wmax = max(waves)
 waves2 = wmin+(wmax-wmin)*findgen(nt2)/(nt2-1.0)
 x=0
 y=0
-wcen = waves(floor(0.5*nt))
+wcen = waves[floor(0.5*nt)]
 wfilt = 2.3/16.0
 loadct,0
 while !pi gt 0 do begin &$
 	wset,0 &$
 	!p.multi=0 &$
 	if(n_elements(blos) gt 0) then begin &$
+                device, decomposed=0 &$
 		tvlct,red,green,blue &$
 		plot_image,blos*mask, min=-50,max=50,top=254,bottom=1 &$
 		colorbar,bottom=1,ncolors=254,/vertical,range=[-50,50] &$

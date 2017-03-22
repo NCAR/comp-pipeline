@@ -1,3 +1,5 @@
+.compile util_code/comp_make_mask2
+
 I = parmarr[*,*,4]
 L = sqrt(parmarr[*,*,5]^2.0+parmarr[*,*,6]^2.0)
 V = parmarr[*,*,8]

@@ -107,3 +107,18 @@ device, filename = date_dir+'chisq.eps',/encapsulated, bits=8, /inches, xsize=6,
 plot_image,chisqarr,min=0,max=10,title = date_dir+'Chi Squared; max = 10'
 device,/close
 set_plot,'x'
+
+save, /all, filename='allvars.sav'
+
+mg_log, 'finished original COMP_STOKES_FIT_SCRIPT_ALLPX'
+
+@blos_plot_script
+
+mg_log, 'finished original BLOS_PLOT_SCRIPT'
+
+@comp_stokes_fit_script_pxpeep
+
+mg_log, 'finished COMP_STOKES_FIT_SCRIPT_PXPEEP'
+
+
+mg_log, 'done'

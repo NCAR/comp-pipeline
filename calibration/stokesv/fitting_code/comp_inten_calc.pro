@@ -2,6 +2,25 @@ function comp_inten_calc, lambda0, sigma, wfilt=wfilt, recalc=recalc, deriv=deri
 
 	common comp_inten_calc_comblk, interptab, interptab_deriv, na, nl0, nl, logamin, logamax, l0min, l0max, lmin, lmax
 
+        save_file = 'inten_calc_comblk.sav'
+        if (n_elements(interptab) eq 0L) then begin
+          if (file_test(save_file)) then begin
+            mg_log, 'restoring %s', save_file
+            restore, save_file
+            interptab = struct.interptab
+            interptab_deriv = struct.interptab_deriv
+            na = struct.na
+            nl0 = struct.nl0
+            nl = struct.nl
+            logamin = struct.logamin
+            logamax = struct.logamax
+            l0min = struct.l0min
+            l0max = struct.l0max
+            lmin = struct.lmin
+            lmax = struct.lmax
+          endif else mg_log, '%s does not exist', save_file
+        endif
+
 	if(n_elements(wfilt) eq 0) then wfilt = 2.3D
 	pi = acos(0.0D)*2.0D
 	
@@ -51,6 +70,23 @@ function comp_inten_calc, lambda0, sigma, wfilt=wfilt, recalc=recalc, deriv=deri
 	endif else begin
 		integral = interpolate(interptab,ilambda0,ialpha,cubic=-0.5D)
 	endelse
+
+        if (~file_test(save_file)) then begin
+          mg_log, 'saving interptab in %s', save_file
+          struct = {interptab:interptab, $
+                    interptab_deriv:interptab_deriv, $
+                    na:na, $
+                    nl0:nl0, $
+                    nl:nl, $
+                    logamin:logamin, $
+                    logamax:logamax, $
+                    l0min:l0min, $
+                    l0max:l0max, $
+                    lmin:lmin, $
+                    lmax:lmax}
+          save, struct, filename=save_file
+        endif
+
 	
 	return,integral
 	
@@ -81,7 +117,7 @@ function comp_inten_calc_slow, lambdas_in, sigmas_in, wfilt=wfilt, deriv=deriv
 		intens[i] = int_tabulated(lambdas, integrand)/sqrt(2*!pi)/sigma
 	endfor
 	
-	
+
 	return, intens
 	
 end
