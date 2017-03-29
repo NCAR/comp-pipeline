@@ -22,6 +22,9 @@ hpss_log_name=${gateway_logdir}/HPSSGateway-CoMP-$(date +%F --date="yesterday").
 echo -e "\n# HPSS error messages from $hpss_log_name\n" >> $output 2>&1
 grep FAILED $hpss_log_name >> $output 2>&1
 
+# indicate who sent this email
+echo -e "\nSent by $0" >> $output 2>&1
+
 # email results
 recipient="iguana@ucar.edu, detoma@ucar.edu, mgalloy@ucar.edu, berkey@ucar.edu"
 mail -s "CoMP messages from $yesterday logs" "$recipient" < $output
