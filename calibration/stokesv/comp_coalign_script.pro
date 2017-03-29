@@ -23,7 +23,8 @@ imagelib
 device, decomposed=0
 
 wavestr = '1074' ; Which wavelength to use (at present, this is pretty much always '1074')
-if(n_elements(date_dir) eq 0) then date_dir = '20141111' ; Which date directory to check...
+;if(n_elements(date_dir) eq 0) then date_dir = '20141111' ; Which date directory to check...
+if(n_elements(date_dir) eq 0) then date_dir = '20141029' ; Which date directory to check...
 process_dir = '/hao/mahidata1/Data/CoMP/process.joe/' ; The top-level directory to look for processed files
 directory = process_dir+date_dir+'/level1/' ; The subdirectory where the processed files reside
 gbufile = 'GBU.'+wavestr+'.log' ; The name of the GBU file
