@@ -99,13 +99,14 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
     d = dat[*, *, i]
     ; TODO: why the next line? It modifies dat, which is not used again until
     ; next plot?
-    if (i gt nwave * 3 - 1) then begin
-      dat[*, *, i] = dat[*, *, i] + dat[*, *, i - nwave] * 0.185
+    if (i gt nwave * 3 - 1) then begin   ; if ext is V data
+      dat[*, *, i] += dat[*, *, i - nwave] * 0.185
     endif
 
     good = where(d ne 0., count)
     if (count eq 0) then begin
-      mg_log, 'ext %d all 0.0 (%0.2f nm, %s)', i + 1, wav[i], strtrim(pol[i], 2), $
+      mg_log, 'ext %d all 0.0 (%s @ %0.2f nm), skipping', $
+              i + 1, strtrim(pol[i], 2), wav[i], $
               name='comp', /warn
       continue
     endif
@@ -150,8 +151,8 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
 
     case fix(i / nwave) of
       0: begin
-          xmin = 0.
-          xmax = 5.
+          xmin = 0.0
+          xmax = 5.0
         end
       1: begin
           xmin = -0.25
@@ -181,48 +182,44 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   im->close
   mg_log, 'wrote images', name='comp', /info
 
-  ; plot correlation?  Only if Stokes V was observed
-  if (ndat / nwave gt 3) then begin
+  ; plot correlation only if Stokes V was observed
+  if (ndat gt 3 * nwave) then begin
     cor = dat[*, *, 2]
-    good = where(cor ne 0.)
+    good = where(cor ne 0., count)
     if (count eq 0) then begin
-      mg_log, 'no good cor', /warn, name='comp'
-    endif
+      mg_log, 'no good correlation', name='comp', /warn
+    endif else begin
+      i_index = nwave / 2 - 1
+      i = dat[*, *, i_index]
+      v_index = nwave * 3 + nwave / 2 - 1
+      v = dat[*, *, v_index]
 
-    i_index = nwave / 2 - 1
-    i = dat[*, *, i_index]
-    v_index = nwave * 3 + nwave / 2 - 1
-    v = dat[*, *, v_index]
+      scatter_plot = plot(i[good], v[good], $
+                          title='I,V Correlation', $
+                          xtitle='I Center', $
+                          ytitle='V Center', $
+                          linestyle='none', $
+                          symbol='.', $
+                          /current, $
+                          /buffer)
 
-    scatter_plot = plot(i[good], v[good], $
-                        title='I,V Correlation', $
-                        XTITLE='I Center', $
-                        YTITLE='V Center', $
-                        LINESTYLE='none', $
-                        symbol='.', $
-                        /current, $
-                        /buffer)
+      coef = poly_fit(i[good], v[good], 1)
 
-    coef = poly_fit(i[good], v[good], 1)
+      x = findgen(100) * 0.01 * (max(i) - min(i)) + min(i)
+      y = poly(x, coef)
 
-    ;  x=findgen(100)*.01-0.5
-    x = findgen(100) * 0.01 * (max(i) - min(i)) + min(i)
+      corr_plot = plot(x, y, /overplot, /buffer)
+      t = text(.6, .8, string(format='("Cor 0: ",f8.4)', coef[0]))
+      t = text(.6, .75, string(format='("Cor 1: ",f8.4)', coef[1]))
 
-    y = poly(x, coef)
-    ;oplot,x,y
-    corr_plot = plot(x, y, /overplot, /buffer)
-
-    ;  xyouts,.4,0.,file,/norm,chars=2
-    ;  outfile=file+'.cor.bmp'
-    ;  write_bmp,outfile,tvrd(true=1),r,g,b,/rgb
-    t = text(.6, .8, string(format='("Cor 0: ",f8.4)', coef[0]))
-    t = text(.6, .75, string(format='("Cor 1: ",f8.4)', coef[1]))
-
-    scatter_plot->save, filepath(file_dir + '.sca.gif', root=eng_dir), $
-                        xmargin=0, ymargin=0, /bitmap
-    scatter_plot->close
-    mg_log, 'wrote correlation plots', name='comp', /info
-  endif
+      scatter_plot->save, filepath(file_dir + '.sca.gif', root=eng_dir), $
+                          xmargin=0, ymargin=0, /bitmap
+      scatter_plot->close
+      mg_log, 'wrote correlation plots', name='comp', /info
+    endelse
+  endif else begin
+    mg_log, 'not plotting correlation because no V observed', name='comp', /info
+  endelse
 
   mg_log, 'done', name='comp', /info
 end
