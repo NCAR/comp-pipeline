@@ -2,8 +2,13 @@
 
 umask 0002
 output="/tmp/CoMP-$$"
-
-log_name=/hao/acos/comp/logs/$(date +"%Y%m%d" --date="yesterday").log
+if [[ $# -lt 1 ]]; then
+  date="yesterday"
+else
+  date=$1
+fi
+yesterday=$(date +"%Y%m%d" --date="$date")
+log_name=/hao/acos/comp/logs/$yesterday.log
 
 if [ -f $log_name ]; then
   # check total running time
@@ -19,19 +24,22 @@ if [ -f $log_name ]; then
 
   # check for HPSS errors
   gateway_logdir=/hao/acos/sw/var/log/CoMP/cidx
-  hpss_log_name=${gateway_logdir}/HPSSGateway-CoMP-$(date +%F --date="yesterday").log
+  hpss_log_name=${gateway_logdir}/HPSSGateway-CoMP-$(date +%F --date="$date").log
   echo -e "\n# HPSS error messages from $hpss_log_name\n" >> $output 2>&1
   grep FAILED $hpss_log_name >> $output 2>&1
-
-  # indicate who sent this email
-  echo -e "\nSent by $0" >> $output 2>&1
 else
-  echo "Log file $log_name does not exist" >> $output
+  echo "Log file $log_name does not exist" >> $output 2>&1
 fi
 
+# indicate who sent this email
+echo -e "\n\nSent by $(readlink -f $0) ($(whoami)@$(hostname))" >> $output 2>&1
+
 # email results
+
+# TODO: change recipients when pushed to production
 #recipient="iguana@ucar.edu, detoma@ucar.edu, mgalloy@ucar.edu, berkey@ucar.edu"
 recipient="mgalloy@ucar.edu"
+
 mail -s "CoMP messages from $yesterday logs" "$recipient" < $output
 
 # clean up
