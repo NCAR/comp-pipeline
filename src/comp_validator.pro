@@ -86,8 +86,9 @@ function comp_validator, date_dir
     if (mail_warnings && notification_email ne '') then begin
       subject = string(date_dir, $
                        format='(%"Errors validating raw files for CoMP on %s")')
-      body = string(log_dir, date_dir, $
-                    format='(%"Check log in %s/%s.log for error messages")')
+      body = [string(log_dir, date_dir, $
+                     format='(%"Check log in %s/%s.log for error messages")'), $
+              '', '', 'Send from comp_validator.pro']
       comp_send_mail, notification_email, subject, body
     endif
     return, ~invalid

@@ -85,6 +85,7 @@ pro comp_l1_check, date_dir, wave_type
     body->add, ''
     log_filename = filepath(date_dir + '.log', root=log_dir)
     body->add, string(log_filename, format='(%"See warnings in log %s for details")')
+    body->add, ['', '', 'Sent from comp_l1_check.pro'], /extract
 
     body_text = body->toArray()
     obj_destroy, body
