@@ -87,7 +87,7 @@ pro comp_l1_check, date_dir, wave_type
     body->add, string(log_filename, format='(%"See warnings in log %s for details")')
     body->add, ['', ''], /extract
     body->add, string(mg_src_root(/filename), $
-                      getenv('USER', getenv('HOSTNAME')), $
+                      getenv('USER'), getenv('HOSTNAME'), $
                       format='(%"Sent from %s (%s@%s")')
 
     body_text = body->toArray()

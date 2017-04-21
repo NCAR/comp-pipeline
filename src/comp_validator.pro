@@ -90,8 +90,8 @@ function comp_validator, date_dir
                      format='(%"Check log in %s/%s.log for error messages")'), $
               '', '', $
               string(mg_src_root(/filename), $
-                     getenv('USER', getenv('HOSTNAME')), $
-                     format='(%"Sent from %s (%s@%s)")']
+                     getenv('USER'), getenv('HOSTNAME'), $
+                     format='(%"Sent from %s (%s@%s)")')]
       comp_send_mail, notification_email, subject, body
     endif
     return, ~invalid
