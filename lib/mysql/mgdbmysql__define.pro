@@ -204,7 +204,7 @@ function mgdbmysql::_get_type, field
         if (field.charsetnr eq 33) then begin
           return, ''
         endif else begin
-          return, ptr_new(/allocate_heap)
+          return, ptr_new()
         endelse
       end
     253: return, ''   ; MYSQL_TYPE_VARSTRING
@@ -212,7 +212,6 @@ function mgdbmysql::_get_type, field
     else: message, 'unsupported type: ' + strtrim(field.type, 2)
   endcase
 end
-
 
 
 ;+
@@ -264,6 +263,15 @@ function mgdbmysql::_get_results, result, fields=fields, n_rows=n_rows
   endfor
 
   query_result = replicate(row_result, n_rows)
+
+  ; must allocate ptr columns
+  for f = 0L, n_fields - 1L do begin
+    if (size(self->_get_type(fields[f]), /type) eq 10) then begin
+      query_result.(f) = ptrarr(n_rows, /allocate_heap)
+    endif
+  endfor
+
+  ; populate result
   for r = 0L, n_rows - 1L do begin
     row = mg_mysql_fetch_row(result)
     lengths = mg_mysql_fetch_lengths(result)
@@ -293,6 +301,26 @@ end
 ;= API
 
 ;+
+; Creates a properly escaped string from any numeric array.
+;
+; :Returns:
+;   string
+;
+; :Params:
+;   from : in, required, type=numeric/string
+;     variable
+;-
+function mgdbmysql::escape_string, from
+  compile_opt strictarr
+
+  n_bytes = mg_typesize(size(from, /type)) * n_elements(from)
+  to = bytarr(2 * n_bytes + 1)
+  n_bytes_to = mg_mysql_real_escape_string(self.connection, to, from, n_bytes)
+  return, string(to[0:n_bytes_to - 1])
+end
+
+
+;+
 ; Returns the error message for the last failed MySQL API routine.
 ;
 ; :Returns:
@@ -316,7 +344,8 @@ end
 ;     query string, may be C format string with `arg1`-`arg12` substituted into
 ;     it
 ;   arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10,
-;   arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20 : in, optional, type=any
+;   arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18,
+;   arg19, arg20 : in, optional, type=any
 ;     arguments to be substituted into `sql_query`
 ;
 ; :Keywords:
@@ -370,7 +399,7 @@ function mgdbmysql::query, sql_query, $
   status = mg_mysql_query(self.connection, _sql_query)
   if (status ne 0) then begin
     error_message = self->last_error_message()
-    if (self.quiet || arg_present(error_message)) then begin
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
       return, !null
     endif else begin
       message, error_message
@@ -380,7 +409,8 @@ function mgdbmysql::query, sql_query, $
   result = mg_mysql_store_result(self.connection)
   if (result eq 0) then begin
     error_message = self->last_error_message()
-    if (self.quiet || arg_present(error_message)) then begin
+    status = 1L
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
       return, !null
     endif else begin
       message, error_message
@@ -686,7 +716,7 @@ pro mgdbmysql::execute, sql_query, $
   status = mg_mysql_query(self.connection, _sql_query)
   if (status ne 0) then begin
     error_message = self->last_error_message()
-    if (self.quiet || arg_present(error_message)) then begin
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
       return
     endif else begin
       message, error_message
@@ -708,14 +738,26 @@ end
 ; :Keywords:
 ;   n_tables : out, optional, type=long
 ;     set to a named variable to retrieve the number of matching tables
+;   status : out, optional, type=long
+;     set to a named variable to retrieve the status code from the
+;     query, 0 for success
+;   error_message : out, optional, type=string
+;     MySQL error message; "Success" if not error
 ;-
-function mgdbmysql::list_tables, wildcard, n_tables=n_tables
+function mgdbmysql::list_tables, wildcard, $
+                                 n_tables=n_tables, $
+                                 status=status, $
+                                 error_message=error_message
   compile_opt strictarr
+
+  status = 0L
+  error_message = 'Success'
 
   result = mg_mysql_list_tables(self.connection, wildcard)
   if (result eq 0) then begin
+    status = 1L
     error_message = self->last_error_message()
-    if (self.quiet || arg_present(error_message)) then begin
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
       return, !null
     endif else begin
       message, error_message
@@ -742,14 +784,26 @@ end
 ; :Keywords:
 ;   n_databases : out, optional, type=long
 ;     set to a named variable to retrieve the number of matching databases
+;   status : out, optional, type=long
+;     set to a named variable to retrieve the status code from the
+;     query, 0 for success
+;   error_message : out, optional, type=string
+;     MySQL error message; "Success" if not error
 ;-
-function mgdbmysql::list_dbs, wildcard, n_databases=n_databases
+function mgdbmysql::list_dbs, wildcard, $
+                              n_databases=n_databases, $
+                              status=status, $
+                              error_message=error_message
   compile_opt strictarr
+
+  status = 0L
+  error_message = 'Success'
 
   result = mg_mysql_list_dbs(self.connection, wildcard)
   if (result eq 0) then begin
+    status = 1L
     error_message = self->last_error_message()
-    if (self.quiet || arg_present(error_message)) then begin
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
       return, !null
     endif else begin
       message, error_message
@@ -785,8 +839,11 @@ end
 ;     name of section in `config_filename` containing connection information;
 ;     this section must contain `user` and `password` with optional values
 ;     for `host`, `database`, `port`, and `socket`
+;   status : out, optional, type=integer
+;     set to a named variable to retrieve the status of the connection, 0 for
+;     success; if not 0, `ERROR_MESSAGE` should be set to a non-empty message
 ;   error_message : out, optional, type=string
-;     MySQL error message
+;     set to a named variable to retrieve an MySQL error message
 ;-
 pro mgdbmysql::connect, host=host, $
                         user=user, $
@@ -796,18 +853,27 @@ pro mgdbmysql::connect, host=host, $
                         socket=socket, $
                         config_filename=config_filename, $
                         config_section=config_section, $
+                        status=status, $
                         error_message=error_message
   compile_opt strictarr
   on_error, 2
 
+  status = 0L
+  error_message = 'Success'
   self.connected = 0B
 
   if (n_elements(config_filename) gt 0) then begin
     c = mg_read_config(config_filename)
     if (n_elements(config_section) gt 0 && config_section ne '') then begin
       if (~c->has_section(config_section)) then begin
-        message, string(config_section, $
-                        format='(%"CONFIG_SECTION %s not found")')
+        msg = string(config_section, $
+                     format='(%"CONFIG_SECTION %s not found")')
+        if (arg_present(status) || arg_present(error_message)) then begin
+          status = 1L
+          error_message = msg
+        endif else begin
+          message, msg
+        endelse
       endif
     endif
 
@@ -827,13 +893,25 @@ pro mgdbmysql::connect, host=host, $
     _user = c->get('user', section=config_section, found=user_found)
     _user = n_elements(user) gt 0 ? user : _user
     if (~user_found && n_elements(user) eq 0) then begin
-      message, 'USER required'
+      msg = 'USER required'
+      if (arg_present(status) || arg_present(error_message)) then begin
+        status = 1L
+        error_message = msg
+      endif else begin
+        message, msg
+      endelse
     endif
 
     _password = c->get('password', section=config_section, found=password_found)
     _password = n_elements(password) gt 0 ? password : _password
     if (~password_found && n_elements(password) eq 0) then begin
-      message, 'PASSWORD required'
+      msg = 'PASSWORD required'
+      if (arg_present(status) || arg_present(error_message)) then begin
+        status = 1L
+        error_message = msg
+      endif else begin
+        message, msg
+      endelse
     endif
   endif else begin
     self.host = n_elements(host) eq 0 ? 'localhost' : host
@@ -854,8 +932,8 @@ pro mgdbmysql::connect, host=host, $
     error_message = self->last_error_message()
     mg_mysql_close, self.connection
     self.connection = 0UL
-
-    if (self.quiet || arg_present(error_message)) then begin
+    status = 1L
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
       return
     endif else begin
       message, error_message
@@ -929,9 +1007,11 @@ pro mgdbmysql::setProperty, quiet=quiet, $
   if (n_elements(mysql_opt_protocol) gt 0) then begin
     status = mg_mysql_options(self.connection, 9UL, ulong(mysql_opt_protocol[0]))
   endif
+
   if (n_elements(mysql_secure_auth) gt 0) then begin
     status = mg_mysql_options(self.connection, 18UL, byte(mysql_secure_auth[0]))
   endif
+
   if (n_elements(database) gt 0) then begin
     self.database = database
     status = mg_mysql_select_db(self.connection, self.database)
@@ -952,7 +1032,8 @@ pro mgdbmysql::getProperty, quiet=quiet, $
                             server_version=server_version, $
                             last_command_info=last_command_info, $
                             database=database, $
-                            host_name=host_name
+                            host_name=host_name, $
+                            connection=connection
   compile_opt strictarr
 
   quiet = self.quiet
@@ -966,6 +1047,7 @@ pro mgdbmysql::getProperty, quiet=quiet, $
   if (arg_present(last_command_info)) then last_command_info = mg_mysql_info(self.connection)
   database = self.database
   host_name = self.host
+  connection = self.connection
 end
 
 
@@ -992,20 +1074,25 @@ end
 ;   1 for success, 0 otherwise
 ;
 ; :Keywords:
+;   status : out, optional, type=long
+;     set to a named variable to retrieve the status code from the
+;     query, 0 for success
 ;   error_message : out, optional, type=string
 ;     MySQL error message
 ;   _extra : in, optional, type=keywords
 ;     keywords to `setProperty`
 ;-
-function mgdbmysql::init, error_message=error_message, _extra=e
+function mgdbmysql::init, status=status, error_message=error_message, _extra=e
   compile_opt strictarr
   on_error, 2
 
   self.connected = 0B
 
-  status = self->_init()
-  if (status ne 1) then begin
-    if (self.quiet || arg_present(error_message)) then begin
+  if (self->_init() ne 1) then begin
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
+      status = 1L
+      error_message = !error_state.msg
+
       return, 0
     endif else begin
       message, !error_state.msg
@@ -1014,7 +1101,8 @@ function mgdbmysql::init, error_message=error_message, _extra=e
 
   if (self.connection eq 0) then begin
     error_message = self->last_error_message()
-    if (self.quiet || arg_present(error_message)) then begin
+    if (self.quiet || arg_present(status) || arg_present(error_message)) then begin
+      status = 1L
       return, 0
     endif else begin
       message, error_message
