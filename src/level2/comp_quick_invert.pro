@@ -225,10 +225,6 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   fits_write, fcbout, azimuth, header, extname='Azimuth'
   sxdelpar, header, 'COMMENT'
 
-  sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' MAXIMUM DATA VALUE'
-  fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
-
   sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
@@ -236,6 +232,10 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   sxaddpar, header, 'DATAMIN', min(width, /nan), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(width, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, width, header, extname='Line Width'
+
+  sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' MINIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' MAXIMUM DATA VALUE'
+  fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
 
   fits_close, fcbout
 
