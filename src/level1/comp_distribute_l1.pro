@@ -28,6 +28,13 @@ pro comp_distribute_l1, date_dir, wave_type
   @comp_config_common
   @comp_constants_common
 
+  catch, error
+  if (error ne 0L) then begin
+    catch, /cancel
+    mg_log, /last_error, name='comp'
+    goto, done
+  endif
+
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, l1_process_dir
 
@@ -113,5 +120,6 @@ pro comp_distribute_l1, date_dir, wave_type
     mg_log, 'skipping linking to L1 tarball from HPSS dir...', name='comp', /info
   endelse
 
+  done:
   mg_log, 'done', name='comp', /info
 end
