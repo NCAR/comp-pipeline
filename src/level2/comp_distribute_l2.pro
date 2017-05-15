@@ -49,7 +49,7 @@ pro comp_distribute_l2, date_dir, wave_type
 
   types = ['dynamics', 'polarization']
   for t = 0L, n_elements(types) - 1L do begin
-    files = file_search('*.comp.' + wave_type + '.' + types[t] + '.*.fts.gz', $
+    files = file_search('*.comp.' + wave_type + '.' + types[t] + '.fts.gz', $
                         count=n_files)
     mg_log, 'copying %d %s FITS files...', n_files, types[t], name='comp', /info
     if (n_files gt 0L) then file_copy, files, adir, /overwrite

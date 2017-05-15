@@ -499,7 +499,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   ; 2-pass encoding with ffmpeg and x264
   for pass = 1, 2 do begin
     type = 'intensity'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'int', '2000k', $
@@ -508,10 +509,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'enhanced_intensity'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'enh_int', '3000k', $
@@ -520,10 +524,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'corrected_velocity'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'corr_velo', '3000k', $
@@ -532,10 +539,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'line_width'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'line_width', '3000k', $
@@ -544,10 +554,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'ltot'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'lin_pol', '3000k', $
@@ -556,10 +569,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'q'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'stks_q', '3000k', $
@@ -568,10 +584,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'u'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'stks_u', '3000k', $
@@ -580,10 +599,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
 
     type = 'azimuth'
-    files = file_search(string(0, format='(%"' + type + infile_ext + '")'), count=n_files)
+    glob = string(0, format='(%"' + type + infile_ext + '")')
+    files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'azi', '3000k', $
@@ -592,7 +614,9 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
       spawn, ffmpeg_cmd
-    endif
+    endif else begin
+      mg_log, 'no files found matching %s', glob, name='comp', /debug
+    endelse
   endfor
 
   files = file_search('intensity.' + wave_type + '.*.png', count=n_files)
