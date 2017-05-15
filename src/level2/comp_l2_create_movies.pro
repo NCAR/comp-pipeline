@@ -101,6 +101,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     mg_log, '%d/%d: %s', $
             ii + 1L, nt, file_basename(gbu[ii].l1file), $
             name='comp', /info
+
     hdr = headfits(gbu[ii].l1file)
     if (ii eq 0) then begin
       index = fitshead2struct(hdr)
@@ -118,7 +119,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                                + 'polarization.fts.gz'))[0]
 
     if (file_test(l2_d_file)) then begin
-      mg_log, 'dynamics: %s', l2_d_file, name='comp', /debug
+      mg_log, '%s', l2_d_file, name='comp', /debug
     endif else begin
       mg_log, 'dynamics file not found for %s', file_basename(gbu[ii].l1file), $
               name='comp', /warn
@@ -126,7 +127,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endelse
 
     if (file_test(l2_p_file)) then begin
-      mg_log, 'polarization file: %s', l2_d_file, name='comp', /debug
+      mg_log, '%s', l2_p_file, name='comp', /debug
     endif else if (qu_files[ii] eq 1) then begin
       mg_log, 'polarization file not found: %s', file_basename(gbu[ii].l1file), $
               name='comp', /warn
@@ -480,8 +481,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endif
   endfor
 
-  mg_log, 'frame creation finished', name='comp', /info
-  mg_log, 'encoding movies...', name='comp', /info
+  mg_log, 'frame creation finished, encoding movies...', name='comp', /info
 
   cd, current=pwd
   cd, temp_path
@@ -559,7 +559,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endelse
 
     type = 'ltot'
-    glob = string(0, format='(%"' + type + infile_ext + '")')
+    glob = string(1, format='(%"' + type + infile_ext + '")')
     files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
@@ -574,7 +574,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endelse
 
     type = 'q'
-    glob = string(0, format='(%"' + type + infile_ext + '")')
+    glob = string(1, format='(%"' + type + infile_ext + '")')
     files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
@@ -589,7 +589,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endelse
 
     type = 'u'
-    glob = string(0, format='(%"' + type + infile_ext + '")')
+    glob = string(1, format='(%"' + type + infile_ext + '")')
     files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
@@ -604,7 +604,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endelse
 
     type = 'azimuth'
-    glob = string(0, format='(%"' + type + infile_ext + '")')
+    glob = string(1, format='(%"' + type + infile_ext + '")')
     files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
