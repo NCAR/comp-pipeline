@@ -132,7 +132,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   tvlct, r, g, b
   vel = bytscl(velocity, min=-10, max=10, top=253)
   vel[mask_ind] = 254
-  if (n_undef_velocity gt 0) then vel[undef_velocity] = 254
+  if (n_undef_velocity gt 0) then vel[undef_velocity_ind] = 254
   tv, vel, 4 * 165, 4 * 5
 
   ; plot intensity and enhanced intensity
@@ -148,7 +148,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   b[255] = 0
   tvlct, r, g, b
   width = bytscl(width, min=25, max=55, top=254)
-  if (n_undef_velocity gt 0) then width[undef_velocity] = 254
+  if (n_undef_velocity gt 0) then width[undef_velocity_ind] = 254
   tv, width, 4 * 325, 4 * 5
 
   ; print image info
