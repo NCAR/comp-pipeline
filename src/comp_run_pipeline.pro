@@ -103,9 +103,9 @@ pro comp_run_pipeline, config_filename=config_filename
 
     version = comp_find_code_version(revision=revision, branch=branch)
     mg_log, 'running comp-pipeline %s (%s on %s)', version, revision, branch, $
-            name='comp', /debug
+            name='comp', /info
     mg_log, 'using IDL %s on %s', !version.release, !version.os_name, $
-            name='comp', /debug
+            name='comp', /info
 
     ;---------------  Prep  ----------------------------------------
 
