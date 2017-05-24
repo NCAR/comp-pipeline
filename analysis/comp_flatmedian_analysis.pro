@@ -37,7 +37,7 @@ end
 
 
 pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_filename, $
-                              start_date=start_date
+                              start_date=start_date, end_date=end_date
   compile_opt strictarr
 
   if (n_elements(start_date) eq 0L) then begin
@@ -56,7 +56,10 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
   for d = 0L, n_dirs - 1L do begin
     date = file_basename(dirs[d])
 
+    if (n_elements(end_date) gt 0L && date eq end_date) then break
+
     skip_date = 0B
+    if (date eq '20140407') then skip_date = 1B
     if (date eq '20141016') then skip_date = 1B
     if (date eq '20150803') then skip_date = 1B
     if (date eq '20150821') then skip_date = 1B
@@ -133,6 +136,9 @@ end
 
 ;process_dir = '/hao/compdata1/Data/CoMP/process.flats'
 process_dir = '/hao/mahidata1/Data/CoMP/process'
-comp_flatmedian_analysis, process_dir, 'flat-medians-new.csv', 'dark-medians-new.csv', start_date='20160906'
+comp_flatmedian_analysis, process_dir, $
+                          'flat-medians-new.csv', $
+                          'dark-medians-new.csv', $
+                          start_date='20121201'
 
 end

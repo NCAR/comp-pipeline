@@ -89,6 +89,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
 
   ;y_range = [0.0, 1.05 * max(s.median)]
   y_range = [0.0, 66.0]
+  print, y_range, format='(%"flat range: %0.1f - %0.1f")'
 
   !null = label_date(date_format=['%M %D', '%Y'])
 
@@ -104,7 +105,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
         xminor=12, $
         xticks=12, $
         charsize=0.8, font=1, $
-        title='Median flat values!CMedians normalized for solar distance (1 AU) and exposure time (250.0 ms)', $
+        title='Median flat values!C!5Medians normalized for solar distance (1 AU) and exposure time (250.0 ms)!X', $
         xtitle='Date', ytitle='Median values in both annuli', $
         position=[0.05, 0.55, 0.975, 0.95]
   axis, s[-1].time, 0.0, /yaxis, $
@@ -125,11 +126,13 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   endfor
 
   ; annotations
-  annotation_dates = [julday(1, 15, 2014, 12), $
+  annotation_dates = [julday(8, 27, 2013), $
+                      julday(1, 15, 2014, 12), $
                       julday(4, 29, 2014, 12), $
                       julday(10, 19, 2014, 12), $
                       julday(12, 17, 2014, 12)]
-  annotations = ['CoMP warmed', $
+  annotations = ['CoMP!Crestarted after!CMK4/CHIP removed', $
+                 'CoMP warmed', $
                  'turned off!Ccamerato conserve LN2', $
                  'turned off!Ccamera to conserve LN2', $
                  'camera!Cwarmed/re-cooled']
@@ -144,10 +147,11 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   endfor
 
   ; marks
-  marks_dates = [julday(5, 16, 2014, 12), $
+  marks_dates = [julday(12, 8, 2012, 12), $
+                 julday(5, 16, 2014, 12), $
                  julday(12, 17, 2014, 12), $
                  julday(3, 15, 2015, 12)]
-  marks_heights = [47.0, 40.0, 38.0]
+  marks_heights = [53.0, 47.0, 40.0, 38.0]
   for a = 0L, n_elements(marks_dates) - 1L do begin
     oplot, fltarr(2) + marks_dates[a], [-1.5, -0.5] + marks_heights[a], $
            color='a0a0a0'x, thick=1.0
@@ -174,15 +178,40 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
 
   ; regression line and outliers
   oplot, s[ind_1074].time, regress_line_1074, $
-         color='0000ff'x
-  oplot, s[ind_1074[bad_1074]].time, s[ind_1074[bad_1074]].median, $
-         color='0000ff'x, psym=6, symsize=1.0
+         color='000000'x
+  xyouts, julday(1, 1, 2013), 60.0, string(coeffs[1], format='(%"slope %0.3f")'), $
+          /data, alignment=0.0, charsize=0.65, font=1
 
-  cgLegend, symColors=['0000ff'x, '00a5ff'x, 'ff0000'x, '00ff00'x], $
-            psyms=[1, 1, 2, 2], $
-            symsize=0.5, $
-            location=[0.85, 0.9], $
-            titles=['1074.62', '1074 morning', '1083.0', '1083.0 morning'], $
+  flat_test_date = julday(12, 14, 2016)
+  flat_test_value = 22.0   ; TODO: determine correct value
+  xyouts, flat_test_date, 30.0, 'Flat test', $
+          /data, alignment=0.0, charsize=0.65, font=1
+  plots, [flat_test_date, flat_test_date], [25.5, 29.0], color='a0a0a0'x
+  oplot, [flat_test_date], [flat_test_value], $
+         color='000000'x, psym=mg_usersym(/circle, /fill), symsize=0.75
+
+  bad_morning_1074 = where(s[ind_1074[bad_1074]].time_of_day lt 9, n_bad_morning_1074, $
+                       complement=bad_after_1074, ncomplement=n_bad_after_1074)
+
+  if (n_bad_morning_1074 gt 0L) then begin
+    oplot, s[ind_1074[bad_1074[bad_morning_1074]]].time, $
+           s[ind_1074[bad_1074[bad_morning_1074]]].median, $
+           color='00a5ff'x, psym=6, symsize=1.0
+  endif
+
+  if (n_bad_after_1074 gt 0L) then begin
+    oplot, s[ind_1074[bad_1074[bad_after_1074]]].time, $
+           s[ind_1074[bad_1074[bad_after_1074]]].median, $
+           color='0000ff'x, psym=6, symsize=1.0
+  endif
+
+  filled_square = mg_usersym(/square, /fill)
+  cgLegend, symColors=['00a5ff'x, '0000ff'x, '00ff00'x, 'ff0000'x], $
+            psyms=lonarr(4) + filled_square, $
+            symsize=1.0, $
+            location=[0.80, 0.9], $
+            titles=['1074.62 before 9 am HST', '1074.62 after 9 am HST', $
+                    '1083.0 before 9 am HST', '1083.0 after 9 am HST'], $
             charsize=0.85, tt_font='Helvetica', /hardware, $
             length=0.0
 
@@ -217,7 +246,9 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   endif
 
   dark_coeffs = poly_fit(d.time, d.median, 1)
-  dark_range = [min(d.median, max=max_dark), max_dark]
+  ;dark_range = [min(d.median, max=max_dark), max_dark]
+  dark_range = [1750.0, 2100.0]
+  print, dark_range, format='(%"dark range: %0.1f -- %0.1f")'
   plot, [s[0].time, s[-1].time], dark_range, /nodata, /noerase, $
         xstyle=9, ystyle=9, $
         yticklen=-0.01, $
@@ -235,6 +266,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
           /data, alignment=1.0, charsize=0.65, font=1
 
   temp_range = [min(temps, max=max_temp), max_temp]
+  print, temp_range, format='(%"temp range: %0.1f -- %0.1f")'
   plot, [s[0].time, s[-1].time], temp_range, /nodata, /noerase, $
         xstyle=9, ystyle=9, $
         yticklen=-0.01, $
