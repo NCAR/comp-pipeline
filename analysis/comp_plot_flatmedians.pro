@@ -179,16 +179,23 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   ; regression line and outliers
   oplot, s[ind_1074].time, regress_line_1074, $
          color='000000'x
-  xyouts, julday(1, 1, 2013), 60.0, string(coeffs[1], format='(%"slope %0.3f")'), $
+  xyouts, julday(1, 1, 2013), 60.0, string(coeffs[1], format='(%"slope %0.6f")'), $
           /data, alignment=0.0, charsize=0.65, font=1
 
   flat_test_date = julday(12, 14, 2016)
-  flat_test_value = 22.0   ; TODO: determine correct value
-  xyouts, flat_test_date, 30.0, 'Flat test', $
+  flat_test_value = 25.8   ; TODO: determine correct value
+  xyouts, flat_test_date + 14.0, 31.0, 'Flat test', $
           /data, alignment=0.0, charsize=0.65, font=1
-  plots, [flat_test_date, flat_test_date], [25.5, 29.0], color='a0a0a0'x
+  t = 0.25
+  plots, [14.0 * t + flat_test_date, flat_test_date + 14.0], $
+         [(30.5 - flat_test_value) * t + flat_test_value, 30.5], $
+         color='a0a0a0'x
   oplot, [flat_test_date], [flat_test_value], $
          color='000000'x, psym=mg_usersym(/circle, /fill), symsize=0.75
+
+  plots, s[ind_1074].time, $
+         coeffs[1] * (s[ind_1074].time - flat_test_date) + flat_test_value, $
+         linestyle=1
 
   bad_morning_1074 = where(s[ind_1074[bad_1074]].time_of_day lt 9, n_bad_morning_1074, $
                        complement=bad_after_1074, ncomplement=n_bad_after_1074)
@@ -262,7 +269,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
         position=[0.05, 0.3, 0.975, 0.425]
   oplot, d.time, d.median, psym=3, color='a0a0a0'x
   oplot, d.time, dark_coeffs[0] + dark_coeffs[1] * d.time, color='000000'x
-  xyouts, (d.time)[-1], 2100.0, string(dark_coeffs[1], format='(%"slope %0.3f")'), $
+  xyouts, (d.time)[-1], 2100.0, string(dark_coeffs[1], format='(%"slope %0.6f")'), $
           /data, alignment=1.0, charsize=0.65, font=1
 
   temp_range = [min(temps, max=max_temp), max_temp]
@@ -284,6 +291,6 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
 end
 
 
-comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv'
+comp_plot_flatmedians, 'flat-medians-truncated.csv', 'dark-medians-truncated.csv'
 
 end
