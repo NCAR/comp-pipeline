@@ -183,7 +183,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
           /data, alignment=0.0, charsize=0.65, font=1
 
   flat_test_date = julday(12, 14, 2016)
-  flat_test_value = 25.8   ; TODO: determine correct value
+  flat_test_value = 25.8
   xyouts, flat_test_date + 14.0, 31.0, 'Flat test', $
           /data, alignment=0.0, charsize=0.65, font=1
   t = 0.25
