@@ -83,7 +83,8 @@ pro comp_make_flat, date_dir, error=error
   ; spectral correction ('yes' or 'no') to normalize by solar spectrum
   spectral_correction = make_flat_spectral_correction
 
-  norm = 84.     ; opal calibration of 84 millionths @ 1074 nm
+  ; compute current transmission value
+  norm = comp_transmission(date_dir)
 
   ; create arrays
   times = fltarr(5000)
