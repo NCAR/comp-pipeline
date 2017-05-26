@@ -138,7 +138,6 @@ pro comp_make_flat, date_dir, error=error
   while (not eof(opal_lun)) do begin
     opalfile = ''
     readf, opal_lun, opalfile, format='(a19)'
-    mg_log, 'opal %s', opalfile, name='comp', /info
 
     ; TODO: remove when done
     current_flatname = opalfile
@@ -150,7 +149,7 @@ pro comp_make_flat, date_dir, error=error
 
     time = comp_parse_time(sxpar(header, 'TIME_OBS'))
 
-    mg_log, '%d images in file', num, name='comp', /debug
+    mg_log, '%s: %d images', comp_times2str(time), num, name='comp', /info
 
     ; compute average flat at each wavelength
 
@@ -289,8 +288,10 @@ pro comp_make_flat, date_dir, error=error
       threshold = 12.0 * expose / 250.0 / transmission_correction
 
       if (medflat lt threshold) then begin
-        mg_log, 'flat median lower than expected for %s (%0.2f): %0.2f (flat median) < %0.2f (theshold)', $
-                opalfile, uniq_waves[i], medflat, threshold, name='comp', /warn
+        mg_log, 'flat median low for %s (%0.2f):', $
+                opalfile, uniq_waves[i], name='comp', /warn
+        mg_log, '%0.2f (flat median) < %0.2f (minimum theshold)', $
+                medflat, threshold, name='comp', /warn
         continue
       endif
       

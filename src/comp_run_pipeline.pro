@@ -102,7 +102,7 @@ pro comp_run_pipeline, config_filename=config_filename
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 
     version = comp_find_code_version(revision=revision, branch=branch)
-    mg_log, 'running comp-pipeline %s (%s on %s)', version, revision, branch, $
+    mg_log, 'comp-pipeline %s (%s on %s)', version, revision, branch, $
             name='comp', /info
     mg_log, 'using IDL %s on %s', !version.release, !version.os_name, $
             name='comp', /info
