@@ -161,12 +161,10 @@ pro comp_make_dark, date_dir, error=error
     sxaddpar, header, 'MEAN', aver
     sxaddpar, header, 'NOISE', median(sigma)
 
-    mg_log, '%s: %5.1fms, %d/%d used', $
+    mg_log, '%s: %5.1fms, %d/%d used, mean/rms: %d/%0.3f', $
             comp_times2str(time[nout]), $
             exposure[nout], $
             count, num, $
-            name='comp', /info
-    mg_log, 'mean: %0.1f, rms: %0.3f', $
             aver, noise, $
             name='comp', /info
 
