@@ -15,7 +15,7 @@ function comp_times2str, times
 
   hours = floor(times)
   minutes = floor(60 * (times - hours))
-  seconds = floor(60 * 60 * (times - hours - minutes / 60.0))
+  seconds = round(60 * 60 * (times - hours - minutes / 60.0))
 
   hours = string(hours, format='(%"%02d")')
   minutes = string(minutes, format='(%"%02d")')
