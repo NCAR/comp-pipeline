@@ -84,7 +84,7 @@ pro comp_file_type, date_dir
 
   ; get filenames of all FITS files in this directory
   files = file_search('*.FTS', count=nfile)
-  mg_log, '%d level 0 files', nfile, name='comp', /info
+  mg_log, '%d raw files', nfile, name='comp', /info
 
   ; loop over all files
   for i = 0L, nfile - 1L do begin
