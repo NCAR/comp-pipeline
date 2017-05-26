@@ -37,12 +37,12 @@ pro comp_fix_trend, image_full, occulter1, occulter2, field1, field2, $
   mask_for_fit = comp_mask_1024(occulter1, occulter2, $
                                 field1, field2, $
                                 post_angle1, post_angle2, $
-                                o_offset=+5.0, f_offset=-4.0)
+                                o_offset=+5.0, f_offset=-4.0, /nopost)
 
   mask_for_app = comp_mask_1024(occulter1, occulter2, $
                                 field1, field2, $
                                 post_angle1, post_angle2, $
-                                o_offset=0.0, f_offset=0.0)
+                                o_offset=0.0, f_offset=0.0, /nopost)
 
   ; sub-image 1
   flat = comp_extract1(image_full) 

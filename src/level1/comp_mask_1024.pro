@@ -92,15 +92,15 @@ function comp_mask_1024, occulter1, occulter2, $
   field_mask_2 = comp_field_mask(fradius + local_f_offset, dx=field2.x, dy=field2.y)
 
   ; post mask
-  if n_elements(nopost) eq 0 then begin
+  if (keyword_set(nopost)) then begin
+    mask1 = dmask1 * field_mask_1
+    mask2 = dmask2 * field_mask_2
+  endif else begin
     pmask1 = comp_post_mask(post_angle1, 90.0)
     pmask2 = comp_post_mask(post_angle2, 90.0)
 
     mask1 = dmask1 * field_mask_1 * pmask1
     mask2 = dmask2 * field_mask_2 * pmask2
-  endif else begin
-    mask1 = dmask1 * field_mask_1
-    mask2 = dmask2 * field_mask_2
   endelse
 
   ; construct large mask

@@ -63,16 +63,9 @@ pro comp_make_mask_1024, date_dir, flat_header, mask, $
   post_angle1 = sxpar(flat_header, 'POSTANG1')
   post_angle2 = sxpar(flat_header, 'POSTANG2')
   
-  if (n_elements(nopost) eq 1) then begin
-    mask = comp_mask_1024(occulter1, occulter2, $
-                          field1, field2, $
-                          post_angle1, post_angle2, $
-                          o_offset=o_offset, f_offset=f_offset, $
-                          /nopost)
-  endif else begin
-    mask = comp_mask_1024(occulter1, occulter2, $
-                          field1, field2, $
-                          post_angle1, post_angle2, $
-                          o_offset=o_offset, f_offset=f_offset)
-  endelse
+  mask = comp_mask_1024(occulter1, occulter2, $
+                        field1, field2, $
+                        post_angle1, post_angle2, $
+                        o_offset=o_offset, f_offset=f_offset, $
+                        nopost=nopost
 end
