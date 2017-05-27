@@ -161,8 +161,14 @@ pro comp_run_pipeline, config_filename=config_filename
 
     if (create_flatsdarks) then begin
       ; reduce bias images for this day
+      error = 0L
       mg_log, 'making darks', name='comp', /info
       if (~dry_run) then comp_make_dark, date_dir, error=error
+
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
       if (error ne 0) then begin
         if (lock_raw) then begin
           unlocked = comp_state(date_dir, /unlock)
@@ -172,20 +178,23 @@ pro comp_run_pipeline, config_filename=config_filename
           mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
-        continue
+        mg_log, 'error processing darks, stopping day', name='comp', /error
+        goto, done_with_day
       endif
-      mg_log, 'memory usage: %0.1fM', $
-              (memory(/highwater) - start_memory) / 1024. / 1024., $
-              name='comp', /debug
 
       mg_log, 'making flats', name='comp', /info
       make_flat_t0 = systime(/seconds)
       ; reduce opal images for this day
+      error = 0L
       if (~dry_run) then comp_make_flat, date_dir, error=error
       make_flat_t1 = systime(/seconds)
       mg_log, 'total time for COMP_MAKE_FLAT: %0.1f seconds', $
               make_flat_t1 - make_flat_t0, $
               name='comp', /debug
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+
       if (error ne 0) then begin
         if (lock_raw) then begin
           unlocked = comp_state(date_dir, /unlock)
@@ -195,17 +204,16 @@ pro comp_run_pipeline, config_filename=config_filename
           mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
-        continue
+        mg_log, 'error processing flats, stopping day', name='comp', /error
+        goto, done_with_day
       endif
-      mg_log, 'memory usage: %0.1fM', $
-              (memory(/highwater) - start_memory) / 1024. / 1024., $
-              name='comp', /debug
     endif
 
     if (create_l1) then begin
       mg_log, 'running L1 processing', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         l1_process_t0 = systime(/seconds)
+        error = 0L
         if (~dry_run) then begin
           comp_l1_process, date_dir, process_wavelengths[w], error=error
         endif
@@ -213,7 +221,10 @@ pro comp_run_pipeline, config_filename=config_filename
         mg_log, 'total time for COMP_L1_PROCESS: %0.1f seconds', $
                 l1_process_t1 - l1_process_t0, $
                 name='comp', /debug
-        if (error ne 0L) then continue
+        if (error ne 0L) then begin
+          mg_log, 'error with L1 processing, stopping day', name='comp', /error
+          goto, done_with_day
+        endif
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
@@ -236,6 +247,7 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'extracting intensity', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         extract_intensity_t0 = systime(/seconds)
+        error = 0L
         if (~dry_run) then begin
           comp_extract_intensity, date_dir, process_wavelengths[w], error=error
         endif
@@ -243,7 +255,10 @@ pro comp_run_pipeline, config_filename=config_filename
         mg_log, 'total time for COMP_EXTRACT_INTENSITY: %0.1f seconds', $
                 extract_intensity_t1 - extract_intensity_t0, $
                 name='comp', /debug
-        if (error ne 0) then continue
+        if (error ne 0) then begin
+          mg_log, 'error with extracting intensity, stopping day', name='comp', /error
+          goto, done_with_day
+        endif
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
@@ -262,7 +277,10 @@ pro comp_run_pipeline, config_filename=config_filename
         mg_log, 'total time for COMP_GBU: %0.1f seconds', $
                 gbu_t1 - gbu_t0, $
                 name='comp', /debug
-        if (error ne 0) then continue
+        if (error ne 0) then begin
+          mg_log, 'error with determing GBU, stopping day', name='comp', /error
+          goto, done_with_day
+        endif
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
@@ -329,7 +347,10 @@ pro comp_run_pipeline, config_filename=config_filename
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
             comp_average, date_dir, process_wavelengths[w], error=error
-            if (error ne 0) then continue
+            if (error ne 0) then begin
+              mg_log, 'error with creating averages, stopping day', name='comp', /error
+              goto, done_with_day
+            endif
           endif
         endif
       endfor
@@ -347,7 +368,10 @@ pro comp_run_pipeline, config_filename=config_filename
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
             comp_quick_invert, date_dir, process_wavelengths[w], error=error
-            if (error ne 0) then continue
+            if (error ne 0) then begin
+              mg_log, 'error with creating quick invert, stopping day', name='comp', /error
+              goto, done_with_day
+            endif
           endif
         endif
       endfor
@@ -365,7 +389,10 @@ pro comp_run_pipeline, config_filename=config_filename
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
             comp_analyze, date_dir, process_wavelengths[w], error=error
-            if (error ne 0) then continue
+            if (error ne 0) then begin
+              mg_log, 'error with creating full invert, stopping day', name='comp', /error
+              goto, done_with_day
+            endif
           endif
         endif
       endfor
@@ -383,7 +410,10 @@ pro comp_run_pipeline, config_filename=config_filename
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
             comp_find_systematics, date_dir, process_wavelengths[w], 'mean', error=error
-            if (error ne 0) then continue
+            if (error ne 0) then begin
+              mg_log, 'error with finding systematics, stopping day', name='comp', /error
+              goto, done_with_day
+            endif
           endif
         endif
       endfor
@@ -487,6 +517,7 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'skipping updating database', name='comp', /info
     endelse
 
+    done_with_day:
     t1 = systime(/seconds)
     mg_log, 'total running time: %0.2f sec', t1 - t0, name='comp', /info
 
