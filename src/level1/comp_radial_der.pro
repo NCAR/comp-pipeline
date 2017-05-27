@@ -70,8 +70,11 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
     y0 = center_guess[1] + double(ny) / 2.0D
 
     ; TODO: remove when done
-    mg_log, 'new guess: %f, %f, %f old guess: %f, %f, %f', $
-            x0, y0, radius, double(nx) / 2.0D, double(ny) / 2.0D, radius, $
+    mg_log, 'new guess: %0.1f, %0.1f, %0.1f', $
+            x0, y0, radius, $
+            name='comp', /debug
+    mg_log, 'old guess: %0.1f, %0.1f, %0.1f', $
+            double(nx) / 2.0D, double(ny) / 2.0D, radius, $
             name='comp', /debug
   endif else begin
     x0 = double(nx) / 2.D0
