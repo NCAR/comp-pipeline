@@ -181,8 +181,8 @@ pro comp_make_flat, date_dir, error=error
     comp_make_header, image, header, $
                       occulter1, field1, post_angle1, $
                       occulter2, field2, post_angle2, $
-                      error=error
-    if (error ne 0L) then begin
+                      error=header_error
+    if (header_error ne 0L) then begin
       mg_log, 'skipping flat creation for %s', opalfile, name='comp', /warn
       continue
     endif
