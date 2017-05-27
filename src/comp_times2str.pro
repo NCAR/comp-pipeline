@@ -24,13 +24,16 @@ function comp_times2str, times
   minutes = string(minutes, format='(%"%02d")')
   seconds = string(seconds, format='(%"%02d")')
 
-  if (seconds ge 60L) then begin
-    seconds -= 60L
-    minutes += 1L
+  seconds_toobig = where(seconds ge 60L, seconds_count)
+  if (seconds_count gt 0L) then begin
+    seconds[seconds_toobig] -= 60L
+    minutes[seconds_toobig] += 1L
   endif
-  if (minutes ge 60L) then begin
-    minutes -= 60L
-    hours += 1L
+
+  minutes_toobig = where(minutes ge 60L, minutes_count)
+  if (minutes_count ge 60L) then begin
+    minutes[minutes_toobig] -= 60L
+    hours[minutes_toobig] += 1L
   endif
 
   return, hours + ':' + minutes + ':' + seconds

@@ -8,7 +8,7 @@
 ;
 ; :Params:
 ;   time_str : in, required, type=string
-;     time of day as a string
+;     time of day as a string, either H:MM:SS AM or HH:MM:SS AM
 ;
 ; :Keywords:
 ;   hours : out, required, type=integer
@@ -36,5 +36,5 @@ function comp_parse_time, time_str, hours=hours, minutes=mins, seconds=secs
   if (strupcase(time_label) eq 'PM' and hours ne 12) then hours += 12.0
   if (strupcase(time_label) eq 'AM' and hours eq 12) then hours -= 12.0
 
-  return, float(hours) + float(mins) / 60.0 + float(secs) / 3600.0
+  return, double(hours) + double(mins) / 60.0D + double(secs) / 3600.0D
 end

@@ -154,15 +154,16 @@ pro comp_make_dark, date_dir, error=error
     sxaddpar, header, 'DATATYPE','DARK'
     sxaddpar, header, 'DEMULT', 1
 
-    time[nout] = comp_parse_time(time_str)
+    time[nout] = comp_parse_time(time_str, $
+                                 hours=hours, minutes=minutes, seconds=seconds)
 
     exposure[nout] = sxpar(header, 'EXPOSURE')
     sxaddpar, header, 'TIME', time[nout]
     sxaddpar, header, 'MEAN', aver
     sxaddpar, header, 'NOISE', median(sigma)
 
-    mg_log, '%s: %5.1fms, %d/%d used, mean/rms: %d/%0.3f', $
-            comp_times2str(time[nout]), $
+    mg_log, '%02d:%02d:%02d %5.1fms, %d/%d used, mean/rms: %d/%0.3f', $
+            hours, minutes, seconds, $
             exposure[nout], $
             count, num, $
             aver, noise, $

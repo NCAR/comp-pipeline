@@ -147,9 +147,11 @@ pro comp_make_flat, date_dir, error=error
     num = fcbin.nextend   ; number of images in file
     fits_read, fcbin, dat, header, /header_only, exten_no=0
 
-    time = comp_parse_time(sxpar(header, 'TIME_OBS'))
+    time = comp_parse_time(sxpar(header, 'TIME_OBS'), $
+                           hours=hours, minutes=minutes, seconds=seconds)
 
-    mg_log, '%s: %d images', comp_times2str(time), num, name='comp', /info
+    mg_log, '%02d:%02d:%02d %d images', hours, minutes, seconds, num, $
+            name='comp', /info
 
     ; compute average flat at each wavelength
 
@@ -290,7 +292,7 @@ pro comp_make_flat, date_dir, error=error
       if (medflat lt threshold) then begin
         mg_log, 'flat median low for %s (%0.2f):', $
                 opalfile, uniq_waves[i], name='comp', /warn
-        mg_log, '%0.2f (flat median) < %0.2f (minimum theshold)', $
+        mg_log, '  %0.2f (flat median) < %0.2f (minimum theshold)', $
                 medflat, threshold, name='comp', /warn
         continue
       endif

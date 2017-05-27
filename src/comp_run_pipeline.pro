@@ -65,7 +65,7 @@ pro comp_run_pipeline, config_filename=config_filename
     mg_log, 'no days to process found in raw directory %s', $
             raw_basedir, $
             name='comp', /error
-    mg_log, 'Total running time: %0.2f sec', t1 - t0, name='comp', /info
+    mg_log, 'total running time: %0.2f sec', t1 - t0, name='comp', /info
     mg_log, /quit
     return
   endif
@@ -93,7 +93,7 @@ pro comp_run_pipeline, config_filename=config_filename
       endif else begin
         if (~dry_run) then begin
           available = comp_state(date_dir, /lock)
-          mg_log, 'Locked %s', filepath(date_dir, root=raw_basedir), $
+          mg_log, 'locked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
       endelse
@@ -117,7 +117,7 @@ pro comp_run_pipeline, config_filename=config_filename
           mg_log, 'skipping %s...', date_dir, name='comp', /info
           if (lock_raw) then begin
             unlocked = comp_state(date_dir, /unlock)
-            mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+            mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
                     name='comp', /info
           endif
           continue
@@ -151,7 +151,7 @@ pro comp_run_pipeline, config_filename=config_filename
       file_type_t0 = systime(/seconds)
       if (~dry_run) then comp_file_type, date_dir
       file_type_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_FILE_TYPE: %0.1f seconds', $
+      mg_log, 'total time for COMP_FILE_TYPE: %0.1f seconds', $
               file_type_t1 - file_type_t0, $
               name='comp', /debug
       mg_log, 'memory usage: %0.1fM', $
@@ -166,10 +166,10 @@ pro comp_run_pipeline, config_filename=config_filename
       if (error ne 0) then begin
         if (lock_raw) then begin
           unlocked = comp_state(date_dir, /unlock)
-          mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+          mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
           processed = comp_state(date_dir, /processed)
-          mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
+          mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
         continue
@@ -183,16 +183,16 @@ pro comp_run_pipeline, config_filename=config_filename
       ; reduce opal images for this day
       if (~dry_run) then comp_make_flat, date_dir, error=error
       make_flat_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_MAKE_FLAT: %0.1f seconds', $
+      mg_log, 'total time for COMP_MAKE_FLAT: %0.1f seconds', $
               make_flat_t1 - make_flat_t0, $
               name='comp', /debug
       if (error ne 0) then begin
         if (lock_raw) then begin
           unlocked = comp_state(date_dir, /unlock)
-          mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+          mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
           processed = comp_state(date_dir, /processed)
-          mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
+          mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
         continue
@@ -203,14 +203,14 @@ pro comp_run_pipeline, config_filename=config_filename
     endif
 
     if (create_l1) then begin
-      mg_log, 'running l1_process', name='comp', /info
+      mg_log, 'running L1 processing', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         l1_process_t0 = systime(/seconds)
         if (~dry_run) then begin
           comp_l1_process, date_dir, process_wavelengths[w], error=error
         endif
         l1_process_t1 = systime(/seconds)
-        mg_log, 'Total time for COMP_L1_PROCESS: %0.1f seconds', $
+        mg_log, 'total time for COMP_L1_PROCESS: %0.1f seconds', $
                 l1_process_t1 - l1_process_t0, $
                 name='comp', /debug
         if (error ne 0L) then continue
@@ -225,7 +225,7 @@ pro comp_run_pipeline, config_filename=config_filename
       update_filenames_t0 = systime(/seconds)
       if (~dry_run) then comp_update_filenames, date_dir
       update_filenames_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_UPDATE_FILENAMES: %0.1f seconds', $
+      mg_log, 'total time for COMP_UPDATE_FILENAMES: %0.1f seconds', $
               update_filenames_t1 - update_filenames_t0, $
               name='comp', /debug
       mg_log, 'memory usage: %0.1fM', $
@@ -240,7 +240,7 @@ pro comp_run_pipeline, config_filename=config_filename
           comp_extract_intensity, date_dir, process_wavelengths[w], error=error
         endif
         extract_intensity_t1 = systime(/seconds)
-        mg_log, 'Total time for COMP_EXTRACT_INTENSITY: %0.1f seconds', $
+        mg_log, 'total time for COMP_EXTRACT_INTENSITY: %0.1f seconds', $
                 extract_intensity_t1 - extract_intensity_t0, $
                 name='comp', /debug
         if (error ne 0) then continue
@@ -259,7 +259,7 @@ pro comp_run_pipeline, config_filename=config_filename
           comp_gbu, date_dir, process_wavelengths[w], error=error
         endif
         gbu_t1 = systime(/seconds)
-        mg_log, 'Total time for COMP_GBU: %0.1f seconds', $
+        mg_log, 'total time for COMP_GBU: %0.1f seconds', $
                 gbu_t1 - gbu_t0, $
                 name='comp', /debug
         if (error ne 0) then continue
@@ -279,7 +279,7 @@ pro comp_run_pipeline, config_filename=config_filename
           comp_l1_check, date_dir, process_wavelengths[w]
         endif
         check_l1_t1 = systime(/seconds)
-        mg_log, 'Total time for COMP_L1_CHECK: %0.1f seconds', $
+        mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $
                 check_l1_t1 - check_l1_t0, $
                 name='comp', /debug
       endfor
@@ -477,7 +477,7 @@ pro comp_run_pipeline, config_filename=config_filename
         endif
       endfor
       db_t1 = systime(/seconds)
-      mg_log, 'Total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
+      mg_log, 'total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
               db_t1 - db_t0, $
               name='comp', /debug
       mg_log, 'memory usage: %0.1fM', $
@@ -488,14 +488,14 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
     t1 = systime(/seconds)
-    mg_log, 'Total running time: %0.2f sec', t1 - t0, name='comp', /info
+    mg_log, 'total running time: %0.2f sec', t1 - t0, name='comp', /info
 
     if (lock_raw && ~dry_run) then begin
       unlocked = comp_state(date_dir, /unlock)
-      mg_log, 'Unlocked %s', filepath(date_dir, root=raw_basedir), $
+      mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
       processed = comp_state(date_dir, /processed)
-      mg_log, 'Marked %s as processed', filepath(date_dir, root=raw_basedir), $
+      mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
     endif
   endfor
