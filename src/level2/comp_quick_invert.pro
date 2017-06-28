@@ -44,6 +44,8 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
+;   synoptic : in, optional, type=boolean
+;     set to use synoptic file instead of waves file
 ;
 ; :Author:
 ;   Sitongia, Tomczyk
@@ -52,7 +54,8 @@
 ;   removed gzip    Oct 1 2014  GdT
 ;   removed copy_file of intensity fits to archive_dir  Oct 1 2014  GdT
 ;-
-pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
+pro comp_quick_invert, date_dir, wave_type, $
+                       synthetic=synthetic, error=error, synoptic=synoptic
   compile_opt idl2
   @comp_simulate_common
   @comp_constants_common
@@ -71,19 +74,14 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
 
-  if (keyword_set(synthetic)) then begin
-    process_synthetic = 1
-  endif else begin
-    process_synthetic = 0
-  endelse
-
   method = 'median'
+  type = keyword_set(synoptic) ? 'synoptic' : 'waves'
 
   ; create filename and open input FITS file
-  if (process_synthetic eq 1) then begin
+  if (keyword_set(synthetic)) then begin
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
   endif else begin
-    file = string(date_dir, wave_type, method, format='(%"%s.comp.%s.%s.fts.gz")')
+    file = string(date_dir, wave_type, method, type, format='(%"%s.comp.%s.%s.%s.fts.gz")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
@@ -186,8 +184,8 @@ pro comp_quick_invert, date_dir, wave_type, synthetic=synthetic, error=error
 
   ; write fit parameters to output file
 
-  quick_invert_filename = string(date_dir, wave_type, $
-                                 format='(%"%s.comp.%s.quick_invert.fts")')
+  quick_invert_filename = string(date_dir, wave_type, type, $
+                                 format='(%"%s.comp.%s.quick_invert.%s.fts")')
   fits_open, quick_invert_filename, fcbout, /write
 
   ; copy the primary header from the median file to the output file

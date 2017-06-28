@@ -51,6 +51,8 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
+;   synoptic : in, optional, type=boolean
+;     set to use synoptic file instead of waves file
 ;
 ; :Author:
 ;   Tomczyk, Sitongia
@@ -61,7 +63,7 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, error=error
+pro comp_average, date_dir, wave_type, error=error, synoptic=synoptic
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
@@ -153,17 +155,19 @@ pro comp_average, date_dir, wave_type, error=error
             name='comp', /info
   endfor
 
+  type = keyword_set(synoptic) ? 'synoptic' : 'waves'
+
   if (compute_mean) then begin
-    mean_filename = date_dir + '.comp.' + wave_type + '.mean.fts'
+    mean_filename = date_dir + '.comp.' + wave_type + '.mean.' + type + '.fts'
     fits_open, mean_filename, fcbavg, /write
   endif
 
   if (compute_median) then begin
-    median_filename = date_dir + '.comp.' + wave_type + '.median.fts'
+    median_filename = date_dir + '.comp.' + wave_type + '.median.' + type + '.fts'
     fits_open, median_filename, fcbmed, /write
   endif
 
-  sigma_filename = date_dir + '.comp.' + wave_type + '.sigma.fts'
+  sigma_filename = date_dir + '.comp.' + wave_type + '.sigma.' + type + '.fts'
   fits_open, sigma_filename, fcbsig, /write
 
   ; use test file to get sample headers
@@ -273,7 +277,6 @@ pro comp_average, date_dir, wave_type, error=error
           continue
         endif
         fits_read, fcb, dat, header, exten_no=good[0] + 1
-
         naverage[ist, iw] += sxpar(header, 'NAVERAGE')
         data[*, *, ifile] = dat * mask
         if (num_averaged[ist, iw] eq 0) then average_times[0, ist, iw] = strmid(name, 9, 6)
@@ -307,6 +310,13 @@ pro comp_average, date_dir, wave_type, error=error
 
         fits_close, fcb
       endfor
+
+      ; TODO: create primary_header, headers and back_headers
+
+      ; TODO: comp_update_polarimetric_correction, primary_header, data, headers
+
+      ; TODO: may have to reform back to be (x, y, n_images) and then back
+      ; TODO: comp_update_polarimetric_correction, primary_header, back, back_headers
 
       sxaddpar, header, 'LEVEL   ', 'L2'
       ename = stokes[ist] + ', ' + string(format='(f7.2)', waves[iw])

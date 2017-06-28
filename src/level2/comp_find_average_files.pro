@@ -160,6 +160,8 @@ end
 ;   calibration : in, optional, type=boolean
 ;     set to indicate that files suitable for producing mean file for
 ;     calculting empirical crosstalk coefficients should be returned
+;   synoptic : in, optional, type=boolean
+;     set to use synoptic file instead of waves file
 ;-
 function comp_find_average_files, date_dir, wave_type, $
                                   max_n_files=max_n_files, $
@@ -168,7 +170,8 @@ function comp_find_average_files, date_dir, wave_type, $
                                   max_n_noncluster_files=max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
                                   count=count, $
-                                  calibration=calibration
+                                  calibration=calibration, $
+                                  synoptic=synoptic
   compile_opt strictarr
   @comp_config_common
   @comp_constants_common
@@ -190,14 +193,17 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; 0. if producing a calibration mean file, use the 5 points files in before
   ;    the second set of flats
-  ; 1. using {date}.good.waves.{wave_type}.files.txt, group files into clusters where
+  ; 1. using {date}.good.waves.{wave_type}.files.txt or
+  ;    {date}.synoptic.{wave_type}.files.txt, group files into clusters where
   ;    files: 
   ;      - are within MAX_CADENCE_INTERVAL (3 min now) of each other
   ;      - are using the same flat
   ;    a. use the first cluster which has at least MIN_N_CLUSTER_FILES (50 now),
   ;       cutting it down to the first MAX_N_FILES (150 now) if it has more than
   ;       that
+
   ; 2. if step 1. didn't yield files, try it with {date}.good.iqu.{wave_type}.files.txt
+
   ; 3. if no files found yet, take the first files in
   ;    {date}.good.{wave_type}.files.txt up to MAX_N_NONCLUSTER_FILES (50 now)
 
@@ -237,7 +243,11 @@ function comp_find_average_files, date_dir, wave_type, $
   endif
 
   ; step 1.
-  basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
+  if (keyword_set(synoptic)) then begin
+    basename = string(date_dir, wave_type, format='(%"%s.synoptic.%s.files.txt")')
+  endif else begin
+    basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
+  endelse
   list_filename = filepath(basename, root=l1_process_dir)
   files = comp_find_average_files_findclusters(list_filename, flat_times, $
                                                max_cadence_interval=_max_cadence_interval, $

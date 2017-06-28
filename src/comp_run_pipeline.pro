@@ -348,7 +348,15 @@ pro comp_run_pipeline, config_filename=config_filename
           if (~dry_run) then begin
             comp_average, date_dir, process_wavelengths[w], error=error
             if (error ne 0) then begin
-              mg_log, 'error with creating averages, stopping day', name='comp', /error
+              mg_log, 'error with creating wave averages, stopping day', $
+                      name='comp', /error
+              goto, done_with_day
+            endif
+
+            comp_average, date_dir, process_wavelengths[w], /synoptic, error=error
+            if (error ne 0) then begin
+              mg_log, 'error with creating synoptic averages, stopping day', $
+                      name='comp', /error
               goto, done_with_day
             endif
           endif
@@ -369,7 +377,15 @@ pro comp_run_pipeline, config_filename=config_filename
           if (~dry_run) then begin
             comp_quick_invert, date_dir, process_wavelengths[w], error=error
             if (error ne 0) then begin
-              mg_log, 'error with creating quick invert, stopping day', name='comp', /error
+              mg_log, 'error with creating wave quick invert, stopping day', $
+                      name='comp', /error
+              goto, done_with_day
+            endif
+
+            comp_quick_invert, date_dir, process_wavelengths[w], /synoptic, error=error
+            if (error ne 0) then begin
+              mg_log, 'error with creating synoptic quick invert, stopping day', $
+                      name='comp', /error
               goto, done_with_day
             endif
           endif
