@@ -54,10 +54,11 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   in_filename = ''
 
+  fmt = string(floor(alog10(n_file_lines)) + 1L, format='(%"%%%dd/%%d @ %%s: %%s")')
+
   for file_count = 0L, n_file_lines - 1L do begin
     readf, infiles_lun, in_filename, format='(a19)'
-    mg_log, '%d/%d @ %s: %s', $
-            file_count + 1L, n_file_lines, wave_type, in_filename, $
+    mg_log, fmt, file_count + 1L, n_file_lines, wave_type, in_filename, $
             name='comp', /info
     filename = filepath(in_filename, subdir=date_dir, root=raw_basedir)
     comp_l1_process_file, filename, date_dir, wave_type
