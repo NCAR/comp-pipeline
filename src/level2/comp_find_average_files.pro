@@ -143,9 +143,9 @@ end
 ;     wavelength type, i.e., '1074', '1079', or '1083'
 ;
 ; :Keywords:
-;   max_n_files : in, optional, type=integer, default=150
+;   max_n_files : in, optional, type=integer, default=50
 ;     maximum number of files to be returned
-;   min_n_cluster_files : in, optional, type=integer, default=50
+;   min_n_cluster_files : in, optional, type=integer, default=40
 ;     minimum number of files needed in a cluster
 ;   max_cadence_interval : in, optional, type=float, default=180.0
 ;     time cadence (in seconds) to use to create clusters; files within a
@@ -182,9 +182,9 @@ function comp_find_average_files, date_dir, wave_type, $
                             : max_cadence_interval
   _max_cadence_interval /= 60.0 * 60.0 * 24.0   ; convert seconds to days
   _min_n_cluster_files = n_elements(min_n_cluster_files) eq 0L $
-                           ? 50L $
+                           ? 40L $
                            : min_n_cluster_files
-  _max_n_files = n_elements(max_n_files) eq 0L ? 150L : max_n_files
+  _max_n_files = n_elements(max_n_files) eq 0L ? 50L : max_n_files
   _max_n_noncluster_files = n_elements(max_n_noncluster_files) eq 0L $
                               ? 50L $
                               : max_n_noncluster_files
@@ -198,8 +198,8 @@ function comp_find_average_files, date_dir, wave_type, $
   ;    files: 
   ;      - are within MAX_CADENCE_INTERVAL (3 min now) of each other
   ;      - are using the same flat
-  ;    a. use the first cluster which has at least MIN_N_CLUSTER_FILES (50 now),
-  ;       cutting it down to the first MAX_N_FILES (150 now) if it has more than
+  ;    a. use the first cluster which has at least MIN_N_CLUSTER_FILES (40 now),
+  ;       cutting it down to the first MAX_N_FILES (50 now) if it has more than
   ;       that
 
   ; 2. if step 1. didn't yield files, try it with {date}.good.iqu.{wave_type}.files.txt
