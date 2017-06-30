@@ -346,18 +346,31 @@ pro comp_run_pipeline, config_filename=config_filename
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
-            comp_average, date_dir, process_wavelengths[w], error=error
+            comp_average, date_dir, process_wavelengths[w], error=error, $
+                          found_files=waves_files_found
             if (error ne 0) then begin
               mg_log, 'error with creating wave averages, stopping day', $
                       name='comp', /error
               goto, done_with_day
             endif
 
-            comp_average, date_dir, process_wavelengths[w], /synoptic, error=error
+            comp_average, date_dir, process_wavelengths[w], /synoptic, error=error, $
+                          found_files=synoptic_files_found
             if (error ne 0) then begin
               mg_log, 'error with creating synoptic averages, stopping day', $
                       name='comp', /error
               goto, done_with_day
+            endif
+
+            if (~waves_files_found && ~synoptic_files_found) then begin
+              comp_average, date_dir, process_wavelengths[w], /combined, $
+                            error=error, $
+                            found_files=combined_files_found
+              if (error ne 0) then begin
+                mg_log, 'error with creating combined averages, stopping day', $
+                        name='comp', /error
+                goto, done_with_day
+              endif
             endif
           endif
         endif

@@ -48,11 +48,16 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
+;   synoptic : in, optional, type=boolean
+;     set to use synoptic file instead of waves file
+;   combined : in, optional, type=boolean
+;     set to use iqu file instead of waves file
+;   found_files : out, optional, type=long
+;     set to a named variable to return whether files were found to produce an
+;     average
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
-;   synoptic : in, optional, type=boolean
-;     set to use synoptic file instead of waves file
 ;
 ; :Author:
 ;   Tomczyk, Sitongia
@@ -63,13 +68,18 @@
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
 ;-
-pro comp_average, date_dir, wave_type, error=error, synoptic=synoptic
+pro comp_average, date_dir, wave_type, $
+                  synoptic=synoptic, $
+                  combined=combined, $
+                  found_files=found_files, $
+                  error=error
   compile_opt idl2
   @comp_config_common
   @comp_constants_common
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
+  found_files = 0B
   catch, error
   if (error ne 0) then begin
     catch, /cancel
@@ -88,13 +98,17 @@ pro comp_average, date_dir, wave_type, error=error, synoptic=synoptic
   files = comp_find_average_files(date_dir, wave_type, $
                                   max_n_files=averaging_max_n_files, $
                                   min_n_cluster_files=averaging_min_n_cluster_files, $
+                                  min_n_qu_files=averaging_min_n_qu_files, $
                                   max_cadence_interval=averaging_max_cadence_interval, $
                                   max_n_noncluster_files=averaging_max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
                                   count=n_files, $
-                                  calibration=calibration)
+                                  calibration=calibration, $
+                                  synoptic=synoptic, $
+                                  combined=combined)
 
-  if (n_files lt 1) then begin
+  found_files = n_files gt 0L
+  if (~found_files) then begin
     mg_log, 'no good %s files, exiting', wave_type, name='comp', /warn
     return
   endif
@@ -155,7 +169,9 @@ pro comp_average, date_dir, wave_type, error=error, synoptic=synoptic
             name='comp', /info
   endfor
 
-  type = keyword_set(synoptic) ? 'synoptic' : 'waves'
+  type = keyword_set(synoptic) $
+           ? 'synoptic' $
+           : (keyword_set(combined) ? 'combined' : 'waves')
 
   if (compute_mean) then begin
     mean_filename = date_dir + '.comp.' + wave_type + '.mean.' + type + '.fts'

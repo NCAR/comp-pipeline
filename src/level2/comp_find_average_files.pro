@@ -21,6 +21,8 @@
 ;     maximum number of files to be returned
 ;   min_n_cluster_files : in, required, type=long
 ;     minimum number of files needed in a cluster
+;   min_n_qu_files : in, required, type=long
+;     minimum number of QU files needed
 ;   stokes_present : out, optional, type=strarr
 ;     set to a named variable to retrieve the Stokes variables present in each
 ;     corresponding file
@@ -29,17 +31,24 @@
 ;   calibration : in, optional, type=boolean
 ;     set to indicate that files suitable for producing mean file for
 ;     calculting empirical crosstalk coefficients should be returned
+;   synoptic : in, optional, type=boolean
+;     set to perform a synoptic averaging
 ;-
 function comp_find_average_files_findclusters, list_filename, flat_times, $
                                                date_dir=date_dir, wave_type=wave_type, $
                                                max_cadence_interval=max_cadence_interval, $
                                                min_n_cluster_files=min_n_cluster_files, $
+                                               min_n_qu_files=min_n_qu_files, $
                                                max_n_files=max_n_files, $
                                                stokes_present=stokes_present, $
                                                count=count, $
-                                               calibration=calibration
+                                               calibration=calibration, $
+                                               synoptic=synoptic
   compile_opt strictarr
   @comp_constants_common
+
+  ; TODO: if SYNOPTIC set, return all QU files before the flat -- make sure
+  ; there are at least MIN_N_QU_FILES
 
   if (~file_test(list_filename)) then begin
     count = 0L
@@ -95,12 +104,20 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
 
   delta_time = times[1:*] - times[0:-2]
 
-  time_check = delta_time lt max_cadence_interval
+  time_check = [1B, delta_time lt max_cadence_interval]
 
-  bins = value_locate(times, flat_times)
-  flat_check = histogram(bins, min=0, max=n_elements(time_check) - 1L) eq 0
+  flat_bins = value_locate(times, flat_times) + 1L
+  flat_check = histogram(flat_bins, min=0, max=n_elements(time_check) - 1L) eq 0
 
-  check = time_check and flat_check
+  check = flat_check and time_check
+
+  if (keyword_set(synoptic)) then begin
+    qu_mask = strpos(stokes_present, 'Q') ge 0L and strpos(stokes_present, 'U') ge 0L
+    if (total(qu_mask, /integer) lt min_n_qu_files) then begin
+      count = 0L
+      return, !null
+    endif
+  endif
 
   ; check must have at least 3 elements to work with LABEL_REGION, but if
   ; it doesn't have at least min_n_cluster_files we will return 0 files anyway
@@ -111,20 +128,52 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   endif
 
   clusters = label_region(check)
-  if (check[0]) then clusters[0] = 1
   if (check[-1]) then clusters[-1] = max(clusters)
+
+  flat_clusters = label_region(flat_check)
+  for b = 0L, n_elements(flat_bins) - 1L do begin
+    if (flat_bins[b] lt n_elements(flat_clusters) - 1L) then begin
+      flat_clusters[flat_bins[b]] = (flat_bins[b] + 1) lt n_elements(flat_clusters) - 1L $
+                                      ? flat_clusters[flat_bins[b] + 1] $
+                                      : (max(flat_clusters[0:-2]) + 1)
+    endif
+  endfor
 
   for c = 1L, max(clusters) do begin
     ind = where(clusters eq c, n_cluster_intervals)
-    n_files = n_cluster_intervals + 1L
+
+    chosen = lonarr(n_candidate_files)
+    chosen[min(ind):max(ind)] = 1B
+
+    ; if synoptic, then add QU in the same flat even if not inside cadence
+    if (keyword_set(synoptic)) then begin
+      qu_flat_mask = (flat_clusters eq flat_clusters[min(ind)]) and qu_mask
+      n_qu_flat_files = total(qu_flat_mask, /integer)
+      if (n_qu_flat_files lt min_n_qu_files) then continue
+      new_chosen = chosen or qu_flat_mask
+
+      n_files = total(new_chosen, /integer)
+      if (n_files gt max_n_files) then begin
+        ; remove last non-QU files
+        n_to_remove = n_files - max_n_files
+        ind = where(chosen and not qu_flat_mask, count)
+        new_chosen[ind[- n_to_remove:*]] = 0B
+      endif
+      chosen = new_chosen
+    endif
+
+    n_files = total(chosen, /integer)
+
     if (n_files ge min_n_cluster_files) then begin
       count = n_files < max_n_files
-      stokes_present = (stokes_present[min(ind):max(ind) + 1])[0: count - 1]
-      return, (candidate_files[min(ind):max(ind) + 1])[0:count - 1]
+      chosen_ind = (where(chosen))[0:count - 1L]
+      stokes_present = stokes_present[chosen_ind]
+      return, candidate_files[chosen_ind]
     endif
   endfor
 
   count = 0L
+  l1_filenames = !null
   stokes_present = []
   return, []
 end
@@ -147,6 +196,8 @@ end
 ;     maximum number of files to be returned
 ;   min_n_cluster_files : in, optional, type=integer, default=40
 ;     minimum number of files needed in a cluster
+;   min_n_qu_files : in, optional, type=integer, default=6
+;     minimum number of QU files needed in a synoptic average
 ;   max_cadence_interval : in, optional, type=float, default=180.0
 ;     time cadence (in seconds) to use to create clusters; files within a
 ;     cluster must be closer than `MAX_CADENCE_INTERVAL` apart
@@ -162,16 +213,20 @@ end
 ;     calculting empirical crosstalk coefficients should be returned
 ;   synoptic : in, optional, type=boolean
 ;     set to use synoptic file instead of waves file
+;   combined : in, optional, type=boolean
+;     set to use iqu file instead of waves file
 ;-
 function comp_find_average_files, date_dir, wave_type, $
                                   max_n_files=max_n_files, $
                                   min_n_cluster_files=min_n_cluster_files, $
+                                  min_n_qu_files=min_n_qu_files, $
                                   max_cadence_interval=max_cadence_interval, $
                                   max_n_noncluster_files=max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
                                   count=count, $
                                   calibration=calibration, $
-                                  synoptic=synoptic
+                                  synoptic=synoptic, $
+                                  combined=combined
   compile_opt strictarr
   @comp_config_common
   @comp_constants_common
@@ -184,6 +239,9 @@ function comp_find_average_files, date_dir, wave_type, $
   _min_n_cluster_files = n_elements(min_n_cluster_files) eq 0L $
                            ? 40L $
                            : min_n_cluster_files
+  _min_n_qu_files = n_elements(min_n_qu_files) eq 0L $
+                      ? 6L $
+                      : min_n_qu_files
   _max_n_files = n_elements(max_n_files) eq 0L ? 50L : max_n_files
   _max_n_noncluster_files = n_elements(max_n_noncluster_files) eq 0L $
                               ? 50L $
@@ -202,10 +260,8 @@ function comp_find_average_files, date_dir, wave_type, $
   ;       cutting it down to the first MAX_N_FILES (50 now) if it has more than
   ;       that
 
+  ; only if COMBINED is set:
   ; 2. if step 1. didn't yield files, try it with {date}.good.iqu.{wave_type}.files.txt
-
-  ; 3. if no files found yet, take the first files in
-  ;    {date}.good.{wave_type}.files.txt up to MAX_N_NONCLUSTER_FILES (50 now)
 
   ; candidate filenames and their corresponding times
   l1_process_dir = filepath('level1', subdir=date_dir, root=process_basedir)
@@ -246,58 +302,38 @@ function comp_find_average_files, date_dir, wave_type, $
   if (keyword_set(synoptic)) then begin
     basename = string(date_dir, wave_type, format='(%"%s.synoptic.%s.files.txt")')
   endif else begin
-    basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
+    if (keyword_set(combined)) then begin
+      basename = string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")')
+    endif else begin
+      basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
+    endelse
   endelse
   list_filename = filepath(basename, root=l1_process_dir)
   files = comp_find_average_files_findclusters(list_filename, flat_times, $
                                                max_cadence_interval=_max_cadence_interval, $
                                                min_n_cluster_files=_min_n_cluster_files, $
+                                               min_n_qu_files=_min_n_qu_files, $
                                                max_n_files=_max_n_files, $
                                                stokes_present=stokes_present, $
+                                               synoptic=synoptic, $
                                                count=count)
   if (count gt 0L) then return, files
 
-  ; step 2.
-  basename = string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")')
-  list_filename = filepath(basename, root=l1_process_dir)
-  files = comp_find_average_files_findclusters(list_filename, flat_times, $
-                                               max_cadence_interval=_max_cadence_interval, $
-                                               min_n_cluster_files=_min_n_cluster_files, $
-                                               max_n_files=_max_n_files, $
-                                               stokes_present=stokes_present, $
-                                               count=count)
-  if (count gt 0L) then return, files
+  ; failed to find any files
+  count = 0L
+  return, !null
+end
 
-  ; step 3.
-  if (~file_test(list_filename)) then begin
-    count = 0L
-    return, !null
-  endif
 
-  n_candidate_files = file_lines(list_filename)
-  if (n_candidate_files eq 0L) then begin
-    count = 0L
-    return, !null
-  endif
+; main-level example program
 
-  candidate_files = strarr(n_candidate_files)
-  stokes_present = strarr(n_candidate_files)
+date = '20130706'
+comp_initialize, date
+comp_configuration, config_filename='../../config/comp.mgalloy.mahi.velocity.cfg'
 
-  openr, lun, list_filename, /get_lun
-  line = ''
-  for f = 0L, n_candidate_files - 1L do begin
-    readf, lun, line
+files = comp_find_average_files(date, '1074', count=n_files, /synoptic)
 
-    tokens = strsplit(line, /extract)
-    candidate_files[f] = tokens[0]
+print, files
+print, n_files
 
-    for s = 0L, n_stokes - 1L do begin
-      if (strpos(line, stokes[s]) gt -1) then stokes_present[f] += stokes[s]
-    endfor
-  endfor
-  free_lun, lun
-
-  count = n_candidate_files < _max_n_noncluster_files
-  stokes_present = stokes_present[0:count - 1L]
-  return, candidate_files[0:count - 1L]
 end
