@@ -92,7 +92,11 @@ pro comp_quick_invert, date_dir, wave_type, $
   fits_open, file, fcb
   n = fcb.nextend
 
-  comp_inventory, fcb, beam, wavelengths
+  comp_inventory, fcb, beam, wavelengths, error=error
+  if (error gt 0L) then begin
+    mg_log, 'error reading %s, quitting', file, name='comp', /error
+    goto, done
+  endif
 
   ; copy the primary header from the median file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0
@@ -245,5 +249,6 @@ pro comp_quick_invert, date_dir, wave_type, $
     mg_log, '%s', error_result, name='comp', /error
   endif
 
+  done:
   mg_log, 'done', name='comp', /info
 end

@@ -180,7 +180,11 @@ pro comp_gbu, date_dir, wave_type, error=error
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
   
-    comp_inventory, fcb, beam, wavelengths, pol
+    comp_inventory, fcb, beam, wavelengths, pol, error=error
+    if (error gt 0L) then begin
+      mg_log, 'skipping %s', name, name='comp', /error
+      continue
+    endif
 
     upol = pol[uniq(pol, sort(pol))]
     polstates[ifile] = strjoin(upol, ',')

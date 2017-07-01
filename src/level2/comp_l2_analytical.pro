@@ -88,7 +88,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
   for ii = 0L, nt - 1L do begin
     fits_open, gbu[ii].l1file, fcb
-    comp_inventory, fcb, beam, wave
+    comp_inventory, fcb, beam, wave, error=error
+    if (error gt 0L) then begin
+      mg_log, 'skipping %s', gbu[ii].l1file, name='comp', /error
+      continue
+    endif
     fits_close, fcb
 
     hdr    = headfits(gbu[ii].l1file)

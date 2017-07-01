@@ -40,8 +40,10 @@
 ;-
 pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
                     cal_pol, cal_ret, $
-                    group=group
+                    group=group, error=error
   compile_opt idl2
+
+  error = 0L
 
   num = fcbin.nextend               ; number of images in file
 
@@ -50,7 +52,13 @@ pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
   pol = strarr(num)
 
   type = ''
-  fits_read, fcbin, data, header, /header_only, exten_no=0
+  fits_read, fcbin, data, header, /header_only, exten_no=0, $
+             message=message, /no_abort
+  if (message ne '') then begin
+    mg_log, 'error reading FITS file: %s', message, name='comp', /error
+    error = 1L
+    return
+  endif
 
   ; type
   cover = sxpar(header, 'COVER')

@@ -39,7 +39,7 @@
 ;   removed gzip    Oct 1 2014  GdT
 ;   removed copy_file to engineering_dir  Oct 1 2014  GdT
 ;-
-pro comp_find_systematics, date_dir, wave_type, file_type, error=error
+pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic=synoptic
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
@@ -63,7 +63,9 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error
   eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
   if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
-  file_dir = date_dir + '.comp.' + wave_type + '.' + file_type
+  type = keyword_set(synoptic) ? 'synoptic' : 'waves'
+  file_dir = string(date_dir, wave_type, file_type, type, $
+                    format='(%"%s.comp.%s.%s.%s")')
   filename = file_dir + '.fts.gz'
 
   if (~file_test(filename) || file_test(filename, /zero_length)) then begin

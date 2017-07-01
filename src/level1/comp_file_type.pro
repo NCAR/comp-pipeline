@@ -90,14 +90,20 @@ pro comp_file_type, date_dir
   for i = 0L, nfile - 1L do begin
     fits_open, files[i], fcb, message=error_message
     if (error_message ne '') then begin
-      mg_log, 'error reading %s', files[i], name='comp', /error
+      mg_log, 'error opening %s', files[i], name='comp', /error
       mg_log, 'error message: %s', error_message, name='comp', /error
       mg_log, 'skipping %s', files[i], name='comp', /error
       continue
     endif
 
     ; take inventory
-    comp_inventory, fcb, beam, wave, pol, type, expose, cover, cal_pol, cal_ret
+    comp_inventory, fcb, beam, wave, pol, type, expose, cover, cal_pol, cal_ret, $
+                    error=error
+    if (error gt 0L) then begin
+      mg_log, 'error reading %s', files[i], name='comp', /error
+      mg_log, 'skipping %s', files[i], name='comp', /error
+      continue
+    endif
 
     uniq_waves = wave[comp_uniq(wave, sort(wave))]   ; find unique wavelengths
     ; recent failure modes create files with one wavelength - skip these

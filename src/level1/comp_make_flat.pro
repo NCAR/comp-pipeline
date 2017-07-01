@@ -156,7 +156,12 @@ pro comp_make_flat, date_dir, error=error
     ; compute average flat at each wavelength
 
     ; take inventory of flat file
-    comp_inventory, fcbin, beam, wave, pol, type, expose, cover, cal_pol
+    comp_inventory, fcbin, beam, wave, pol, type, expose, cover, cal_pol, $
+                    error=error
+    if (error gt 0L) then begin
+      mg_log, 'skipping %s', opalfile, name='comp', /error
+      continue
+    endif
     
     if (make_flat_beam_multiplies_wave) then begin
       ; multiply wavelength by beam sign to allow to find unique
