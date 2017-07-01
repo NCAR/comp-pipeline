@@ -34,8 +34,15 @@ function comp_dark_interp, date_dir, time, exposure
 
   ; read arrays with times and exposures
   num = fcb.nextend
-  fits_read, fcb, times, exten_no=num - 1L
-  fits_read, fcb, exposures, exten_no=num
+  fits_read, fcb, times, exten_no=num - 1L, /no_abort, message=message
+  if (message ne '') then begin
+    mg_log, 'error reading dark.fts', name='comp', /error
+  endif
+
+  fits_read, fcb, exposures, exten_no=num, /no_abort, message=message
+  if (message ne '') then begin
+    mg_log, 'error reading dark.fts', name='comp', /error
+  endif
 
   str_times = comp_times2str(times)
 

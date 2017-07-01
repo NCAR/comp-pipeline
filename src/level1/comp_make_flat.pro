@@ -145,7 +145,12 @@ pro comp_make_flat, date_dir, error=error
     ; open flat file and average images at each wavelength
     fits_open, filepath(opalfile, root=raw_dir), fcbin
     num = fcbin.nextend   ; number of images in file
-    fits_read, fcbin, dat, header, /header_only, exten_no=0
+    fits_read, fcbin, dat, header, /header_only, exten_no=0, /no_abort, message=message
+    if (message ne '') then begin
+      mg_log, 'error reading %s: %s', opalfile, message, name='comp', /error
+      mg_log, 'skipping %s', opalfile, name='comp', /error
+      continue
+    endif
 
     time = comp_parse_time(sxpar(header, 'TIME_OBS'), $
                            hours=hours, minutes=minutes, seconds=seconds)
