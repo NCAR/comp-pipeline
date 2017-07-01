@@ -25,13 +25,20 @@
 ;   nd_filter : out, optional, type=integer
 ;     set to a named variable to retrieve the ND filter for the flats
 ;
+; :Keywords:
+;   error : out, optional, type=long
+;     set to a named variable to retrieve the error status of the averaging
+;
 ; :History:
 ;   used temporary and compound assignment operators to save memory
 ;     Oct 3 2014  GdT
 ;-
-pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter
+pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter, $
+                   error=error
   compile_opt strictarr
   @comp_config_common
+
+  error = 0L
 
   ; skip first image at each wavelength or just first image in recipe
   skip_first = flat_avg_skip_first
@@ -61,7 +68,13 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
     endif
 
     for j = 0L, count - 1L do begin
-      fits_read, fcbin, dat, header, exten_no=good[j] + 1
+      fits_read, fcbin, dat, header, exten_no=good[j] + 1, /no_abort, message=message
+      if (message ne '') then begin
+        mg_log, 'error reading ext %d', good[j] + 1, name='comp', /error
+        error = 1
+        return
+      endif
+
       exposure = sxpar(header, 'EXPOSURE')
       nd_filter = comp_get_nd_filter(date_dir, wave_type, header)
 
