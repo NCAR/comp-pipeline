@@ -7,6 +7,10 @@
 pro comp_find_ssw_dependencies, ssw_loc
   compile_opt strictarr
 
+  ; needs to be done early, otherwise LIST will get compiled and confuse it
+  resolve_routine, 'get_suncenter', $
+                   /compile_full_file, /either, /no_recompile
+
   routines_filename = 'ROUTINES'
   n_routines = file_lines(routines_filename)
   routines = strarr(n_routines)
@@ -20,7 +24,7 @@ pro comp_find_ssw_dependencies, ssw_loc
   endfor
 
   cd, 'ssw'
-  exceptions = ['utcommon']
+  exceptions = ['utcommon', 'get_suncenter']
 
   skip_routines = ['CSPICE_BODVAR', 'CSPICE_CKCOV', 'CSPICE_CKGP', $
                    'CSPICE_CKOBJ', 'CSPICE_CONICS', 'CSPICE_ET2UTC', $
@@ -29,7 +33,7 @@ pro comp_find_ssw_dependencies, ssw_loc
                    'CSPICE_RECGEO', 'CSPICE_RECLAT', 'CSPICE_SCE2C', $
                    'CSPICE_SPKCOV', 'CSPICE_SPKEZR', 'CSPICE_SPKOBJ', $
                    'CSPICE_STR2ET', 'CSPICE_SXFORM', 'CSPICE_UNLOAD', $
-                   'CSPICE_UTC2ET']
+                   'CSPICE_UTC2ET', 'COMP_FIND_CODE_VERSION']
 
   ssw_files = file_search(filepath('*.pro', root='.'), count=n_files)
   for f = 0L, n_files - 1L do begin
