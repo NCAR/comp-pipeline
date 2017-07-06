@@ -67,5 +67,5 @@ pro comp_make_mask_1024, date_dir, flat_header, mask, $
                         field1, field2, $
                         post_angle1, post_angle2, $
                         o_offset=o_offset, f_offset=f_offset, $
-                        nopost=nopost
+                        nopost=nopost)
 end
