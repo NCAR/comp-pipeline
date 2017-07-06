@@ -54,7 +54,7 @@ pro comp_l1_process, date_dir, wave_type, error=error
 
   in_filename = ''
 
-  fmt = string(floor(alog10(n_file_lines)) + 1L, format='(%"%%%dd/%%d@%%s: %%s")')
+  fmt = string(floor(alog10(n_file_lines)) + 1L, format='(%"%%%dd/%%d @ %%s: %%s")')
 
   for file_count = 0L, n_file_lines - 1L do begin
     readf, infiles_lun, in_filename, format='(a19)'
