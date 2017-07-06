@@ -36,12 +36,12 @@ function comp_dark_interp, date_dir, time, exposure
   num = fcb.nextend
   fits_read, fcb, times, exten_no=num - 1L, /no_abort, message=message
   if (message ne '') then begin
-    mg_log, 'error reading dark.fts', name='comp', /error
+    mg_log, 'error reading times in dark.fts', name='comp', /error
   endif
 
   fits_read, fcb, exposures, exten_no=num, /no_abort, message=message
   if (message ne '') then begin
-    mg_log, 'error reading dark.fts', name='comp', /error
+    mg_log, 'error reading exposures in dark.fts', name='comp', /error
   endif
 
   str_times = comp_times2str(times)
@@ -59,7 +59,11 @@ function comp_dark_interp, date_dir, time, exposure
     mg_log, '%d at %f', good[0], times[good[0]], name='comp', /debug
   endif else begin
     if (time ge max(times[good])) then begin   ; time after last bias
-      fits_read, fcb, bias, exten_no=good[count-1] + 1
+      fits_read, fcb, bias, exten_no=good[count-1] + 1, /no_abort, message=message
+      if (message ne '') then begin
+        mg_log, 'error reading ext %d in dark.fts', good[count - 1], name='comp', /error
+      endif
+
       mg_log, 'ext %d for %s', $
               good[count - 1L] + 1, $
               comp_times2str(times[good[count - 1L]]), $
@@ -83,8 +87,15 @@ function comp_dark_interp, date_dir, time, exposure
               strjoin(str_times[good], ', '), $
               name='comp', /debug
 
-      fits_read, fcb, bias1, header1, exten_no=i1 + 1
-      fits_read, fcb, bias2, header2, exten_no=i2 + 1
+      fits_read, fcb, bias1, header1, exten_no=i1 + 1, /no_abort, message=message
+      if (message ne '') then begin
+        mg_log, 'error reading ext %d in dark.fts', i1 + 1, name='comp', /error
+      endif
+
+      fits_read, fcb, bias2, header2, exten_no=i2 + 1, /no_abort, message=message
+      if (message ne '') then begin
+        mg_log, 'error reading ext %d in dark.fts', i2 + 1, name='comp', /error
+      endif
 
       mg_log, 'between %s (ext %d) and %s (ext %d)', $
               str_times[i1], $

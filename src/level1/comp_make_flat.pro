@@ -179,7 +179,13 @@ pro comp_make_flat, date_dir, error=error
     nwaves = n_elements(uniq_waves)
 
     ; perform averaging
-    comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter
+    comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter, $
+                   error=error
+    if (error gt 0L) then begin
+      mg_log, 'error reading averaging %s', opalfile, name='comp', /error
+      mg_log, 'skipping %s', opalfile, name='comp', /error
+      continue
+    endif
 
     ; extract masking information from second flat image (don't use first)
     image = flats[*, *, 1]
