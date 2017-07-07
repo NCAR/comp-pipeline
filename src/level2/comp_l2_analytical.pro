@@ -203,7 +203,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     endif
 
     ;=== write out fits files ===
-    mg_log, 'write out fits %d/%d', ii + 1, nt, name='comp', /info
+    mg_log, 'write out fits %d/%d @ %s', ii + 1, nt, wave_type, name='comp', /info
 
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
