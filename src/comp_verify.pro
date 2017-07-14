@@ -11,8 +11,11 @@
 ;   config_filename, in, optional, type=string
 ;     configuration filename to use, default is `comp.cfg` in the `src`
 ;     directory
+;   status : out, optional, type=integer
+;     set to a named variable to retrieve the status of the date: 0 for success,
+;     anything else indicates a problem
 ;-
-pro comp_verify, date, config_filename=config_filename
+pro comp_verify, date, config_filename=config_filename, status=status
   compile_opt strictarr
   @comp_config_common
 
@@ -319,7 +322,7 @@ pro comp_verify, date, config_filename=config_filename
       endif
 
       ; check protection of tarball on HPSS
-      if (tokes[0] ne '-rw-rw-r--') then begin
+      if (tokens[0] ne '-rw-rw-r--') then begin
         mg_log, 'incorrect permissions %s for tarball on HPSS', $
                 tokens[0], name=logger_name, /error
         status = 1L

@@ -51,6 +51,7 @@ find_package(mgunit)
 # always need IDL's include files
 include_directories(${IDL_INCLUDE_DIR})
 
+add_subdirectory(bin)
 add_subdirectory(config)
 add_subdirectory(gen)
 add_subdirectory(lib)
