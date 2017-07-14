@@ -31,7 +31,7 @@
 ;   Tomczyk, modified by Sitongia
 ;
 ; :History:
-;   10/8/14 - polywarp was replaced by sfit to increase speed
+;   10/8/14 - POLYWARP was replaced by COMP_SFIT to increase speed
 ;-
 pro comp_fix_stray_light, image, flat_header, fit
   compile_opt strictarr
@@ -41,7 +41,7 @@ pro comp_fix_stray_light, image, flat_header, fit
 
   ; create arrays of x coordinate and y coordinate assuming image is square
 
-  x = rebin(findgen(nx), nx, nx) - float(nx) / 2.
+  x = rebin(findgen(nx), nx, nx) - float(nx) / 2.0
   y = transpose(x)
 
   ; create mask with cutoff inside of occulter and outside of field mask
@@ -53,7 +53,7 @@ pro comp_fix_stray_light, image, flat_header, fit
   ; the version of this line which does not omit the corners of the image is:
   ; good=where(image_mask eq 0.0,count)
 
-  good = where(image_mask eq 0.0 and y lt (- x + 600.) and y gt (- x - 600.), $
+  good = where(image_mask eq 0.0 and y lt (- x + 600.0) and y gt (- x - 600.0), $
                count)
 
   ; fit stray light outside of field-of-view
@@ -62,17 +62,11 @@ pro comp_fix_stray_light, image, flat_header, fit
   data[0, *] = x[good]
   data[1, *] = y[good]
   data[2, *] = image[good]
-  ndeg = 2    ; degree of polynomial fit
-  kx = comp_sfit(data, ndeg)
+  ndeg = 2L   ; degree of polynomial fit
+  kx = comp_sfit(data, ndeg, /irregular)
 
   ; compute fit from coefficients and subtract it from input image
   fit = comp_eval_surf(transpose(kx), reform(x[*, 0]), reform(y[0, *]))
-  ; fit = fltarr(nx, nx)
-  ; for i = 0, ndeg do begin
-  ;   for j = 0, ndeg do begin
-  ;     fit += kx[j, i] * x^i * y^j
-  ;   endfor
-  ; endfor
 
   image -= fit
 end
