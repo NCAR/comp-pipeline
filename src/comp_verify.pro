@@ -58,9 +58,16 @@ pro comp_verify, date, config_filename=config_filename, status=status
           name=logger_name, /info
 
   ; don't check days with no data
+  tarball_filename = filepath(date + '.comp.l0.tgz', $
+                              subdir=date, $
+                              root=raw_basedir)
+
   fits_files = file_search(filepath('*.FTS', subdir=date, root=raw_basedir), $
                            count=n_fits_files)
-  if (n_fits_files eq 0L) then goto, done
+  if (n_fits_files eq 0L && ~file_test(tarball_filename)) then begin
+    mg_log, 'no FTS files or tarball, skipping', name=logger_name, /info
+    goto, done
+  endif
 
   log_filename = filepath(date + '.comp.t1.log', $
                           subdir=date, $
@@ -243,9 +250,6 @@ pro comp_verify, date, config_filename=config_filename, status=status
 
   ; TEST: tgz size
 
-  tarball_filename = filepath(date + '.comp.l0.tgz', $
-                              subdir=date, $
-                              root=raw_basedir)
   tarball_size = mg_filesize(tarball_filename)
 
   if (~file_test(tarball_filename, /regular)) then begin
@@ -275,7 +279,7 @@ pro comp_verify, date, config_filename=config_filename, status=status
               name=logger_name, /warn
       status = 1L
       goto, compress_ratio_done
-    endif else mg_log, 'tarball compression ratio OK', name=logger_name, /info
+    endif
   endif else begin
     mg_log, 'skipping tarball compression ratio check', name=logger_name, /info
   endelse
