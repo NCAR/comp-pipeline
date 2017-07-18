@@ -48,4 +48,4 @@ COMP_DLM_PATH=${LIB_DIR}/mysql:"<IDL_DEFAULT>"
 
 ${IDL} -quiet -IDL_QUIET 1 -IDL_STARTUP "" \
   -IDL_PATH ${COMP_PATH} -IDL_DLM_PATH ${COMP_DLM_PATH} \
-  -e "comp_verify, '${DATE}', config_filename='${CONFIG}'"
+  -e "comp_verify_dates, '${DATE}', config_filename='${CONFIG}'"

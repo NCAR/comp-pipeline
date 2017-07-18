@@ -18,7 +18,7 @@ common comp_config, doi_1074,$
                     flat_corrected_output, $
                     demodulated_output, $
                     ffmpeg_dir, $
-                    git_dir, $
+                    hsi_dir, $
                     log_level, $
                     l1_process_log_level, $
                     circfit_log_level, $

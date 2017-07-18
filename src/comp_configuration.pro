@@ -36,7 +36,7 @@ pro comp_configuration, config_filename=config_filename
   binary_dir    = mg_src_root()
   hot_file      = filepath('hothot.sav', root=binary_dir)
   ffmpeg_dir    = config->get('ffmpeg_dir', section='externals')
-  git_dir       = config->get('git_dir', section='externals')
+  hsi_dir       = config->get('hsi_dir', section='externals', default='')
 
   ; processing
   raw_basedir         = config->get('raw_basedir', section='processing')

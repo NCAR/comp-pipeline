@@ -57,6 +57,11 @@ pro comp_verify, date, config_filename=config_filename, status=status
   mg_log, 'raw directory %s', filepath(date, root=raw_basedir), $
           name=logger_name, /info
 
+  ; don't check days with no data
+  fits_files = file_search(filepath('*.FTS', subdir=date, root=raw_basedir), $
+                           count=n_fits_files)
+  if (n_fits_files eq 0L) then goto, done
+
   log_filename = filepath(date + '.comp.t1.log', $
                           subdir=date, $
                           root=raw_basedir)
@@ -68,12 +73,12 @@ pro comp_verify, date, config_filename=config_filename, status=status
   if (~file_exist(log_filename)) then begin 
      mg_log, 't1.log file not found', name=logger_name, /error
      status = 1L
-     goto, test1_done
+     goto, done
   endif else begin 
     if (~file_exist(list_filename)) then begin 
       mg_log, 'tarlist file not found'
-     status = 1L
-      goto, test1_done
+      status = 1L
+      goto, done
     endif 
   endelse 
 
@@ -157,10 +162,10 @@ pro comp_verify, date, config_filename=config_filename, status=status
   ; if (minsize ge 81996480 and maxsize le 254393280) then begin
 
   if ((minsize ge 81996480) and (maxsize le 430994880)) then begin 
-    mg_log, 'sizes of L0 FITS files [%d, %d] OK', $
+    mg_log, 'sizes of L0 FITS files (%d B-%d B) OK', $
             minsize, maxsize, name=logger_name, /info
   endif else begin
-    mg_log, 'sizes of L0 FITS files [%d, %d] out of expected range', $
+    mg_log, 'sizes of L0 FITS files (%d B-%d B) out of expected range', $
             minsize, maxsize, name=logger_name, /error
 
     status = 1L
@@ -243,6 +248,12 @@ pro comp_verify, date, config_filename=config_filename, status=status
                               root=raw_basedir)
   tarball_size = mg_filesize(tarball_filename)
 
+  if (~file_test(tarball_filename, /regular)) then begin
+    mg_log, 'no tarball', name=logger_name, /error
+    status = 1
+    goto, compress_ratio_done
+  endif
+
   test_tgz_compression_ratio = 1B
   if (test_tgz_compression_ratio) then begin 
     ; test the size of tgz vs. entire directory of raw files
@@ -274,9 +285,17 @@ pro comp_verify, date, config_filename=config_filename, status=status
   ; TEST: check if there are files in the directory that should not be there 
 
   files = file_search(filepath('*', subdir=date, root=raw_basedir), count=n_files)
-  if (n_log_lines ne n_files - 3L) then begin
-    mg_log, 'extra files in raw dir: %d in log list, %d in dir', $
-            n_log_lines, n_files, $
+  if (n_log_lines lt n_files - 3L) then begin
+    n_extra = n_files - 3L - n_log_files
+    mg_log, 'extra %d file%s in raw dir: %d in log, %d in dir', $
+            n_extra, n_extra eq 1 ? '' : 's', n_log_lines, n_files, $
+            name=logger_name, /error
+    status = 1B
+    goto, extra_files_done
+  endif else if (n_log_lines gt n_files - 3L) then begin
+    n_missing = n_log_lines - n_files + 3L
+    mg_log, 'missing %d file%s in raw dir: %d in log, %d in dir', $
+            n_missing, n_missing eq 1 ? '' : 's', n_log_lines, n_files, $
             name=logger_name, /error
     status = 1B
     goto, extra_files_done
@@ -288,13 +307,13 @@ pro comp_verify, date, config_filename=config_filename, status=status
 
   ; TEST: check HPSS for L0 tarball of correct size, ownership, and protections
 
-  check_hpss = 0B
+  check_hpss = 1B
   if (check_hpss) then begin
     year = strmid(date, 0, 4)
-    hsi_cmd = string(year, date, $
-                     format='(%"hsi ls -l /CORDYN/COMP/%s/%s.comp.l0.tgz")')
-    spawn, hsi_cmd, hsi_output, error_output, exit_status=status
-    if (exit_status ne 0L) then begin
+    hsi_cmd = string(hsi_dir, hsi_dir eq '' ? '' : '/', year, date, $
+                     format='(%"%s%shsi ls -l /CORDYN/COMP/%s/%s.comp.l0.tgz")')
+    spawn, hsi_cmd, hsi_output, hsi_error_output, exit_status=status
+    if (status ne 0L) then begin
       mg_log, 'problem connecting to HPSS with command: %s', hsi_cmd, $
               name=logger_name, /error
       mg_log, '%s', error_output, name=logger_name, /error
@@ -302,7 +321,8 @@ pro comp_verify, date, config_filename=config_filename, status=status
       goto, hpss_done
     endif
 
-    matches = stregex(hsi_output, date + '\.comp\.l0\.tgz', /boolean)
+    ; for some reason, hsi put its output in stderr
+    matches = stregex(hsi_error_output, date + '\.comp\.l0\.tgz', /boolean)
     ind = where(matches, count)
     if (count eq 0L) then begin
       mg_log, 'L0 tarball for %s not found on HPSS', date, $
@@ -310,7 +330,7 @@ pro comp_verify, date, config_filename=config_filename, status=status
       status = 1L
       goto, hpss_done
     endif else begin
-      status_line = hsi_output[ind[0]]
+      status_line = hsi_error_output[ind[0]]
       tokens = strsplit(status_line, /extract)
 
       ; check group ownership of tarball on HPSS
@@ -330,12 +350,15 @@ pro comp_verify, date, config_filename=config_filename, status=status
       endif
 
       ; check size of tarball on HPSS
-      if (long(tokens[4]) ne tarball_size) then begin
+      if (ulong64(tokens[4]) ne tarball_size) then begin
         mg_log, 'incorrect size %s for tarball on HPSS', $
                 tokens[4], name=logger_name, /error
         status = 1L
         goto, hpss_done
       endif
+
+      mg_log, 'verified tarball on HPSS', $
+              name=logger_name, /info
     endelse
   endif else begin
     mg_log, 'skipping HPSS check', name=logger_name, /info
