@@ -39,7 +39,10 @@ pro comp_l1_check, date_dir, wave_type
 
     if (abs(overlap_angle - 45.0) gt overlap_angle_tolerance) then begin
       overlap_angle_warning = 1B
-      mg_log, 'overlap angle %0.2f exceeds tolerance', overlap_angle, $
+      mg_log, 'overlap angle %0.1f outside normal range %0.1f-%0.1f', $
+              overlap_angle, $
+              45.0 - overlap_angle_tolerance, $
+              45.0 + overlap_angle_tolerance, $
               name='comp', /warn
     endif
     
@@ -47,9 +50,12 @@ pro comp_l1_check, date_dir, wave_type
       fits_read, fcb, date, header, exten_no=e
       lcvr6temp = sxpar(header, 'LCVR6TMP')
       ; TODO: check other temps to check? what is a good temp range?
-      if (lcvr6temp lt 25.0 || lcvr6temp gt 35.0) then begin
+      min_lcvr6temp = 25.0
+      max_lcvr6temp = 35.0
+      if (lcvr6temp lt min_lcvr6temp || lcvr6temp gt max_lcvr6temp) then begin
         n_images_bad_temp += 1
-        mg_log, 'LCVR6TMP %0.2f exceeds tolerance', lcvr6temp, $
+        mg_log, 'LCVR6 temp %0.1f outside of normal range %0.1f-%0.1f', $
+                lcvr6temp, min_lcvr6temp, max_lcvr6temp, $
                 name='comp', /warn
       endif
     endfor
