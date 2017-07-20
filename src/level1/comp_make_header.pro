@@ -13,6 +13,8 @@
 ;     the large format comp image
 ;   header : out
 ;     the resulting fits header
+;   date_dir : in, required, type=string
+;     date to process, in YYYYMMDD format
 ;   uncorrected_occulter1 : out
 ;     structure containing the parameters of the occulting disk `{x,y,radius}`
 ;     for distortion uncorrected subimage 1 (pixels)
@@ -41,7 +43,7 @@
 ; :History:
 ;   added comments - 10/23/14 ST
 ;-
-pro comp_make_header, image, header, $
+pro comp_make_header, image, header, date_dir, $
                       uncorrected_occulter1, $
                       uncorrected_field1, $
                       uncorrected_post_angle1, $

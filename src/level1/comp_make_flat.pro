@@ -194,7 +194,7 @@ pro comp_make_flat, date_dir, error=error
     image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
 
     ; make FITS extension header for the images with masking parameters included
-    comp_make_header, image, header, $
+    comp_make_header, image, header, date_dir, $
                       occulter1, field1, post_angle1, $
                       occulter2, field2, post_angle2, $
                       error=header_error
