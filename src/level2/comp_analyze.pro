@@ -322,10 +322,10 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
  
   ; compress files
   mg_log, 'compressing files', name='comp', /debug
-  zip_cmd = 'gzip -f ' + date_dir + '.comp.' + wave_type + '.invert.fts'
+  zip_cmd = 'gzip -f ' + date_dir + '.comp.' + wave_type + '.invert.*.fts'
   spawn, zip_cmd, result, error_result, exit_status=status
   if (status ne 0L) then begin
-    mg_log, 'problem zipping quick_invert file with command: %s', zip_cmd, $
+    mg_log, 'problem zipping quick_invert file(s) with command: %s', zip_cmd, $
             name='comp', /error
     mg_log, '%s', error_result, name='comp', /error
   endif
