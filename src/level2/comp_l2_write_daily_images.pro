@@ -46,7 +46,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
   ; read images from quick invert file
-  quick_invert_format = '(%"%s.comp.%s.quick_invert.fts.gz")'
+  quick_invert_format = '(%"%s.comp.%s.quick_invert.synoptic.fts.gz")'
   quick_invert_filename = filepath(string(date_dir, wave_type, $
                                           format=quick_invert_format), $
                                    root=l2_process_dir)
@@ -54,10 +54,21 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   ; use quick invert images and eliminate reading L1 files
 
   if (~file_test(quick_invert_filename)) then begin
-    mg_log, 'quick invert file %s not found, skipping', $
+    mg_log, 'synoptic quick invert file %s not found, skipping', $
             file_basename(quick_invert_filename), $
             name='comp', /debug
-    goto, skip
+
+    quick_invert_format = '(%"%s.comp.%s.quick_invert.waves.fts.gz")'
+    quick_invert_filename = filepath(string(date_dir, wave_type, $
+                                            format=quick_invert_format), $
+                                     root=l2_process_dir)
+
+    if (~file_test(quick_invert_filename)) then begin
+      mg_log, 'waves quick invert file %s not found, skipping', $
+              file_basename(quick_invert_filename), $
+              name='comp', /debug
+      goto, skip
+    endif
   endif
 
   fits_open, quick_invert_filename, quick_invert_fcb
@@ -66,9 +77,9 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   fits_read, quick_invert_fcb, stks_u, stks_u_header, exten_no=3
   fits_read, quick_invert_fcb, lpol, lpol_header, exten_no=4
   fits_read, quick_invert_fcb, azimuth, azimuth_header, exten_no=5
-  fits_read, quick_invert_fcb, radial_azimuth, radial_azimuth_header, exten_no=6
-  fits_read, quick_invert_fcb, velocity, velocity_header, exten_no=7
-  fits_read, quick_invert_fcb, width, width_header, exten_no=8
+  fits_read, quick_invert_fcb, velocity, velocity_header, exten_no=6
+  fits_read, quick_invert_fcb, width, width_header, exten_no=7
+  fits_read, quick_invert_fcb, radial_azimuth, radial_azimuth_header, exten_no=8
   fits_close, quick_invert_fcb
 
   ; create enhanced intensity

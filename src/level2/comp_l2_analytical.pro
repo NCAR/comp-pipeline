@@ -151,7 +151,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           sub_bad = where(profile le 0, n_bad)
           if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
-          if (profile[1] gt int_thresh && profile[0] gt 0.0 && profile[2] gt 0.0) then begin
+          int_max_thresh = 60.0
+          if (profile[1] gt int_thresh && profile[1] lt int_max_thresh && profile[0] gt 0.0 && profile[2] gt 0.0) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
           endif else begin
             i_cent        = 0D
