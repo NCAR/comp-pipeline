@@ -320,12 +320,12 @@ pro comp_verify, date, config_filename=config_filename, status=status
     if (status ne 0L) then begin
       mg_log, 'problem connecting to HPSS with command: %s', hsi_cmd, $
               name=logger_name, /error
-      mg_log, '%s', hsi_error_output, name=logger_name, /error
+      mg_log, '%s', mg_strmerge(hsi_error_output), name=logger_name, /error
       status = 1
       goto, hpss_done
     endif
 
-    ; for some reason, hsi put its output in stderr
+    ; for some reason, hsi puts its output in stderr
     matches = stregex(hsi_error_output, date + '\.comp\.l0\.tgz', /boolean)
     ind = where(matches, count)
     if (count eq 0L) then begin
