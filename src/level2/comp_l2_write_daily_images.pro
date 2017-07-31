@@ -89,7 +89,9 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   mg_log, 'creating daily JPGs now...', name='comp', /info
 
   comp_make_mask, date_dir, intensity_header, mask
-  good_ind = where(mask eq 1 and intensity gt int_thresh, complement=mask_ind)
+  good_ind = where(mask eq 1 $
+                     and intensity gt int_min_thresh $
+                     and intensity lt int_max_thresh, complement=mask_ind)
 
   p   = sqrt(stks_q^2. + stks_u^2.)
   poi = float(p) / float(intensity)

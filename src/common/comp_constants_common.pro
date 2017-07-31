@@ -14,7 +14,8 @@ common comp_constants, nx, ny, $
                        debug, $
                        overlap_angle_tolerance, $
                        background_limit, $
-                       int_min_thresh, int_max_diff_thresh, $
+                       int_min_thresh, int_max_thresh, $
+                       diff_thresh, $
                        i_to_q_xtalk, $
                        i_to_u_xtalk, $
                        u_to_q_xtalk, $

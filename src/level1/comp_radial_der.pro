@@ -84,8 +84,6 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
   nvals = dr * 2   ; number of points in interpolated radial scan
 
   ; make radial scans
-
-  ; TODO: remove when done
   points = fltarr(2, nscan)
 
   for i = 0L, nscan - 1L do begin

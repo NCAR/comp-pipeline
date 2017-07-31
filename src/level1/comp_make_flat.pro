@@ -306,7 +306,7 @@ pro comp_make_flat, date_dir, error=error
       threshold = 12.0 * expose / 250.0 / transmission_correction
 
       if (medflat lt threshold) then begin
-        mg_log, 'flat median low for %s (%0.2f):', $
+        mg_log, 'low flat median for %s (%0.2f):', $
                 opalfile, uniq_waves[i], name='comp', /warn
         mg_log, '  %0.2f (flat median) < %0.2f (minimum theshold)', $
                 medflat, threshold, name='comp', /warn

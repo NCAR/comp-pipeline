@@ -155,7 +155,9 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     bad_val = where(finite(velocity) ne 1)
     comp_mask = mask
-    masked = where(comp_mask eq 1 and intensity gt int_thresh, comp=unmasked)
+    masked = where(comp_mask eq 1 $
+                     and intensity gt int_min_thresh $
+                     and intensity lt int_max_thresh, comp=unmasked)
 
     ; plot Q/I in b/w
     loadct, 0, /silent

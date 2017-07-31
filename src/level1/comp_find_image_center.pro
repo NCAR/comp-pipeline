@@ -29,7 +29,7 @@
 ;     set to a named variable to retrieve the chi^2 of the fit
 ;   radius_guess : in, optional, type=float, default=295. or 224.
 ;     the optional guess of the radius of the discontinuity
-;   center_guess : in, optional, type=fltarr(2)
+;   center_guess : in, required, type=fltarr(2)
 ;     guess for the center; if not provided, use center of `data`
 ;   drad : in, optional, type=float, default=40.0
 ;     the +/- size of the radius which to scan
@@ -52,9 +52,9 @@ function comp_find_image_center, dat, $
                                  points=points
   compile_opt strictarr
   @comp_fitc_common
+  @comp_constants_common
 
   debug = 0   ; 1=debug mode, 1=on, 0=off
-  ans = ' '
 
   ; if guess of radius is input, use it, otherwise use default guess
   if (keyword_set(radius_guess)) then begin
@@ -73,23 +73,38 @@ function comp_find_image_center, dat, $
   r = comp_radial_der(dat, theta, radius_guess, drad, neg_pol=neg_pol, $
                       center_guess=center_guess, points=points)
 
-  c = comp_circfit(theta, r, error=error)
-  if (error ne 0L) then return, -1L
+  x = reform(points[0, *])
+  y = reform(points[1, *])
+  p = mpfitellipse(x, y, /circular, /quiet, status=status)
+  error = status le 0
 
-  mg_log, 'h: %0.3f, alpha: %0.3f, radius: %0.3f', c[0], c[1], c[2], $
-          name='comp', /debug
+  radius   = p[0]
+  x_center = p[2]
+  y_center = p[3]
 
-  if (debug eq 1) then begin
-    plot, theta, r, psym=3, yrange=[200, 340], ystyle=1, $
-          xtitle='Angle', ytitle='Radial Position', charsize=1.5, $
-          title='find_image_center'
-    rfit = c[0] * cos(theta - c[1]) $
-             + sqrt(c[0]^2 * cos(theta - c[1])^2 - c[0]^2 +c[2]^2)
-    oplot, theta, rfit
-    read, 'enter return', ans
-  endif
+  ;c = comp_circfit(theta, r, error=error)
+  ;if (error ne 0L) then return, -1L
 
-  a = [c[0] * cos(c[1]), c[0] * sin(c[1]), c[2]]
+  ;mg_log, 'h: %0.3f, alpha: %0.3f, radius: %0.3f', c[0], c[1], c[2], $
+  ;        name='comp', /debug
 
-  return, a
+  ;if (debug eq 1) then begin
+  ;  ans = ' '
+  ;  plot, theta, r, psym=3, yrange=[200, 340], ystyle=1, $
+  ;        xtitle='Angle', ytitle='Radial Position', charsize=1.5, $
+  ;        title='find_image_center'
+  ;  rfit = c[0] * cos(theta - c[1]) $
+  ;           + sqrt(c[0]^2 * cos(theta - c[1])^2 - c[0]^2 +c[2]^2)
+  ;  oplot, theta, rfit
+  ;  read, 'enter return', ans
+  ;endif
+
+  ;a = [c[0] * cos(c[1]), c[0] * sin(c[1]), c[2]]
+
+;help, x_center, center_guess[0], y_center, center_guess[1], radius
+;print, a
+
+  return, [x_center - nx / 2.0 - center_guess[0], $
+           y_center - ny / 2.0 - center_guess[1], $
+           radius]
 end

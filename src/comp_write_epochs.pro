@@ -61,7 +61,8 @@ pro comp_write_epochs, date_dir
           format='(%"%-25s : %0.2f")'
   printf, lun, 'background_limit', background_limit, format='(%"%-25s : %0.2f")'
 
-  printf, lun, 'int_thresh', int_thresh, format='(%"%-25s : %0.2f")'
+  printf, lun, 'int_min_thresh', int_min_thresh, format='(%"%-25s : %0.2f")'
+  printf, lun, 'int_max_thresh', int_max_thresh, format='(%"%-25s : %0.2f")'
   printf, lun, 'diff_thresh', diff_thresh, format='(%"%-25s : %0.2f")'
 
   printf, lun, 'stokes', stokes, format='(%"%-25s : [%s, %s, %s, %s]")'

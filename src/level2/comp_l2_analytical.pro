@@ -151,8 +151,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           sub_bad = where(profile le 0, n_bad)
           if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
-          int_max_thresh = 60.0
-          if (profile[1] gt int_thresh && profile[1] lt int_max_thresh && profile[0] gt 0.0 && profile[2] gt 0.0) then begin
+          if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh && profile[0] gt 0.0 && profile[2] gt 0.0) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
           endif else begin
             i_cent        = 0D
@@ -180,7 +179,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     int_prep[where(mask eq 0)] = 0D
     int_enh = comp_intensity_enhancement(int_prep, headfits(gbu[ii].l1file))
     int_enh[where(mask eq 0)] = 0D
-    thresh_unmasked = where(mask eq 1 and temp_int gt int_thresh, $
+    thresh_unmasked = where(mask eq 1 $
+                              and temp_int gt int_min_thresh $
+                              and temp_int lt int_max_thresh, $
                             complement=thresh_masked)
     temp_velo = temp_data[*, *, 1]
     temp_velo[thresh_masked] = 0D
