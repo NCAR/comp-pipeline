@@ -320,7 +320,7 @@ pro comp_verify, date, config_filename=config_filename, status=status
     if (status ne 0L) then begin
       mg_log, 'problem connecting to HPSS with command: %s', hsi_cmd, $
               name=logger_name, /error
-      mg_log, '%s', error_output, name=logger_name, /error
+      mg_log, '%s', hsi_error_output, name=logger_name, /error
       status = 1
       goto, hpss_done
     endif
