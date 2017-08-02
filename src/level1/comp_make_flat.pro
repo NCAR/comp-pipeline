@@ -187,6 +187,12 @@ pro comp_make_flat, date_dir, error=error
       continue
     endif
 
+    fits_close, fcbin, /no_abort, message=message
+    if (message ne '') then begin
+      mg_log, 'failed to close %s with: %s', opalfile, message, $
+              name='comp', /error
+    endif
+
     ; extract masking information from second flat image (don't use first)
     image = flats[*, *, 1]
 
