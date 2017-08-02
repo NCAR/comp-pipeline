@@ -28,7 +28,9 @@ pro comp_run_pipeline, config_filename=config_filename
     catch, /cancel
     t1 = systime(/seconds)
     mg_log, /last_error, name='comp', /critical
-    mg_log, 'Total running time: %0.2f sec', t1 - t0, name='comp', /info
+    mg_log, 'Total running time: %0.2f sec', $
+            mg_secs2hms(t1 - t0, format='%d hr %d min %4.1f sec'), $
+            name='comp', /info
 
     if (n_elements(date_dir) gt 0) then begin
       if (lock_raw) then begin
