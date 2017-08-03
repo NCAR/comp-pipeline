@@ -1,0 +1,121 @@
+debug            : NO
+
+# level 1 image dimensions
+nx               : 620
+ny               : 620
+
+## line center wavelengths
+wavefwhm         : 0.12
+
+# was 1074.7
+center_1074      : 1074.62
+center_1079      : 1079.8
+center_1083      : 1083.0
+
+1074_3pt_wavelengths : [1074.50, 1074.62, 1074.74]
+1079_3pt_wavelengths : [1079.66, 1079.78, 1079.90]
+1083_3pt_wavelengths : [1082.91, 1083.00, 1083.09]
+
+1074_5pt_wavelengths : [1074.38, 1074.50, 1074.62, 1074.74, 1074.86]
+1079_5pt_wavelengths : [1079.54, 1079.66, 1079.78, 1079.90, 1080.02]
+
+# display values
+display_min_1074 : 0.0
+display_min_1079 : 0.0
+display_min_1083 : 0.0
+
+display_max_1074 : 5.0
+display_max_1079 : 3.0
+display_max_1083 : 12.0
+
+display_exp_1074 : 0.5
+display_exp_1079 : 0.5
+display_exp_1083 : 0.3
+
+# distortion coefficients
+distortion_coeffs_file : dist_coeff_20161107.sav
+
+## thresholds for L1 data checking
+overlap_angle_tolerance : 1.0
+background_limit        : 15.0
+
+## thresholds for cutting out bad data in the L2 products
+
+# millionths of solar disk intensity
+int_thresh      : 0.1
+diff_thresh     : 4.0
+
+stokes          : [I, Q, U, V]
+
+post_rotation   : -2.5
+post_width      : 32.0
+occulter_offset :  0.0
+field_offset    : -6.0
+field_overlap   :  6.0
+plate_scale     :  4.46
+
+# new values from Steve Oct 2014 (don't know what to use before)
+i_to_q_xtalk    : -0.000581
+i_to_u_xtalk    :  0.004841
+u_to_q_xtalk    :  0.0
+q_to_u_xtalk    :  0.0
+i_to_v_xtalk    : -0.001158
+q_to_v_xtalk    :  0.073802
+u_to_v_xtalk    : -0.155195
+
+# 20160725 values
+#i_to_q_xtalk    :  0.000295
+#i_to_u_xtalk    :  0.002541
+#u_to_q_xtalk    :  0.0
+#q_to_u_xtalk    :  0.0
+#i_to_v_xtalk    : -0.000621
+#q_to_v_xtalk    :  0.028386
+#u_to_v_xtalk    : -0.182569
+
+# ND filter transmissions as a ratio to ND 8 (clear)
+# determined from data taken on 20160516 at 113149, 113351, 113554, 113756,
+# 113958, 114201, 114403, 114606
+nd1 : 0.83820683
+nd2 : 0.49466920
+nd3 : 0.31343165
+nd4 : 0.09221819
+nd5 : 0.00952949
+nd6 : 0.00186020
+nd7 : 0.99590516
+nd8 : 1.00000000
+
+
+# prior to occulter change on September 29, 2011
+[20110928]
+post_rotation   :  1.0
+occulter_offset :  0.0
+field_offset    : -6.0
+field_overlap   :  6.0
+plate_scale     :  4.46
+
+
+# changed occulter, going from existing #31 to #35, 2012-1-10
+[20120110]
+post_rotation   :  1.0
+occulter_offset :  0.0
+field_offset    : -6.0
+field_overlap   : 24.0
+plate_scale     :  4.46
+
+
+# something changed in field, arbitrarily starting anew at 2012-6-1
+[20120601]
+post_rotation   :  2.0
+occulter_offset :  0.0
+field_offset    : -2.0
+field_overlap   : 16.0
+plate_scale     :  4.46
+
+
+# plate scale changed with installation of new reimaging lens on 2012-12-7
+[20121209]
+post_rotation   :  0.0
+occulter_offset :  0.0
+field_offset    : -2.0
+field_overlap   : 16.0
+plate_scale     :  4.35

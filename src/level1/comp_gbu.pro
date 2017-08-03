@@ -141,6 +141,9 @@ pro comp_gbu, date_dir, wave_type, error=error
     readf, lun, str
     good_lines[ifile] = str
 
+    ; just note the name in good_files if not performing GBU
+    if (~perform_gbu) then continue
+
     datetime = strmid(str, 0, 15)
 
     ; search_filter is a glob, not a regular expression
@@ -206,16 +209,16 @@ pro comp_gbu, date_dir, wave_type, error=error
       endif
 
       ; reject high background images
-      background_cutoff = 30.0
-      if (back[ifile] gt background_cutoff) then begin
-        mg_log, 'background gt %0.1f, reject %s', background_cutoff, str, $
+      if (back[ifile] gt gbu_max_background) then begin
+        mg_log, 'background gt %0.1f, reject %s', gbu_max_background, str, $
                 name='comp', /warn
         good_files[ifile] += 4
       endif
 
       ; reject anamolously low background images
-      if (back[ifile] lt 4.) then begin
-        mg_log, 'background lt 4, reject %s', str, name='comp', /warn
+      if (back[ifile] lt gbu_min_background) then begin
+        mg_log, 'background lt %0.1f, reject %s', gbu_min_background, str, $
+                name='comp', /warn
         good_files[ifile] += 8
       endif
     endif
@@ -251,65 +254,67 @@ pro comp_gbu, date_dir, wave_type, error=error
     fits_close, back_fcb
   endfor
 
-  ; check for dirty O1 using the background level in the morning, as long as
-  ; there are observations then skip the first one of the day
-  morning = where(time lt 21, count)
-  if (count gt 1) then begin
-    med_back = median(back[morning[1:*]])
-  endif else begin
-    med_back = median(back[1:*])
-  endelse
-  mg_log, 'median background %f', med_back, name='comp', /info
-  if (med_back gt 15.0) then begin
-    mg_log, 'background median exceeds 15.0, 01 might need to be cleaned', $
-            name='comp', /warn
-  endif
+  if (perform_gbu) then begin
+    ; check for dirty O1 using the background level in the morning, as long as
+    ; there are observations then skip the first one of the day
+    morning = where(time lt 21, count)
+    if (count gt 1) then begin
+      med_back = median(back[morning[1:*]])
+    endif else begin
+      med_back = median(back[1:*])
+    endelse
+    mg_log, 'median background %f', med_back, name='comp', /info
+    if (med_back gt gbu_med_background) then begin
+      mg_log, 'background median exceeds %0.1f, 01 might need to be cleaned', $
+              gbu_med_background, $
+              name='comp', /warn
+    endif
 
-  ; find median intensity image using only good images so far
-  good_subs = where(good_files eq 0, count)
-  if (count eq 0) then begin
-    mg_log, 'no good %s files this day', wave_type, name='comp', /warn
-  endif
+    ; find median intensity image using only good images so far
+    good_subs = where(good_files eq 0, count)
+    if (count eq 0) then begin
+      mg_log, 'no good %s files this day', wave_type, name='comp', /warn
+    endif
 
-  med = fltarr(nx, nx)
-  if (count gt 0) then begin
-    for ia = 0L, nx - 1L do begin
-      for ib = 0L, nx - 1L do begin
-        med[ia, ib] = median(data[ia, ib, good_subs])
+    med = fltarr(nx, nx)
+    if (count gt 0) then begin
+      for ia = 0L, nx - 1L do begin
+        for ib = 0L, nx - 1L do begin
+          med[ia, ib] = median(data[ia, ib, good_subs])
+        endfor
       endfor
+    endif
+
+    ; create mask of good pixels
+    good = where(med gt 1.0, count)
+    if (count eq 0) then mg_log, 'med le 1', name='comp', /warn
+
+    ; take difference between data and median image to get pseudo sigma
+    for ifile = 0L, n_files - 1L do begin
+      diff = abs(data[*, *, ifile] - med)
+      sigma[ifile] = mean(diff[good])
     endfor
-  endif
 
-  ; create mask of good pixels
-  good = where(med gt 1., count)
-  if (count eq 0) then mg_log, 'med le 1', name='comp', /warn
+    sigma /= median(sigma)
 
-  ; take difference between data and median image to get pseudo sigma
+    ; test for large sigma defind as > 2.5
+    if (wave_type ne '1083') then begin
+      bad = where(sigma gt gbu_max_sigma, count)
+      if (count gt 0) then good_files[bad] += 16
+    endif
 
-  for ifile = 0L, n_files - 1L do begin
-    diff = abs(data[*, *, ifile] - med)
-    sigma[ifile] = mean(diff[good])
-  endfor
+    ; test where background changes radically (defined as 40% of background)
+    if (wave_type ne '1083') then begin
+      run_back = run_med(back, 10)
+      bad = where(abs(back - run_back) gt 0.4 * med_back, count)
+      if (count gt 0) then good_files[bad] += 32
+    endif
 
-  sigma = sigma / median(sigma)
-
-  ; test for large sigma defind as > 2.5
-  if (wave_type ne '1083') then begin
-    bad = where(sigma gt 2.5, count)
-    if (count gt 0) then good_files[bad] += 16
-  endif
-
-  ; test where background changes radically (defined as 40% of background)
-  if (wave_type ne '1083') then begin
-    run_back = run_med(back, 10)
-    bad = where(abs(back - run_back) gt 0.4 * med_back, count)
-    if (count gt 0) then good_files[bad] += 32
-  endif
-
-  ; test for sigma = NaN
-  if (wave_type ne '1083') then begin
-    bad = where(finite(sigma) eq 0, count)
-    if (count gt 0) then good_files[bad] += 128
+    ; test for sigma = NaN
+    if (wave_type ne '1083') then begin
+      bad = where(finite(sigma) eq 0, count)
+      if (count gt 0) then good_files[bad] += 128
+    endif
   endif
 
   ; make new text file for synoptic program (first files with n_waves = 5)
@@ -337,6 +342,7 @@ pro comp_gbu, date_dir, wave_type, error=error
          /get_lun
 
   printf, gbu_lun, 'Filename                                   Quality     Back     Sigma   #waves  Reason'
+
   for i = 0L, n_files - 1L do begin
     ; don't put nonexistent files in the GBU file
     if (filenames[i] eq '') then continue
@@ -356,15 +362,14 @@ pro comp_gbu, date_dir, wave_type, error=error
       printf, good_waves_lun, good_lines[i]
     endif
     if (good_files[i] eq 0) then printf, good_all_lun, good_lines[i]
-    if (good_files[i] eq 0) then begin
-      printf, gbu_lun, format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
-              filenames[i], '  Good', back[i], sigma[i], n_waves[i], $
-              good_files[i]
-    endif else begin
-      printf, gbu_lun, format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)', $
-              filenames[i], '   Bad', back[i], sigma[i], n_waves[i], $
-              good_files[i]
-    endelse
+    printf, gbu_lun, $
+            filenames[i], $
+            good_files[i] eq 0 ? '  Good' : '   Bad', $
+            back[i], $
+            sigma[i], $
+            n_waves[i], $
+            good_files[i], $
+            format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)'
   endfor
 
   free_lun, lun

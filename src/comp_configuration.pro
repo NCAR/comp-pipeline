@@ -165,6 +165,14 @@ pro comp_configuration, config_filename=config_filename
                                                 section='flats', $
                                                 /boolean, default=1B)
 
+  ; GBU
+  gbu_max_background = config->get('max_background', section='gbu', type=4, default=30.0)
+  gbu_min_background = config->get('min_background', section='gbu', type=4, default=4.0)
+  gbu_med_background = config->get('med_background', section='gbu', type=4, default=15.0)
+  gbu_max_sigma = config->get('max_sigma', section='gbu', type=4, default=2.5)
+  gbu_percent_background_change = config->get('percent_background_change', $
+                                              section='gbu', type=4, default=0.4)
+
   ; L2 averaging
   averaging_max_n_files           = config->get('max_n_files', $
                                                 section='averaging', $
