@@ -71,6 +71,14 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
     if (date eq '20160721') then skip_date = 1B
     if (date eq '20160723') then skip_date = 1B
     if (date eq '20160724') then skip_date = 1B
+    if (date eq '20160814') then skip_date = 1B
+    if (date eq '20160817') then skip_date = 1B
+    if (date eq '20160818') then skip_date = 1B
+    if (date eq '20160822') then skip_date = 1B
+    if (date eq '20160823') then skip_date = 1B
+    if (date eq '20160824') then skip_date = 1B
+    if (date eq '20160827') then skip_date = 1B
+    if (date eq '20161127') then skip_date = 1B
 
     if (~stregex(date, '^[[:digit:]]{8}$', /boolean) || date lt after || skip_date) then begin
       mg_log, 'skipping %s', date
@@ -82,6 +90,7 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
     catch, error
     if (error ne 0) then begin
       print, date, format='(%"Error on %s, skipping")'
+      print, !error_state.msg
       continue
     endif
 
@@ -100,6 +109,12 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
     if (~file_test(dark_filename)) then continue
 
     fits_open, flat_filename, flat_fcb
+
+    if (flat_fcb.nextend eq 0) then begin
+      fits_close, flat_fcb
+      mg_log, 'empty flat.fts file, skipping %d', date
+      continue
+    endif
 
     fits_read, flat_fcb, wavelengths, wavelengths_header, $
                exten_no=flat_fcb.nextend - 1L
@@ -134,11 +149,13 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
   free_lun, dark_lun
 end
 
-;process_dir = '/hao/compdata1/Data/CoMP/process.flats'
-process_dir = '/hao/mahidata1/Data/CoMP/process'
+process_dir = '/hao/mahidata1/Data/CoMP/process.flats'
+;process_dir = '/hao/mahidata1/Data/CoMP/process'
 comp_flatmedian_analysis, process_dir, $
                           'flat-medians-new.csv', $
                           'dark-medians-new.csv', $
-                          start_date='20170524'
+                          start_date='20160510', $
+;                          start_date='20161127', $
+                          end_date='20170801'
 
 end

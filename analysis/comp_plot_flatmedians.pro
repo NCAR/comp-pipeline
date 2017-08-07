@@ -88,7 +88,8 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
                julday(5, 4, 2016, 12)]
 
   ;y_range = [0.0, 1.05 * max(s.median)]
-  y_range = [0.0, 66.0]
+  ;y_range = [0.0, 66.0]
+  y_range = [0.0, 100.0]
   print, y_range, format='(%"flat range: %0.1f - %0.1f")'
 
   !null = label_date(date_format=['%M %D', '%Y'])
@@ -111,7 +112,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   axis, s[-1].time, 0.0, /yaxis, $
         charsize=0.8, font=1, $
         yticklen=-0.01, $
-        yrange=r_range, ystyle=1
+        yrange=y_range, ystyle=1
 
   annotation_charsize = 0.5
 
@@ -201,8 +202,8 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
                        complement=bad_after_1074, ncomplement=n_bad_after_1074)
 
   if (n_bad_morning_1074 gt 0L) then begin
-    oplot, s[ind_1074[bad_1074[bad_morning_1074]]].time, $
-           s[ind_1074[bad_1074[bad_morning_1074]]].median, $
+    oplot, [s[ind_1074[bad_1074[bad_morning_1074]]].time], $
+           [s[ind_1074[bad_1074[bad_morning_1074]]].median], $
            color='00a5ff'x, psym=6, symsize=1.0
   endif
 
@@ -216,7 +217,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   cgLegend, symColors=['00a5ff'x, '0000ff'x, '00ff00'x, 'ff0000'x], $
             psyms=lonarr(4) + filled_square, $
             symsize=1.0, $
-            location=[0.80, 0.9], $
+            location=[0.80, 0.98], $
             titles=['1074.62 before 9 am HST', '1074.62 after 9 am HST', $
                     '1083.0 before 9 am HST', '1083.0 after 9 am HST'], $
             charsize=0.85, tt_font='Helvetica', /hardware, $
@@ -291,6 +292,6 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
 end
 
 
-comp_plot_flatmedians, 'flat-medians-truncated.csv', 'dark-medians-truncated.csv'
+comp_plot_flatmedians, 'flat-medians-new.csv', 'dark-medians-new.csv'
 
 end
