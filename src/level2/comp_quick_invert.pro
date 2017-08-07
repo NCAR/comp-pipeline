@@ -46,6 +46,8 @@
 ;     success, anything else for failure
 ;   synoptic : in, optional, type=boolean
 ;     set to use synoptic file instead of waves file
+;   method : in, optional, type=string, default='median'
+;     set to 'mean' or 'median' to indicate the average files to use
 ;
 ; :Author:
 ;   Sitongia, Tomczyk
@@ -55,7 +57,8 @@
 ;   removed copy_file of intensity fits to archive_dir  Oct 1 2014  GdT
 ;-
 pro comp_quick_invert, date_dir, wave_type, $
-                       synthetic=synthetic, error=error, synoptic=synoptic
+                       synthetic=synthetic, error=error, synoptic=synoptic, $
+                       method=method
   compile_opt idl2
   @comp_simulate_common
   @comp_constants_common
@@ -74,14 +77,14 @@ pro comp_quick_invert, date_dir, wave_type, $
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
 
-  method = 'median'
+  _method = n_elements(method) eq 0L ? 'median' : method
   type = keyword_set(synoptic) ? 'synoptic' : 'waves'
 
   ; create filename and open input FITS file
   if (keyword_set(synthetic)) then begin
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
   endif else begin
-    file = string(date_dir, wave_type, method, type, format='(%"%s.comp.%s.%s.%s.fts.gz")')
+    file = string(date_dir, wave_type, _method, type, format='(%"%s.comp.%s.%s.%s.fts.gz")')
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
@@ -144,7 +147,8 @@ pro comp_quick_invert, date_dir, wave_type, $
   endcase
   c = 299792.458D
 
-  sxaddpar, primary_header, 'METHOD', 'Input file type used for quick invert'
+  sxaddpar, primary_header, 'METHOD', _method, $
+            'Input file type used for quick invert'
 
   ; update version
   comp_l2_update_version, primary_header
@@ -157,7 +161,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   zero = where(i eq 0, count)
   if (count eq 0) then mg_log, 'no zeros', name='comp', /warn
 
-  ; compute azimuth and adjust for p-angle, correct azimuth for quadrants  
+  ; compute azimuth and adjust for p-angle, correct azimuth for quadrants
   azimuth = comp_azimuth(u, q, radial_azimuth=radial_azimuth)
 
   i[zero] = 0.0
@@ -188,8 +192,8 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   ; write fit parameters to output file
 
-  quick_invert_filename = string(date_dir, wave_type, type, $
-                                 format='(%"%s.comp.%s.quick_invert.%s.fts")')
+  quick_invert_filename = string(date_dir, wave_type, _method, type, $
+                                 format='(%"%s.comp.%s.quick_invert.%s.%s.fts")')
   fits_open, quick_invert_filename, fcbout, /write
 
   ; copy the primary header from the median file to the output file
