@@ -36,16 +36,16 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
 
   l2_process_dir = filepath('level2', subdir=date_dir, root=process_basedir)
   cd, l2_process_dir
-  
+
   ; find line center
   case wave_type of
     '1074' : line_center = center1074
     '1079' : line_center = center1079
     '1083' : line_center = center1083
   endcase
-  
+
   wavelength = line_center   ; rest wavelength of emission line
-  
+
   ;  read in comp observations
   if (keyword_set(process_synthetic)) then begin
     file = string(date_dir, wave_type, format='(%"%s.comp.%s.synthetic.fts.gz")')
@@ -61,9 +61,9 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
 
   fits_open, file, fcb
   n = fcb.nextend
-  
+
   ; determine tunings of filter
-  
+
   waves = fltarr(n - 1)
   pol   = strarr(n - 1)
   for i = 0, n - 2 do begin
@@ -76,7 +76,7 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
   ntune   = n_elements(tunings)
   stokes  = pol[uniq(pol, sort(pol))]
   nstokes = n_elements(stokes)
-  
+
   ;  read data
 
   comp_obs = fltarr(nx, ny, 4, ntune)
@@ -88,17 +88,17 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
       i += 1
     endfor
   endfor
-  
+
   ; copy the primary header from the mean file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0  
   fits_close, fcb
-    
+
   ;  create wavelength scale (nm)
-  
+
   range = 1.25   ; wavelength range around rest wavelength (nm)
   num = 251      ; number of points in profiles (make odd)
   ;num=101        ; number of points in profiles (make odd)
-  
+
   lambda = dindgen(num) / float(num - 1) * range + wavelength - range / 2.0
 
   ; compute simulated filter transmission profiles
@@ -119,7 +119,7 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
   endif
 
   ;  loop to fit observations
-  
+
   ;  the parameters of the fit are:
   ;  0 - intensity
   ;  1 - velocity
