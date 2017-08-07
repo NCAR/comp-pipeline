@@ -85,6 +85,7 @@ function comp_sfit, z, degree, irregular=irregular, max_degree=max_degree
                     format='(%"Fitting degree of %d requires %d points")')
   endif
 
+  ; TODO: see if this can be optimized
   ut = dblarr(n2, m, /nozero)
   k = 0L
   for i = 0L, degree do begin
