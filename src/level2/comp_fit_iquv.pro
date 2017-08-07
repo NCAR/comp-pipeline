@@ -53,6 +53,6 @@ function comp_fit_iquv, p, dp
 
   ; for MPFIT, return weighted difference
   result = reform(weights * (obs - obs_fit), 20)
-  
+
   return, result
 end
