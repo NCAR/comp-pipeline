@@ -7,9 +7,9 @@
 ; :Params:
 ;   primary_header : in, required, type=strarr(n_tags0)
 ;     primary header to write
-;   images : in, required, type=fltarr(nx, ny, n_images)
+;   images : in, required, type="fltarr(nx, ny, n_images)"
 ;     extension images
-;   headers : in, required, type=strarr(n_tags, n_images)
+;   headers : in, required, type="strarr(n_tags, n_images)"
 ;     extension headers
 ;   wave_type : in, required, type=string
 ;     wave type, i.e., '1074', '1079', or '1083'

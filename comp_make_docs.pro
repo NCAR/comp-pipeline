@@ -20,6 +20,6 @@ pro comp_make_docs, user=user
           subtitle='NCAR-HAO MLSO', $
           /embed, /statistics, /use_latex, $
           format_style='rst', $
-          overview='overview.txt', $
+          overview=filepath('overview.txt', root=root), $
           user=user
 end

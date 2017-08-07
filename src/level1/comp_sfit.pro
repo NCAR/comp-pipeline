@@ -4,16 +4,16 @@
 ; This function determines a polynomial fit to a surface sampled over a regular
 ; or irregular grid.
 ;
-; Fit a 2D array Z as a polynomial function of x and y. The function fitted is::
+; Fit a 2D array Z as a polynomial function of x and y. The function fitted is:
 ;
-;   $$F(x,y) = \sum_{i,j} kx[j,i] x^i y^j$$
+; $$F(x,y) = \sum_{i,j} kx[j,i] x^i y^j$$
 ;
 ; :Categories:
 ;   curve and surface fitting
 ;
 ; :Returns:
 ;   the array of coefficients for a polynomial function of x and y to fit data
-;   as a `Degree + 1` by `Degree+1` element array
+;   as a `Degree + 1` by `Degree + 1` element array
 ;
 ; :Params:
 ;   z : in, required, type="fltarr(3, n) or fltarr(m, n)"
@@ -44,7 +44,7 @@
 ;
 ; :History:
 ;   July, 1993, DMS  Initial creation
-;   July, 2001  Added MAX_DEGREE and IRREGULAR keywords.
+;   July, 2001  Added `MAX_DEGREE` and `IRREGULAR` keywords.
 ;
 ; :Copyright:
 ;   Copyright (c) 1993-2013, Exelis Visual Information Solutions, Inc. All
