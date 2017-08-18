@@ -21,15 +21,16 @@ function comp_azimuth, u, q, radial_azimuth=radial_azimuth
   @comp_constants_common
 
   ; compute azimuth, correct azimuth for quadrants
-  ; TODO: removing 45.0 now that Q and U are now properly transformed
+  ; TODO: removing add 45.0 now that Q and U are now properly transformed
   azimuth = 0.5 * atan(u, q) * !radeg
   azimuth mod= 180.0
   bad = where(azimuth lt 0., count)
   if (count gt 0) then azimuth[bad] += 180.0
 
   if (arg_present(radial_azimuth)) then begin
-    x = rebin(findgen(nx) - float(nx) / 2.0, nx, nx)
-    y = transpose(x)
+    x = rebin(reform(findgen(nx) - float(nx) / 2.0, nx, 1), nx, ny)
+    y = rebin(reform(findgen(ny) - float(ny) / 2.0, 1, ny), nx, ny)
+
     ; compute theta and convert to degrees
     theta = atan(y, x) * !radeg + 180.0
     theta mod= 180.0
