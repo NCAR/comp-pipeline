@@ -77,7 +77,11 @@ pro comp_average, date_dir, wave_type, $
   @comp_config_common
   @comp_constants_common
 
-  mg_log, 'wave_type: %s', wave_type, name='comp', /info
+  mg_log, 'wave type: %s, files: %s', wave_type, $
+          keyword_set(synoptic) $
+            ? 'synoptic' $
+            : (keyword_set(combined) ? 'combined' : 'waves'), $
+          name='comp', /info
 
   found_files = 0B
   catch, error
@@ -109,7 +113,12 @@ pro comp_average, date_dir, wave_type, $
 
   found_files = n_files gt 0L
   if (~found_files) then begin
-    mg_log, 'no good %s files, exiting', wave_type, name='comp', /warn
+    mg_log, 'no good %s files for %s, exiting', $
+            wave_type, $
+            keyword_set(synoptic) $
+              ? 'synoptic' $
+              : (keyword_set(combined) ? 'combined' : 'waves'), $
+            name='comp', /warn
     return
   endif
 

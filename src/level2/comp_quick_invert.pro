@@ -64,7 +64,12 @@ pro comp_quick_invert, date_dir, wave_type, $
   @comp_constants_common
   @comp_config_common
 
-  mg_log, 'quick invert %s', wave_type, name='comp', /info
+  mg_log, 'quick invert %s (%s) [%s]', $
+          wave_type, method, $
+          keyword_set(synthetic) $
+            ? 'synthetic' $
+            : (keyword_set(synoptic) ? 'synoptic' : 'waves'), $
+          name='comp', /info
 
   ; establish error handler for a crash in this routine
   catch, error

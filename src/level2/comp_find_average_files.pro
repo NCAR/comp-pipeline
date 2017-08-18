@@ -47,10 +47,8 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   compile_opt strictarr
   @comp_constants_common
 
-  ; TODO: if SYNOPTIC set, return all QU files before the flat -- make sure
-  ; there are at least MIN_N_QU_FILES
-
   if (~file_test(list_filename)) then begin
+    mg_log, '%s does not exist', file_basename(list_filename), name='comp', /warn
     count = 0L
     return, !null
   endif
@@ -58,6 +56,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   n_candidate_files = file_lines(list_filename)
 
   if (n_candidate_files eq 0L) then begin
+    mg_log, 'no files in %s', file_basename(list_filename), name='comp', /warn
     count = 0L
     return, !null
   endif
@@ -98,6 +97,11 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   ; can't have a cluster of at least min_n_cluster_files if there aren't at
   ; least that many candidates
   if (n_candidate_files lt min_n_cluster_files) then begin
+    mg_log, '%d candidate files < MIN_N_CLUSTER_FILES (%d)', $
+            n_candidate_files, $
+            min_n_cluster_files, $
+            name='comp', /warn
+
     count = 0L
     return, !null
   endif
@@ -114,6 +118,11 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   if (keyword_set(synoptic)) then begin
     qu_mask = strpos(stokes_present, 'Q') ge 0L and strpos(stokes_present, 'U') ge 0L
     if (total(qu_mask, /integer) lt min_n_qu_files) then begin
+      mg_log, '%d QU files < MIN_N_QU_FILES (%d)', $
+              total(qu_mask, /integer), $
+              min_n_qu_files, $
+              name='comp', /warn
+
       count = 0L
       return, !null
     endif
@@ -122,6 +131,11 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   ; check must have at least 3 elements to work with LABEL_REGION, but if
   ; it doesn't have at least min_n_cluster_files we will return 0 files anyway
   if (n_elements(check) lt (3L > min_n_cluster_files)) then begin
+    mg_log, '%d candidate files < max(3, MIN_N_CLUSTER_FILES) (%d)', $
+            n_elements(check), $
+            3L > min_n_cluster_files, $
+            name='comp', /warn
+
     count = 0L
     stokes_present = []
     return, []
@@ -171,6 +185,8 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
       return, candidate_files[chosen_ind]
     endif
   endfor
+
+  mg_log, 'didn''t find any files to average', name='comp', /warn
 
   count = 0L
   l1_filenames = !null
@@ -288,6 +304,8 @@ function comp_find_average_files, date_dir, wave_type, $
   ; step 0.
   if (keyword_set(calibration)) then begin
     basename = string(date_dir, wave_type, format='(%"%s.good.all.%s.files.txt")')
+    mg_log, 'CALIBRATION set, using %s', basename, name='comp', /debug
+
     list_filename = filepath(basename, root=l1_process_dir)
     files = comp_find_average_files_findclusters(list_filename, $
                                                  date_dir=date_dir, $
@@ -308,6 +326,7 @@ function comp_find_average_files, date_dir, wave_type, $
       basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
     endelse
   endelse
+  mg_log, 'trying %s', basename, name='comp', /debug
   list_filename = filepath(basename, root=l1_process_dir)
   files = comp_find_average_files_findclusters(list_filename, flat_times, $
                                                max_cadence_interval=_max_cadence_interval, $
