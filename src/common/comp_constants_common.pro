@@ -12,6 +12,11 @@ common comp_constants, nx, ny, $
                        dispexp1074, dispexp1079, dispexp1083, $
                        stokes, n_stokes, $
                        debug, $
+                       gbu_max_background, $
+                       gbu_min_background, $
+                       gbu_med_background, $
+                       gbu_max_sigma, $
+                       gbu_percent_background_change, $
                        overlap_angle_tolerance, $
                        background_limit, $
                        int_min_thresh, int_max_thresh, $

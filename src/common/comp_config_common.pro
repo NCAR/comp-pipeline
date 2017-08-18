@@ -65,10 +65,6 @@ common comp_config, doi_1074,$
                     make_flat_fill, $
                     make_flat_spectral_correction, $
                     cache_flats, $
-                    gbu_max_background, $
-                    gbu_min_background, $
-                    gbu_med_background, $
-                    gbu_max_sigma, $
                     averaging_max_n_files, $
                     averaging_min_n_cluster_files, $
                     averaging_min_n_qu_files, $

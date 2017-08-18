@@ -141,20 +141,20 @@ pro comp_gbu, date_dir, wave_type, error=error
     readf, lun, str
     good_lines[ifile] = str
 
-    ; just note the name in good_files if not performing GBU
-    if (~perform_gbu) then continue
-
     datetime = strmid(str, 0, 15)
 
     ; search_filter is a glob, not a regular expression
     search_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.fts.gz'
     name = (file_search(search_filter, count=n_name_found))[0]
 
+    filenames[ifile] = name
+    time[ifile] = comp_get_time_from_filename(name)
+
     if (n_name_found lt 1L) then begin
       mg_log, 'L1 file for %s doesn''t exist on disk but is in inventory file', $
               datetime, $
               name='comp', /warn
-      good_files[ifile] += 1
+      if (perform_gbu) then good_files[ifile] += 1
       continue
     endif
 
@@ -167,9 +167,6 @@ pro comp_gbu, date_dir, wave_type, error=error
               name='comp', /warn
       continue
     endif
-
-    filenames[ifile] = name
-    time[ifile] = comp_get_time_from_filename(name)
 
     fits_open, name, fcb     ; open fits file
     num_ext = fcb.nextend    ; get number of fits extensions
@@ -200,7 +197,7 @@ pro comp_gbu, date_dir, wave_type, error=error
       if (wave_error gt 0L) then begin
         mg_log, 'standard 3 wavelengths not found, skipping observation %s', str, $
                 name='comp', /warn
-        good_files[ifile] += 2
+        if (perform_gbu) then good_files[ifile] += 2
 
         ; skip observation
         fits_close, fcb
@@ -212,14 +209,14 @@ pro comp_gbu, date_dir, wave_type, error=error
       if (back[ifile] gt gbu_max_background) then begin
         mg_log, 'background gt %0.1f, reject %s', gbu_max_background, str, $
                 name='comp', /warn
-        good_files[ifile] += 4
+        if (perform_gbu) then good_files[ifile] += 4
       endif
 
       ; reject anamolously low background images
       if (back[ifile] lt gbu_min_background) then begin
         mg_log, 'background lt %0.1f, reject %s', gbu_min_background, str, $
                 name='comp', /warn
-        good_files[ifile] += 8
+        if (perform_gbu) then good_files[ifile] += 8
       endif
     endif
 
@@ -247,80 +244,82 @@ pro comp_gbu, date_dir, wave_type, error=error
     g150 = where(dat_back[good] gt 150, g150_count)
 
     if (wave_type ne '1083') then begin
-      if (g150_count gt 150) then good_files[ifile] += 64
+      if (g150_count gt 150) then begin
+        if (perform_gbu) then good_files[ifile] += 64
+      endif
     endif
 
     fits_close, fcb
     fits_close, back_fcb
   endfor
 
-  if (perform_gbu) then begin
-    ; check for dirty O1 using the background level in the morning, as long as
-    ; there are observations then skip the first one of the day
-    morning = where(time lt 21, count)
-    if (count gt 1) then begin
-      med_back = median(back[morning[1:*]])
-    endif else begin
-      med_back = median(back[1:*])
-    endelse
-    mg_log, 'median background %f', med_back, name='comp', /info
-    if (med_back gt gbu_med_background) then begin
-      mg_log, 'background median exceeds %0.1f, 01 might need to be cleaned', $
-              gbu_med_background, $
-              name='comp', /warn
-    endif
+  ; check for dirty O1 using the background level in the morning, as long as
+  ; there are observations then skip the first one of the day
+  morning = where(time lt 21, count)
+  if (count gt 1) then begin
+    med_back = median(back[morning[1:*]])
+  endif else begin
+    med_back = median(back[1:*])
+  endelse
+  mg_log, 'median background %f', med_back, name='comp', /info
+  if (med_back gt gbu_med_background) then begin
+    mg_log, 'background median exceeds %0.1f, 01 might need to be cleaned', $
+            gbu_med_background, $
+            name='comp', /warn
+  endif
 
-    ; find median intensity image using only good images so far
-    good_subs = where(good_files eq 0, count)
-    if (count eq 0) then begin
-      mg_log, 'no good %s files this day', wave_type, name='comp', /warn
-    endif
+  ; find median intensity image using only good images so far
+  good_subs = where(good_files eq 0, count)
+  if (count eq 0) then begin
+    mg_log, 'no good %s files this day', wave_type, name='comp', /warn
+  endif
 
-    med = fltarr(nx, nx)
-    if (count gt 0) then begin
-      for ia = 0L, nx - 1L do begin
-        for ib = 0L, nx - 1L do begin
-          med[ia, ib] = median(data[ia, ib, good_subs])
-        endfor
+  med = fltarr(nx, nx)
+  if (count gt 0) then begin
+    for ia = 0L, nx - 1L do begin
+      for ib = 0L, nx - 1L do begin
+        med[ia, ib] = median(data[ia, ib, good_subs])
       endfor
-    endif
-
-    ; create mask of good pixels
-    good = where(med gt 1.0, count)
-    if (count eq 0) then mg_log, 'med le 1', name='comp', /warn
-
-    ; take difference between data and median image to get pseudo sigma
-    for ifile = 0L, n_files - 1L do begin
-      diff = abs(data[*, *, ifile] - med)
-      sigma[ifile] = mean(diff[good])
     endfor
+  endif
 
-    sigma /= median(sigma)
+  ; create mask of good pixels
+  good = where(med gt 1.0, count)
+  if (count eq 0) then mg_log, 'med le 1', name='comp', /warn
 
-    ; test for large sigma defind as > 2.5
-    if (wave_type ne '1083') then begin
-      bad = where(sigma gt gbu_max_sigma, count)
-      if (count gt 0) then good_files[bad] += 16
-    endif
+  ; take difference between data and median image to get pseudo sigma
+  for ifile = 0L, n_files - 1L do begin
+    diff = abs(data[*, *, ifile] - med)
+    sigma[ifile] = mean(diff[good])
+  endfor
 
-    ; test where background changes radically (defined as 40% of background)
-    if (wave_type ne '1083') then begin
-      run_back = run_med(back, 10)
-      bad = where(abs(back - run_back) gt 0.4 * med_back, count)
-      if (count gt 0) then good_files[bad] += 32
-    endif
+  sigma /= median(sigma)
 
-    ; test for sigma = NaN
-    if (wave_type ne '1083') then begin
-      bad = where(finite(sigma) eq 0, count)
-      if (count gt 0) then good_files[bad] += 128
-    endif
+  ; test for large sigma defind as > 2.5
+  if (wave_type ne '1083') then begin
+    bad = where(sigma gt gbu_max_sigma, count)
+    if (count gt 0) then if (perform_gbu) then good_files[bad] += 16
+  endif
+
+  ; test where background changes radically (defined as 40% of background)
+  if (wave_type ne '1083') then begin
+    run_back = run_med(back, 10)
+    bad = where(abs(back - run_back) gt 0.4 * med_back, count)
+    if (count gt 0) then if (perform_gbu) then good_files[bad] += 32
+  endif
+
+  ; test for sigma = NaN
+  if (wave_type ne '1083') then begin
+    bad = where(finite(sigma) eq 0, count)
+    if (count gt 0) then if (perform_gbu) then good_files[bad] += 128
   endif
 
   ; make new text file for synoptic program (first files with n_waves = 5)
   openw, synoptic_lun, $
          string(date_dir, wave_type, format='(%"%s.synoptic.%s.files.txt")'), $
          /get_lun
+
+  ; start with synoptic flag on, turn off when hit waves cookbook
   synoptic_flag = 1
 
   ; make new text file for good waves files

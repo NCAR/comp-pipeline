@@ -86,6 +86,19 @@ pro comp_initialize, date_dir
 
   ; thresholds for cutting out bad data in the L2 products
 
+  ; GBU
+  gbu_max_background = comp_initialize_readconfig('gbu_max_background', $
+                                                  date_dir, options, type=4, default=30.0)
+  gbu_min_background = comp_initialize_readconfig('gbu_min_background', $
+                                                  date_dir, options, type=4, default=4.0)
+  gbu_med_background = comp_initialize_readconfig('gbu_med_background', $
+                                                  date_dir, options, type=4, default=15.0)
+  gbu_max_sigma = comp_initialize_readconfig('gbu_max_sigma', $
+                                             date_dir, options, type=4, default=2.5)
+  gbu_percent_background_change = comp_initialize_readconfig('gbu_percent_background_change', $
+                                                             date_dir, options, type=4, default=0.4)
+
+
   ; millionths of solar disk intensity
   int_min_thresh  = comp_initialize_readconfig('int_min_thresh', date_dir, options, type=4)
   int_max_thresh  = comp_initialize_readconfig('int_max_thresh', date_dir, options, type=4)
