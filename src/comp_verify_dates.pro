@@ -53,7 +53,8 @@ pro comp_verify_dates, date_expression, config_filename=config_filename
     endcase
   endfor
 
-  if (failed_days->count() gt 0L) then begin
+  n_failed_days = failed_days->count()
+  if (n_failed_days gt 0L) then begin
     mg_log, 'failed days: %s', strjoin(failed_days->toArray(), ', '), $
             name='comp/verify', /info
   endif else begin
@@ -61,4 +62,5 @@ pro comp_verify_dates, date_expression, config_filename=config_filename
   endelse
 
   obj_destroy, failed_days
+  exit, status=n_failed_days
 end

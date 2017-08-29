@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# This script launches IDL for the realtime pipeline.
+# This script launches IDL to verify that CoMP has run properly on the given
+# date(s).
 
 canonicalpath() {
   if [ -d $1 ]; then
@@ -49,3 +50,5 @@ COMP_DLM_PATH=${LIB_DIR}/mysql:"<IDL_DEFAULT>"
 ${IDL} -quiet -IDL_QUIET 1 -IDL_STARTUP "" \
   -IDL_PATH ${COMP_PATH} -IDL_DLM_PATH ${COMP_DLM_PATH} \
   -e "comp_verify_dates, '${DATE}', config_filename='${CONFIG}'"
+
+exit $?
