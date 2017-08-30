@@ -13,3 +13,4 @@
   better notification emails ("Sent from")
   better log messages (formatting and changing normal occurrences to lower priority)
   log epoch values used for run
+  verfify processing of past days
