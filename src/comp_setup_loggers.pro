@@ -62,6 +62,6 @@ pro comp_setup_loggers
   log_time_fmt = '(C(CYI4, "-", CMOI2.2, "-", CDI2.2, " " CHI2.2, ":", CMI2.2, ":", CSI2.2))'
   mg_log, name='comp', logger=logger
   logger->setProperty, format=log_fmt, $
-                         time_format=log_time_fmt, $
-                         level=log_level
+                       time_format=log_time_fmt, $
+                       level=log_level
 end

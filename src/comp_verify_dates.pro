@@ -25,6 +25,9 @@ pro comp_verify_dates, date_expression, config_filename=config_filename
   compile_opt strictarr
   on_error, 2
 
+  mg_log, name='comp/verify', logger=logger
+  logger->setProperty, format='%(time)s %(levelshortname)s: %(message)s'
+
   ranges = strsplit(date_expression, ',', /extract, count=n_ranges)
 
   failed_days = list()
