@@ -303,7 +303,7 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 0.
   if (keyword_set(calibration)) then begin
-    basename = string(date_dir, wave_type, format='(%"%s.good.all.%s.files.txt")')
+    basename = string(date_dir, wave_type, format='(%"%s.comp.good.all.%s.files.txt")')
     mg_log, 'CALIBRATION set, using %s', basename, name='comp', /debug
 
     list_filename = filepath(basename, root=l1_process_dir)
@@ -318,12 +318,12 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 1.
   if (keyword_set(synoptic)) then begin
-    basename = string(date_dir, wave_type, format='(%"%s.synoptic.%s.files.txt")')
+    basename = string(date_dir, wave_type, format='(%"%s.comp.good.synoptic.%s.files.txt")')
   endif else begin
     if (keyword_set(combined)) then begin
-      basename = string(date_dir, wave_type, format='(%"%s.good.iqu.%s.files.txt")')
+      basename = string(date_dir, wave_type, format='(%"%s.comp.good.iqu.%s.files.txt")')
     endif else begin
-      basename = string(date_dir, wave_type, format='(%"%s.good.waves.%s.files.txt")')
+      basename = string(date_dir, wave_type, format='(%"%s.comp.good.waves.%s.files.txt")')
     endelse
   endelse
   mg_log, 'trying %s', basename, name='comp', /debug
