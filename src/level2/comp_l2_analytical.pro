@@ -230,8 +230,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Enhanced Intensity', $
-                                           datminmax=[min(int_enh), $
-                                                      max(int_enh)])
+                                           datminmax=long([min(int_enh), $
+                                                           max(int_enh)]))
     sxdelpar, extension_header, 'SIMPLE'
     sxaddpar, extension_header, 'BITPIX', 8
     writefits, outfilename, int_enh, extension_header, /append
@@ -286,8 +286,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Enhanced Intensity', $
-                                             datminmax=[min(int_enh), $
-                                                        max(int_enh)])
+                                             datminmax=long([min(int_enh), $
+                                                             max(int_enh)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
       writefits, outfilename, int_enh, extension_header, /append
