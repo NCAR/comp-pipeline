@@ -113,14 +113,15 @@ pro comp_configuration, config_filename=config_filename
                                     /boolean, default=1B)
   lock_raw            = config->get('lock_raw', section='actions', $
                                   /boolean, default=1B)
-  update_database = config->get('update_database', section='actions', $
+
+  ; database options
+  update_database = config->get('update_database', section='database', $
                                 /boolean, default=1B)
 
   ; processing code version
   code_version = comp_find_code_version(revision=revision, branch=branch)
   code_revision = revision
   code_branch = branch
-
 
   ; options
   subtract_background    = config->get('subtract_background', $

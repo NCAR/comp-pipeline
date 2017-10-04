@@ -1,0 +1,5 @@
+CREATE TABLE comp_level (
+  level_id       TINYINT (2) AUTO_INCREMENT PRIMARY KEY,
+  level          CHAR (5) NOT NULL,
+  description    VARCHAR (512)
+)
