@@ -89,7 +89,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
 
   ;y_range = [0.0, 1.05 * max(s.median)]
   ;y_range = [0.0, 66.0]
-  y_range = [0.0, 100.0]
+  y_range = [0.0, 140.0]
   print, y_range, format='(%"flat range: %0.1f - %0.1f")'
 
   !null = label_date(date_format=['%M %D', '%Y'])

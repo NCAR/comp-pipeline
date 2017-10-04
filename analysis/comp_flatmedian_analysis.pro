@@ -152,10 +152,10 @@ end
 process_dir = '/hao/mahidata1/Data/CoMP/process.flats'
 ;process_dir = '/hao/mahidata1/Data/CoMP/process'
 comp_flatmedian_analysis, process_dir, $
-                          'flat-medians-new.csv', $
-                          'dark-medians-new.csv', $
-                          start_date='20160510', $
+                          'flat-medians-new3.csv', $
+                          'dark-medians-new3.csv', $
+                          start_date='20121201', $
 ;                          start_date='20161127', $
-                          end_date='20170801'
+                          end_date='20151111'
 
 end
