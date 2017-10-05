@@ -1,5 +1,4 @@
-CREATE TABLE comp_mission 
-  (
+CREATE TABLE comp_mission (
   mission_id      INT (10) AUTO_INCREMENT PRIMARY KEY, 
   date            DATETIME NOT NULL, 
   mlso_url        CHAR (24),
@@ -9,46 +8,33 @@ CREATE TABLE comp_mission
   location        CHAR (27),
   origin          CHAR (12),
   object          CHAR (32),
-  wavelength      FLOAT (7, 2),
+  bunit           CHAR (15),
+  method          CHAR (10),
+  wavestep        FLOAT (7, 2),
   wavefwhm        FLOAT (5, 2),
   cdelt           FLOAT (7, 3),
   fov_min         FLOAT (4, 2),
   fov_max         FLOAT (4, 2),
-  bitpix          TINYINT (3),
-  xdim            SMALLINT (5),
-  ydim            SMALLINT (5),
+  bitpixl0        TINYINT (3),
+  bitpixl1        TINYINT (3),
+  xdiml0          SMALLINT (5),
+  ydiml0          SMALLINT (5),
+  xdiml1          SMALLINT (5),
+  ydiml1          SMALLINT (5),
   wcsname         CHAR (26),
-  ctype           CHAR (8),
+  ctype1          CHAR (8),
+  ctype2          CHAR (8),
   timesys         CHAR (3),
   inst_rot        FLOAT (7, 2),
+  pc1_1           FLOAT (4, 3),
+  pc1_2           FLOAT (4, 3),
+  pc2_1           FLOAT (4, 3),
+  pc2_2           FLOAT (4, 3),
+  i_to_q          FLOAT (7, 6),
+  i_to_u          FLOAT (7, 6),
+  q_to_u          FLOAT (7, 6),
+  i_to_v          FLOAT (7, 6),
+  q_to_v          FLOAT (7, 6),
+  u_to_v          FLOAT (7, 6),
   UNIQUE (date)
-  )
-
-
-
-BITPIX-L0  =                  16 /bits per data value
-BITPIX-L1  =                  -32 /bits per data value
-NAXIS1-L0  =                  1024 /
-NAXIS2-L0  =                  1024 /
-NAXIS1-L1  =                  620 /
-NAXIS2-L1  =                  620 /
-TIMESYS = 'UTC     '           / Coordinated Universal Time
-ORIGIN  =           'HAO/NCAR' /
-INSTRUME=               'COMP' / CORONAL MULTICHANNEL POLARIMETER
-TELESCOP=     '20 CM ONE SHOT' /
-LOCATION=               'MLSO' /
-OBJECT  = 'corona  '           / Coronal Emission
-BUNIT   = '1.E-06 B/Bsun'      / Intensity of Millionths of solar disk brightnes
-METHOD  = 'mean    '           / Averaging method
-COORDNAM= ' HELIOCENTRIC'      /COORDINATE SYSTEM NAME
-WAVESTEP=                 0.12 / [nm] Spacing between wavelengths
-WAVEFWHM=                 0.12 / [nm] full width half max of bandpass filter
-CDELT1  =                 4.35 / solar_X coord increment [arcsec/pixel]
-CDELT2  =                 4.35 / solar_Y coord increment [arcsec/pixel]
-I_TO_Q  =         -0.000581000 / Crosstalk coefficient from I to Q
-I_TO_U  =           0.00484100 / Crosstalk coefficient from I to U
-Q_TO_U  =              0.00000 / Crosstalk coefficient from Q to U
-U_TO_Q  =              0.00000 / Crosstalk coefficient from U to Q
-I_TO_V  =          -0.00115800 / Crosstalk coefficient from I to V
-Q_TO_V  =            0.0738020 / Crosstalk coefficient from Q to V
-U_TO_V  =            -0.155195 / Crosstalk coefficient from U to V
+)

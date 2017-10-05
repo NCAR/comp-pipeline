@@ -1,5 +1,4 @@
-CREATE TABLE comp_sw 
-  (
+CREATE TABLE comp_sw (
   sw_id          INT (10) AUTO_INCREMENT PRIMARY KEY,
   date           DATETIME NOT NULL,
   dmodswid       CHAR (24),
@@ -8,4 +7,4 @@ CREATE TABLE comp_sw
   labviewid      VARCHAR (20),
   sw_revision    VARCHAR (20),
   UNIQUE (date)
-  )
+)
