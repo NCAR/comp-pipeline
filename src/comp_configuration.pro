@@ -117,6 +117,12 @@ pro comp_configuration, config_filename=config_filename
   ; database options
   update_database = config->get('update_database', section='database', $
                                 /boolean, default=1B)
+  database_config_filename = config->get('config_filename', $
+                                         section='database', $
+                                         default='')
+  database_config_section = config->get('config_section', $
+                                        section='database', $
+                                        default='')
 
   ; processing code version
   code_version = comp_find_code_version(revision=revision, branch=branch)
