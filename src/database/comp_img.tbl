@@ -9,13 +9,20 @@ CREATE TABLE comp_img
   quality		TINYINT (2),
   producttype	TINYINT (2),
   filetype		TINYINT (2),
-  numsum		SMALLINT (4), 
+  polstate
+  wavelength
+  naverage
+
+  NDFILTER=                    8 / ND  1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=4, 8=cle
+  
   exptime		FLOAT (7, 4),  
   UNIQUE (file_name),
   INDEX (date_obs),
   INDEX (obs_day),
   INDEX (quality),
   INDEX (producttype),
+
+
   FOREIGN KEY (level) REFERENCES comp_level(level_id),
   FOREIGN KEY (producttype) REFERENCES mlso_producttype(producttype_id),
   FOREIGN KEY (filetype) REFERENCES mlso_filetype(filetype_id),

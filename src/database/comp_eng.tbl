@@ -38,3 +38,15 @@ CREATE TABLE comp_eng
   FOREIGN KEY (comp_sw_id) REFERENCES comp_sw(sw_id),
   FOREIGN KEY (obs_day) REFERENCES mlso_numfiles(day_id)
   )
+
+WAVELENG=             1079.540 / WAVELENGTH OF OBS (NM)
+POLSTATE= 'I       '           / POLARIZATION STATE
+EXPOSURE=               250.00 / EXPOSURE TIME (MILLISEC)
+NAVERAGE=                   16 / Number of images averaged together
+FILTER  =                    2 / FILTER WHEEL POSITION (1-4)
+ND-TRANS=              1.00000 / Mult. factor=transmission of flat ND/img ND
+BACKGRND=               12.513 / Median of masked line center background
+FLATFILE= '20171002.115342.FTS' / Name of flat field file
+FLATEXT =                  231 / Extension in flat.fts (not FLATFILE) used
+FLATMED =              18.8604 / median of dark and exposure corrected flat
+

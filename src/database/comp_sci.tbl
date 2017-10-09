@@ -18,5 +18,7 @@ CREATE TABLE comp_sci (
   r13l                BLOB,
   r108radazi          BLOB,
   r13radazi           BLOB,
+  r108doppler         BLOB,
+  r13doppler          BLOB,
   FOREIGN KEY (obs_day) REFERENCES mlso_numfiles(day_id)
 )
