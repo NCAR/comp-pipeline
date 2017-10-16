@@ -71,7 +71,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   coeffs = poly_fit(s[ind_1074].time, s[ind_1074].median, 1)
 
   regress_line_1074 = coeffs[0] + coeffs[1] * s[ind_1074].time
-  tolerance = 5.0
+  tolerance = 15.0
   bad_1074 = where(abs(regress_line_1074 - s[ind_1074].median) gt tolerance, n_bad_1074)
 
   print, 'Flat median outliers'
