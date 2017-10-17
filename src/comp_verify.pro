@@ -161,7 +161,7 @@ pro comp_verify, date, config_filename=config_filename, status=status
   free_lun, lun
 
   ; TEST: check range of file sizes
-  testsize = float(list_sizes)
+  testsize = ulong64(list_sizes)
   minsize  = min(testsize)
   maxsize  = max(testsize)
 
@@ -169,11 +169,15 @@ pro comp_verify, date, config_filename=config_filename, status=status
   ; if (minsize ge 81996480 and maxsize le 254393280) then begin
 
   if ((minsize ge 81996480) and (maxsize le 430994880)) then begin 
-    mg_log, 'sizes of L0 FITS files (%d B-%d B) OK', $
-            minsize, maxsize, name=logger_name, /info
+    mg_log, 'L0 FITS file sizes (%sB - %sB) OK', $
+            mg_float2str(minsize, places_sep=','), $
+            mg_float2str(maxsize, places_sep=','), $
+            name=logger_name, /info
   endif else begin
-    mg_log, 'sizes of L0 FITS files (%d B-%d B) out of expected range', $
-            minsize, maxsize, name=logger_name, /error
+    mg_log, 'L0 FITS file sizes (%sB - %sB) out of expected range', $
+            mg_float2str(minsize, places_sep=','), $
+            mg_float2str(maxsize, places_sep=','), $
+            name=logger_name, /error
 
     status = 1L
     goto, test1_done
@@ -213,7 +217,7 @@ pro comp_verify, date, config_filename=config_filename, status=status
     ; read files and size in the tar list 
     tokens = strsplit(tempf, /extract)
     filename = tokens[5]
-    filesize = long(tokens[2])
+    filesize = ulong64(tokens[2])
 
     if (tokens[0] ne protection) then begin 
       mg_log, 'protection for %s is wrong: %s', filename, tokens[0], $
@@ -230,8 +234,9 @@ pro comp_verify, date, config_filename=config_filename, status=status
       goto, test2_done
     endif else begin 
       if (filesize ne log_sizes[pick]) then begin 
-        mg_log, '%s has size %d in list file, %d in log file', $
-                filesize, log_sizes[pick], $
+        mg_log, '%s has size %sB in list file, %sB in log file', $
+                mg_float2str(filesize, places_sep=','), $
+                mg_float2str(log_sizes[pick], places_sep=','), $
                 name=logger_name, /error
 
         status = 1L
@@ -266,12 +271,16 @@ pro comp_verify, date, config_filename=config_filename, status=status
     du_cmd = string(filepath(date, root=raw_basedir), format='(%"du -sb %s")')
     spawn, du_cmd, du_output
     tokens = strsplit(du_output[0], /extract)
-    dir_size = float(tokens[0])
+    dir_size = ulong64(tokens[0])
 
     compress_ratio = dir_size / 2.0 / tarball_size
 
-    mg_log, 'tarball size:      %12d bytes', tarball_size, name=logger_name, /info
-    mg_log, 'dir size:          %12d bytes', dir_size, name=logger_name, /info
+    mg_log, 'tarball size: %s bytes', $
+            mg_float2str(tarball_size, places_sep=','), $
+            name=logger_name, /info
+    mg_log, 'dir size: %s bytes', $
+            mg_float2str(dir_size, places_sep=','), $
+            name=logger_name, /info
     mg_log, 'compression ratio: %0.2f', compress_ratio, name=logger_name, /info
 
     if ((compress_ratio ge 1.18) or (compress_ratio le 1.14)) then begin 
@@ -355,8 +364,9 @@ pro comp_verify, date, config_filename=config_filename, status=status
 
       ; check size of tarball on HPSS
       if (ulong64(tokens[4]) ne tarball_size) then begin
-        mg_log, 'incorrect size %s for tarball on HPSS', $
-                tokens[4], name=logger_name, /error
+        mg_log, 'incorrect size %sB for tarball on HPSS', $
+                mg_float2str(ulong64(tokens[4]), places_sep=','), $
+                name=logger_name, /error
         status = 1L
         goto, hpss_done
       endif
