@@ -149,7 +149,6 @@ pro comp_configuration, config_filename=config_filename
                                                /boolean, $
                                                default=~empirical_crosstalk_calculation_mode)
 
-
   ; flats
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
                                                 /boolean, default=0B)
@@ -171,6 +170,9 @@ pro comp_configuration, config_filename=config_filename
   cache_flats                     = config->get('cache_flats', $
                                                 section='flats', $
                                                 /boolean, default=1B)
+  cal_dir                         = config->get('cal_dir', $
+                                                section='flats', $
+                                                default='')
 
   ; L2 averaging
   averaging_max_n_files           = config->get('max_n_files', $

@@ -11,6 +11,7 @@ common comp_config, doi_1074,$
                     archive_dir, $
                     movie_dir, $
                     fullres_dir, $
+                    cal_dir, $
                     log_dir, $
                     notification_email, $
                     engineering_dir, $

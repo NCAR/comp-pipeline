@@ -172,16 +172,22 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
 
       if (error ne 0) then begin
-        if (lock_raw) then begin
-          unlocked = comp_state(date_dir, /unlock)
-          mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
-                  name='comp', /info
-          processed = comp_state(date_dir, /processed)
-          mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
-                  name='comp', /info
-        endif
-        mg_log, 'error processing darks, stopping day', name='comp', /error
-        goto, done_with_day
+        if (cal_dir eq '' $
+            || ~file_test(filepath('dark.fts', root=cal_dir), /regular)) then begin
+          if (lock_raw) then begin
+            unlocked = comp_state(date_dir, /unlock)
+            mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
+                    name='comp', /info
+            processed = comp_state(date_dir, /processed)
+            mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
+                    name='comp', /info
+          endif
+          mg_log, 'error processing darks (and no darks in cal dir), stopping day', $
+                  name='comp', /error
+          goto, done_with_day
+        endif else begin
+          mg_log, 'using darks from %s', cal_dir, name='comp', /warn
+        endelse
       endif
 
       mg_log, 'making flats', name='comp', /info
@@ -198,16 +204,22 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
 
       if (error ne 0) then begin
-        if (lock_raw) then begin
-          unlocked = comp_state(date_dir, /unlock)
-          mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
-                  name='comp', /info
-          processed = comp_state(date_dir, /processed)
-          mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
-                  name='comp', /info
-        endif
-        mg_log, 'error processing flats, stopping day', name='comp', /error
-        goto, done_with_day
+        if (cal_dir eq '' $
+            || ~file_test(filepath('flat.fts', root=cal_dir), /regular)) then begin
+          if (lock_raw) then begin
+            unlocked = comp_state(date_dir, /unlock)
+            mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
+                    name='comp', /info
+            processed = comp_state(date_dir, /processed)
+            mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
+                    name='comp', /info
+          endif
+          mg_log, 'error processing flats (and no flats in cal dir, stopping day', $
+                  name='comp', /error
+          goto, done_with_day
+        endif else begin
+          mg_log, 'using flats from %s', cal_dir, name='comp', /warn
+        endelse
       endif
     endif
 
@@ -284,8 +296,8 @@ pro comp_run_pipeline, config_filename=config_filename
       endif
     endfor
     mg_log, 'memory usage: %0.1fM', $
-              (memory(/highwater) - start_memory) / 1024. / 1024., $
-              name='comp', /debug
+            (memory(/highwater) - start_memory) / 1024. / 1024., $
+            name='comp', /debug
 
     if (check_l1) then begin
       ; check metrics of final L1 data
@@ -305,7 +317,7 @@ pro comp_run_pipeline, config_filename=config_filename
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
     endif
-
+ 
     if (~create_l1) then begin
       mg_log, 'skipping L1 processing', name='comp', /info
     endif
@@ -315,7 +327,7 @@ pro comp_run_pipeline, config_filename=config_filename
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (~dry_run) then comp_distribute_l1, date_dir, process_wavelengths[w]
       endfor
-      ; distribute files not associated with a wavelength such as flats/darks
+        ; distribute files not associated with a wavelength such as flats/darks
       if (~dry_run) then comp_distribute_l1, date_dir
     endif else begin
       mg_log, 'skipping L1 distribution', name='comp', /info

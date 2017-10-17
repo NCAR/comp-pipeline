@@ -29,8 +29,13 @@ function comp_dark_interp, date_dir, time, exposure
 
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
+  dark_filename = filepath('dark.fts', root=process_dir)
+  if (~file_test(dark_filename, /regular)) then begin
+    dark_filename = filepath('dark.fts', root=cal_dir)
+  endif
+
   ; open output fits file
-  fits_open, filepath('dark.fts', root=process_dir), fcb
+  fits_open, dark_filename, fcb
 
   ; read arrays with times and exposures
   num = fcb.nextend

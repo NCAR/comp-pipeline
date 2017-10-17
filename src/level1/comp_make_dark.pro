@@ -193,5 +193,11 @@ pro comp_make_dark, date_dir, error=error
   fits_close, fcbout
   free_lun, dark_lun
 
+  if (cal_dir ne '') then begin
+    if (~file_test(cal_dir, /directory)) then file_mkdir, cal_dir
+    mg_log, 'saving dark.fts in %s', cal_dir, name='comp', /info
+    file_copy, 'dark.fts', cal_dir, /overwrite
+  endif
+
   mg_log, 'done', name='comp', /info
 end

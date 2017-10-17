@@ -343,11 +343,47 @@ pro comp_make_flat, date_dir, error=error
     endfor
   endwhile
 
+  ; errors below should not jump back into loop CATCH block
+  catch, /cancel
+
   free_lun, opal_lun
 
   if (nflat eq 0L) then begin
-    mg_log, 'no flats for this day', name='comp', /critical
     error = 1L
+
+    mg_log, 'no flats for this day', name='comp', /warn
+
+    ; close output and delete
+    fits_close, fcbout
+    file_delete, 'flat.fts'
+
+    ; we will use the last good flats if possible, load flat.fts if caching
+    flat_filename = filepath('flat.fts', root=cal_dir)
+    if (cache_flats && cal_dir ne '' && file_test(flat_filename, /regular)) then begin
+      fits_open, flat_filename, fcb
+      n_flats = fcb.nextend - 3
+
+      ; read arrays with times, wavelengths and polarizations
+      fits_read, fcb, flat_times, exten_no=n_flats + 1
+      fits_read, fcb, flat_wavelengths, exten_no=n_flats + 2
+      fits_read, fcb, flat_exposures, exten_no=n_flats + 3
+
+      fits_read, fcb, test_data, test_header, exten_no=1
+      data_dims = size(test_data, /dimensions)
+      header_dims = size(test_header, /dimensions)
+
+      flat_images = fltarr(data_dims[0], data_dims[1], n_flats)
+      flat_headers = strarr(header_dims[0], n_flats)
+
+      for e = 1L, n_flats do begin
+        fits_read, fcb, data, header, exten_no=e
+        flat_images[*, *, e - 1L] = data
+        flat_headers[*, e - 1L] = header
+      endfor
+
+      fits_close, fcb
+    endif
+
     return
   endif
 
@@ -395,6 +431,12 @@ pro comp_make_flat, date_dir, error=error
   fits_write, fcbout, exposures, header, extname='Exposure'
 
   fits_close, fcbout
+
+  if (cal_dir ne '') then begin
+    if (~file_test(cal_dir, /directory)) then file_mkdir, cal_dir
+    mg_log, 'saving flat.fts in %s', cal_dir, name='comp', /info
+    file_copy, 'flat.fts', cal_dir, /overwrite
+  endif
 
   mg_log, 'done', name='comp', /info
 end

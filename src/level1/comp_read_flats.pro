@@ -78,6 +78,9 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
     flatfile = filepath(file, root=process_dir)
   endif else begin
     flatfile = filepath('flat.fts', root=process_dir)
+    if (~file_test(flatfile, /regular)) then begin
+      flatfile = filepath('flat.fts', root=cal_dir)
+    endif
   endelse
 
   if (~cache_flats) then begin
