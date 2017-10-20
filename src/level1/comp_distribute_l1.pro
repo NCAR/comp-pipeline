@@ -1,7 +1,7 @@
 ; docformat = 'rst'
 
 ;+
-; Make tarballs for and distribute CoMP Level_1 files from processing pipeline
+; Make tarballs for and distribute CoMP Level 1 files from processing pipeline
 ; into the appropriate directories.
 ;
 ; :Examples:
@@ -33,7 +33,7 @@ pro comp_distribute_l1, date_dir, wave_type
     catch, /cancel
     mg_log, /last_error, name='comp'
     goto, done
-  endif
+ endif
 
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, l1_process_dir
@@ -115,6 +115,15 @@ pro comp_distribute_l1, date_dir, wave_type
       mg_log, 'problem sending data to HPSS with command: %s', cmd, $
               name='comp', /error
       mg_log, '%s', error_result, name='comp', /error
+      goto, 'done'
+    endif
+
+    ; send 1083 L1 tarball to the archive
+    if (wave_type eq '1083') then begin
+      tarball_filename = string(date_dir, wave_type, $
+                                format='(%"%s.comp.%s.l1.tgz")')
+      mg_log, 'distribute %s tarball to archive', wave_type, name='comp', /info
+      file_copy, tarball_filename, adir, /overwrite
     endif
   endif else begin
     mg_log, 'skipping linking to L1 tarball from HPSS dir...', name='comp', /info

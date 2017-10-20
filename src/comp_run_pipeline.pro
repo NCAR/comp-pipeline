@@ -327,7 +327,7 @@ pro comp_run_pipeline, config_filename=config_filename
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (~dry_run) then comp_distribute_l1, date_dir, process_wavelengths[w]
       endfor
-        ; distribute files not associated with a wavelength such as flats/darks
+      ; distribute files not associated with a wavelength such as flats/darks
       if (~dry_run) then comp_distribute_l1, date_dir
     endif else begin
       mg_log, 'skipping L1 distribution', name='comp', /info
