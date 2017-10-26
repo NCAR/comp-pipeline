@@ -36,7 +36,9 @@ pro comp_distribute_l2, date_dir, wave_type
   destination = year + '/' + month + '/' + day  
 
   adir = filepath('', subdir=destination, root=archive_dir)
+  if (~file_test(adir, /directory)) then file_mkdir, adir
   frdir = filepath('', subdir=destination, root=fullres_dir)
+  if (~file_test(frdir, /directory)) then file_mkdir, frdir
 
   ; copy files
 
