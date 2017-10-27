@@ -58,33 +58,30 @@ pro comp_distribute_l2, date_dir, wave_type
   endfor
 
   daily_types = ['daily_dynamics', 'daily_polarization']
-  points = ['3']
   for t = 0L, n_elements(types) - 1L do begin
-    for p = 0L, n_elements(points) - 1L do begin
-      files = file_search(string(wave_type, types[t], points[p], $
-                                 format='(%"*.comp.%s.%s.%s.fts.gz")'), $
-                          count=n_files)
+    files = file_search(string(wave_type, types[t], $
+                               format='(%"*.comp.%s.%s.fts.gz")'), $
+                        count=n_files)
 
-      if (n_files gt 0L) then begin
-        tar_filename = string(date_dir, wave_type, daily_types[t], points[p], $
-                              format='(%"%s.comp.%s.%s.%s.tar.gz")')
-        tar_cmd = string(tar_filename, strjoin(files, ' '), $
-                         format='(%"tar cfz %s %s")')
-        spawn, tar_cmd, result, error_result, exit_status=status
-        if (status ne 0L) then begin
-          mg_log, 'problem tarring file with command: %s', tar_cmd, $
-                  name='comp', /error
-          mg_log, '%s', error_result, name='comp', /error
-        endif else begin
-          mg_log, 'copying %s point %s file...', points[p], types[t], $
-                  name='comp', /info
-          file_copy, tar_filename, adir, /overwrite
-        endelse
+    if (n_files gt 0L) then begin
+      tar_filename = string(date_dir, wave_type, daily_types[t], $
+                            format='(%"%s.comp.%s.%s.tar.gz")')
+      tar_cmd = string(tar_filename, strjoin(files, ' '), $
+                       format='(%"tar cfz %s %s")')
+      spawn, tar_cmd, result, error_result, exit_status=status
+      if (status ne 0L) then begin
+        mg_log, 'problem tarring file with command: %s', tar_cmd, $
+                name='comp', /error
+        mg_log, '%s', error_result, name='comp', /error
       endif else begin
-        mg_log, 'no %s point %s files to archive', points[p], types[t], $
+        mg_log, 'copying %s point %s file...', points[p], types[t], $
                 name='comp', /info
+        file_copy, tar_filename, adir, /overwrite
       endelse
-    endfor
+    endif else begin
+      mg_log, 'no %s point %s files to archive', points[p], types[t], $
+              name='comp', /info
+    endelse
   endfor
 
   file_copy, date_dir + '.comp.' + wave_type + '.daily_summary.txt', adir, /overwrite
