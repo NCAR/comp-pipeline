@@ -46,7 +46,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
   ; read images from quick invert file
-  quick_invert_format = '(%"%s.comp.%s.quick_invert.synoptic.fts.gz")'
+  quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
   quick_invert_filename = filepath(string(date_dir, wave_type, $
                                           format=quick_invert_format), $
                                    root=l2_process_dir)
@@ -58,7 +58,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
             file_basename(quick_invert_filename), $
             name='comp', /debug
 
-    quick_invert_format = '(%"%s.comp.%s.quick_invert.waves.fts.gz")'
+    quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
     quick_invert_filename = filepath(string(date_dir, wave_type, $
                                             format=quick_invert_format), $
                                      root=l2_process_dir)
