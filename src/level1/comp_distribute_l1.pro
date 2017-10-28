@@ -115,7 +115,7 @@ pro comp_distribute_l1, date_dir, wave_type
       mg_log, 'problem sending data to HPSS with command: %s', cmd, $
               name='comp', /error
       mg_log, '%s', error_result, name='comp', /error
-      goto, 'done'
+      goto, done
     endif
 
     ; send 1083 L1 tarball to the archive

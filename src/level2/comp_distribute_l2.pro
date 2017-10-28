@@ -74,12 +74,12 @@ pro comp_distribute_l2, date_dir, wave_type
                 name='comp', /error
         mg_log, '%s', error_result, name='comp', /error
       endif else begin
-        mg_log, 'copying %s point %s file...', points[p], types[t], $
+        mg_log, 'copying %s file...', types[t], $
                 name='comp', /info
         file_copy, tar_filename, adir, /overwrite
       endelse
     endif else begin
-      mg_log, 'no %s point %s files to archive', points[p], types[t], $
+      mg_log, 'no %s file to archive', types[t], $
               name='comp', /info
     endelse
   endfor
