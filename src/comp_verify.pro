@@ -325,8 +325,8 @@ pro comp_verify, date, config_filename=config_filename, status=status
     year = strmid(date, 0, 4)
     hsi_cmd = string(hsi_dir, hsi_dir eq '' ? '' : '/', year, date, $
                      format='(%"%s%shsi ls -l /CORDYN/COMP/%s/%s.comp.l0.tgz")')
-    spawn, hsi_cmd, hsi_output, hsi_error_output, exit_status=status
-    if (status ne 0L) then begin
+    spawn, hsi_cmd, hsi_output, hsi_error_output, exit_status=exit_status
+    if (exit_status ne 0L) then begin
       mg_log, 'problem connecting to HPSS with command: %s', hsi_cmd, $
               name=logger_name, /error
       mg_log, '%s', mg_strmerge(hsi_error_output), name=logger_name, /error
