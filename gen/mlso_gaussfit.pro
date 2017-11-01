@@ -134,8 +134,13 @@ end
 ;     the number of terms in the fitting function. See section 15.2 of Numerical
 ;     Recipes in C (2nd ed) for details.
 ;   yerror : out, optional, type=fltarr(n)
-;     set to a named variable that will return the standard error between `yfit`
-;     and `y`
+;     set to a named variable to retrieve the standard error between `yfit` and
+;     `y`
+;   status : out, optional, type=integer
+;     set to a named variable to retrieve the status of the fit: 0 for success,
+;     1 for chi-squared increasing without bound, and 2 for failed to converge
+;   iter : out, optional, type=integer
+;     set to a named variable to retrieve the number of iterations performed
 ;
 ; :History:
 ;   DMS, RSI, Dec, 1983.
@@ -162,7 +167,8 @@ function mlso_gaussfit, xIn, yIn, a, $
                         nterms=nt, $
                         sigma=sigma, $
                         yerror=yerror, $
-                        status=status
+                        status=status, $
+                        iter=iter
   compile_opt idl2
   on_error, 2
 
@@ -233,7 +239,7 @@ function mlso_gaussfit, xIn, yIn, a, $
   if (nMeas gt 0) then weights = 1 / measureErrors^2
 
   yfit = curvefit(x, y, weights, a, sigma, $
-                  chisq=chisq, yerror=yerror, status=status, $
+                  chisq=chisq, yerror=yerror, status=status, iter=iter, $
                   function_name='mlso_gauss_funct')
 
   if (~isDouble) then begin
