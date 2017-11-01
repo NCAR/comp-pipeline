@@ -156,7 +156,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   for c = 1L, max(clusters) do begin
     ind = where(clusters eq c, n_cluster_intervals)
 
-    chosen = lonarr(n_candidate_files)
+    chosen = bytarr(n_candidate_files)
     chosen[min(ind):max(ind)] = 1B
 
     ; if synoptic, then add QU in the same flat even if not inside cadence
@@ -326,6 +326,7 @@ function comp_find_average_files, date_dir, wave_type, $
       basename = string(date_dir, wave_type, format='(%"%s.comp.good.waves.%s.files.txt")')
     endelse
   endelse
+
   mg_log, 'trying %s', basename, name='comp', /debug
   list_filename = filepath(basename, root=l1_process_dir)
   files = comp_find_average_files_findclusters(list_filename, flat_times, $
@@ -346,9 +347,9 @@ end
 
 ; main-level example program
 
-date = '20130706'
+date = '20171002'
 comp_initialize, date
-comp_configuration, config_filename='../../config/comp.mgalloy.mahi.velocity.cfg'
+comp_configuration, config_filename='../../config/comp.mgalloy.mahi.latest.cfg'
 
 files = comp_find_average_files(date, '1074', count=n_files, /synoptic)
 

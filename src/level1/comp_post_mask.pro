@@ -19,10 +19,10 @@ function comp_post_mask, angle, post_width
   compile_opt idl2
   @comp_constants_common
 
-  post_mask = fltarr(nx, nx) + 1.
+  post_mask = fltarr(nx, ny) + 1.0
 
-  x = rebin(indgen(nx) - nx / 2., nx, nx)
-  y = transpose(x)
+  x = rebin(indgen(nx) - nx / 2.0, nx, ny)
+  y = rebin(indgen(ny) - ny / 2.0, nx, ny)
 
   ;mask out occulter post (to south)
   ;post_mask[where(abs(x) lt post_width/2. and y lt 0.)]=0.
