@@ -259,7 +259,12 @@ pro comp_gbu, date_dir, wave_type, error=error
   if (count gt 1) then begin
     med_back = median(back[morning[1:*]])
   endif else begin
-    med_back = median(back[1:*])
+    ; skip first image of the day, if there are more than 1 images
+    if (n_files gt 0L) then begin
+      med_back = median(back[1:*])
+    endif else begin
+      med_back = back[0]
+    endelse
   endelse
   mg_log, 'median background %f', med_back, name='comp', /info
   if (med_back gt gbu_med_background) then begin
