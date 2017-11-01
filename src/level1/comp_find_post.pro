@@ -66,9 +66,16 @@ pro comp_find_post, image, occulter, field, pa
   x = findgen(new_nx) / float(new_nx) * 360.
   max_value = max(y, max_pixel)
 
-  yfit = gaussfit(x, y, coeff, $
-                  nterms=5, $
-                  estimates=[max(y), x[max_pixel], 15., 0., 0.])
+  yfit = mlso_gaussfit(x, y, coeff, $
+                       nterms=5, status=status, $
+                       estimates=[max(y), x[max_pixel], 15., 0., 0.])
+
+  case status of
+    0:
+    1: mg_log, 'MLSO_GAUSSFIT chi-square increasing without bound', name='comp', /warn
+    2: mg_log, 'MLSO_GAUSSFIT failed to converge', name='comp', /warn
+    else: mg_log, 'unknown MLSO_GAUSSFIT status: %d', status, name='comp', /warn
+  endcase
 
   mg_log, 'coeff: %s', strjoin(string(coeff, format='(%"%0.3f")'), ', '), $
           name='comp', /debug
