@@ -260,7 +260,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     med_back = median(back[morning[1:*]])
   endif else begin
     ; skip first image of the day, if there are more than 1 images
-    if (n_files gt 0L) then begin
+    if (n_files gt 1L) then begin
       med_back = median(back[1:*])
     endif else begin
       med_back = back[0]
