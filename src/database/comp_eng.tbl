@@ -53,6 +53,8 @@ FLATMED =              18.8604 / median of dark and exposure corrected flat
 
 NBEAMS
 
+post angle(s)
+
 BODYTEMP
 BASETEMP
 OPTRTEMP
