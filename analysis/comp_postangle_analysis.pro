@@ -73,6 +73,6 @@ end
 
 process_dir = '/hao/mahidata1/Data/CoMP/process.flats'
 comp_postangle_analysis, process_dir, 'post_angle.csv', $
-                         start_date='20170101'
+                         start_date='20121201', end_date='20170101'
 
 end
