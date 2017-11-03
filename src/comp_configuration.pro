@@ -179,12 +179,13 @@ pro comp_configuration, config_filename=config_filename
   averaging_min_n_cluster_files    = config->get('min_n_cluster_files', $
                                                  section='averaging', $
                                                  default=40, type=3)
-  averaging_min_n_qu_files    = config->get('min_n_qu_files', $
-                                            section='averaging', $
-                                            default=6, type=3)
+  averaging_min_n_qu_files         = config->get('min_n_qu_files', $
+                                                 section='averaging', $
+                                                 default=4, type=3)
   averaging_max_cadence_interval   = config->get('max_cadence_interval', $
                                                  section='averaging', $
-                                                 default=180.0, type=4)
+                                                 /extract, type=4, $
+                                                 default=[180.0, 360.0, 600.0])
   averaging_max_n_noncluster_files = config->get('max_n_noncluster_files', $
                                                  section='averaging', $
                                                  default=50, type=3)

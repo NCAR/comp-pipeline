@@ -100,11 +100,6 @@ pro comp_average, date_dir, wave_type, $
 
   ; find the files to average
   files = comp_find_average_files(date_dir, wave_type, $
-                                  max_n_files=averaging_max_n_files, $
-                                  min_n_cluster_files=averaging_min_n_cluster_files, $
-                                  min_n_qu_files=averaging_min_n_qu_files, $
-                                  max_cadence_interval=averaging_max_cadence_interval, $
-                                  max_n_noncluster_files=averaging_max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
                                   count=n_files, $
                                   calibration=calibration, $

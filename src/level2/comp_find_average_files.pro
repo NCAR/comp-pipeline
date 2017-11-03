@@ -117,6 +117,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
 
   if (keyword_set(synoptic)) then begin
     qu_mask = strpos(stokes_present, 'Q') ge 0L and strpos(stokes_present, 'U') ge 0L
+    mg_log, '%d QU files found', total(qu_mask, /integer), name='comp', /debug
     if (total(qu_mask, /integer) lt min_n_qu_files) then begin
       mg_log, '%d QU files < MIN_N_QU_FILES (%d)', $
               total(qu_mask, /integer), $
@@ -208,17 +209,6 @@ end
 ;     wavelength type, i.e., '1074', '1079', or '1083'
 ;
 ; :Keywords:
-;   max_n_files : in, optional, type=integer, default=50
-;     maximum number of files to be returned
-;   min_n_cluster_files : in, optional, type=integer, default=40
-;     minimum number of files needed in a cluster
-;   min_n_qu_files : in, optional, type=integer, default=6
-;     minimum number of QU files needed in a synoptic average
-;   max_cadence_interval : in, optional, type=float, default=180.0
-;     time cadence (in seconds) to use to create clusters; files within a
-;     cluster must be closer than `MAX_CADENCE_INTERVAL` apart
-;   max_n_noncluster_files : in, optional, type=integer, default=50
-;     maximum number of files to use if no cluster was good enough
 ;   stokes_present : out, optional, type=strarr
 ;     set to a named variable to retrieve the Stokes variables present in each
 ;     corresponding file
@@ -233,11 +223,6 @@ end
 ;     set to use iqu file instead of waves file
 ;-
 function comp_find_average_files, date_dir, wave_type, $
-                                  max_n_files=max_n_files, $
-                                  min_n_cluster_files=min_n_cluster_files, $
-                                  min_n_qu_files=min_n_qu_files, $
-                                  max_cadence_interval=max_cadence_interval, $
-                                  max_n_noncluster_files=max_n_noncluster_files, $
                                   stokes_present=stokes_present, $
                                   count=count, $
                                   calibration=calibration, $
@@ -246,22 +231,6 @@ function comp_find_average_files, date_dir, wave_type, $
   compile_opt strictarr
   @comp_config_common
   @comp_constants_common
-
-  ; set defaults for optional keywords
-  _max_cadence_interval = n_elements(max_cadence_interval) eq 0L $
-                            ? 180.0 $
-                            : max_cadence_interval
-  _max_cadence_interval /= 60.0 * 60.0 * 24.0   ; convert seconds to days
-  _min_n_cluster_files = n_elements(min_n_cluster_files) eq 0L $
-                           ? 40L $
-                           : min_n_cluster_files
-  _min_n_qu_files = n_elements(min_n_qu_files) eq 0L $
-                      ? 6L $
-                      : min_n_qu_files
-  _max_n_files = n_elements(max_n_files) eq 0L ? 50L : max_n_files
-  _max_n_noncluster_files = n_elements(max_n_noncluster_files) eq 0L $
-                              ? 50L $
-                              : max_n_noncluster_files
 
   count = 0L
 
@@ -284,6 +253,7 @@ function comp_find_average_files, date_dir, wave_type, $
 
   flat_filename = filepath('flat.fts', root=l1_process_dir)
   if (~file_test(flat_filename)) then return, []
+
   fits_open, flat_filename, flat_fcb
 
   ; make sure there is a real flat.fts file with the 3 required extensions and
@@ -329,15 +299,27 @@ function comp_find_average_files, date_dir, wave_type, $
 
   mg_log, 'trying %s', basename, name='comp', /debug
   list_filename = filepath(basename, root=l1_process_dir)
-  files = comp_find_average_files_findclusters(list_filename, flat_times, $
-                                               max_cadence_interval=_max_cadence_interval, $
-                                               min_n_cluster_files=_min_n_cluster_files, $
-                                               min_n_qu_files=_min_n_qu_files, $
-                                               max_n_files=_max_n_files, $
-                                               stokes_present=stokes_present, $
-                                               synoptic=synoptic, $
-                                               count=count)
-  if (count gt 0L) then return, files
+
+  for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
+    interval = averaging_max_cadence_interval[mci]
+    min_n_cluster_files = averaging_min_n_cluster_files
+    min_n_qu_files = averaging_min_n_qu_files
+    max_n_files = averaging_max_n_files
+
+    files = comp_find_average_files_findclusters(list_filename, flat_times, $
+                                                 max_cadence_interval=interval, $
+                                                 min_n_cluster_files=min_n_cluster_files, $
+                                                 min_n_qu_files=min_n_qu_files, $
+                                                 max_n_files=max_n_files, $
+                                                 stokes_present=stokes_present, $
+                                                 synoptic=synoptic, $
+                                                 count=count)
+    if (count gt 0L) then begin
+      mg_log, 'found using max cadence of %0.1f sec', interval, $
+              name='comp', /debug
+      return, files
+    endif
+  endfor
 
   ; failed to find any files
   count = 0L
@@ -347,13 +329,23 @@ end
 
 ; main-level example program
 
-date = '20171002'
-comp_initialize, date
-comp_configuration, config_filename='../../config/comp.mgalloy.mahi.latest.cfg'
+dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
+         '20171006', '20171007', '20171008', '20171009', '20171010', $
+         '20171011', '20171012', '20171013', '20171014']
+for d = 0L, n_elements(dates) - 1L do begin
+  comp_initialize, dates[d]
+  comp_configuration, config_filename='../../config/comp.mgalloy.mahi.latest.cfg'
 
-files = comp_find_average_files(date, '1074', count=n_files, /synoptic)
+  synoptic_files = comp_find_average_files(dates[d], '1074', $
+                                           count=n_synoptic_files, /synoptic)
+  waves_files = comp_find_average_files(dates[d], '1074', $
+                                        count=n_waves_files)
+  combined_files = comp_find_average_files(dates[d], '1074', $
+                                           count=n_combined_files, $
+                                           /combined)
 
-print, files
-print, n_files
+  print, dates[d], n_synoptic_files, n_waves_files, n_combined_files, $
+         format='(%"---> %s: %d synoptic, %d waves, %d combined")'
+endfor
 
 end
