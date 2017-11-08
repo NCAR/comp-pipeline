@@ -24,7 +24,7 @@
 ;     image geometry specifications
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                         image_geometry=image_geometry

@@ -11,6 +11,9 @@
 ;     ND value for the image
 ;   wavelength : in, required, type=float
 ;     wavelength corresponding to image
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_correct_nd_transmission, nd, wavelength
   compile_opt strictarr
@@ -43,6 +46,9 @@ end
 ;     ND value for the flat image
 ;   wavelength : in, required, type=float
 ;     wavelength corresponding to image
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_correct_nd, nd, flat_nd, wavelength
   compile_opt strictarr

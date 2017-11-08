@@ -35,7 +35,7 @@
 ;     wavelength, beam, and polarization state.
 ;
 ; :Author:
-;   Steve Tomczyk, Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_inventory_header, headers, beam, wave, pol, type, expose, $
                            cover, cal_pol, cal_ret, $

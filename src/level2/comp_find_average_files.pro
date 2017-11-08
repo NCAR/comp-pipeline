@@ -33,6 +33,9 @@
 ;     calculting empirical crosstalk coefficients should be returned
 ;   synoptic : in, optional, type=boolean
 ;     set to perform a synoptic averaging
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_find_average_files_findclusters, list_filename, flat_times, $
                                                date_dir=date_dir, wave_type=wave_type, $

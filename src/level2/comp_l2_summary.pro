@@ -12,9 +12,13 @@
 ;   wave_type : in, required, type=string
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
-;    removed gzip    Oct 1 2014  GdT
-;    removed tarball creation - left list of dynamics files    Oct 1 2014  GdT
+;   removed gzip    Oct 1 2014  GdT
+;   removed tarball creation - left list of dynamics files    Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_l2_summary, date_dir, wave_type
   compile_opt strictarr

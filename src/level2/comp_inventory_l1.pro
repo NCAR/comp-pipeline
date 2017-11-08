@@ -15,6 +15,9 @@
 ;   pol : out, optional, type=strarr
 ;     set to a named variable to retrieve the polarization states available in
 ;     CoMP L1 data file
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_inventory_l1, fcbin, wave, pol
   compile_opt idl2

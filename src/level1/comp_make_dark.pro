@@ -36,10 +36,11 @@
 ;     success, anything else for failure
 ;
 ; :Author:
-;   Tomczyk, modified by Sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   removed file_copy to biar_dir  Oct 2 2014   GdT
+;   see git log for recent changes
 ;-
 pro comp_make_dark, date_dir, error=error
   compile_opt idl2

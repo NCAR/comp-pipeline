@@ -14,6 +14,9 @@
 ;     on-band transmission
 ;   t_off : out, optional, type=float
 ;     off-band transmission
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_flat_norm, lambda, t_on, t_off
   compile_opt idl2

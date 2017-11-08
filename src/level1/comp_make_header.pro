@@ -38,10 +38,11 @@
 ;     an error
 ;
 ; :Author:
-;   sitongia, modified by Tomczyk
+;   MLSO Software Team
 ;
 ; :History:
 ;   added comments - 10/23/14 ST
+;   see git log for recent changes
 ;-
 pro comp_make_header, image, header, date_dir, $
                       uncorrected_occulter1, $

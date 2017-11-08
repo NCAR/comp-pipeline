@@ -23,7 +23,7 @@
 ;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                           wave_type

@@ -29,9 +29,13 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to retrieve the error status of the averaging
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
 ;   used temporary and compound assignment operators to save memory
 ;     Oct 3 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter, $
                    error=error

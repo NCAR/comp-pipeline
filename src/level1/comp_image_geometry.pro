@@ -20,7 +20,7 @@
 ;     find the flat file
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 function comp_image_geometry, images, headers, date_dir, primary_header=primary_header
   @comp_constants_common

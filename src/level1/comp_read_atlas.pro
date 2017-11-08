@@ -22,6 +22,9 @@
 ;     central wavelength in Angstroms
 ;   range : in, required, type=float
 ;     wavelength range in Angstroms
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_read_atlas, wave, range
   compile_opt strictarr

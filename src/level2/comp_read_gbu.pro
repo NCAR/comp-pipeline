@@ -27,10 +27,12 @@
 ;     GBU filename
 ;
 ; :Author:
-;   Christian Bethge
+;   MLSO Software Team
 ;
 ; :History:
+;   Christian Bethge
 ;   removed gzip    Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 function comp_read_gbu, gbu_file, count=count
   compile_opt strictarr

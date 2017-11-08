@@ -27,6 +27,9 @@
 ; :Params:
 ;   p : in, required, type=fltarr
 ;     parameters of fit
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_circ_func, p
   @comp_fitc_common

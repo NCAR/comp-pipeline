@@ -7,6 +7,9 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date in the form 'YYYYMMDD'
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_write_epochs, date_dir
   compile_opt strictarr

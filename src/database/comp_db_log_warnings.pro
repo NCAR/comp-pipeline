@@ -6,6 +6,9 @@
 ; :Keywords:
 ;   database : in, required, type=MGdbMySQL object
 ;     database connection
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_db_log_warnings, database=db
   compile_opt strictarr

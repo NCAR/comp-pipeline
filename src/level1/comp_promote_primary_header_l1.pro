@@ -27,7 +27,7 @@
 ;     temporary headers L1 extension headers
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
                                     image_geometry=image_geometry, $

@@ -7,6 +7,9 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     day of year to process, in YYYYMMDD format
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_setup_loggers_date, date_dir
   compile_opt strictarr
@@ -53,6 +56,9 @@ end
 ;+
 ; Sets up format and level for all the loggers defined in
 ; `comp_setup_loggers_loggers`.
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_setup_loggers
   compile_opt strictarr

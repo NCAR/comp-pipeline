@@ -27,7 +27,7 @@
 ;     second of minute
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 function comp_extract_time, headers, day, month, year, hours, mins, secs
   compile_opt strictarr

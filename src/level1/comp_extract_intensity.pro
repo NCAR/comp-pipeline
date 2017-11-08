@@ -35,10 +35,11 @@
 ;     success, anything else for failure
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   removed gzip Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_extract_intensity, date_dir, wave_type, error=error
   compile_opt idl2

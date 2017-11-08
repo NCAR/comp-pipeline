@@ -26,7 +26,7 @@
 ;     to find the nearest Q and U file
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   compile_opt strictarr

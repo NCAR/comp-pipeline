@@ -21,9 +21,13 @@
 ;   datminmax : in, optional, type=fltarr(2)
 ;     min/max of data; must be present if exten is present and more than 1
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
 ;   written by Christian Bethge
 ;   modified by mdg 5/13/2016
+;   see git log for recent changes
 ;-
 function comp_convert_header, in_header, $
                               exten=exten, $

@@ -7,6 +7,9 @@
 ;   config_filename : in, required, type=string
 ;     filename of CoMP configuration file with "database" section with
 ;     "config_filename" and "config_section" options
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_create_tables, config_filename=config_filename
   compile_opt strictarr

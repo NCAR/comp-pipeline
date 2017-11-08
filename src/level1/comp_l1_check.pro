@@ -10,6 +10,9 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083';
 ;     distribute wavelength independent files such as flats and darks if not
 ;     provided
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_l1_check, date_dir, wave_type
   compile_opt strictarr

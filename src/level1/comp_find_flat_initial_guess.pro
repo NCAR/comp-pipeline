@@ -11,6 +11,9 @@
 ;   flat : in, required, type="fltarr(620, 620)"
 ;     flat to find center for, assumed to be dark corrected, hot pixel
 ;     corrected, etc.
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_find_flat_initial_guess, flat
   compile_opt strictarr

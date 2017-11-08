@@ -21,7 +21,7 @@
 ;     array
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_read_data, filename, images, headers, header0
   compile_opt strictarr

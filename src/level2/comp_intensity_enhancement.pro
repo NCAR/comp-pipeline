@@ -14,6 +14,9 @@
 ;     image
 ;   hdr : in, required, type=strarr
 ;     FITS header
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_intensity_enhancement, data, hdr
   compile_opt strictarr

@@ -12,6 +12,9 @@
 ;     solar radii
 ;   p : in, required, type=fltarr(2)
 ;     parameters
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_expfit, r, p
   compile_opt strictarr

@@ -6,6 +6,9 @@
 ; :Keywords:
 ;   user : in, optional, type=boolean
 ;     set to generate user-level documentation
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_make_docs, user=user
   compile_opt strictarr

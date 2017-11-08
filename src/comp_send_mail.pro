@@ -15,6 +15,9 @@
 ; :Keywords:
 ;   error : out, optional, type=long
 ;     error status, 0 if no error
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_send_mail, address, subject, body, error=error
   compile_opt strictarr

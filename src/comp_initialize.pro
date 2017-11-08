@@ -23,6 +23,9 @@
 ;     `SIZE` type to retrieve value as
 ;   _extra : in, optional, type=keywords
 ;     keywords to `MGffOptions::get` such as `BOOLEAN` and `EXTRACT`
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_initialize_readconfig, option, date, options, $
                                      found=found, $
@@ -63,7 +66,7 @@ end
 ;      date to process, in YYYYMMDD format
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 pro comp_initialize, date_dir
   compile_opt strictarr

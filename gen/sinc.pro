@@ -2,6 +2,9 @@
 
 ;+
 ; Function to return sinc function
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function sinc, x
   compile_opt strictarr

@@ -23,7 +23,7 @@
 ;     the name of the file from which the Stokes Q/U images were read
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_fix_quxtalk, date_dir, images, headers, filename
   compile_opt strictarr

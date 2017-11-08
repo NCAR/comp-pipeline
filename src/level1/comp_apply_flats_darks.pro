@@ -28,7 +28,7 @@
 ;     flats and darks; 0 indicates no error
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_apply_flats_darks, images, headers, date_dir, $
                             flat_header=flat_header, $

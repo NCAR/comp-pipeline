@@ -4,7 +4,7 @@
 ; Procedure to run all the routines in the CoMP pipeline.
 ;
 ; :Author:
-;   Tomczyk modified by de Toma, Stanger, mgalloy
+;   MLSO Software Team
 ;
 ; :Keywords:
 ;   config_filename, in, optional, type=string

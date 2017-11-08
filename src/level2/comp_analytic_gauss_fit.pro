@@ -18,7 +18,11 @@
 ;     the central intensity of the gaussian in the same units as `profile`
 ;
 ; :Author:
+;   MLSO Software Team
+;
+; :History:
 ;   Christian Bethge
+;   see git log for recent changes
 ;-
 pro comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
   compile_opt strictarr

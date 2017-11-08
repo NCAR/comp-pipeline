@@ -13,6 +13,9 @@
 ; :Params:
 ;   data : in, required, type=2D array
 ;     CoMP data
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_extract1, data
   compile_opt strictarr

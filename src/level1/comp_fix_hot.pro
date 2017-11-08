@@ -19,6 +19,9 @@
 ;     hot pixels
 ;   adjacent : in, required, type="lonarr(n, 4)"
 ;     pixels adjacent to hot pixels
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_fix_hot, data, hot=hot, adjacent=adjacent
   compile_opt idl2

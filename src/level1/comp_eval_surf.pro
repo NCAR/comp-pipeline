@@ -22,7 +22,11 @@
 ;     y-coordinates
 ;
 ; :Author:
+;   MLSO Software Team
+;
+; :History:
 ;   vectorized by Michael Galloy, HAO/NCAR, 11 Mar 2015
+;   see git log for recent changes
 ;-
 function comp_eval_surf, coeff, coord_x, coord_y
   compile_opt strictarr

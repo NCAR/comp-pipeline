@@ -14,6 +14,9 @@
 ;   status : out, optional, type=integer
 ;     set to a named variable to retrieve the status of the date: 0 for success,
 ;     anything else indicates a problem
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_verify, date, config_filename=config_filename, status=status
   compile_opt strictarr

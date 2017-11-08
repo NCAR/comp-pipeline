@@ -4,7 +4,7 @@
 ; Generate a string containing today's date.
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 function datecal
   compile_opt strictarr

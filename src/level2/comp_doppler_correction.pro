@@ -19,10 +19,11 @@
 ;     output parameter, temporal trend of the Doppler shift
 ;
 ; :Author:
-;   Hui Tian
+;   MLSO Software Team
 ;
 ; :History:
 ;   Hui Tian, March 28, 2012, for CoMP Doppler shift correction
+;   see git log for recent changes
 ;-
 pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
                              temptrend

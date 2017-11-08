@@ -43,7 +43,7 @@
 ;     first image in each raw file is bad)
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 function comp_get_component, images, headers, polstate, beam, wave, $
                              skipall=skipall, $

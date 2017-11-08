@@ -16,7 +16,7 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Author:
-;   Sitongia
+;   MLSO Software Team
 ;-
 pro comp_distribute_l2, date_dir, wave_type
   compile_opt strictarr

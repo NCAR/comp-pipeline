@@ -21,7 +21,7 @@
 ;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_l1_process_file, filename, date_dir, wave_type
   compile_opt strictarr

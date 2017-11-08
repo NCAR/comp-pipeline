@@ -13,6 +13,9 @@
 ;     x coefficients for distortion
 ;   dy_c : in, required, type="fltarr(3, 3)"
 ;     y coefficients for distortion
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_apply_distortion_to_pt, xy, dx_c, dy_c
   compile_opt strictarr

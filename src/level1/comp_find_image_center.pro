@@ -40,7 +40,7 @@
 ;     0 if no error
 ;
 ; :Author:
-;   Tomczyk, modified by Sitongia
+;   MLSO Software Team
 ;-
 function comp_find_image_center, dat, $
                                  chisq=chisq, $

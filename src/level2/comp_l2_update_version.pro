@@ -6,6 +6,9 @@
 ; :Params:
 ;   header : in, out, required, type=strarr
 ;     FITS header
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_l2_update_version, header, from_l2=from_l2
   compile_opt strictarr

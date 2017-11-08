@@ -20,6 +20,9 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to retrieve whether the required wavelengths were
 ;     found
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_3pt_indices, wave_type, wavelengths, tolerance=tolerance, error=error
   compile_opt strictarr

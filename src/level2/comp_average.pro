@@ -60,13 +60,14 @@
 ;     success, anything else for failure
 ;
 ; :Author:
-;   Tomczyk, Sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   Removed limit of first 50 files, 6/16/14, ST
 ;   removed gzip                   Oct 1 2014    GdT
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
+;   see git log for recent changes
 ;-
 pro comp_average, date_dir, wave_type, $
                   synoptic=synoptic, $

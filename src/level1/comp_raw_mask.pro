@@ -25,7 +25,7 @@
 ;     value for thresholding flats
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 function comp_raw_mask, date_dir, headers, $
                         upper_left_mask=ul_mask, lower_right_mask=lr_mask, $

@@ -14,6 +14,9 @@
 ;     angle of post
 ;   post_width : in, required, type=float
 ;     width of post in pixels
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_post_mask, angle, post_width
   compile_opt idl2

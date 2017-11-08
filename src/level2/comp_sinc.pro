@@ -10,6 +10,9 @@
 ; lambda is wavelength scale (nm)
 ;
 ; note: maximum transmission is normalized to unity
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_sinc, lambda, wave
   compile_opt strictarr

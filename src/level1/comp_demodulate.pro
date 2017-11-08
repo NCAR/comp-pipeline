@@ -18,7 +18,7 @@
 ;     Headers corresponding to images.
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_demodulate, rawimages, rawheaders, images, headers
   compile_opt strictarr

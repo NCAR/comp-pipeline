@@ -12,7 +12,7 @@
 ;     directory
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 pro comp_configuration, config_filename=config_filename
   compile_opt strictarr

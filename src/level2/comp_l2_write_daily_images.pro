@@ -27,10 +27,12 @@
 ;      number of files to average over
 ;
 ; :Author:
-;   Christian Bethge
+;   MLSO Software Team
 ;
 ; :History:
+;   Christian Bethge
 ;   removed gzip    Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   compile_opt strictarr

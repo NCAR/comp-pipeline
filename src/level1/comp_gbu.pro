@@ -79,11 +79,12 @@
 ;     success, anything else for failure
 ;
 ; :Author:
-;   Tomczyk, modified by Sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   Removed gzip Oct 1 2014 GdT
 ;   Removed file_copy to engineering directory  Oct 1 2014 GdT
+;   see git log for recent changes
 ;-
 pro comp_gbu, date_dir, wave_type, error=error
   compile_opt idl2

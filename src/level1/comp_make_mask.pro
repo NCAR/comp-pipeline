@@ -29,11 +29,12 @@
 ;     mask image
 ;
 ; :Author:
-;   sitongia@hao.ucar.edu
+;   MLSO Software Team
 ;
 ; :History:
-;    added comments 10/23/14 ST
-;    removed post_rotation fudge factor 11/14/14 ST
+;   added comments 10/23/14 ST
+;   removed post_rotation fudge factor 11/14/14 ST
+;   see git log for recent changes
 ;-
 pro comp_make_mask, date_dir, fits_header, mask
   compile_opt strictarr

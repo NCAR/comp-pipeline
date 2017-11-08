@@ -42,9 +42,13 @@
 ;     in which no term has a power higher than two in X and Y combined, and
 ;     the powers of Y vary the fastest.
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
 ;   July, 1993, DMS  Initial creation
 ;   July, 2001  Added `MAX_DEGREE` and `IRREGULAR` keywords.
+;   see git log for recent changes
 ;
 ; :Copyright:
 ;   Copyright (c) 1993-2013, Exelis Visual Information Solutions, Inc. All

@@ -11,6 +11,9 @@
 ;     x coefficients for subimage
 ;   dy_c : in, required, type="fltarr(3, 3)"
 ;     y coefficients for subimage
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_apply_distortion, dat, dx_c, dy_c
   compile_opt strictarr

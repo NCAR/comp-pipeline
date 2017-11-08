@@ -18,6 +18,9 @@
 ;     set to unlock a `date_dir` in the raw directory
 ;   processed : in, optional, type=boolean
 ;     set to set a lock indicating the directory has been processed
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
   compile_opt strictarr, logical_predicate

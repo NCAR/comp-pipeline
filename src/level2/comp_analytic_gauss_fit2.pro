@@ -22,6 +22,9 @@
 ;     the linewidth in the same units as d_lambda
 ;   i_cent : out, optional, type=fltarr
 ;     the central intensity of the gaussianin the same units as i1, i2, i3
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, doppler_shift, width, i_cent
   compile_opt strictarr

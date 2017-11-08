@@ -12,8 +12,12 @@
 ;   scale : in, required, type=float
 ;     normalization scale for derivative
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
-;   used compound assignment operators to save memory.   Oct 3 2013 GdT 
+;   used compound assignment operators to save memory.   Oct 3 2013 GdT
+;   see git log for recent changes
 ;-
 function comp_fixrock, img, scale
   compile_opt strictarr

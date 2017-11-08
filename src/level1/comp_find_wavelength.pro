@@ -14,6 +14,9 @@
 ;   name : in, optional, type=boolean
 ;     set to return the string name "1074", "1079", or "1083" instead
 ;     of the exact float value
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_find_wavelength, wavelengths, name=name
   compile_opt strictarr

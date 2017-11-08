@@ -38,7 +38,7 @@
 ;     the array of CoMP images, not flat corrected, but corrected in other ways
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine, primary_header, $

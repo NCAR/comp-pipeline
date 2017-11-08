@@ -32,7 +32,7 @@
 ;      will be left blank
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_read_inventory_file, filename, datafiles, exptimes, $
                               ndata, ndark, nopal, $

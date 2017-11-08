@@ -13,6 +13,9 @@
 ;     on-band transmission
 ;   trans_off : out, optional, type=float
 ;     off-band transmission
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_trans, lambda, wave, trans_on, trans_off
   compile_opt strictarr

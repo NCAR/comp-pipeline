@@ -34,8 +34,8 @@
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
 ;
-; :Author: 
-;   Tomczyk, modified by Sitongia
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_make_flat, date_dir, error=error
   compile_opt idl2

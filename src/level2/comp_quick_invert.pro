@@ -50,11 +50,12 @@
 ;     set to 'mean' or 'median' to indicate the average files to use
 ;
 ; :Author:
-;   Sitongia, Tomczyk
+;   MLSO Software Team
 ;
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;   removed copy_file of intensity fits to archive_dir  Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_quick_invert, date_dir, wave_type, $
                        synthetic=synthetic, error=error, synoptic=synoptic, $

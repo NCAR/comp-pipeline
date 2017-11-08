@@ -9,6 +9,9 @@
 ; :Keywords:
 ;    _extra : in, optional, type=keywords
 ;       keywords to `MGutTestSuite::init`
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_uts::init, _extra=e
   compile_opt strictarr
@@ -23,6 +26,9 @@ end
 
 ;+
 ; Define member variables.
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_uts__define
   compile_opt strictarr
