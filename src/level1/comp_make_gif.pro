@@ -23,7 +23,7 @@
 ;     wave type, '1074', '1079', or '1083'
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
                    wave

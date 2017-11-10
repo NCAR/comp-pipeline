@@ -37,6 +37,9 @@
 ; :Keywords:
 ;   group : out, optional, type=intarr
 ;     group of each extension
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
                     cal_pol, cal_ret, $

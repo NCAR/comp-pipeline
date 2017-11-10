@@ -1,5 +1,9 @@
 ; docformat = 'rst'
 
+;+
+; :Author:
+;   MLSO Software Team
+;-
 function comp_diff_iquv, p, stokes_i, stokes_q, stokes_u, stokes_v, requested
   compile_opt strictarr
   @comp_simulate_common

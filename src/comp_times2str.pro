@@ -10,6 +10,9 @@
 ; :Params:
 ;   times : in, required, type=fltarr
 ;     decimal times in 0.0 to 24.0
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_times2str, times
   compile_opt strictarr

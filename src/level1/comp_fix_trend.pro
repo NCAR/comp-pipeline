@@ -26,7 +26,7 @@
 ;     fit
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 pro comp_fix_trend, image_full, occulter1, occulter2, field1, field2, $
                     post_angle1, post_angle2, fit

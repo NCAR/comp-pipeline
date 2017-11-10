@@ -17,6 +17,9 @@
 ;     minute of hour
 ;   seconds : out, optional, type=integer
 ;     second of minute
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_parse_time, time_str, hours=hours, minutes=mins, seconds=secs
   compile_opt strictarr

@@ -9,6 +9,9 @@
 ; :Params:
 ;   filename : in, required, type=string
 ;     filename
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_get_time_from_filename, filename
   compile_opt strictarr

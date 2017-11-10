@@ -43,7 +43,7 @@
 ;     the crosstalk parameters, organized [aI, aQ, aU, bI, ...]
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 pro comp_find_vxtalk, date_dir, Iin, Qin, Uin, Vin, headers, $
                       IVxtalk, QVxtalk, UVxtalk, xtparms

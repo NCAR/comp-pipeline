@@ -45,11 +45,12 @@
 ;     date to process, in YYYYMMDD format
 ;
 ; :Author:
-;   Tomczyk
+;   MLSO Software Team
 ;
 ; :History:
 ;   modified by Sitongia
 ;   removed file_copy to inventory_dir  Oct 1 2014 GdT
+;   see git log for recent changes
 ;-
 pro comp_file_type, date_dir
   compile_opt idl2

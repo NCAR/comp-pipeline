@@ -11,6 +11,9 @@
 ;     raw image
 ;   mask : in, required, type=fltarr
 ;     mask of annulus
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_detrender, flat, mask
   compile_opt strictarr

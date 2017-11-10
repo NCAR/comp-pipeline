@@ -26,10 +26,12 @@
 ;     number of wavelengths to use; must be 3 right now
 ;
 ; :Author:
-;   Christian Bethge
+;   MLSO Software Team
 ;
 ; :History:
+;   Christian Bethge
 ;   removed gzip    Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   compile_opt strictarr

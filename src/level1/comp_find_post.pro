@@ -21,11 +21,12 @@
 ;     the top of the image
 ;
 ; :Author:
-;   sitongia, modified by Tomczyk
+;   MLSO Software Team
 ;
 ; :History:
 ;   added gaussian fit and comments - 10/24/14 ST
-;   replaced average with IDL built-in mean 01/07/15 GdT 
+;   replaced average with IDL built-in mean 01/07/15 GdT
+;   see git log for recent changes
 ;-
 pro comp_find_post, image, occulter, field, pa
   compile_opt idl2

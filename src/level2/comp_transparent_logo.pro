@@ -13,7 +13,11 @@
 ;     background image
 ;
 ; :Author:
+;   MLSO Software Team
+;
+; :History:
 ;   Christian Bethge
+;   see git log for recent changes
 ;-
 function comp_transparent_logo, image, background
   compile_opt strictarr

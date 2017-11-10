@@ -19,6 +19,9 @@
 ;     shift in the x-direction
 ;   dy : in, optional, type=float
 ;     shift in the y-direction
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_disk_mask, radius, dx=dx, dy=dy
   compile_opt strictarr

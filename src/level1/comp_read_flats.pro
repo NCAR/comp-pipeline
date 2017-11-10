@@ -40,7 +40,7 @@
 ;     wavelength
 ;
 ; :Author:
-;   Tomczyk
+;   MLSO Software Team
 ;-
 pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
                      flat_waves, flat_names, flat_exposure, $

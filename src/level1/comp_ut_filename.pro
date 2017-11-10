@@ -13,7 +13,7 @@
 ;     input filename in HST format
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 function comp_ut_filename, hst_filename
   compile_opt strictarr

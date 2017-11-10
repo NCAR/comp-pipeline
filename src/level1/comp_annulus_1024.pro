@@ -23,7 +23,7 @@
 ;     set to use the distortion uncorrected FITS keywords in `flat_header`
 ;
 ; :Author:
-;   Tomczyk
+;   MLSO Software Team
 ;-
 function comp_annulus_1024, flat_header, o_offset=o_offset, f_offset=f_offset, $
                             uncorrected=uncorrected

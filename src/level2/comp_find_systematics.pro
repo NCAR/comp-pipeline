@@ -33,11 +33,12 @@
 ;     success, anything else for failure
 ;
 ; :Author:
-;   Tomczyk, Sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   removed gzip    Oct 1 2014  GdT
 ;   removed copy_file to engineering_dir  Oct 1 2014  GdT
+;   see git log for recent changes
 ;-
 pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic=synoptic
   compile_opt idl2

@@ -8,6 +8,9 @@
 ;   stokes_q : out, optional
 ;   stokes_u : out, optional
 ;   stokes_v : out, optional
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_create_stokes, stokes_i, stokes_q, stokes_u, stokes_v
   compile_opt strictarr

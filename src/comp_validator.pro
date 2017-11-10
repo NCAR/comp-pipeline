@@ -20,9 +20,10 @@
 ;     day of year to process, in `YYYYMMDD` format
 ;
 ; :Author:
-;   Berkey, modified by Sitongia and de Toma
+;   MLSO Software Team
 ;
 ; :History:
+;   Berkey, modified by Sitongia and de Toma
 ;   Fixed logical error: code was creating a tar file and sending it to the 
 ;                        mass-store even if validation test had failed (GdT)
 ;   Added tarlist for tar file (GdT)
@@ -32,6 +33,7 @@
 ;   (GdT)
 ;   Made a more generic tar_and_hpss.sh script to be used for L1 and L2 results
 ;   as well. (mdg)
+;   see git log for recent changes
 ;-
 function comp_validator, date_dir
   compile_opt idl2

@@ -13,6 +13,9 @@
 ;     wavelength type, i.e., "1074", "1079", or "1083"
 ;   header : in, required, type=strarr
 ;     extension header
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_get_nd_filter, date, wave_type, header
   compile_opt strictarr

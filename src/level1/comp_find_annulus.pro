@@ -23,6 +23,9 @@
 ;     set to only find occulter center and radius, skipping field
 ;   error : out, optional, type=long
 ;     0 if no error
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_find_annulus, im, occulter, field, $
                        occulter_guess=occulter_guess, $

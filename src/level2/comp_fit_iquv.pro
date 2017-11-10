@@ -2,6 +2,9 @@
 
 ;+
 ; Callback for fitting function in `COMP_ANALYZE`.
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_fit_iquv, p, dp
   compile_opt strictarr

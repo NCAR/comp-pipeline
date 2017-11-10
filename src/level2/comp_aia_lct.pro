@@ -21,7 +21,11 @@
 ;     if set, apply color table
 ;
 ; :Author:
+;   MLSO Software Team
+;
+; :History:
 ;   Karel Schrijver, 2010/04/12
+;   see git log for recent changes
 ;
 pro comp_aia_lct, r, g, b, wavelnth=wavelnth, load=load
   compile_opt strictarr

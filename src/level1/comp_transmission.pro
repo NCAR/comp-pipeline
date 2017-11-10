@@ -9,6 +9,9 @@
 ; :Params:
 ;   date : in, required, type=string
 ;     date in the form YYYYMMDD
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_transmission, date
   compile_opt strictarr

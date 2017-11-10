@@ -20,7 +20,7 @@
 ;     exposure of observation
 ;
 ; :Author:
-;   Tomczyk
+;   MLSO Software Team
 ;-
 function comp_dark_interp, date_dir, time, exposure
   compile_opt idl2

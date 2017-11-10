@@ -11,6 +11,9 @@
 ;     code repo revision value, such as '8207' or 'afc6d0'
 ;   branch : out, optional, type=string
 ;     current branch, such as 'master', 'production', etc.
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_find_code_version, revision=revision, branch=branch
   compile_opt strictarr

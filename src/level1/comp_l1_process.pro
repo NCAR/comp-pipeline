@@ -17,6 +17,9 @@
 ; :Keywords:
 ;   error : out, optional, type=long
 ;     set to a named variable to retrieve an error code; 0 indicates no error
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_l1_process, date_dir, wave_type, error=error
   compile_opt strictarr

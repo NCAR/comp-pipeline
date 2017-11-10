@@ -18,7 +18,7 @@
 ;     provided
 ;
 ; :Author:
-;   Sitongia
+;   MLSO Software Team
 ;
 ; :Requires:
 ;   IDL 8.2.3

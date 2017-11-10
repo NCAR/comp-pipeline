@@ -32,10 +32,14 @@
 ;   degree : in, required, type=long
 ;     maximum degree of fit (in one dimension)
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
 ;   Written by:  Leonard Sitongia, LASP, University of Colorado,
 ;          April, 1984.
 ;   Modified by: Mike Jone, LASP, Sept. 1985.
+;   see git log for recent changes
 ;-
 function comp_surf_fit_xy, surf, coord_x, coord_y, degree
   compile_opt strictarr

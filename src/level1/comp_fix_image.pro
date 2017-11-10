@@ -14,6 +14,9 @@
 ; :Keywords:
 ;   old_data : in, optional, type=boolean
 ;     set to use the old pattern
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_fix_image, data, old_data=old_data
   compile_opt strictarr

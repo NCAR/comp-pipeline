@@ -12,6 +12,9 @@
 ;     p-angle in degrees
 ;   overlap_angle, in, required, type=float
 ;     overlap angle in degrees
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_polarimetric_correction, images, headers, p_angle, overlap_angle
   compile_opt strictarr

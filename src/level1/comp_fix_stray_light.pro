@@ -28,10 +28,11 @@
 ;     the fit which was subtracted from image
 ;
 ; :Author:
-;   Tomczyk, modified by Sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   10/8/14 - POLYWARP was replaced by COMP_SFIT to increase speed
+;   see git log for recent changes
 ;-
 pro comp_fix_stray_light, image, flat_header, fit
   compile_opt strictarr

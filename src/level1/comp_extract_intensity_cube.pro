@@ -22,7 +22,7 @@
 ;     extension headers
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 pro comp_extract_intensity_cube, filename, $
                                  images=images, $

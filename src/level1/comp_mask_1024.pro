@@ -43,7 +43,7 @@
 ;     if set, null out first four columns
 ;
 ; :Author:
-;   Sitongia
+;   MLSO Software Team
 ;-
 function comp_mask_1024, occulter1, occulter2, $
                          field1, field2, $

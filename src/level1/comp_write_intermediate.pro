@@ -21,6 +21,9 @@
 ;     string to add to filename in the format::
 ;
 ;       [date].[time].comp.[wave_type].[pols].[nwaves].[type].fts
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_write_intermediate, primary_header, images, headers, $
                              wave_type, date, $

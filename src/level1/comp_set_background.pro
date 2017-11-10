@@ -16,6 +16,9 @@
 ;     headers corresponding to `images_combine`; the 'BEAM' tag, if present,
 ;     will be removed from the header; `ntags2` will therefore generally be
 ;     equal to `ntags - 1`
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_set_background, date_dir, primary_header, images_combine, headers_combine
   compile_opt strictarr

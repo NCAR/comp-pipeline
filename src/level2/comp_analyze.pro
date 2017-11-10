@@ -16,7 +16,8 @@
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure 
 ;
-; :Author: tomczyk
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
   compile_opt strictarr

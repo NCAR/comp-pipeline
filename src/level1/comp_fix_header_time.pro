@@ -12,11 +12,12 @@
 ;     FITS header
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;
 ; :History:
 ;   changed DATE_OBS to DATE_HST   Oct 2 2014    GdT
 ;   changed TIME_OBS to TIME_HST   Oct 2 2014    GdT
+;   see git log for recent changes
 ;-
 pro comp_fix_header_time, header
   compile_opt strictarr

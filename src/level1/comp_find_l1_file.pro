@@ -21,6 +21,9 @@
 ;     set to a named variable to retrieve the number of files returned via `/ALL`
 ;   background : in, optional, type=boolean
 ;     set to retrieve a background image instead of a foreground image
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_find_l1_file, date, wave_type, $
                             datetime=datetime, $

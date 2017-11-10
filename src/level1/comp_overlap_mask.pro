@@ -22,6 +22,9 @@
 ;     shift in the x-direction
 ;   dy : in, optional, type=float
 ;     shift in the y-direction
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_overlap_mask, radius, angle, dx=dx, dy=dy
   compile_opt strictarr

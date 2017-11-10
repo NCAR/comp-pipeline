@@ -19,7 +19,7 @@
 ;   comp_config_common, comp_ut_filename, strput
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 pro comp_update_filenames, date_dir
   compile_opt idl2

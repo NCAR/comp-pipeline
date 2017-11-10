@@ -7,10 +7,11 @@
 ;   float
 ;
 ; :Params:
-;    occulter_id
+;    occulter_id : in, required, type=integer
+;      occulter identifier, 1-35
 ;
 ; :Author:
-;   sitongia
+;   MLSO Software Team
 ;-
 function comp_occulter_id, occulter_id
   compile_opt strictarr

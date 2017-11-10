@@ -19,6 +19,9 @@
 ;     transformed Stokes Q
 ;   new_u : out, optional, type=fltarr
 ;     transformed Stokes U
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_polarimetric_transform, q, u, p_angle, overlap_angle, $
                                  new_q=new_q, new_u=new_u

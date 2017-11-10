@@ -18,7 +18,7 @@
 ;   filename: in, required, type=string
 ;
 ; :Author:
-;   Joseph Plowman
+;   MLSO Software Team
 ;-
 function comp_nearest_qufile, date_dir, headers, filename
   compile_opt strictarr

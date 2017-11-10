@@ -15,6 +15,9 @@
 ; :Keywords:
 ;    radial_azimuth : out, optional, type=fltarr
 ;      set to a named variable to retrieve the radial azimuth
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_azimuth, u, q, radial_azimuth=radial_azimuth
   compile_opt strictarr

@@ -14,6 +14,9 @@
 ;     database connection
 ;   obsday_index : in, required, type=integer
 ;     index into mlso_numfiles database table
+;
+; :Author:
+;   MLSO Software Team
 ;-
 pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr

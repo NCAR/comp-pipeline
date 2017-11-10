@@ -24,6 +24,9 @@
 ;
 ;       pder[i, j] = derivative at point i wrt parameter j
 ;
+; :Author:
+;   MLSO Software Team
+;
 ; :History:
 ;   Written by DMS, RSI, SEPT, 1982.
 ;   Modified by DMS, Oct 1990.  Avoids divide by 0 if A(2) is 0.
@@ -141,6 +144,9 @@ end
 ;     1 for chi-squared increasing without bound, and 2 for failed to converge
 ;   iter : out, optional, type=integer
 ;     set to a named variable to retrieve the number of iterations performed
+;
+; :Author:
+;   MLSO Software Team
 ;
 ; :History:
 ;   DMS, RSI, Dec, 1983.

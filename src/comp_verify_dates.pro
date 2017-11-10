@@ -1,6 +1,26 @@
 ; docformat = 'rst'
 
 
+;+
+; Expand a range of days expressed as a start and end date as an array of
+; dates.
+;
+; :Returns:
+;   strarr
+;
+; :Params:
+;   start_date : in, required, type=string
+;     start date in the form YYYYMMDD
+;   end_date : in, required, type=string
+;     end date in the form YYYYMMDD
+;
+; :Keywords:
+;   count : out, optional, type=long
+;     set to a named variable to retrieve the number of days in the range
+;
+; :Author:
+;   MLSO Software Team
+;-
 function comp_verify_dates_expandrange, start_date, end_date, count=n_days
   compile_opt strictarr
 
@@ -21,6 +41,26 @@ function comp_verify_dates_expandrange, start_date, end_date, count=n_days
 end
 
 
+;+
+; Take a date expression and call `COMP_VERIFY` as required on the individual
+; dates.
+;
+; Exits IDL with exit status equal to the number of failed days.
+;
+; :Params:
+;   date_expression : in, required, type=string
+;     expression of dates in the form YYYYMMDD, such as::
+;
+;       20170401-20170414,20170418
+;
+; :Keywords:
+;   config_filename, in, optional, type=string
+;     configuration filename to use, default is `comp.cfg` in the `src`
+;     directory
+;
+; :Author:
+;   MLSO Software Team
+;-
 pro comp_verify_dates, date_expression, config_filename=config_filename
   compile_opt strictarr
   on_error, 2

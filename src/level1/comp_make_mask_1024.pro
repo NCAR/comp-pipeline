@@ -31,7 +31,7 @@
 ;   nopost : in, optional, type=boolean
 ;
 ; :Author:
-;   sitongia@hao.ucar.edu
+;   MLSO Software Team
 ;-
 pro comp_make_mask_1024, date_dir, flat_header, mask, $
                          o_offset=o_offset, f_offset=f_offset, $

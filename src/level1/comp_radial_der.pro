@@ -38,10 +38,11 @@
 ;     guess for the center; if not provided, use center of `data`
 ;
 ; :Author:
-;   Tomczyk
+;   MLSO Software Team
 ;
 ; :History:
 ;   added comments, 10/24/14 ST
+;   see git log for recent changes
 ;
 ; :Requires:
 ;   IDL 8.2.3

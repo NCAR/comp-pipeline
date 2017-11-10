@@ -10,6 +10,9 @@
 ; :Params:
 ;   data : in, required, type="intarr(1024, 1024)"
 ;     extension image
+;
+; :Author:
+;   MLSO Software Team
 ;-
 function comp_demultiplex, data
   compile_opt strictarr
