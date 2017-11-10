@@ -67,7 +67,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   ; configure the device
   set_plot, 'z'
-  device, set_resolution=[size,size], set_colors=256, z_buffering=0, $
+  device, set_resolution=[size, size], set_colors=256, z_buffering=0, $
           decomposed=0
   loadct, 3, /silent
 
@@ -83,31 +83,35 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   Lsz = 1.15
   Dsz = 1.0
   del = 10
+  font = -1   ; use device fonts
   date = sxpar(primary_header, 'DATE-OBS')
   time = sxpar(primary_header, 'TIME-OBS')
 
   xyouts, 5, 25, 'Scaling:' + string(min, max, format='(F4.1, " to ", F4.1)'), $
-          charsize=Lsz, /device, color=ccol
+          charsize=Lsz, /device, color=ccol, font=font
   if (wave eq '1083') then begin
-    xyouts, 5, 5, wave + ' -- im^0.3 ' + label, charsize=Lsz, /device, color=ccol
+    xyouts, 5, 5, wave + ' -- im^0.3 ' + label, charsize=Lsz, /device, $
+            color=ccol, font=font
   endif else begin
-    xyouts, 5, 5, wave + ' -- sqrt ' + label, charsize=Lsz, /device, color=ccol
+    xyouts, 5, 5, wave + ' -- sqrt ' + label, charsize=Lsz, /device, $
+            color=ccol, font=font
   endelse
 
-  xyouts, 5, strt - del * 1, 'MLSO/HAO/CoMP', charsize=Bsz, /device, color=ccol
+  xyouts, 5, strt - del * 1, 'MLSO/HAO/CoMP', charsize=Bsz, /device, color=ccol, $
+          font=font
   xyouts, xstrt, strt - del * 1, date, charsize=Lsz, /device, color=ccol, $
-          alignment=1.0
+          alignment=1.0, font=font
   xyouts, xstrt, strt - del * 3, time +' UTC', charsize=Lsz, /device, $
-          color=ccol, alignment=1.0
+          color=ccol, alignment=1.0, font=font
   xyouts, xdim / 2 - 1, ydim - 10 * ydim / 512, 'North', charsize=Dsz, $
-          /device, color=ccol, alignment=0.5
+          /device, color=ccol, alignment=0.5, font=font
   xyouts, 10, ydim / 2 - 1, 'East', charsize=Dsz, /device, color=ccol, $
-          alignment=0.5, orientation=90
+          alignment=0.5, orientation=90, font=font
   xyouts, xstrt, ydim / 2 - 1, 'West', charsize=Dsz, /device, color=ccol, $
-          alignment=0.5, orientation=90
+          alignment=0.5, orientation=90, font=font
 
   colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max + 0.5], $
-             divisions=5, charsize=0.6
+             divisions=5, charsize=0.6, font=font
 
   write_gif, filename, tvrd()
 end
