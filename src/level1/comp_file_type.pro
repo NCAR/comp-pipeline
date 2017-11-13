@@ -109,7 +109,8 @@ pro comp_file_type, date_dir
     uniq_waves = wave[comp_uniq(wave, sort(wave))]   ; find unique wavelengths
     ; recent failure modes create files with one wavelength - skip these
     if (n_elements(uniq_waves) eq 1 and cover eq 1) then begin
-      mg_log, 'bad file: %s', file_basename(files[i]), name='comp', /warn
+      mg_log, 'bad file %s: only one wavelength and cover on', $
+              file_basename(files[i]), name='comp', /warn
       fits_close, fcb
       continue
     endif
