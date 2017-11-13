@@ -48,7 +48,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
   ; read images from quick invert file
-  quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
+  quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
   quick_invert_filename = filepath(string(date_dir, wave_type, $
                                           format=quick_invert_format), $
                                    root=l2_process_dir)
@@ -60,7 +60,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
             file_basename(quick_invert_filename), $
             name='comp', /debug
 
-    quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
+    quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
     quick_invert_filename = filepath(string(date_dir, wave_type, $
                                             format=quick_invert_format), $
                                      root=l2_process_dir)
@@ -295,7 +295,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   loadct, 0, /silent
   qoi = float(stks_q) / float(intensity)
   qoi[mask_ind] = 0.
-  qoi = bytscl(qoi, min=-0.3, max=0.3)
+  qoi = bytscl(qoi, min=-0.2, max=0.2)
   qoi[mask_ind] = 0B
   tv, qoi
   colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
@@ -331,7 +331,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   loadct, 0, /silent
   uoi = float(stks_u) / float(intensity)
   uoi[mask_ind] = 0.
-  uoi = bytscl(uoi, min=-0.3, max=0.3)
+  uoi = bytscl(uoi, min=-0.2, max=0.2)
   uoi[mask_ind] = 0.
   tv, uoi
   colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
