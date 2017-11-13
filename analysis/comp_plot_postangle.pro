@@ -1,5 +1,19 @@
 ; docformat = 'rst'
 
+function comp_plot_postangle_refangle, angle
+  compile_opt strictarr
+
+  ; put angle between -360.0 and +360.0
+  if (abs(angle) gt 360.0) then angle mod= 360.0
+
+  ; put angle between -180.0 and +180.0
+  if (angle gt 180.0) then angle -= 360.0
+  if (angle lt -180.0) then angle += 360.0
+
+  return, angle
+end
+
+
 pro comp_plot_postangle, filename
   compile_opt strictarr
 
@@ -24,13 +38,8 @@ pro comp_plot_postangle, filename
     s[i].datetime    = julday(month, day, year, float(tokens[1]))
     s[i].beam        = long(tokens[2])
     s[i].wavelength  = float(tokens[3])
-    s[i].post_angle1 = float(tokens[4])
-    s[i].post_angle2 = float(tokens[5])
-
-    if (float(tokens[5]) gt 360.0) then begin
-      s[i].post_angle2 mod= 360.0
-      if (s[i].post_angle2 gt 180.0) then s[i].post_angle2 = 360.0 - s[i].post_angle2
-    endif
+    s[i].post_angle1 = comp_plot_postangle_refangle(float(tokens[4]))
+    s[i].post_angle2 = comp_plot_postangle_refangle(float(tokens[5]))
   endfor
   free_lun, lun
 
@@ -54,7 +63,8 @@ pro comp_plot_postangle, filename
 
       title = string(center_wavelengths[w], beams[b], format='(%"%0.2f (beam %d)")')
 
-      yrange = [-25.0, 50]
+      ;yrange = [-25.0, 50]
+      yrange = [-180.0, 180.0]
       plot, s[ind].datetime, s[ind].post_angle1, $
             title=string(1, title, format='(%"Post angle %d %s")'), $
             xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
@@ -62,7 +72,7 @@ pro comp_plot_postangle, filename
             xminor=12, xticks=12, yminor=1, $
             xticklen=-0.01, yticklen=-0.01, $
             xstyle=9, ystyle=9, $
-            yrange=yrange
+            yrange=yrange, psym=3
       plot, s[ind].datetime, s[ind].post_angle2, $
             title=string(2, title, format='(%"Post angle %d %s")'), $
             xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
@@ -70,7 +80,7 @@ pro comp_plot_postangle, filename
             xticklen=-0.01, yticklen=-0.01, $
             xminor=12, xticks=12, yminor=1, $
             xstyle=9, ystyle=9, $
-            yrange=yrange
+            yrange=yrange, psym=3
     endfor
   endfor
 
