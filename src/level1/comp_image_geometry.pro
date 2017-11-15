@@ -84,14 +84,12 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     calc_occulter1.x += occulter1.x
     calc_occulter1.y += occulter1.y
   
-    if (centering_diagnostics) then begin
-      mg_log, '%f, %f, %f, %f, %d', $
-              time, $
-              calc_occulter1.x + nx / 2, $
-              calc_occulter1.y + 1024 - ny / 2, $
-              calc_occulter1.r, ind1[0], $
-              name='calc_occ_ul', /debug
-    endif
+    mg_log, '%f, %f, %f, %f, %d', $
+            time, $
+            calc_occulter1.x + nx / 2, $
+            calc_occulter1.y + 1024 - ny / 2, $
+            calc_occulter1.r, ind1[0], $
+            name='calc_occ_ul', /debug
   endif
 
   ind2 = where(beam lt 0, n_minus_beam)
@@ -118,33 +116,29 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     calc_occulter2.x += occulter2.x
     calc_occulter2.y += occulter2.y
 
-    if (centering_diagnostics) then begin
-      mg_log, '%f, %f, %f, %f, %d', $
-              time, $
-              calc_occulter2.x + 1024 - nx / 2, $
-              calc_occulter2.y + ny / 2, $
-              calc_occulter2.r, $
-              ind2[0], $
-              name='calc_occ_lr', /debug
-    endif
+    mg_log, '%f, %f, %f, %f, %d', $
+            time, $
+            calc_occulter2.x + 1024 - nx / 2, $
+            calc_occulter2.y + ny / 2, $
+            calc_occulter2.r, $
+            ind2[0], $
+            name='calc_occ_lr', /debug
   endif
 
   ; write flat centers
 
-  if (centering_diagnostics) then begin
-    mg_log, '%f, %f, %f, %f', $
-            time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
-            name='flat_occ_ul', /debug
-    mg_log, '%f, %f, %f, %f', $
-            time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
-            name='flat_occ_lr', /debug
+  mg_log, '%f, %f, %f, %f', $
+          time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
+          name='flat_occ_ul', /debug
+  mg_log, '%f, %f, %f, %f', $
+          time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
+          name='flat_occ_lr', /debug
 
-    mg_log, '%d, %d, %d', $
-            sxpar(primary_header, 'FOCUS'), $
-            sxpar(primary_header, 'H-OCCULT'), $
-            sxpar(primary_header, 'V-OCCULT'), $
-            name='occulter', /debug
-  endif
+  mg_log, '%d, %d, %d', $
+          sxpar(primary_header, 'FOCUS'), $
+          sxpar(primary_header, 'H-OCCULT'), $
+          sxpar(primary_header, 'V-OCCULT'), $
+          name='occulter', /debug
 
   ; P angles of post
   pang1 = sxpar(flat_header, 'POSTANG1')
