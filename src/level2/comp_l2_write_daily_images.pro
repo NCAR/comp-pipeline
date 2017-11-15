@@ -48,41 +48,67 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
   ; read images from quick invert file
-  quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
-  quick_invert_filename = filepath(string(date_dir, wave_type, $
-                                          format=quick_invert_format), $
-                                   root=l2_process_dir)
+  waves_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
+  waves_quick_invert_filename = filepath(string(date_dir, wave_type, $
+                                                format=quick_invert_format), $
+                                         root=l2_process_dir)
+
+  synoptic_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
+  synoptic_quick_invert_filename = filepath(string(date_dir, wave_type, $
+                                                   format=quick_invert_format), $
+                                            root=l2_process_dir)
+
 
   ; use quick invert images and eliminate reading L1 files
 
-  if (~file_test(quick_invert_filename)) then begin
-    mg_log, 'synoptic quick invert file %s not found, skipping', $
-            file_basename(quick_invert_filename), $
+  waves_found = file_test(waves_quick_invert_filename)
+  if (~waves_found) then begin
+    mg_log, 'waves quick invert file %s not found', $
+            file_basename(waves_invert_filename), $
             name='comp', /debug
-
-    quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
-    quick_invert_filename = filepath(string(date_dir, wave_type, $
-                                            format=quick_invert_format), $
-                                     root=l2_process_dir)
-
-    if (~file_test(quick_invert_filename)) then begin
-      mg_log, 'waves quick invert file %s not found, skipping', $
-              file_basename(quick_invert_filename), $
-              name='comp', /debug
-      goto, skip
-    endif
   endif
 
-  fits_open, quick_invert_filename, quick_invert_fcb
-  fits_read, quick_invert_fcb, intensity, intensity_header, exten_no=1
-  fits_read, quick_invert_fcb, stks_q, stks_q_header, exten_no=2
-  fits_read, quick_invert_fcb, stks_u, stks_u_header, exten_no=3
-  fits_read, quick_invert_fcb, lpol, lpol_header, exten_no=4
-  fits_read, quick_invert_fcb, azimuth, azimuth_header, exten_no=5
-  fits_read, quick_invert_fcb, velocity, velocity_header, exten_no=6
-  fits_read, quick_invert_fcb, width, width_header, exten_no=7
-  fits_read, quick_invert_fcb, radial_azimuth, radial_azimuth_header, exten_no=8
-  fits_close, quick_invert_fcb
+  synoptic_found = file_test(synoptic_quick_invert_filename)
+  if (~synoptic_found) then begin
+    mg_log, 'synoptic quick invert file %s not found', $
+            file_basename(synoptic_quick_invert_filename), $
+            name='comp', /debug
+  endif
+
+  if (~waves_found && ~synoptic_found) then begin
+    mg_log, 'neither waves nor synoptic quick invert file found, skipping', $
+            name='comp', /warn
+    goto, skip
+  endif
+
+  dynamics_quick_invert_filename = synoptic_found $
+                                     ? synoptic_quick_invert_filename $
+                                     : waves_quick_invert_filename
+
+  fits_open, dynamics_quick_invert_filename, dynamics_quick_invert_fcb
+
+  fits_read, dynamics_quick_invert_fcb, intensity, intensity_header, exten_no=1
+  fits_read, dynamics_quick_invert_fcb, velocity, velocity_header, exten_no=6
+  fits_read, dynamics_quick_invert_fcb, width, width_header, exten_no=7
+
+  fits_close, dynamics_quick_invert_fcb
+
+  polarization_quick_invert_filename = waves_found $
+                                       ? waves_quick_invert_filename $
+                                       : synoptic_quick_invert_filename
+
+  fits_open, polarization_quick_invert_filename, polarization_quick_invert_fcb
+
+  fits_read, polarization_quick_invert_fcb, stks_q, stks_q_header, exten_no=2
+  fits_read, polarization_quick_invert_fcb, stks_u, stks_u_header, exten_no=3
+  fits_read, polarization_quick_invert_fcb, lpol, lpol_header, exten_no=4
+  fits_read, polarization_quick_invert_fcb, azimuth, azimuth_header, exten_no=5
+  fits_read, polarization_quick_invert_fcb, $
+             radial_azimuth, $
+             radial_azimuth_header, $
+             exten_no=8
+
+  fits_close, polarization_quick_invert_fcb
 
   ; create enhanced intensity
   enhanced_intensity = comp_intensity_enhancement(intensity, intensity_header)
