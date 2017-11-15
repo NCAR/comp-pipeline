@@ -1,6 +1,17 @@
 ; docformat = 'rst'
 
-pro comp_plot_centering, dir, output_filename, note
+;+
+; Plot centering for the day.
+;
+; :Params:
+;   dir : in, required, type=string
+;     directory that the centering .csv files are in
+;   output_filename : in, required, type=string
+;     filename of output plot
+;   date : in, required, type=string
+;     date for plot
+;-
+pro comp_plot_centering, dir, output_filename, date
   compile_opt strictarr
 
   calc_occ_ul = read_csv(filepath('calc_occ_ul.csv', root=dir))
@@ -19,8 +30,7 @@ pro comp_plot_centering, dir, output_filename, note
   device, decomposed=1
   !p.font = 1
 
-  ; column 1: occulter centers, column 2: field centers
-  !p.multi = [0, 2, 6, 0, 1]
+  !p.multi = [0, 1, 6, 0, 1]
 
   ; plot calculated and flat together
 
@@ -144,7 +154,7 @@ pro comp_plot_centering, dir, output_filename, note
 ;  oplot, flat_field_lr.field1, flat_field_lr.field4, color=flat_color, /noclip
 
   !p.multi = 0
-  xyouts, 0.5, 0.995, output_filename + '!C!8' + note + '!X', $
+  xyouts, 0.5, 0.995, 'Centering for ' + date, $
           alignment=0.5, charsize=1.1, /normal, font=1
 
   mg_psend

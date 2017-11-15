@@ -19,6 +19,7 @@ common comp_constants, nx, ny, $
                        gbu_percent_background_change, $
                        overlap_angle_tolerance, $
                        background_limit, $
+                       min_flat_median, $
                        int_min_thresh, int_max_thresh, $
                        diff_thresh, $
                        i_to_q_xtalk, $

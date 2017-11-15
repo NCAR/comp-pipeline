@@ -81,6 +81,9 @@ pro comp_initialize, date_dir
                                                        date_dir, options, type=4)
   background_limit = comp_initialize_readconfig('background_limit', $
                                                 date_dir, options, type=4)
+  min_flat_median = comp_initialize_readconfig('min_flat_median', $
+                                                date_dir, options, type=4)
+
 
   ; level 1 image dimensions
   nx = comp_initialize_readconfig('nx', date_dir, options, type=3)

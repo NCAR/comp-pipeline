@@ -306,9 +306,22 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
     endif
 
-    if (~create_l1) then begin
+    if (create_l1) then begin
+      mg_log, 'plotting daily engineering data', name='comp', /info
+      plot_eng_t0 = systime(/seconds)
+      if (~dry_run) then begin
+        comp_plot_engineering, date_dir
+      endif
+      plot_eng_t1 = systime(/seconds)
+      mg_log, 'total time for COMP_PLOT_ENGINEERING: %0.1f seconds', $
+              plot_eng_t1 - plot_eng_t0, $
+              name='comp', /debug
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif else begin
       mg_log, 'skipping L1 processing', name='comp', /info
-    endif
+    endelse
 
     if (distribute_l1) then begin
       mg_log, 'distributing L1 data', name='comp', /info

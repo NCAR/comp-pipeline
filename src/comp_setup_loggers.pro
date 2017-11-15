@@ -32,24 +32,22 @@ pro comp_setup_loggers_date, date_dir
                          filename=filepath(basename, root=eng_dir)
   endfor
 
-  if (centering_diagnostics) then begin
-    types = ['calc', 'flat']
-    names = ['occ_ul', 'occ_lr', 'field_ul', 'field_lr']
-    for t = 0L, n_elements(types) - 1L do begin
-      for n = 0L, n_elements(names) - 1L do begin
-        name = types[t] + '_' + names[n]
-        mg_log, name=name, logger=logger
-        logger->setProperty, format='%(message)s', $
-                             level=5, $
-                             filename=filepath(name + '.csv', root=eng_dir)
-      endfor
+  types = ['calc', 'flat']
+  names = ['occ_ul', 'occ_lr', 'field_ul', 'field_lr']
+  for t = 0L, n_elements(types) - 1L do begin
+    for n = 0L, n_elements(names) - 1L do begin
+      name = types[t] + '_' + names[n]
+      mg_log, name=name, logger=logger
+      logger->setProperty, format='%(message)s', $
+                           level=5, $
+                           filename=filepath(name + '.csv', root=eng_dir)
     endfor
+  endfor
 
-    mg_log, name='occulter', logger=logger
-    logger->setProperty, format='%(message)s', $
-                         level=5, $
-                         filename=filepath('occulter.csv', root=eng_dir)
-  endif
+  mg_log, name='occulter', logger=logger
+  logger->setProperty, format='%(message)s', $
+                       level=5, $
+                       filename=filepath('occulter.csv', root=eng_dir)
 end
 
 
