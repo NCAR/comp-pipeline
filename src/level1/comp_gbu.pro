@@ -23,7 +23,7 @@
 ;     32  background changes abruptly by more than 40% of the median background
 ;         level
 ;     64  background image contains more than 150 pixels with a value > 150
-;    128  standard deviation of intensity image - median intensity image = NAN
+;    128  standard deviation of intensity image - median intensity image = NaN
 ;         or Inf
 ;
 ; Output files::
@@ -60,7 +60,7 @@
 ; :Examples:
 ;   For example, call like this::
 ;
-;     comp_gbu, '20130531', '1074' 
+;     comp_gbu, '20130531', '1074'
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_initialize,
