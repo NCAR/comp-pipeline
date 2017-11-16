@@ -104,11 +104,14 @@ pro comp_distribute_l1, date_dir, wave_type
     if (~file_test(hpss_gateway, /directory)) then file_mkdir, hpss_gateway
 
     time_delay = '0h'
+    background_indicator = wave_type eq '1083' ? '' : '&'
     archive_script = filepath('archive_l1.sh', $
                               subdir=['..', 'scripts'], $
                               root=binary_dir)
-    cmd = string(archive_script, date_dir, wave_type, hpss_gateway, time_delay, $
-                 format='(%"%s %s %s %s %s &")')
+    cmd = string(archive_script, $
+                 date_dir, wave_type, hpss_gateway, time_delay, $
+                 background_indicator, $
+                 format='(%"%s %s %s %s %s %s")')
 
     spawn, cmd, result, error_result, exit_status=status
     if (status ne 0L) then begin
