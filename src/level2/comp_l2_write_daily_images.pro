@@ -50,12 +50,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   ; read images from quick invert file
   waves_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
   waves_quick_invert_filename = filepath(string(date_dir, wave_type, $
-                                                format=quick_invert_format), $
+                                                format=waves_quick_invert_format), $
                                          root=l2_process_dir)
 
   synoptic_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
   synoptic_quick_invert_filename = filepath(string(date_dir, wave_type, $
-                                                   format=quick_invert_format), $
+                                                   format=synoptic_quick_invert_format), $
                                             root=l2_process_dir)
 
 
