@@ -64,7 +64,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   waves_found = file_test(waves_quick_invert_filename)
   if (~waves_found) then begin
     mg_log, 'waves quick invert file %s not found', $
-            file_basename(waves_invert_filename), $
+            file_basename(waves_quick_invert_filename), $
             name='comp', /debug
   endif
 
