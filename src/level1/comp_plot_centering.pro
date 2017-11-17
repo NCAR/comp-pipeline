@@ -52,22 +52,22 @@ pro comp_plot_centering, dir, output_filename, date
 
   ;occ_radius_range = [227.0, 234.0]
   occ_ul_radius_range = [calc_occ_ul.field4 < flat_occ_ul.field4, $
-                         calc_occ_ul.field4 > flat_occ_ul.field4 )]
+                         calc_occ_ul.field4 > flat_occ_ul.field4]
   occ_lr_radius_range = [calc_occ_lr.field4 < flat_occ_lr.field4, $
-                         calc_occ_lr.field4 > flat_occ_lr.field4 )]
+                         calc_occ_lr.field4 > flat_occ_lr.field4]
   ;field_radius_range = [298.0, 305.0]
   ;ul_x_range = [286.0, 316.0]
   ul_x_range = [calc_occ_ul.field2 < flat_occ_ul.field2, $
-                calc_occ_ul.field2 > flat_occ_ul.field2 )]
+                calc_occ_ul.field2 > flat_occ_ul.field2]
   ;ul_y_range = [710.0, 740.0]
   ul_y_range = [calc_occ_ul.field3 < flat_occ_ul.field3, $
-                calc_occ_ul.field3 > flat_occ_ul.field3 )]
+                calc_occ_ul.field3 > flat_occ_ul.field3]
   ;lr_x_range = [690.0, 720.0]
   lr_x_range = [calc_occ_lr.field2 < flat_occ_lr.field2, $
-                calc_occ_lr.field2 > flat_occ_lr.field2 )]
+                calc_occ_lr.field2 > flat_occ_lr.field2]
   ;lr_y_range = [303.0, 323.0]
   lr_y_range = [calc_occ_lr.field3 < flat_occ_lr.field3, $
-                calc_occ_lr.field3 > flat_occ_lr.field3 )]
+                calc_occ_lr.field3 > flat_occ_lr.field3]
 
   ; occ UL x
   plot, calc_occ_ul.field1, calc_occ_ul.field2, /nodata, $
