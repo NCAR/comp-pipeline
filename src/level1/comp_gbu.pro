@@ -387,12 +387,12 @@ pro comp_gbu, date_dir, wave_type, error=error
   mg_log, '%d total files', n_files, name='comp', /info
   bad = where(good_files gt 0, bad_total)
   mg_log, '%d bad files', bad_total, name='comp', /info
-  if (bad_total gt 0) then begin
-    bad_existing = where(good_files gt 0 and good_files mod 2 eq 0, n_bad_existing)
-    if (n_bad_existing gt 0L) then begin
-      mg_log, 'bad: %s', strjoin(filenames[bad_existing], ', '), name='comp', /warn
-    endif
-  endif
+;  if (bad_total gt 0) then begin
+;    bad_existing = where(good_files gt 0 and good_files mod 2 eq 0, n_bad_existing)
+;    if (n_bad_existing gt 0L) then begin
+;      mg_log, 'bad: %s', strjoin(filenames[bad_existing], ', '), name='comp', /warn
+;    endif
+;  endif
 
   ; engineering plots
   eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
