@@ -38,7 +38,9 @@ pro comp_l1_check, date_dir, wave_type
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0
     overlap_angle = sxpar(primary_header, 'OVRLPANG')
-    background[f] = sxpar(primary_header, 'BACKGRND')
+
+    im_background = sxpar(primary_header, 'BACKGRND')
+    background[f] = size(im_background, /type) eq 7 ? !values.f_nan : im_background
 
     if (abs(overlap_angle - 45.0) gt overlap_angle_tolerance) then begin
       overlap_angle_warning = 1B

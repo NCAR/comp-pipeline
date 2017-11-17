@@ -384,9 +384,10 @@ pro comp_gbu, date_dir, wave_type, error=error
   free_lun, good_waves_lun
   free_lun, good_all_lun
 
-  mg_log, '%d total files', n_files, name='comp', /info
   bad = where(good_files gt 0, bad_total)
-  mg_log, '%d bad files', bad_total, name='comp', /info
+  mg_log, '%d bad files out of %d total files', $
+          bad_total, n_files, name='comp', /info
+
 ;  if (bad_total gt 0) then begin
 ;    bad_existing = where(good_files gt 0 and good_files mod 2 eq 0, n_bad_existing)
 ;    if (n_bad_existing gt 0L) then begin

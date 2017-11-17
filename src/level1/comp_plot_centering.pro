@@ -25,16 +25,16 @@ pro comp_plot_centering, dir, output_filename, date
 ;  flat_field_lr = read_csv(filepath('flat_field_lr.csv', root=dir))
 
   ind = sort(calc_occ_ul.field1)
-  calc_occ_ul = calc_occ_ul[ind]
+  for f = 0, n_tags(calc_occ_ul) - 1L do calc_occ_ul.(f) = (calc_occ_ul.(f))[ind]
 
   ind = sort(calc_occ_lr.field1)
-  calc_occ_lr = calc_occ_lr[ind]
+  for f = 0, n_tags(calc_occ_lr) - 1L do calc_occ_lr.(f) = (calc_occ_lr.(f))[ind]
 
   ind = sort(flat_occ_ul.field1)
-  flat_occ_ul = flat_occ_ul[ind]
+  for f = 0, n_tags(flat_occ_ul) - 1L do flat_occ_ul.(f) = (flat_occ_ul.(f))[ind]
 
   ind = sort(flat_occ_lr.field1)
-  flat_occ_lr = flat_occ_lr[ind]
+  for f = 0, n_tags(flat_occ_lr) - 1L do flat_occ_lr.(f) = (flat_occ_lr.(f))[ind]
 
   mg_psbegin, filename=output_filename, xsize=8.0, ysize=10.5, /inches, $
               /color, xoffset=0.0, yoffset=0.0
@@ -178,7 +178,7 @@ pro comp_plot_centering, dir, output_filename, date
 ;  oplot, flat_field_lr.field1, flat_field_lr.field4, color=flat_color, /noclip
 
   !p.multi = 0
-  xyouts, 0.9, 0.98, 'Centering for ' + date, $
+  xyouts, 0.95, 0.985, 'Centering for ' + date, $
           alignment=1.0, charsize=1.1, /normal, font=1
 
   mg_psend
@@ -206,20 +206,25 @@ end
 ;flag_name = 'centering'
 ;flag_number = 21
 
-dates = ['20150418']
-flag_name = 'expan_factor_azi'
-flag_number = 4
 
-flags = string(flag_name, flag_number, format='(%".%s%d")')
-note = 'find center from unflat corrected images; modified epoch.cfg'
+comp_plot_centering, '/hao/mahidata1/Data/CoMP/engineering.latest2/2017/10/01', $
+                     '20171001.centering2.ps', $
+                     '20171001'
 
-for d = 0L, n_elements(dates) - 1L do begin
-  dir = filepath('', subdir=comp_decompose_date(dates[d]), $
-                 root='/hao/mahidata1/Data/CoMP/engineering' + flags)
-  output_filename = string(flags, dates[d], format='(%"centering%s-%s.ps")')
+;dates = ['20150418']
+;flag_name = 'expan_factor_azi'
+;flag_number = 4
 
-  print, 'Writing to ' + output_filename
-  comp_plot_centering, dir, output_filename, note
-endfor
+;flags = string(flag_name, flag_number, format='(%".%s%d")')
+;note = 'find center from unflat corrected images; modified epoch.cfg'
+
+;for d = 0L, n_elements(dates) - 1L do begin
+;  dir = filepath('', subdir=comp_decompose_date(dates[d]), $
+;                 root='/hao/mahidata1/Data/CoMP/engineering' + flags)
+;  output_filename = string(flags, dates[d], format='(%"centering%s-%s.ps")')
+;
+;  print, 'Writing to ' + output_filename
+;  comp_plot_centering, dir, output_filename, note
+;endfor
 
 end
