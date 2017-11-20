@@ -74,7 +74,9 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
   for f = 0L, n_elements(flat_expose) - 1L do begin
     if (flat_found[f]) then begin
       flat[*, *, f] *= expose / flat_expose[f]   ; modify for exposure times
-    endif
+    endif else begin
+      mg_log, 'no flat for ext %d', f + 1L, name='comp', /warn
+    endelse
   endfor
 
   wave_type = comp_find_wavelength(wave[0], /name)
