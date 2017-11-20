@@ -4,7 +4,7 @@
 ; Find the full path to a L1 file given a date/time.
 ;
 ; :Returns:
-;   string
+;   string/strarr or `!null` if no files found
 ;
 ; :Params:
 ;   date : in, required, type=string
@@ -44,7 +44,7 @@ function comp_find_l1_file, date, wave_type, $
   base_re = _datetime + '\.comp\.' + wave_type + '\.[iquv]+\.[[:digit:]]{1,2}'
   l1_re = base_re + (keyword_set(background) ? '\.bkg\.fts' : '\.fts')
   l1_mask = stregex(file_basename(filenames), l1_re, /boolean)
-  l1_ind = where(l1_mask, count)
+  l1_ind = where(l1_mask, count, /null)
 
   count = keyword_set(all) ? count : 1L
   ind = keyword_set(all) ? l1_ind : l1_ind[0]

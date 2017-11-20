@@ -37,14 +37,11 @@ pro comp_l2_summary, date_dir, wave_type
   destination = string(year, month, day, format='(%"/%s/%s/%s/")')
 
   ; get some info
-  flist = file_basename(comp_find_l1_file(date_dir, wave_type, /all))
-  if (n_elements(flist) eq 1 and flist[0] eq '') then begin
-    no_of_files = '0'
+  flist = file_basename(comp_find_l1_file(date_dir, wave_type, /all, count=n_files))
+  if (n_files eq 0L) then begin
     start_time  = '00:00:00'
     end_time    = '00:00:00'
   endif else begin
-    no_of_files = strcompress(string(n_elements(flist)), /remove_all)
-
     start_dt = strmid(flist[0], 9, 6)
     start_time = string(strmid(start_dt, 0, 2), $
                         strmid(start_dt, 2, 2), $
@@ -58,22 +55,14 @@ pro comp_l2_summary, date_dir, wave_type
   endelse
 
   mg_log, '%d files going into info and tar for %s to %s', $
-          no_of_files, start_time, end_time, name='comp', /info
+          n_files, start_time, end_time, name='comp', /info
 
-  flist_d_tpt = file_search('*.comp.' + wave_type + '.dynamics.3.fts.gz')
-  flist_p_tpt = file_search('*.comp.' + wave_type + '.polarization.3.fts.gz')
-  if (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '') then begin
-    no_of_tpt_files = '0'
+  flist_d = file_search('*.comp.' + wave_type + '.dynamics.fts.gz')
+  flist_p = file_search('*.comp.' + wave_type + '.polarization.fts.gz')
+  if (n_elements(flist_d) eq 1 and flist_d[0] eq '') then begin
+    n_dynamics_files = 0
   endif else begin
-    no_of_tpt_files = strtrim(n_elements(flist_d_tpt), 2)
-  endelse
-
-  flist_d_fpt = file_search('*.comp.' + wave_type + '.dynamics.5.fts.gz')
-  flist_p_fpt = file_search('*.comp.' + wave_type + '.polarization.5.fts.gz')
-  if (n_elements(flist_d_fpt) eq 1 and flist_d_fpt[0] eq '') then begin
-    no_of_fpt_files = '0'
-  endif else begin
-    no_of_fpt_files = strtrim(n_elements(flist_d_fpt), 2)
+    n_dynamics_files = n_elements(flist_d)
   endelse
 
   ; write out info file
@@ -82,27 +71,16 @@ pro comp_l2_summary, date_dir, wave_type
   openw,  funit, date_dir + '.comp.' + wave_type + '.daily_summary.txt', /get_lun
   printf, funit, 'Start ' + start_time
   printf, funit, 'End ' + end_time
-  printf, funit, 'Number_of_3pt_files ' + no_of_tpt_files
-  printf, funit, 'Number_of_5pt_files ' + no_of_fpt_files
+  printf, funit, 'Number_of_files ' + n_dynamics_files
 
-  if (not (n_elements(flist_d_tpt) eq 1 and flist_d_tpt[0] eq '')) then begin
-    for ii = 0L, n_elements(flist_d_tpt) - 1L do begin
-      printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + flist_d_tpt[ii]
+  if (not (n_elements(flist_d) eq 1 and flist_d[0] eq '')) then begin
+    for i = 0L, n_elements(flist_d) - 1L do begin
+      printf, funit, archive_dir, destination, flist_d[i], $
+              format='(%"http://mlso.hao.ucar.edu%s%s%s")'
     endfor
-    for ii = 0L, n_elements(flist_p_tpt) - 1L do begin
-      printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + flist_p_tpt[ii]
-    endfor
-  endif
-  if (not (n_elements(flist_d_fpt) eq 1 and flist_d_fpt[0] eq '')) then begin
-    for ii = 0L, n_elements(flist_d_fpt) - 1L do begin
-      printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + flist_d_fpt[ii]
-    endfor
-    for ii = 0L, n_elements(flist_p_fpt) - 1L do begin
-      printf, funit, 'http://mlso.hao.ucar.edu' + archive_dir + destination $
-                + flist_p_fpt[ii]
+    for i = 0L, n_elements(flist_p) - 1L do begin
+      printf, funit, archive_dir, destination, flist_p[i], $
+              format='(%"http://mlso.hao.ucar.edu%s%s%s")'
     endfor
   endif
 

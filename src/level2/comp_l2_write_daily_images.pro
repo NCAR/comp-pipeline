@@ -119,7 +119,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   comp_make_mask, date_dir, intensity_header, mask
   good_ind = where(mask eq 1 $
                      and intensity gt int_min_thresh $
-                     and intensity lt int_max_thresh, complement=mask_ind)
+                     and intensity lt int_max_thresh, $
+                   complement=mask_ind, ncomplement=n_mask_ind)
 
   p   = sqrt(stks_q^2. + stks_u^2.)
   poi = float(p) / float(intensity)
@@ -179,7 +180,9 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   ; plot intensity and enhanced intensity
   comp_aia_lct, wave=193, /load
   int = sqrt(intensity)
-  int = bytscl(int, min=1, max=5)
+  display_min_i = 0.3
+  display_max_i = 4.0
+  int = bytscl(int, min=display_min_i, max=display_max_i)
   tv, int, 4 * 5, 4 * 165
   tv, enhanced_intensity, 4 * 165, 4 * 165
 
@@ -250,7 +253,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
              font=-1, divisions=4, format='(F5.1)'
   comp_aia_lct, wave=193, /load
   colorbar2, position=[0.092, 0.66, 0.092 + 0.158, 0.66 + 0.015], $
-             charsize=1.25, title='sqrt(intensity)', range=[1, 5], font=-1, $
+             charsize=1.25, title='sqrt(intensity)', $
+             range=[display_min_i, display_max_i], font=-1, $
              divisions=4
   loadct, 4, /silent
   tvlct, r, g, b, /get
@@ -321,11 +325,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   loadct, 0, /silent
   qoi = float(stks_q) / float(intensity)
   qoi[mask_ind] = 0.
-  qoi = bytscl(qoi, min=-0.2, max=0.2)
+  display_min_q = -0.2
+  display_max_q = 0.2
+  qoi = bytscl(qoi, min=display_min_q, max=display_max_q)
   qoi[mask_ind] = 0B
   tv, qoi
   colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
-             range=[-0.3, 0.3], font=-1, divisions=4, format='(F6.2)'
+             range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.2)'
   xyouts, 4 * 66, 4 * 78, 'Q/I', chars=6, /device, color=255
   !p.font = -1
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
@@ -357,11 +363,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   loadct, 0, /silent
   uoi = float(stks_u) / float(intensity)
   uoi[mask_ind] = 0.
-  uoi = bytscl(uoi, min=-0.2, max=0.2)
+  display_min_u = -0.2
+  display_max_u = 0.2
+  uoi = bytscl(uoi, min=display_min_u, max=display_max_u)
   uoi[mask_ind] = 0.
   tv, uoi
   colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
-             range=[-0.3, 0.3], font=-1, divisions=4, format='(F6.2)'
+             range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.2)'
   xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255
   !p.font = -1
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
@@ -576,6 +584,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   bad_ind = where(radial_azimuth lt -90, n_bad_ind)
   rad_azi = bytscl(radial_azimuth, min=-90.0, max=90.0, top=ncolors - 1)
   if (n_bad_ind gt 0L) then rad_azi[bad_ind] = 254B
+  if (n_mask_ind gt 0L) then rad_azi[mask_ind] = 254B
   tv, rad_azi
   colorbar2, position=colbarpos, charsize=1.25, title='Radial Azimuth [degrees]',$
              range=[-90, 90], font=-1, divisions=6, color=255, ncolors=ncolors

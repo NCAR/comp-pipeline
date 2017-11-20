@@ -166,11 +166,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     if (qu_files[ii] eq 1) then begin
       qoi = stks_q / intensity
       qoi[unmasked] = 0.
-      qoi = bytscl(qoi, min=-0.15, max=0.15)
+      display_min_q = -0.2
+      display_max_q = 0.2
+      qoi = bytscl(qoi, min=display_min_q, max=display_max_q)
       qoi[unmasked] = 0.
       tv, qoi
       colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
-                 range=[-0.15, 0.15], font=-1, divisions=4, format='(F6.3)'
+                 range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.3)'
       xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=6, /device, color=255
       !p.font = -1
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
@@ -203,11 +205,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     if (qu_files[ii] eq 1) then begin
       uoi = stks_u/intensity
       uoi[unmasked] = 0.
-      uoi = bytscl(uoi, min=-0.15, max=0.15)
+      display_min_u = -0.2
+      display_max_u = 0.2
+      uoi = bytscl(uoi, min=display_min_u, max=display_max_u)
       uoi[unmasked] = 0.
       tv, uoi
       colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
-                 range=[-0.15, 0.15], font=-1, divisions=4, format='(F6.3)'
+                 range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.3)'
       xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255
       !p.font = -1
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
@@ -314,11 +318,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; plot intensity
     comp_aia_lct, wave=193, /load
     int = sqrt(intensity)
-    int = bytscl(int, min=1, max=5)
+    display_min_i = 0.3
+    display_max_i = 4.0
+    int = bytscl(int, min=display_min_i, max=display_max_i)
     if ((size(bad_val))[0] eq 1) then int[bad_val] = 0
     tv, int
     colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
-               range=[1, 5], font=-1, divisions=4
+               range=[display_min_i, display_max_i], font=-1, divisions=4
     loadct, 0, /silent
     xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
     !p.font = -1
