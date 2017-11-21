@@ -142,6 +142,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_data = dblarr(nx, ny, 3)
     comp_make_mask, date, hdr, mask
     mask = double(mask)
+    bad_pixels_mask = bytarr(nx, ny)
 
     for xx = 0L, nx - 1L do begin
       for yy = 0L, ny - 1L do begin
@@ -153,14 +154,17 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           sub_bad = where(profile le 0, n_bad)
           if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
-          if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh && profile[0] gt 0.0 && profile[2] gt 0.0) then begin
+          if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh && profile[0] gt 0.01 && profile[2] gt 0.01) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
           endif else begin
+            bad_pixels_mask[xx, yy] = 1B
             i_cent        = 0D
             doppler_shift = 0D
             width         = 0D
           endelse
-          if (abs(i_cent - profile[1]) gt diff_thresh) then begin
+
+          if (abs(i_cent - profile[1]) gt 1.5 * profile[1]) then begin
+            bad_pixels_mask[xx, yy] = 1B
             temp_data[xx, yy, 0] = 0D
             temp_data[xx, yy, 1] = 0D
             temp_data[xx, yy, 2] = 0D
@@ -195,6 +199,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_corr_velo = reform(post_corr[*, *, 1])
     temp_velo = reform((temp_data[*, *, 1] - temptrend) / rest * c)
     temp_line_width = sqrt(2.) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
+
+    bad_pixels = where(bad_pixels_mask, n_bad_pixels)
+    if (n_bad_pixels gt 0L) then begin
+      temp_velo[bad_pixesl] = 0.0D
+      temp_line_width[bad_pixesl] = 0.0D
+    endif
 
     temp_int[thresh_masked]        = 0D
     temp_velo[thresh_masked]       = 0D

@@ -185,6 +185,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, i_cent
   dop += rest
+
   ; TODO: should this be divided by sqrt(2.0) to give sigma?
   width *= c / wave[wave_indices[1]]
 
@@ -192,9 +193,17 @@ pro comp_quick_invert, date_dir, wave_type, $
   pre_corr[*, *, 0] = i_cent
   pre_corr[*, *, 1] = dop
 
-  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
+  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend, v1_corr
   corrected_dop = reform(post_corr[*, *, 1])
   corrected_dop[zero] = !values.f_nan
+
+  good_pixel_mask = (i2 gt int_min_thresh) and (i2 lt int_max_thresh) and (i1 gt 0.01) and (i3 gt 0.01)
+  good_pixels = where(good_pixel_mask, complement=bad_pixels, ncomplement=n_bad_pixels)
+  if (n_bad_pixels gt 0L) then dop[bad_pixels] = 0.0
+
+  ; difference between calculated peak intensity and measured is not too great
+  ind = where(abs(i_cent - i2) gt 1.5 * i2, count)
+  if (count gt 0L) then dop[ind] = 0.0
 
   ; write fit parameters to output file
 
@@ -239,8 +248,10 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'V1_CORR', v1_corr, ' v1_corr'
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
 
+  sxdelpar, header, 'V1_CORR'
   sxaddpar, header, 'DATAMIN', min(width, /nan), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(width, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, width, header, extname='Line Width'

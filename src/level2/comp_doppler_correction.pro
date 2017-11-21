@@ -26,7 +26,7 @@
 ;   see git log for recent changes
 ;-
 pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
-                             temptrend
+                             temptrend, v1_corr
   compile_opt strictarr
   @comp_constants_common
 
@@ -46,7 +46,7 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
   residualtrend = fltarr(nx)
   for i = 0L, nx - 1L do begin
     ; exclude pixels with no data or low S/N data and also bad velocity data
-    sub_good = where(fit_arr_in[i, *, 0] ge 2 and fit_arr_in[i, *, 1] gt 0, $
+    sub_good = where(fit_arr_in[i, *, 0] ge int_min_thresh + 1 and fit_arr_in[i, *, 1] gt 0, $
                      n_good)
     if (n_good ne 0) then begin
       residualtrend[i] = median(fit_arr_in[i, sub_good, 1])
@@ -68,7 +68,8 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
     ; eliminate the east-west trend
     fit_arr_in[*, *, 1] = reform(fit_arr_in[*, *, 1]) - resitren
   endif
-  sub = where(reform(fit_arr_in[*,*,0]) ge 2) ;exclude pixels with no data or low S/N data
+
+  sub = where(reform(fit_arr_in[*,*,0]) ge int_min_thresh + 1) ;exclude pixels with no data or low S/N data
   if ((size(sub))[0] eq 1) then begin
     ; may select proper ranges to avoid eruptive events, e.g.,
     ; v1=reform(fit_arr_in[300:610,0:619,1,t])
