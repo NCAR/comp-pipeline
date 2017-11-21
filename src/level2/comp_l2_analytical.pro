@@ -202,8 +202,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     bad_pixels = where(bad_pixels_mask, n_bad_pixels)
     if (n_bad_pixels gt 0L) then begin
-      temp_velo[bad_pixesl] = 0.0D
-      temp_line_width[bad_pixesl] = 0.0D
+      temp_velo[bad_pixels] = 0.0D
+      temp_line_width[bad_pixels] = 0.0D
     endif
 
     temp_int[thresh_masked]        = 0D
