@@ -324,7 +324,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     if ((size(bad_val))[0] eq 1) then int[bad_val] = 0
     tv, int
     colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
-               range=[display_min_i, display_max_i], font=-1, divisions=4
+               range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
     loadct, 0, /silent
     xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
     !p.font = -1

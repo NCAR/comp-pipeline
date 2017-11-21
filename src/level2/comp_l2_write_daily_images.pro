@@ -254,7 +254,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   comp_aia_lct, wave=193, /load
   colorbar2, position=[0.092, 0.66, 0.092 + 0.158, 0.66 + 0.015], $
              charsize=1.25, title='sqrt(intensity)', $
-             range=[display_min_i, display_max_i], font=-1, $
+             range=[display_min_i, display_max_i], format='(F0.1)', font=-1, $
              divisions=4
   loadct, 4, /silent
   tvlct, r, g, b, /get
@@ -436,7 +436,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   comp_aia_lct, wave=193, /load
   tv, int
   colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
-             range=[display_min_i, display_max_i], font=-1, divisions=4
+             range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
   loadct, 0, /silent
   xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
   !p.font = -1
@@ -634,3 +634,17 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   mg_log, 'done', name='comp', /info
 end
 
+
+; main-level example program
+
+date = '20171001'
+config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+comp_initialize, date
+comp_configuration, config_filename=config_filename
+
+comp_l2_write_daily_images, date, '1074'
+
+end
