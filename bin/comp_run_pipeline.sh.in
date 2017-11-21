@@ -5,9 +5,9 @@ umask 0002
 
 SCRIPT_LOC=$(readlink -f $0)
 
-PIPE_DIR=$(dirname ${SCRIPT_LOC})
+PIPE_DIR=$(dirname $(dirname ${SCRIPT_LOC}))
 
-IDL=/opt/share/exelis/idl82/bin/idl
+IDL=@IDL_EXECUTABLE@
 
 # this prevents IDL_DEFAULT in the IDL_PATH from being interpreted as using
 # other versions of IDL
