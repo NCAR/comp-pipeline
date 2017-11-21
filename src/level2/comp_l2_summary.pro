@@ -71,7 +71,7 @@ pro comp_l2_summary, date_dir, wave_type
   openw,  funit, date_dir + '.comp.' + wave_type + '.daily_summary.txt', /get_lun
   printf, funit, 'Start ' + start_time
   printf, funit, 'End ' + end_time
-  printf, funit, 'Number_of_files ' + n_dynamics_files
+  printf, funit, n_dynamics_files, format='(%"Number_of_files %d")'
 
   if (not (n_elements(flist_d) eq 1 and flist_d[0] eq '')) then begin
     for i = 0L, n_elements(flist_d) - 1L do begin
