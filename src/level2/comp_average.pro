@@ -118,8 +118,9 @@ pro comp_average, date_dir, wave_type, $
     return
   endif
 
-  mg_log, 'averaging %d files: %s', n_files, strjoin(files, ', '), $
-          name='comp', /info
+  mg_log, 'averaging %d files', n_files, name='comp', /info
+  mg_log, 'files to average: %s', strjoin(files, ', '), $
+          name='comp', /debug
 
   ; loop over filenames and determine number of each images for each Stokes
   ; parameter
