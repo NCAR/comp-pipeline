@@ -436,7 +436,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   comp_aia_lct, wave=193, /load
   tv, int
   colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
-             range=[1, 5], font=-1, divisions=4
+             range=[display_min_i, display_max_i], font=-1, divisions=4
   loadct, 0, /silent
   xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
   !p.font = -1
