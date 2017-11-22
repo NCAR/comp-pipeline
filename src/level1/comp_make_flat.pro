@@ -316,9 +316,6 @@ pro comp_make_flat, date_dir, error=error
                 opalfile, uniq_waves[i], name='comp', /warn
         mg_log, '  %0.2f (flat median) < %0.2f (minimum theshold)', $
                 medflat, threshold, name='comp', /warn
-        mg_log, '  min_flat_median: %0.2f, expose: %0.2f, transmission correction: %0.2f', $
-                min_flat_median, expose, transmission_correction, $
-                name='comp', /warn
         continue
       endif
       
