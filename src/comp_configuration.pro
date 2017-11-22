@@ -173,12 +173,21 @@ pro comp_configuration, config_filename=config_filename
                                                 /boolean, default=1B)
 
   ; L2 averaging
-  averaging_max_n_files           = config->get('max_n_files', $
-                                                section='averaging', $
-                                                default=50, type=3)
-  averaging_min_n_cluster_files    = config->get('min_n_cluster_files', $
-                                                 section='averaging', $
-                                                 default=40, type=3)
+  averaging_max_n_waves_files           = config->get('max_n_waves_files', $
+                                                      section='averaging', $
+                                                      default=60, type=3)
+  averaging_max_n_synoptic_files           = config->get('max_n_synoptic_files', $
+                                                         section='averaging', $
+                                                         default=40, type=3)
+  averaging_max_n_combined_files           = config->get('max_n_combined_files', $
+                                                         section='averaging', $
+                                                         default=40, type=3)
+  averaging_min_n_cluster_waves_files    = config->get('min_n_cluster_waves_files', $
+                                                       section='averaging', $
+                                                       default=40, type=3)
+  averaging_min_n_cluster_synoptic_files    = config->get('min_n_cluster_synoptic_files', $
+                                                          section='averaging', $
+                                                          default=30, type=3)
   averaging_min_n_qu_files         = config->get('min_n_qu_files', $
                                                  section='averaging', $
                                                  default=4, type=3)

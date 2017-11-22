@@ -65,9 +65,12 @@ common comp_config, doi_1074,$
                     make_flat_fill, $
                     make_flat_spectral_correction, $
                     cache_flats, $
-                    averaging_max_n_files, $
+                    averaging_max_n_waves_files, $
+                    averaging_max_n_synoptic_files, $
+                    averaging_max_n_combined_files, $
                     averaging_min_n_cluster_files, $
-                    averaging_min_n_qu_files, $
+                    averaging_min_n_qu_waves_files, $
+                    averaging_min_n_qu_synoptic_files, $
                     averaging_max_cadence_interval, $
                     averaging_max_n_noncluster_files, $
                     compute_mean, $

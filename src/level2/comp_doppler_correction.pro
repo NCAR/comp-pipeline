@@ -26,7 +26,7 @@
 ;   see git log for recent changes
 ;-
 pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
-                             temptrend, v1_corr
+                             temptrend
   compile_opt strictarr
   @comp_constants_common
 
@@ -46,9 +46,10 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
   residualtrend = fltarr(nx)
   for i = 0L, nx - 1L do begin
     ; exclude pixels with no data or low S/N data and also bad velocity data
-    sub_good = where(fit_arr_in[i, *, 0] ge int_min_thresh + 1 and fit_arr_in[i, *, 1] gt 0, $
+    sub_good = where(fit_arr_in[i, *, 0] ge int_min_thresh + 1 $
+                       and fit_arr_in[i, *, 1] gt 0, $
                      n_good)
-    if (n_good ne 0) then begin
+    if (n_good ne 10L) then begin
       residualtrend[i] = median(fit_arr_in[i, sub_good, 1])
     endif else residualtrend[i] = rest
   endfor
@@ -78,7 +79,7 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
     temptrend = v1_corr
   endif else begin
     v1_corr = 0.
-    temptrend = rest
+    temptrend = 0.
   endelse
 
   ; eliminate the temporal trend

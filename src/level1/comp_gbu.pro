@@ -16,13 +16,13 @@
 ;
 ;     1   data doesn't exist on disk but is in inventory file
 ;     2   3 standard wavelengths not found (not necessarily bad data)
-;     4   background > 30 ppm
-;     8   background anamolously low, defined as < 4 ppm  
+;     4   background > 20 ppm
+;     8   background anamolously low, defined as < 1 ppm  
 ;     16  standard deviation of intensity image - median intensity
 ;         image > 2.5 ppm
 ;     32  background changes abruptly by more than 40% of the median background
 ;         level
-;     64  background image contains more than 150 pixels with a value > 150
+;     64  background image contains more than 150 pixels with a value > 70
 ;    128  standard deviation of intensity image - median intensity image = NaN
 ;         or Inf
 ;
@@ -240,12 +240,15 @@ pro comp_gbu, date_dir, wave_type, error=error
     fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
 
     ; reject file if there are more than 150 background pixels with a level of
-    ; >150
+    ; >70
     good = where(mask eq 1)
-    g150 = where(dat_back[good] gt 150, g150_count)
+    gt_threshold = where(dat_back[good] gt gbu_background_threshold, gt_threshold_count)
 
     if (wave_type ne '1083') then begin
-      if (g150_count gt 150) then begin
+      if (gt_threshold_count gt gbu_threshold_count) then begin
+        mg_log, '%d pixels > %0.1f, reject %s', $
+                gt_theshold_count, gbu_background_threshold, str, $
+                name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 64
       endif
     endif

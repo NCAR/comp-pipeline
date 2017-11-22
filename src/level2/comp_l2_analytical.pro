@@ -196,18 +196,20 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     pre_corr[*, *, 0] = temp_int
     pre_corr[*, *, 1] = temp_velo
     comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
+    if (abs(temptrend) gt 0.01) then begin
+      mg_log, 'potential bad doppler correction: temptrend = %f', temptrend, $
+              name='comp', /warn
+    endif
     temp_corr_velo = reform(post_corr[*, *, 1])
-    temp_velo = reform((temp_data[*, *, 1] - temptrend) / rest * c)
     temp_line_width = sqrt(2.) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
 
     bad_pixels = where(bad_pixels_mask, n_bad_pixels)
     if (n_bad_pixels gt 0L) then begin
-      temp_velo[bad_pixels] = 0.0D
+      temp_corr_velo[bad_pixels] = 0.0D
       temp_line_width[bad_pixels] = 0.0D
     endif
 
     temp_int[thresh_masked]        = 0D
-    temp_velo[thresh_masked]       = 0D
     temp_corr_velo[thresh_masked]  = 0D
     temp_line_width[thresh_masked] = 0D
     int_enh[thresh_masked]         = 0.0D

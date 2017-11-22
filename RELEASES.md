@@ -17,3 +17,6 @@
   verfify processing of past days
 1.3.1
   velocity calculation fixes
+  fixed L2 distribution bug
+  revised GBU
+  plot centering diagnostics by wave type

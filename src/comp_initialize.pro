@@ -103,7 +103,12 @@ pro comp_initialize, date_dir
                                              date_dir, options, type=4, default=2.5)
   gbu_percent_background_change = comp_initialize_readconfig('gbu_percent_background_change', $
                                                              date_dir, options, type=4, default=0.4)
-
+  gbu_background_threshold = comp_initialize_readconfig('gbu_background_threshold', $
+                                                        date_dir, options, $
+                                                        type=4, default=70.0)
+  gbu_threshold_count = comp_initialize_readconfig('gbu_threshold_count', $
+                                                   date_dir, options, $
+                                                   type=3, default=150)
 
   ; millionths of solar disk intensity
   int_min_thresh  = comp_initialize_readconfig('int_min_thresh', date_dir, options, type=4)

@@ -17,6 +17,8 @@ common comp_constants, nx, ny, $
                        gbu_med_background, $
                        gbu_max_sigma, $
                        gbu_percent_background_change, $
+                       gbu_background_threshold, $
+                       gbu_threshold_count, $
                        overlap_angle_tolerance, $
                        background_limit, $
                        min_flat_median, $
