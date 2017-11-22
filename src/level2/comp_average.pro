@@ -397,7 +397,7 @@ pro comp_average, date_dir, wave_type, $
 
         nans = where(finite(med, /nan), count)
         if (count gt 0) then begin
-          mg_log, 'found NaNs in median result', name='comp', /warn
+          mg_log, 'found %d NaNs in median result', count, name='comp', /warn
         endif
 
         fits_write, fcbmed, med, header, extname=ename
