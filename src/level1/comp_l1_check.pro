@@ -28,6 +28,7 @@ pro comp_l1_check, date_dir, wave_type
   endif
 
   n_images_bad_temp = 0L
+  n_images_bad_filttemp = 0L
   overlap_angle_warning = 0B
   background = fltarr(n_l1_files)
 
@@ -53,14 +54,24 @@ pro comp_l1_check, date_dir, wave_type
     
     for e = 1L, fcb.nextend do begin
       fits_read, fcb, date, header, exten_no=e
+
       lcvr6temp = sxpar(header, 'LCVR6TMP')
-      ; TODO: check other temps to check? what is a good temp range?
       min_lcvr6temp = 25.0
       max_lcvr6temp = 35.0
       if (lcvr6temp lt min_lcvr6temp || lcvr6temp gt max_lcvr6temp) then begin
         n_images_bad_temp += 1
         mg_log, 'LCVR6 temp %0.1f outside of normal range %0.1f-%0.1f', $
                 lcvr6temp, min_lcvr6temp, max_lcvr6temp, $
+                name='comp', /warn
+      endif
+
+      filttemp = sxpar(header, 'FILTTEMP')
+      min_filttemp = 25.0
+      max_filttemp = 35.0
+      if (filttemp lt min_filttemp || filttemp gt max_filttemp) then begin
+        n_images_bad_filttemp += 1
+        mg_log, 'filter temp %0.1f outside of normal range %0.1f-%0.1f', $
+                filttemp, min_filttemp, max_filttemp, $
                 name='comp', /warn
       endif
     endfor
@@ -77,7 +88,8 @@ pro comp_l1_check, date_dir, wave_type
   send_warning = overlap_angle_warning $
                    || (med_background gt background_limit) $
                    || (n_images_off_detector gt 0L) $
-                   || (n_images_bad_temp gt 0L)
+                   || (n_images_bad_temp gt 0L) $
+                   || (n_images_bad_filttemp gt 0L)
   if (send_warning && notification_email ne '') then begin
     body = list()
     if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
@@ -91,6 +103,10 @@ pro comp_l1_check, date_dir, wave_type
     if (n_images_bad_temp gt 0L) then begin
       body->add, string(n_images_bad_temp, $
                         format='(%"%d images with bad temperature (LCVR6TMP)")')
+    endif
+    if (n_images_bad_filttemp gt 0L) then begin
+      body->add, string(n_images_bad_filttemp, $
+                        format='(%"%d images with bad temperature (FILTTEMP)")')
     endif
 
     body->add, ''
