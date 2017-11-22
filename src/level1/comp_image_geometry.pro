@@ -32,6 +32,8 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
                          cover, cal_pol, cal_ret
   mg_log, 'beams: %s', strjoin(strtrim(beam, 2), ','), name='comp', /debug
 
+  wave_type = comp_find_wavelength(wave, /name)
+
   ; get the time in the format preferred by read_flats
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
@@ -84,7 +86,8 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     calc_occulter1.x += occulter1.x
     calc_occulter1.y += occulter1.y
   
-    mg_log, '%f, %f, %f, %f, %d', $
+    mg_log, '%s, %f, %f, %f, %f, %d', $
+            wave_type, $
             time, $
             calc_occulter1.x + nx / 2, $
             calc_occulter1.y + 1024 - ny / 2, $
@@ -116,7 +119,8 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
     calc_occulter2.x += occulter2.x
     calc_occulter2.y += occulter2.y
 
-    mg_log, '%f, %f, %f, %f, %d', $
+    mg_log, '%s, %f, %f, %f, %f, %d', $
+            wave_type, $
             time, $
             calc_occulter2.x + 1024 - nx / 2, $
             calc_occulter2.y + ny / 2, $
@@ -127,14 +131,17 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
 
   ; write flat centers
 
-  mg_log, '%f, %f, %f, %f', $
-          time, occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
+  mg_log, '%s, %f, %f, %f, %f', $
+          wave_type, time, $
+          occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
           name='flat_occ_ul', /debug
-  mg_log, '%f, %f, %f, %f', $
-          time, occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
+  mg_log, '%s, %f, %f, %f, %f', $
+          wave_type, time, $
+          occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
           name='flat_occ_lr', /debug
 
-  mg_log, '%d, %d, %d', $
+  mg_log, '%s, %d, %d, %d', $
+          wave_type, $
           sxpar(primary_header, 'FOCUS'), $
           sxpar(primary_header, 'H-OCCULT'), $
           sxpar(primary_header, 'V-OCCULT'), $

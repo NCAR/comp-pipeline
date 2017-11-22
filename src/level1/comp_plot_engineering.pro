@@ -6,11 +6,13 @@
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
+;   wave_type : in, required, type=string
+;     wavelength to process, '1074', '1079', etc.
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_plot_engineering, date_dir
+pro comp_plot_engineering, date_dir, wave_type
   compile_opt strictarr
   @comp_config_common
 
@@ -18,7 +20,9 @@ pro comp_plot_engineering, date_dir
 
   mg_log, 'plotting daily centering values', name='comp', /info
   comp_plot_centering, eng_dir, $
-                       filepath(string(date_dir, format='(%"%s.centering.ps")'), $
+                       filepath(string(date_dir, wave_type, $
+                                       format='(%"%s.centering.%s.ps")'), $
                                 root=eng_dir), $
-                       date_dir
+                       date_dir, $
+                       wave_type
 end

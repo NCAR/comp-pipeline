@@ -311,15 +311,18 @@ pro comp_run_pipeline, config_filename=config_filename
     endif
 
     if (create_l1) then begin
-      mg_log, 'plotting daily engineering data', name='comp', /info
-      plot_eng_t0 = systime(/seconds)
-      if (~dry_run) then begin
-        comp_plot_engineering, date_dir
-      endif
-      plot_eng_t1 = systime(/seconds)
-      mg_log, 'total time for COMP_PLOT_ENGINEERING: %0.1f seconds', $
-              plot_eng_t1 - plot_eng_t0, $
-              name='comp', /debug
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        mg_log, 'plotting daily %s engineering data', process_wavelengths[w], $
+                name='comp', /info
+        plot_eng_t0 = systime(/seconds)
+        if (~dry_run) then begin
+          comp_plot_engineering, date_dir, wave_type
+        endif
+        plot_eng_t1 = systime(/seconds)
+        mg_log, 'total time for COMP_PLOT_ENGINEERING: %0.1f seconds', $
+                plot_eng_t1 - plot_eng_t0, $
+                name='comp', /debug
+      endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
