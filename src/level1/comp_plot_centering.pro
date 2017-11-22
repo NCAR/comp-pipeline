@@ -194,7 +194,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
 ;  oplot, flat_field_lr.time, flat_field_lr.r, color=flat_color, /noclip
 
   !p.multi = 0
-  xyouts, 0.95, 0.985, 'Centering for ' + date, $
+  xyouts, 0.95, 0.985, $
+          string(date, wave_type, format='(%"Centering for %s (%s nm))'), $
           alignment=1.0, charsize=1.1, /normal, font=1
 
   mg_psend
