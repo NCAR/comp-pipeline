@@ -316,7 +316,7 @@ pro comp_run_pipeline, config_filename=config_filename
                 name='comp', /info
         plot_eng_t0 = systime(/seconds)
         if (~dry_run) then begin
-          comp_plot_engineering, date_dir, wave_type
+          comp_plot_engineering, date_dir, process_wavelengths[w]
         endif
         plot_eng_t1 = systime(/seconds)
         mg_log, 'total time for COMP_PLOT_ENGINEERING: %0.1f seconds', $
