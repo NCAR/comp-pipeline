@@ -188,9 +188,12 @@ pro comp_configuration, config_filename=config_filename
   averaging_min_n_cluster_synoptic_files    = config->get('min_n_cluster_synoptic_files', $
                                                           section='averaging', $
                                                           default=30, type=3)
-  averaging_min_n_qu_files         = config->get('min_n_qu_files', $
-                                                 section='averaging', $
-                                                 default=4, type=3)
+  averaging_min_n_qu_waves_files         = config->get('min_n_qu_waves_files', $
+                                                       section='averaging', $
+                                                       default=4, type=3)
+  averaging_min_n_qu_synoptic_files         = config->get('min_n_qu_synoptic_files', $
+                                                          section='averaging', $
+                                                          default=4, type=3)
   averaging_max_cadence_interval   = config->get('max_cadence_interval', $
                                                  section='averaging', $
                                                  /extract, type=4, $

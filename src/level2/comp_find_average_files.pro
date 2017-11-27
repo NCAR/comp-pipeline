@@ -124,7 +124,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
     if (total(qu_mask, /integer) lt min_n_qu_files) then begin
       mg_log, '%d QU files < MIN_N_QU_FILES (%d)', $
               total(qu_mask, /integer), $
-              min_n_qu_files, $
+              min_n_qu_synoptic_files, $
               name='comp', /warn
 
       count = 0L
@@ -305,19 +305,21 @@ function comp_find_average_files, date_dir, wave_type, $
 
   for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
     interval = averaging_max_cadence_interval[mci]
-    min_n_qu_files = averaging_min_n_qu_files
     case 1 of
       keyword_set(synoptic): begin
           max_n_files = averaging_max_n_synoptic_files
           min_n_cluster_files = averaging_min_n_cluster_synoptic_files
+          min_n_qu_files = averaging_min_n_qu_synoptic_files
         end
       keyword_set(combined): begin
           max_n_files = averaging_max_n_combined_files
           min_n_cluster_files = averaging_min_n_cluster_synoptic_files
+          min_n_qu_files = averaging_min_n_qu_synoptic_files
         end
       else: begin
           max_n_files = averaging_max_n_waves_files
           min_n_cluster_files = averaging_min_n_cluster_waves_files
+          min_n_qu_files = averaging_min_n_qu_waves_files
         end
     endcase
 
