@@ -22,3 +22,5 @@
   plot centering diagnostics by wave type
 1.3.2
   fix for averaging parameters
+1.3.3
+  additional fix for averaging parameters

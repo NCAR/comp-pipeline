@@ -68,7 +68,8 @@ common comp_config, doi_1074,$
                     averaging_max_n_waves_files, $
                     averaging_max_n_synoptic_files, $
                     averaging_max_n_combined_files, $
-                    averaging_min_n_cluster_files, $
+                    averaging_min_n_cluster_waves_files, $
+                    averaging_min_n_cluster_synoptic_files, $
                     averaging_min_n_qu_waves_files, $
                     averaging_min_n_qu_synoptic_files, $
                     averaging_max_cadence_interval, $
