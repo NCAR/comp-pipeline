@@ -24,3 +24,5 @@
   fix for averaging parameters
 1.3.3
   additional fix for averaging parameters
+1.3.4
+  fix for MEDIAN error in doppler correction

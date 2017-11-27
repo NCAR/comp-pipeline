@@ -50,7 +50,7 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
                        and fit_arr_in[i, *, 1] gt 0, $
                      n_good)
     if (n_good ne 10L) then begin
-      residualtrend[i] = median(fit_arr_in[i, sub_good, 1])
+      residualtrend[i] = median([fit_arr_in[i, sub_good, 1]])
     endif else residualtrend[i] = rest
   endfor
 
