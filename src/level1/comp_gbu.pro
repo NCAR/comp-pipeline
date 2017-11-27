@@ -247,7 +247,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     if (wave_type ne '1083') then begin
       if (gt_threshold_count gt gbu_threshold_count) then begin
         mg_log, '%d pixels > %0.1f, reject %s', $
-                gt_theshold_count, gbu_background_threshold, str, $
+                gt_threshold_count, gbu_background_threshold, str, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 64
       endif

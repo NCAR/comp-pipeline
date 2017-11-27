@@ -26,3 +26,5 @@
   additional fix for averaging parameters
 1.3.4
   fix for MEDIAN error in doppler correction
+1.3.5
+  fix typo in log message variable in GBU
