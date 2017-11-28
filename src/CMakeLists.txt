@@ -1,4 +1,5 @@
 add_subdirectory(common)
+add_subdirectory(database)
 add_subdirectory(level1)
 add_subdirectory(level2)
 
