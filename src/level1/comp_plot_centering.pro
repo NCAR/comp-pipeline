@@ -26,11 +26,13 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
 ;  flat_field_ul = read_csv(filepath('flat_field_ul.csv', root=dir))
 ;  flat_field_lr = read_csv(filepath('flat_field_lr.csv', root=dir))
 
-  names = ['wave_type', 'time', 'x', 'y', 'r', 'ind']
-  calc_occ_ul = mg_convert_structarr(calc_occ_ul, field_names=names)
-  calc_occ_lr = mg_convert_structarr(calc_occ_lr, field_names=names)
-  flat_occ_ul = mg_convert_structarr(flat_occ_ul, field_names=names)
-  flat_occ_lr = mg_convert_structarr(flat_occ_lr, field_names=names)
+  calc_names = ['wave_type', 'time', 'x', 'y', 'r', 'ind']
+  calc_occ_ul = mg_convert_structarr(calc_occ_ul, field_names=calc_names)
+  calc_occ_lr = mg_convert_structarr(calc_occ_lr, field_names=calc_names)
+
+  flat_names = ['time', 'x', 'y', 'r']
+  flat_occ_ul = mg_convert_structarr(flat_occ_ul, field_names=flat_names)
+  flat_occ_lr = mg_convert_structarr(flat_occ_lr, field_names=flat_names)
 
   ; filter by wave_type
 
