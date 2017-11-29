@@ -30,7 +30,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
   calc_occ_ul = mg_convert_structarr(calc_occ_ul, field_names=calc_names)
   calc_occ_lr = mg_convert_structarr(calc_occ_lr, field_names=calc_names)
 
-  flat_names = ['time', 'x', 'y', 'r']
+  flat_names = ['wave_type', 'time', 'x', 'y', 'r']
   flat_occ_ul = mg_convert_structarr(flat_occ_ul, field_names=flat_names)
   flat_occ_lr = mg_convert_structarr(flat_occ_lr, field_names=flat_names)
 
@@ -197,7 +197,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
 
   !p.multi = 0
   xyouts, 0.95, 0.985, $
-          string(date, wave_type, format='(%"Centering for %s (%s nm))'), $
+          string(date, wave_type, format='(%"Centering for %s (%s nm)")'), $
           alignment=1.0, charsize=1.1, /normal, font=1
 
   mg_psend
@@ -228,7 +228,7 @@ end
 
 comp_plot_centering, '/hao/mahidata1/Data/CoMP/engineering.latest2/2017/10/01', $
                      '20171001.centering2.ps', $
-                     '20171001'
+                     '20171001', '1074'
 
 ;dates = ['20150418']
 ;flag_name = 'expan_factor_azi'

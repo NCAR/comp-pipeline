@@ -30,3 +30,6 @@
   fix typo in log message variable in GBU
 1.3.6
   fix for plotting centering information
+1.3.7
+  typo in plotting centering information
+  remove existing crosstalk and centering logs when starting
