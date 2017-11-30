@@ -1,21 +1,16 @@
 ; docformat = 'rst'
 
 ;+
-; Sets up output filename for all the loggers defined in
-; `comp_setup_loggers_loggers`.
+; Sets up output filename for the main log file.
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
 ;     day of year to process, in YYYYMMDD format
 ;
-; :Keywords:
-;   clean : in, optional, type=boolean
-;     set to clear old engineering logs before creating new ones
-;
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_setup_loggers_date, date_dir, clean=clean
+pro comp_setup_loggers_date, date_dir
   compile_opt strictarr
   @comp_config_common
 
@@ -23,6 +18,22 @@ pro comp_setup_loggers_date, date_dir, clean=clean
 
   mg_log, name='comp', logger=logger
   logger->setProperty, filename=filepath(date_dir + '.log', root=log_dir)
+end
+
+
+;+
+; Sets up output filename for the engineering log files.
+;
+; :Params:
+;   date_dir : in, required, type=string
+;     day of year to process, in YYYYMMDD format
+;
+; :Author:
+;   MLSO Software Team
+;-
+pro comp_setup_loggers_eng, date_dir
+  compile_opt strictarr
+  @comp_config_common
 
   eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
   if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
@@ -44,7 +55,7 @@ pro comp_setup_loggers_date, date_dir, clean=clean
     for n = 0L, n_elements(names) - 1L do begin
       name = types[t] + '_' + names[n]
       filename = filepath(name + '.csv', root=eng_dir)
-      if (file_test(filename) && keyword_set(clean)) then begin
+      if (file_test(filename)) then begin
         mg_log, 'removing existing %s log', name + '.csv', name='comp', /debug
         file_delete, filename
       endif
@@ -56,7 +67,7 @@ pro comp_setup_loggers_date, date_dir, clean=clean
   endfor
 
   filename = filepath('occulter.csv', root=eng_dir)
-  if (file_test(filename) && keyword_set(clean)) then begin
+  if (file_test(filename)) then begin
     mg_log, 'removing existing occulter.csv log', name='comp', /debug
     file_delete, filename
   endif

@@ -51,7 +51,9 @@ pro comp_l1_check, date_dir, wave_type
               45.0 + overlap_angle_tolerance, $
               name='comp', /warn
     endif
-    
+ 
+    n_images_bad_temp_file = 0L
+    n_images_bad_filttemp_file = 0L
     for e = 1L, fcb.nextend do begin
       fits_read, fcb, date, header, exten_no=e
 
@@ -60,9 +62,7 @@ pro comp_l1_check, date_dir, wave_type
       max_lcvr6temp = 35.0
       if (lcvr6temp lt min_lcvr6temp || lcvr6temp gt max_lcvr6temp) then begin
         n_images_bad_temp += 1
-        mg_log, 'LCVR6 temp %0.1f outside of normal range %0.1f-%0.1f', $
-                lcvr6temp, min_lcvr6temp, max_lcvr6temp, $
-                name='comp', /warn
+        n_images_bad_temp_file += 1
       endif
 
       filttemp = sxpar(header, 'FILTTEMP')
@@ -70,11 +70,16 @@ pro comp_l1_check, date_dir, wave_type
       max_filttemp = 35.0
       if (filttemp lt min_filttemp || filttemp gt max_filttemp) then begin
         n_images_bad_filttemp += 1
-        mg_log, 'filter temp %0.1f outside of normal range %0.1f-%0.1f', $
-                filttemp, min_filttemp, max_filttemp, $
-                name='comp', /warn
+        n_images_bad_filttemp_file += 1
       endif
     endfor
+
+    mg_log, 'LCVR6 temp outside of normal range %0.1f-%0.1f for %d images', $
+            min_lcvr6temp, max_lcvr6temp, n_images_bad_temp_file, $
+            name='comp', /warn
+    mg_log, 'filter temp outside of normal range %0.1f-%0.1f for %d images', $
+            min_filttemp, max_filttemp, n_images_bad_filttemp_file, $
+            name='comp', /warn
 
     fits_close, fcb
   endfor

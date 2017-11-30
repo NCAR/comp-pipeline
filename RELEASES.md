@@ -35,3 +35,6 @@
   remove existing crosstalk and centering logs when starting
 1.3.8
   fixes in clearing existing engineering logs when starting
+1.3.9
+  cuts down on number of warnings in logs about temperatures
+  does not delete engineering logs if raw dir is locked

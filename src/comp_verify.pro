@@ -42,7 +42,6 @@ pro comp_verify, date, config_filename=config_filename, status=status
 
   comp_configuration, config_filename=_config_filename
   comp_setup_loggers
-
   comp_setup_loggers_date, date
 
   logger_name = 'comp/verify'

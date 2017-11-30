@@ -85,7 +85,7 @@ pro comp_run_pipeline, config_filename=config_filename
     date_dir = dirs[d]
 
     comp_initialize, date_dir
-    if (~dry_run) then comp_setup_loggers_date, date_dir, /clean
+    if (~dry_run) then comp_setup_loggers_date, date_dir
 
     if (lock_raw) then begin
       available = comp_state(date_dir)
@@ -100,6 +100,8 @@ pro comp_run_pipeline, config_filename=config_filename
         endif
       endelse
     endif
+
+    if (~dry_run) then comp_setup_loggers_eng, date_dir
 
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 
