@@ -21,7 +21,7 @@ pro comp_plot_engineering, date_dir, wave_type
   mg_log, 'plotting daily centering values', name='comp', /info
   comp_plot_centering, eng_dir, $
                        filepath(string(date_dir, wave_type, $
-                                       format='(%"%s.centering.%s.ps")'), $
+                                       format='(%"%s.comp.%s.centering.ps")'), $
                                 root=eng_dir), $
                        date_dir, $
                        wave_type

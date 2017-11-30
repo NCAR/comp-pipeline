@@ -144,7 +144,8 @@ pro comp_run_pipeline, config_filename=config_filename
       l1_process_dir = filepath('level1', root=process_dir)
       if (~file_test(l1_process_dir, /directory)) then file_mkdir, l1_process_dir
 
-      process_config_filename = filepath('comp.cfg', root=l1_process_dir)
+      process_config_filename = filepath(string(date, format='(%"%s.comp.l1.cfg")'), $
+                                         root=l1_process_dir)
       file_copy, _config_filename, process_config_filename, /overwrite
 
       ; write constants used for given day to engineering directory
@@ -357,7 +358,8 @@ pro comp_run_pipeline, config_filename=config_filename
         l2_process_dir = filepath('level2', root=process_dir)
         if (~file_test(l2_process_dir, /directory)) then file_mkdir, l2_process_dir
 
-        process_config_filename = filepath('comp.cfg', root=l2_process_dir)
+        process_config_filename = filepath(string(date, format='(%"%s.comp.l2.cfg")'), $
+                                           root=l2_process_dir)
         file_copy, _config_filename, process_config_filename, /overwrite
       endif
     endif

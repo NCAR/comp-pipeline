@@ -17,7 +17,7 @@ pro comp_setup_loggers_date, date_dir
   if (~file_test(log_dir, /directory)) then file_mkdir, log_dir
 
   mg_log, name='comp', logger=logger
-  logger->setProperty, filename=filepath(date_dir + '.log', root=log_dir)
+  logger->setProperty, filename=filepath(date_dir + '.comp.log', root=log_dir)
 end
 
 
@@ -41,7 +41,8 @@ pro comp_setup_loggers_eng, date_dir
   for w = 0L, n_elements(process_wavelengths) - 1L do begin
     wl = process_wavelengths[w]
     mg_log, name='comp/crosstalk/' + wl, logger=logger
-    basename = date_dir + '.comp.' + wl + '.crosstalk.txt'
+    basename = string(date_dir + '.comp.' + wl + '.crosstalk.txt', $
+                      format='(%"%s.comp.%s.crosstalk.txt")')
     filename = filepath(basename, root=eng_dir)
     if (file_test(filename)) then file_delete, filename
     logger->setProperty, format='%(message)s', $
@@ -49,12 +50,13 @@ pro comp_setup_loggers_eng, date_dir
                          filename=filename
   endfor
 
-  types = ['calc', 'flat']
-  names = ['occ_ul', 'occ_lr', 'field_ul', 'field_lr']
+  types = ['image', 'flat']
+  names = ['occ.ul', 'occ.lr', 'field.ul', 'field.lr']
   for t = 0L, n_elements(types) - 1L do begin
     for n = 0L, n_elements(names) - 1L do begin
-      name = types[t] + '_' + names[n]
-      filename = filepath(name + '.csv', root=eng_dir)
+      name = types[t] + '.' + names[n]
+      filename = filepath(string(date_dir, name, format='(%"%s.comp.%s.csv")'), $
+                          root=eng_dir)
       if (file_test(filename)) then begin
         mg_log, 'removing existing %s log', name + '.csv', name='comp', /debug
         file_delete, filename

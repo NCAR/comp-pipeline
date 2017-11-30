@@ -92,7 +92,7 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             calc_occulter1.x + nx / 2, $
             calc_occulter1.y + 1024 - ny / 2, $
             calc_occulter1.r, ind1[0], $
-            name='calc_occ_ul', /debug
+            name='calc.occ.ul', /debug
   endif
 
   ind2 = where(beam lt 0, n_minus_beam)
@@ -126,7 +126,7 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             calc_occulter2.y + ny / 2, $
             calc_occulter2.r, $
             ind2[0], $
-            name='calc_occ_lr', /debug
+            name='calc.occ.lr', /debug
   endif
 
   ; write flat centers
@@ -134,11 +134,11 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   mg_log, '%s, %f, %f, %f, %f', $
           wave_type, time, $
           occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
-          name='flat_occ_ul', /debug
+          name='flat.occ.ul', /debug
   mg_log, '%s, %f, %f, %f, %f', $
           wave_type, time, $
           occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
-          name='flat_occ_lr', /debug
+          name='flat.occ.lr', /debug
 
   mg_log, '%s, %d, %d, %d', $
           wave_type, $
@@ -160,14 +160,14 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   if (centering_diagnostics) then begin
     if (n_elements(current_l1_filename) gt 0L) then begin
       if (n_plus_beam gt 0) then begin
-        bname = file_basename(current_l1_filename) + '.centering-ul.sav'
+        bname = file_basename(current_l1_filename) + '.centering.ul.sav'
         save, occulter_points1, sub1, $
               filename=filepath(bname, $
                                 subdir=comp_decompose_date(date_dir), $
                                 root=engineering_dir)
       endif
       if (n_minus_beam gt 0) then begin
-        bname = file_basename(current_l1_filename) + '.centering-lr.sav'
+        bname = file_basename(current_l1_filename) + '.centering.lr.sav'
         save, occulter_points2, sub2, $
               filename=filepath(bname, $
                                 subdir=comp_decompose_date(date_dir), $
