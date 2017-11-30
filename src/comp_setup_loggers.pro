@@ -8,10 +8,14 @@
 ;   date_dir : in, required, type=string
 ;     day of year to process, in YYYYMMDD format
 ;
+; :Keywords:
+;   clean : in, optional, type=boolean
+;     set to clear old engineering logs before creating new ones
+;
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_setup_loggers_date, date_dir
+pro comp_setup_loggers_date, date_dir, clean=clean
   compile_opt strictarr
   @comp_config_common
 
@@ -40,7 +44,10 @@ pro comp_setup_loggers_date, date_dir
     for n = 0L, n_elements(names) - 1L do begin
       name = types[t] + '_' + names[n]
       filename = filepath(name + '.csv', root=eng_dir)
-      if (file_test(filename)) then file_delete, filename
+      if (file_test(filename) && keyword_set(clean)) then begin
+        mg_log, 'removing existing %s log', name + '.csv', name='comp', /debug
+        file_delete, filename
+      endif
       mg_log, name=name, logger=logger
       logger->setProperty, format='%(message)s', $
                            level=5, $
@@ -49,7 +56,10 @@ pro comp_setup_loggers_date, date_dir
   endfor
 
   filename = filepath('occulter.csv', root=eng_dir)
-  if (file_test(filename)) then file_delete, filename
+  if (file_test(filename) && keyword_set(clean)) then begin
+    mg_log, 'removing existing occulter.csv log', name='comp', /debug
+    file_delete, filename
+  endif
   mg_log, name='occulter', logger=logger
   logger->setProperty, format='%(message)s', $
                        level=5, $

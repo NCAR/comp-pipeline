@@ -85,7 +85,7 @@ pro comp_run_pipeline, config_filename=config_filename
     date_dir = dirs[d]
 
     comp_initialize, date_dir
-    if (~dry_run) then comp_setup_loggers_date, date_dir
+    if (~dry_run) then comp_setup_loggers_date, date_dir, /clean
 
     if (lock_raw) then begin
       available = comp_state(date_dir)

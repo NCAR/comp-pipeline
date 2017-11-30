@@ -33,3 +33,5 @@
 1.3.7
   typo in plotting centering information
   remove existing crosstalk and centering logs when starting
+1.3.8
+  fixes in clearing existing engineering logs when starting
