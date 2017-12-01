@@ -5,8 +5,8 @@
 ; one file with averaged dark images. Typically, a sequence of dark images is
 ; taken and written to a file several times each day. This routine averages
 ; together all dark images from each dark file and writes the average to a
-; FITS file. This routine reads the `dark_files.txt` file that was created by
-; `file_type`.
+; FITS file. This routine reads the `YYYYMMDD.comp.dark.files.txt` file that was
+; created by `FILE_TYPE`.
 ;
 ; File `YYYYMMDD.comp.dark.fts` is written to the process directory and a copy
 ; is written to the `bias` directory. Each extension of the dark FITS file
@@ -69,7 +69,7 @@ pro comp_make_dark, date_dir, error=error
   cd, process_dir
 
   ;  open list of dark images
-  openr, dark_lun, 'dark_files.txt', /get_lun
+  openr, dark_lun, string(date_dir, format='(%"%s.comp.dark.files.txt")'), /get_lun
 
   ;  open output fits file
   fits_open, filepath(date_dir, format='(%"%s.comp.dark.fts")'), fcbout, /write

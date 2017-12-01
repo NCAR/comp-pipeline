@@ -12,13 +12,17 @@
 ;
 ; Output files::
 ;
-;   1074_files.txt - file containing information on data files for 1074 region
-;   1079_files.txt - file containing information on data files for 1079 region
-;   1083_files.txt - file containing information on data files for 1083 region
-;   dark_files.txt - file containing information on dark files
-;   opal_files.txt - file containing information on opal (flat) files
-;   cal_files.txt - file containing information on polarization calibration files
-;   dist_files.txt - file containing information on distortion grid files
+;   YYYYMMDD.comp.1074.files.txt - file containing information on data files
+;                                  for 1074 region
+;   YYYYMMDD.comp.1079.files.txt - file containing information on data files
+;                                  for 1079 region
+;   YYYYMMDD.comp.1083.files.txt - file containing information on data files
+;                                  for 1083 region
+;   YYYYMMDD.comp.dark.files.txt - file containing information on dark files
+;   YYYYMMDD.comp.opal.files.txt - file containing information on opal (flat)
+;                                  files
+;   YYYYMMDD.comp.cal.files.txt  - file containing information on polarization
+;                                  calibration files
 ;
 ; These files are written to the processed directory for that day and
 ; copied to the inventory directory.
@@ -72,16 +76,32 @@ pro comp_file_type, date_dir
   regions = [center1074, center1079, center1083]
   wave_types = ['1074', '1079', '1083']
 
-  openw, lun_1074, filepath('1074_files.txt', root=process_dir), /get_lun
-  openw, lun_1079, filepath('1079_files.txt', root=process_dir), /get_lun
-  openw, lun_1083, filepath('1083_files.txt', root=process_dir), /get_lun
-  openw, lun_dark, filepath('dark_files.txt', root=process_dir), /get_lun
-  openw, lun_opal, filepath('opal_files.txt', root=process_dir), /get_lun
-  openw, lun_cal, filepath('cal_files.txt', root=process_dir), /get_lun
-  openw, lun_distort, filepath('distort_files.txt', root=process_dir), /get_lun
+  openw, lun_1074, filepath(string(date_dir, $
+                                   format='(%"%s.comp.1074.files.txt")'), $
+                            root=process_dir), $
+         /get_lun
+  openw, lun_1079, filepath(string(date_dir, $
+                                   format='(%"%s.comp.1079.files.txt")'), $
+                            root=process_dir), $
+         /get_lun
+  openw, lun_1083, filepath(string(date_dir, $
+                                   format='(%"%s.comp.1083.files.txt")'), $
+                            root=process_dir), $
+         /get_lun
+  openw, lun_dark, filepath(string(date_dir, $
+                                   format='(%"%s.comp.dark.files.txt")'), $
+                            root=process_dir), $
+         /get_lun
+  openw, lun_opal, filepath(string(date_dir, $
+                                   format='(%"%s.comp.opal.files.txt")'), $
+                            root=process_dir), $
+         /get_lun
+  openw, lun_cal,  filepath(string(date_dir, $
+                                   format='(%"%s.comp.cal.files.txt")'), $
+                            root=process_dir), $
+         /get_lun
 
-  luns = [lun_1074, lun_1079, lun_1083, $
-          lun_dark, lun_opal, lun_cal, lun_distort]
+  luns = [lun_1074, lun_1079, lun_1083, lun_dark, lun_opal, lun_cal]
 
   ; get filenames of all FITS files in this directory
   files = file_search('*.FTS', count=nfile)
@@ -170,7 +190,7 @@ pro comp_file_type, date_dir
   endfor
 
   free_lun, lun_1074, lun_1079, lun_1083, $
-            lun_dark, lun_opal, lun_cal, lun_distort
+            lun_dark, lun_opal, lun_cal
 
   mg_log, 'done', name='comp', /info
 end

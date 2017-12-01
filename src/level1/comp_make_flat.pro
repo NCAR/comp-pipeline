@@ -2,8 +2,8 @@
 
 ;+
 ; Procedure to read CoMP uncompressed Level 0 opal data for a day and create a
-; file with average flats. This routine reads the `opal_files.txt` file that
-; was created by `COMP_FILE_TYPE`.
+; file with average flats. This routine reads the `YYYYMMDD.comp.opal.files.txt`
+; file that was created by `COMP_FILE_TYPE`.
 ;
 ; File `YYYYMMDD.comp.flat.fts` is written to the process directory and a copy
 ; is written to the Flat directory. Each extension of the flat FITS file
@@ -121,7 +121,7 @@ pro comp_make_flat, date_dir, error=error
   fits_write, fcbout, 0, primary_header
 
   ;  open list of opal images
-  opal_files = 'opal_files.txt'
+  opal_files = string(date_dir, format='(%"%s.comp.opal.files.txt")')
   if (~file_test(opal_files)) then begin
     mg_log, '%s not found', opal_files, name='comp', /critial
   endif

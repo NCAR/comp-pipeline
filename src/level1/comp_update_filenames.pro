@@ -30,7 +30,11 @@ pro comp_update_filenames, date_dir
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   cd, process_dir
 
-  old_filenames = ['1074_files.txt', '1079_files.txt', '1083_files.txt']
+  old_filenames = strarr(n_elements(process_wavelengths))
+  for f = 0L, n_elements(process_wavelengths) - 1L do begin
+    old_filenames[f] = string(date_dir, process_wavelengths[f], $
+                              format='(%"%s.comp.%s.files.txt')
+  endfor
 
   str = ''
   for i = 0L, n_elements(old_filenames) - 1L do begin

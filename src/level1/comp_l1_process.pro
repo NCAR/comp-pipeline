@@ -47,7 +47,9 @@ pro comp_l1_process, date_dir, wave_type, error=error
   cd, process_dir  ; change directory to processing directory
 
   ; file with list of file names
-  infiles = filepath(wave_type + '_files.txt', root=process_dir)
+  infiles = filepath(string(date_dir, wave_type, $
+                            format='(%"%s.comp.%s.files.txt")'), $
+                     root=process_dir)
   extens = wave_type   ; entension for files
 
   ; synoptic processing works on a subset of files in the morning

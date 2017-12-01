@@ -34,7 +34,8 @@ function comp_nearest_qufile, date_dir, headers, filename
   line = wave_types[region_index]
 
   ; find the inventory file and read it
-  invenfile = filepath(line + '_files.txt', $
+  invenfile = filepath(string(date_dir, line, $
+                              format='(%"%s.comp.%s.files.txt")'), $
                        subdir=[date_dir, 'level1'], $
                        root=process_basedir)
   comp_read_inventory_file, invenfile, datafiles, exptimes, $

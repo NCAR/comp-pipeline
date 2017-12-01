@@ -112,7 +112,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
   cd, process_dir
 
-  all_files = wave_type + '_files.txt'    ; get number of filenames in file
+  ; get number of filenames in file
+  all_files = string(date_dir, wave_type, format='(%"%s.comp.%s.files.txt")')
   n_files = file_lines(all_files)         ; get number of filenames in file
 
   if (n_files lt 1L) then begin
