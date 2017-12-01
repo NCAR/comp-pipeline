@@ -74,12 +74,17 @@ pro comp_l1_check, date_dir, wave_type
       endif
     endfor
 
-    mg_log, 'LCVR6 temp outside of normal range %0.1f-%0.1f for %d images', $
-            min_lcvr6temp, max_lcvr6temp, n_images_bad_temp_file, $
-            name='comp', /warn
-    mg_log, 'filter temp outside of normal range %0.1f-%0.1f for %d images', $
-            min_filttemp, max_filttemp, n_images_bad_filttemp_file, $
-            name='comp', /warn
+    if (n_images_bad_temp_file gt 0L) then begin
+      mg_log, 'LCVR6 temp outside of normal range %0.1f-%0.1f for %d images', $
+              min_lcvr6temp, max_lcvr6temp, n_images_bad_temp_file, $
+              name='comp', /warn
+    endif
+
+    if (n_images_bad_filttemp_file gt 0L) then begin
+      mg_log, 'filter temp outside of normal range %0.1f-%0.1f for %d images', $
+              min_filttemp, max_filttemp, n_images_bad_filttemp_file, $
+              name='comp', /warn
+    endif
 
     fits_close, fcb
   endfor
