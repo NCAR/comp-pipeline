@@ -7,7 +7,7 @@
 ;   For example, call like::
 ;
 ;     cd, '/hao/kaula1/Data/CoMP/process/20120606'
-;     gbu = comp_read_gbu('GBU.1079.log')
+;     gbu = comp_read_gbu('20120606.comp.1074gbu.log')
 ;
 ; :Uses:
 ;   merge_struct, str_sep, mg_log

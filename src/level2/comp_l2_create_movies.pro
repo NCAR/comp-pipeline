@@ -46,7 +46,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   temp_path = 'movies'
   if (file_test(temp_path, /directory) eq 0) then file_mkdir, temp_path
 
-  gbu_file = filepath('GBU.' + wave_type + '.log', root=l1_process_dir)
+  gbu_file = filepath(string(date_dir, wave_type, format='%"%s.comp.%s.gbu.log"'), $
+                      root=l1_process_dir)
   if (~file_test(gbu_file)) then begin
     mg_log, '%s does not exist, skipping', file_basename(gbu_file), $
             name='comp', /warning

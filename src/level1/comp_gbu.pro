@@ -28,20 +28,20 @@
 ;
 ; Output files::
 ;
-;   YYYYMMDD.comp.good.synoptic.WWWW.files.txt
+;   YYYYMMDD.comp.WWWW.good.synoptic.files.txt
 ;     - file containing the filenames and metadata for the good synoptic data
 ;       files for that day
-;   YYYYMMDD.comp.good.iqu.WWWW.files.txt
+;   YYYYMMDD.comp.WWWW.good.iqu.files.txt
 ;     - file containing the filenames and metadata for the all good
 ;       polarization data files for that day (before 9.1.2016 only good 5-pt
 ;       files, now all good files with Q and U)
-;   YYYYMMDD.comp.good.all.WWWW.files.txt
+;   YYYYMMDD.comp.WWWW.good.all.files.txt
 ;     - file containing the filenames and metadata for all good data files that
 ;       day (polarization and waves)
-;   YYYYMMDD.comp.good.waves.WWWW.files.txt
+;   YYYYMMDD.comp.WWWW.good.waves.files.txt
 ;     - file containing the filenames and metadata for all good waves data
 ;       files that day
-;   YYYYMMDD.comp.GBU.WWWW.log
+;   YYYYMMDD.comp.WWWW.gbu.log
 ;     - file containing the filenames, the the background, the sigma parameter
 ;       and the good_files parameter
 ;
@@ -325,7 +325,7 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   ; make new text file for synoptic program (first files with n_waves = 5)
   openw, synoptic_lun, $
-         string(date_dir, wave_type, format='(%"%s.comp.good.synoptic.%s.files.txt")'), $
+         string(date_dir, wave_type, format='(%"%s.comp.%s.good.synoptic.files.txt")'), $
          /get_lun
 
   ; start with synoptic flag on, turn off when hit waves cookbook
@@ -333,20 +333,22 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   ; make new text file for good waves files
   openw, good_waves_lun, $
-         string(date_dir, wave_type, format='(%"%s.comp.good.waves.%s.files.txt")'), $
+         string(date_dir, wave_type, format='(%"%s.comp.%s.good.waves.files.txt")'), $
          /get_lun
 
   ; make new text file with only good filenames
   openw, good_lun, $
-         string(date_dir, wave_type, format='(%"%s.comp.good.iqu.%s.files.txt")'), $
+         string(date_dir, wave_type, format='(%"%s.comp.%s.good.iqu.files.txt")'), $
          /get_lun
 
   ; GBU log file
-  openw, gbu_lun, 'GBU.' + wave_type + '.log', /get_lun 
+  openw, gbu_lun, $
+         string(date_dir, wave_type, format='(%"%s.comp.%s.gbu.log")'), $
+         /get_lun 
 
   ; make new file for all good files (both 5 wave and 3 wave)
   openw, good_all_lun, $
-         string(date_dir, wave_type, format='(%"%s.comp.good.all.%s.files.txt")'), $
+         string(date_dir, wave_type, format='(%"%s.comp.%s.good.all.files.txt")'), $
          /get_lun
 
   printf, gbu_lun, 'Filename                                   Quality     Back     Sigma   #waves  Reason'

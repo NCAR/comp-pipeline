@@ -11,7 +11,7 @@
 ;     comp_l2_create_jpgs, '20130520', '1074'
 ;
 ; :Uses:
-;   comp_constants_common, comp_config_common, comp_read_gbu, comp_uniq,
+;   comp_constants_common, comp_config_common, comp_uniq,
 ;   comp_make_mask, comp_aia_lct, comp_transparent_logo,
 ;   colorbar2, anytim2tai, sxpar, headfits, fitshead2struct, merge_struct,
 ;   readfits, mg_log

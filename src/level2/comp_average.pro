@@ -7,10 +7,13 @@
 ; average which contain different wavelength and Stokes parameter images.
 ;
 ; Output:
-;   comp.mean.wwww.fts - file containing the mean of the input images
-;   comp.median.wwww.fts - file containing the median of the input images
-;   comp.sigma.wwww.fts - file containing the standard deviation of the input
-;     images where wwww is the wave_type
+;   YYYYMMDD.comp.WWWW.mean.TYPE.fts - file containing the mean of the input
+;                                      images
+;   YYYYMMDD.comp.WWWW.median.TYPE.fts - file containing the median of the
+;                                        input images
+;   YYYYMMDD.comp.WWWW.sigma.TYPE.fts - file containing the standard deviation
+;                                       of the input images where wwww is the
+;                                       wave_type
 ;
 ; :Todo:
 ;   - replace all the loops and statistics with the moment() function, 
@@ -30,11 +33,12 @@
 ;
 ;     comp_average, '20110902', '1074', /synoptic
 ;
-;   will use filename '20110902.synoptic.1074.files.txt' as input filename. Finally::
+;   will use filename '20110902.comp.1074.good.synoptic.files.txt' as input
+;   filename. Finally::
 ;
 ;     comp_average, '20131026', '1074'
 ;
-;   will use '20131026.good.iqu.1074.files.txt' as input filename.
+;   will use '20131026.comp.1074.good.iqu.files.txt' as input filename.
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,

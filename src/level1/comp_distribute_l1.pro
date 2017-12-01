@@ -80,10 +80,10 @@ pro comp_distribute_l1, date_dir, wave_type
   ; save the GBU file
   mg_log, 'copying GBU file...', name='comp', /info
 
-  gbu_filename = 'GBU.' + wave_type + '.log'
+  gbu_filename = string(date_dir, wave_type, format='(%"%s.comp.%s.gbu.log")')
   if (file_test(gbu_filename)) then begin
     file_copy, gbu_filename, $
-               filepath(date_dir + '.GBU.' + wave_type + '.log', root=eng_dir), $
+               filepath(gbu_filename, root=eng_dir), $
                /overwrite
   endif
 
