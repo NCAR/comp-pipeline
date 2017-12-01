@@ -239,9 +239,9 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; 0. if producing a calibration mean file, use the 5 points files in before
   ;    the second set of flats
-  ; 1. using {date}.good.waves.{wave_type}.files.txt or
-  ;    {date}.synoptic.{wave_type}.files.txt, group files into clusters where
-  ;    files: 
+  ; 1. using {date}.comp.{wave_type}.good.waves.files.txt or
+  ;    {date}.comp.{wave_type}.good.synoptic.files.txt, group files into
+  ;    clusters where files: 
   ;      - are within MAX_CADENCE_INTERVAL (3 min now) of each other
   ;      - are using the same flat
   ;    a. use the first cluster which has at least MIN_N_CLUSTER_FILES (40 now),
@@ -276,7 +276,7 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 0.
   if (keyword_set(calibration)) then begin
-    basename = string(date_dir, wave_type, format='(%"%s.comp.good.all.%s.files.txt")')
+    basename = string(date_dir, wave_type, format='(%"%s.comp.%s.good.all.files.txt")')
     mg_log, 'CALIBRATION set, using %s', basename, name='comp', /debug
 
     list_filename = filepath(basename, root=l1_process_dir)
@@ -291,12 +291,12 @@ function comp_find_average_files, date_dir, wave_type, $
 
   ; step 1.
   if (keyword_set(synoptic)) then begin
-    basename = string(date_dir, wave_type, format='(%"%s.comp.good.synoptic.%s.files.txt")')
+    basename = string(date_dir, wave_type, format='(%"%s.comp.%s.good.synoptic.files.txt")')
   endif else begin
     if (keyword_set(combined)) then begin
-      basename = string(date_dir, wave_type, format='(%"%s.comp.good.iqu.%s.files.txt")')
+      basename = string(date_dir, wave_type, format='(%"%s.comp.%s.good.iqu.files.txt")')
     endif else begin
-      basename = string(date_dir, wave_type, format='(%"%s.comp.good.waves.%s.files.txt")')
+      basename = string(date_dir, wave_type, format='(%"%s.comp.%s.good.waves.files.txt")')
     endelse
   endelse
 
