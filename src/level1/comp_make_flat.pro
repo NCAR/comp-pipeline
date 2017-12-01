@@ -5,13 +5,13 @@
 ; file with average flats. This routine reads the `opal_files.txt` file that
 ; was created by `COMP_FILE_TYPE`.
 ;
-; File `flat.fts` is written to the process directory and a copy is written to
-; the Flat directory. Each extension of the `flat.fts` file contains an
-; average flat image for a single wavelength and beam. There are also three 1d
-; extensions written to `flat.fts` that contains the time the flats were taken,
-; the wavelength of the flats and the exposure times. The wavelength contained 
-; in the extension is actually the product of the beam (+1 or -1) and the
-; wavelength that allows tracking of the beam number.
+; File `YYYYMMDD.comp.flat.fts` is written to the process directory and a copy
+; is written to the Flat directory. Each extension of the flat FITS file
+; contains an average flat image for a single wavelength and beam. There are
+; also three 1-dimensional extensions written to flat FITS file that contain the
+; time the flats were taken, the wavelength of the flats and the exposure times.
+; The wavelength contained in the extension is actually the product of the beam
+; (+1 or -1) and the wavelength that allows tracking of the beam number.
 ;
 ; :Examples:
 ;   For example, call like::
@@ -95,7 +95,7 @@ pro comp_make_flat, date_dir, error=error
   restore, filename=hot_file
 
   ; open file for flats
-  outfile = 'flat.fts'
+  outfile = string(date_dir, format='(%"%s.comp.flat.fts")')
 
   fits_open, outfile, fcbout, /write
 

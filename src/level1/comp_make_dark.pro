@@ -8,13 +8,14 @@
 ; FITS file. This routine reads the `dark_files.txt` file that was created by
 ; `file_type`.
 ;
-; File `dark.fts` is written to the process directory and a copy is written to
-; the `bias` directory. Each extension of the `dark.fts` file contains an
-; average dark image corresponding to a dark file. There is also a 1d
-; extension written to `dark.fts` that contains the time the darks were taken,
-; and another 1d extension written containing the exposure time for the darks.
-; Then there will be n+2 extensions to the dark.fts file, corresponding to `n`
-; dark files taken that day plus the time and exposure extensions.
+; File `YYYYMMDD.comp.dark.fts` is written to the process directory and a copy
+; is written to the `bias` directory. Each extension of the dark FITS file
+; contains an average dark image corresponding to a dark file. There is also a
+; 1-dimensional extension written to the dark FITS file that contains the time
+; the darks were taken, and another 1-dimensional extension written containing
+; the exposure time for the darks. Then there will be n+2 extensions to the dark
+; FITS file, corresponding to `n` dark files taken that day plus the time and
+; exposure extensions.
 ;
 ; :Examples:
 ;   For example, call it like::
@@ -71,7 +72,7 @@ pro comp_make_dark, date_dir, error=error
   openr, dark_lun, 'dark_files.txt', /get_lun
 
   ;  open output fits file
-  fits_open, 'dark.fts', fcbout, /write
+  fits_open, filepath(date_dir, format='(%"%s.comp.dark.fts")'), fcbout, /write
   nout = 0
   time = fltarr(1000)
   exposure = fltarr(1000)

@@ -31,7 +31,7 @@
 ;     flats
 ;
 ; :Keywords:
-;   file : in, optional, type=string, default='flat.fts'
+;   file : in, optional, type=string, default='YYYYMMDD.comp.flat.fts'
 ;     specify filename of flat file to read
 ;   flat_extensions : out, optional, type=lonarr(nwave)
 ;     set to a named variable to retrieve the extension of the flat file used
@@ -77,7 +77,8 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   if (keyword_set(file)) then begin
     flatfile = filepath(file, root=process_dir)
   endif else begin
-    flatfile = filepath('flat.fts', root=process_dir)
+    flatfile = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
+                        root=process_dir)
   endelse
 
   if (~cache_flats) then begin

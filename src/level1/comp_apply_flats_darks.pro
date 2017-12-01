@@ -137,7 +137,9 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
     sxaddpar, header, 'FLATFILE', flat_names[iflat[0]], $
               ' Name of flat field file'
     sxaddpar, header, 'FLATEXT', flat_extensions[iflat[0]], $
-              ' Extension in flat.fts (not FLATFILE) used', after='FLATFILE'
+              string(date_dir, $
+                     format='(%" Extension in %s.comp.flat.fts used")'), $
+              after='FLATFILE'
     sxaddpar, header, 'FLATMED', medflat, $
               ' median of dark and exposure corrected flat', after='FLATEXT'
 

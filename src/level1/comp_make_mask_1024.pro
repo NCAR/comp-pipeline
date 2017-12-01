@@ -12,7 +12,7 @@
 ;   For example, call like::
 ;
 ;     cd, '/hao/kaula1/Data/CoMP/process/20120409'
-;     fits_read, 'flat.fts', d, flat_header, /header_only, exten_no=1
+;     fits_read, '20120409.comp.flat.fts', d, flat_header, /header_only, exten_no=1
 ;     comp_make_mask_1024, '20120409', flat_header, o_offset=-3.0, f_offset=+3.0, mask
 ;
 ; :Params:

@@ -47,8 +47,10 @@ pro comp_distribute_l1, date_dir, wave_type
   ; save the flats and darks doing a wave_type independent call
   if (n_elements(wave_type) eq 0L) then begin
     mg_log, 'distribute L1 flats and darks', name='comp', /info
-    file_copy, 'dark.fts', eng_dir, /overwrite
-    file_copy, 'flat.fts', eng_dir, /overwrite
+    file_copy, string(date_dir, format='(%"%s.comp.dark.fts")'), eng_dir, $
+               /overwrite
+    file_copy, string(date_dir, format='(%"%s.comp.flat.fts")'), eng_dir, $
+               /overwrite
     mg_log, 'done', name='comp', /info
     return
   endif

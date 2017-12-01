@@ -254,12 +254,13 @@ function comp_find_average_files, date_dir, wave_type, $
   ; candidate filenames and their corresponding times
   l1_process_dir = filepath('level1', subdir=date_dir, root=process_basedir)
 
-  flat_filename = filepath('flat.fts', root=l1_process_dir)
+  flat_filename = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
+                           root=l1_process_dir)
   if (~file_test(flat_filename)) then return, []
 
   fits_open, flat_filename, flat_fcb
 
-  ; make sure there is a real flat.fts file with the 3 required extensions and
+  ; make sure there is a real flat FITS file with the 3 required extensions and
   ; at least one extension representing a flat
   if (size(flat_fcb, /type) ne 8 || flat_fcb.nextend lt 4) then return, []
 

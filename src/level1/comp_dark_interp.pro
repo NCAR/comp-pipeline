@@ -30,18 +30,22 @@ function comp_dark_interp, date_dir, time, exposure
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
 
   ; open output fits file
-  fits_open, filepath('dark.fts', root=process_dir), fcb
+  dark_filename = filepath(string(date_dir, format='(%"%s.comp.dark.fts")'), $
+                           root=process_dir)
+  fits_open, dark_filename, fcb
 
   ; read arrays with times and exposures
   num = fcb.nextend
   fits_read, fcb, times, exten_no=num - 1L, /no_abort, message=message
   if (message ne '') then begin
-    mg_log, 'error reading times in dark.fts', name='comp', /error
+    mg_log, 'error reading times in %s', file_basename(dark_filename), $
+            name='comp', /error
   endif
 
   fits_read, fcb, exposures, exten_no=num, /no_abort, message=message
   if (message ne '') then begin
-    mg_log, 'error reading exposures in dark.fts', name='comp', /error
+    mg_log, 'error reading exposures in %s', file_basename(dark_filename), $
+            name='comp', /error
   endif
 
   str_times = comp_times2str(times)
@@ -61,7 +65,9 @@ function comp_dark_interp, date_dir, time, exposure
     if (time ge max(times[good])) then begin   ; time after last bias
       fits_read, fcb, bias, exten_no=good[count-1] + 1, /no_abort, message=message
       if (message ne '') then begin
-        mg_log, 'error reading ext %d in dark.fts', good[count - 1], name='comp', /error
+        mg_log, 'error reading ext %d in %s', $
+                good[count - 1], file_basename(dark_filename), $
+                name='comp', /error
       endif
 
       mg_log, 'ext %d for %s', $
@@ -89,12 +95,16 @@ function comp_dark_interp, date_dir, time, exposure
 
       fits_read, fcb, bias1, header1, exten_no=i1 + 1, /no_abort, message=message
       if (message ne '') then begin
-        mg_log, 'error reading ext %d in dark.fts', i1 + 1, name='comp', /error
+        mg_log, 'error reading ext %d in %s', $
+                i1 + 1, file_basename(dark_filename), $
+                name='comp', /error
       endif
 
       fits_read, fcb, bias2, header2, exten_no=i2 + 1, /no_abort, message=message
       if (message ne '') then begin
-        mg_log, 'error reading ext %d in dark.fts', i2 + 1, name='comp', /error
+        mg_log, 'error reading ext %d in %s', $
+                i2 + 1, file_basename(dark_filename), $
+                name='comp', /error
       endif
 
       mg_log, 'between %s (ext %d) and %s (ext %d)', $
