@@ -33,7 +33,7 @@ pro comp_update_filenames, date_dir
   old_filenames = strarr(n_elements(process_wavelengths))
   for f = 0L, n_elements(process_wavelengths) - 1L do begin
     old_filenames[f] = string(date_dir, process_wavelengths[f], $
-                              format='(%"%s.comp.%s.files.txt')
+                              format='(%"%s.comp.%s.files.txt")')
   endfor
 
   str = ''
