@@ -72,7 +72,7 @@ pro comp_make_dark, date_dir, error=error
   openr, dark_lun, string(date_dir, format='(%"%s.comp.dark.files.txt")'), /get_lun
 
   ;  open output fits file
-  fits_open, filepath(date_dir, format='(%"%s.comp.dark.fts")'), fcbout, /write
+  fits_open, string(date_dir, format='(%"%s.comp.dark.fts")'), fcbout, /write
   nout = 0
   time = fltarr(1000)
   exposure = fltarr(1000)

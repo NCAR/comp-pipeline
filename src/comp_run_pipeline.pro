@@ -144,7 +144,7 @@ pro comp_run_pipeline, config_filename=config_filename
       l1_process_dir = filepath('level1', root=process_dir)
       if (~file_test(l1_process_dir, /directory)) then file_mkdir, l1_process_dir
 
-      process_config_filename = filepath(string(date, format='(%"%s.comp.l1.cfg")'), $
+      process_config_filename = filepath(string(date_dir, format='(%"%s.comp.l1.cfg")'), $
                                          root=l1_process_dir)
       file_copy, _config_filename, process_config_filename, /overwrite
 

@@ -92,7 +92,7 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             calc_occulter1.x + nx / 2, $
             calc_occulter1.y + 1024 - ny / 2, $
             calc_occulter1.r, ind1[0], $
-            name='calc.occ.ul', /debug
+            name='image.occ.ul', /debug
   endif
 
   ind2 = where(beam lt 0, n_minus_beam)
@@ -126,7 +126,7 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             calc_occulter2.y + ny / 2, $
             calc_occulter2.r, $
             ind2[0], $
-            name='calc.occ.lr', /debug
+            name='image.occ.lr', /debug
   endif
 
   ; write flat centers

@@ -17,7 +17,8 @@ pro comp_setup_loggers_date, date_dir
   if (~file_test(log_dir, /directory)) then file_mkdir, log_dir
 
   mg_log, name='comp', logger=logger
-  logger->setProperty, filename=filepath(date_dir + '.comp.log', root=log_dir)
+  log_filename = filepath(date_dir + '.comp.log', root=log_dir)
+  logger->setProperty, filename=log_filename
 end
 
 
