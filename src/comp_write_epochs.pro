@@ -60,9 +60,24 @@ pro comp_write_epochs, date_dir
   printf, lun, 'distortion_coeffs_file', distortion_coeffs_file, $
           format='(%"%-25s : %s")'
 
+  printf, lun, 'nominal_overlap_angle', nominal_overlap_angle, $
+          format='(%"%-25s : %0.2f")'
   printf, lun, 'overlap_angle_tolerance', overlap_angle_tolerance, $
           format='(%"%-25s : %0.2f")'
+
+  printf, lun, 'check_lcvr6_temp', check_lcvr6_temp ? 'YES' : 'NO', format='(%"%-25s : %s")'
+  printf, lun, 'nominal_lcvr6_temp', nominal_lcvr6_temp, $
+          format='(%"%-25s : %0.2f")'
+  printf, lun, 'lcvr6_temp_tolerance', lcvr6_temp_tolerance, $
+          format='(%"%-25s : %0.2f")'
+
+  printf, lun, 'nominal_filt_temp', nominal_filt_temp, $
+          format='(%"%-25s : %0.2f")'
+  printf, lun, 'filt_temp_tolerance', filt_temp_tolerance, $
+          format='(%"%-25s : %0.2f")'
+
   printf, lun, 'background_limit', background_limit, format='(%"%-25s : %0.2f")'
+  printf, lun, 'min_flat_median', min_flat_median, format='(%"%-25s : %0.2f")'
 
   printf, lun, 'int_min_thresh', int_min_thresh, format='(%"%-25s : %0.2f")'
   printf, lun, 'int_max_thresh', int_max_thresh, format='(%"%-25s : %0.2f")'

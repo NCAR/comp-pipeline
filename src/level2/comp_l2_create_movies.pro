@@ -46,7 +46,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   temp_path = 'movies'
   if (file_test(temp_path, /directory) eq 0) then file_mkdir, temp_path
 
-  gbu_file = filepath(string(date_dir, wave_type, format='%"%s.comp.%s.gbu.log"'), $
+  gbu_file = filepath(string(date_dir, wave_type, format='(%"%s.comp.%s.gbu.log")'), $
                       root=l1_process_dir)
   if (~file_test(gbu_file)) then begin
     mg_log, '%s does not exist, skipping', file_basename(gbu_file), $
@@ -629,6 +629,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       mg_log, 'no files found matching %s', glob, name='comp', /debug
     endelse
   endfor
+
+  clean_ffmpeg_logs = 1B
+  if (clean_ffmpeg_logs) then begin
+    types = ['azi', 'corr_velo', 'enh_int', 'int', 'line_width', 'lin_pol', 'stks_q', 'stks_u']
+    for t = 0L, n_elements(types) - 1L do begin
+      log_filename = string(types[t], format='(%"%s-0.log")')
+      if (file_test(log_filename)) then file_delete, log_filename
+      mbtree_filename = log_filename + '.mbtree'
+      if (file_test(mbtree_filename)) then file_delete, mbtree_filename
+    endfor
+  endif
 
   files = file_search('intensity.' + wave_type + '.*.png', count=n_files)
   if (n_files gt 0L) then file_delete, files

@@ -19,7 +19,13 @@ common comp_constants, nx, ny, $
                        gbu_percent_background_change, $
                        gbu_background_threshold, $
                        gbu_threshold_count, $
+                       nominal_overlap_angle, $
                        overlap_angle_tolerance, $
+                       lcvr6_temp_tolerance, $
+                       nominal_lcvr6_temp, $
+                       check_lcvr6_temp, $
+                       filt_temp_tolerance, $
+                       nominal_filt_temp, $
                        background_limit, $
                        min_flat_median, $
                        int_min_thresh, int_max_thresh, $

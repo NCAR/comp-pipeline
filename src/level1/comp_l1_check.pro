@@ -35,7 +35,7 @@ pro comp_l1_check, date_dir, wave_type
   for f = 0L, n_l1_files - 1L do begin
     mg_log, 'checking %s', file_basename(l1_files[f]), name='comp', /info
 
-    ; check overlap angle deviation from 45 degrees
+    ; check overlap angle deviation from its nominal value
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0
     overlap_angle = sxpar(primary_header, 'OVRLPANG')
@@ -43,12 +43,12 @@ pro comp_l1_check, date_dir, wave_type
     im_background = sxpar(primary_header, 'BACKGRND')
     background[f] = size(im_background, /type) eq 7 ? !values.f_nan : im_background
 
-    if (abs(overlap_angle - 45.0) gt overlap_angle_tolerance) then begin
+    if (abs(overlap_angle - nominal_overlap_angle) gt overlap_angle_tolerance) then begin
       overlap_angle_warning = 1B
       mg_log, 'overlap angle %0.1f outside normal range %0.1f-%0.1f', $
               overlap_angle, $
-              45.0 - overlap_angle_tolerance, $
-              45.0 + overlap_angle_tolerance, $
+              nominal_overlap_angle - overlap_angle_tolerance, $
+              nominal_overlap_angle + overlap_angle_tolerance, $
               name='comp', /warn
     endif
  
@@ -58,16 +58,16 @@ pro comp_l1_check, date_dir, wave_type
       fits_read, fcb, date, header, exten_no=e
 
       lcvr6temp = sxpar(header, 'LCVR6TMP')
-      min_lcvr6temp = 25.0
-      max_lcvr6temp = 35.0
-      if (lcvr6temp lt min_lcvr6temp || lcvr6temp gt max_lcvr6temp) then begin
+      min_lcvr6temp = nominal_lcvr6_temp - lcvr6_temp_tolerance
+      max_lcvr6temp = nominal_lcvr6_temp + lcvr6_temp_tolerance
+      if (check_lcvr6_temp && (lcvr6temp lt min_lcvr6temp || lcvr6temp gt max_lcvr6temp)) then begin
         n_images_bad_temp += 1
         n_images_bad_temp_file += 1
       endif
 
       filttemp = sxpar(header, 'FILTTEMP')
-      min_filttemp = 25.0
-      max_filttemp = 35.0
+      min_filttemp = nominal_filt_temp - filt_temp_tolerance
+      max_filttemp = nominal_filt_temp + filt_temp_tolerance
       if (filttemp lt min_filttemp || filttemp gt max_filttemp) then begin
         n_images_bad_filttemp += 1
         n_images_bad_filttemp_file += 1

@@ -77,8 +77,20 @@ pro comp_initialize, date_dir
   options = mg_read_config(filepath('epochs.cfg', root=mg_src_root()))
 
   debug = comp_initialize_readconfig('debug', date_dir, options, /boolean)
+  nominal_overlap_angle = comp_initialize_readconfig('nominal_overlap_angle', $
+                                                     date_dir, options, type=4)
   overlap_angle_tolerance = comp_initialize_readconfig('overlap_angle_tolerance', $
                                                        date_dir, options, type=4)
+  lcvr6_temp_tolerance = comp_initialize_readconfig('lcvr6_temp_tolerance', $
+                                                    date_dir, options, type=4)
+  nominal_lcvr6_temp = comp_initialize_readconfig('nominal_lcvr6_temp', $
+                                                  date_dir, options, type=4)
+  check_lcvr6_temp = comp_initialize_readconfig('check_lcvr6_temp', $
+                                                date_dir, options, /boolean)
+  filt_temp_tolerance = comp_initialize_readconfig('filt_temp_tolerance', $
+                                                   date_dir, options, type=4)
+  nominal_filt_temp = comp_initialize_readconfig('nominal_filt_temp', $
+                                                 date_dir, options, type=4)
   background_limit = comp_initialize_readconfig('background_limit', $
                                                 date_dir, options, type=4)
   min_flat_median = comp_initialize_readconfig('min_flat_median', $

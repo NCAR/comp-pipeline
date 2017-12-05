@@ -69,7 +69,8 @@ pro comp_setup_loggers_eng, date_dir
     endfor
   endfor
 
-  filename = filepath('occulter.csv', root=eng_dir)
+  filename = filepath(string(date_dir, format='(%"%s.comp.occulter.csv")'), $
+                      root=eng_dir)
   if (file_test(filename)) then begin
     mg_log, 'removing existing occulter.csv log', name='comp', /debug
     file_delete, filename
