@@ -16,7 +16,7 @@
 ;
 ;     1   data doesn't exist on disk but is in inventory file
 ;     2   3 standard wavelengths not found (not necessarily bad data)
-;     4   background > 20 ppm
+;     4   background > 30 ppm
 ;     8   background anamolously low, defined as < 1 ppm  
 ;     16  standard deviation of intensity image - median intensity
 ;         image > 2.5 ppm
@@ -197,7 +197,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     if (wave_type ne '1083') then begin
       ; skip observation if standard 3 wavelengths don't exist for the wave type
       if (wave_error gt 0L) then begin
-        mg_log, 'standard 3 wavelengths not found, skipping observation %s', str, $
+        mg_log, 'standard 3 wavelengths not found, skipping observation %s', name, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 2
 
@@ -209,14 +209,16 @@ pro comp_gbu, date_dir, wave_type, error=error
 
       ; reject high background images
       if (back[ifile] gt gbu_max_background) then begin
-        mg_log, 'background gt %0.1f, reject %s', gbu_max_background, str, $
+        mg_log, 'background %0.1f > max %0.1f, reject %s', $
+                back[ifile], gbu_max_background, name, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 4
       endif
 
       ; reject anamolously low background images
       if (back[ifile] lt gbu_min_background) then begin
-        mg_log, 'background lt %0.1f, reject %s', gbu_min_background, str, $
+        mg_log, 'background %0.1f < min %0.1f, reject %s', $
+                back[ifile], gbu_min_background, name, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 8
       endif
@@ -247,8 +249,8 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     if (wave_type ne '1083') then begin
       if (gt_threshold_count gt gbu_threshold_count) then begin
-        mg_log, '%d pixels > %0.1f, reject %s', $
-                gt_threshold_count, gbu_background_threshold, str, $
+        mg_log, '%d background pixels > %0.1f, reject %s', $
+                gt_threshold_count, gbu_background_threshold, name, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 64
       endif
@@ -308,7 +310,11 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; test for large sigma defind as > 2.5
   if (wave_type ne '1083') then begin
     bad = where(sigma gt gbu_max_sigma, count)
-    if (count gt 0) then if (perform_gbu) then good_files[bad] += 16
+    if (count gt 0) then begin
+      mg_log, 'sigma %0.2f > max sigma %0.2f', sigma, gbu_max_sigma, $
+              name='comp', /warn
+      if (perform_gbu) then good_files[bad] += 16
+    endif
   endif
 
   ; test where background changes radically (defined as 40% of background)
