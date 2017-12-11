@@ -123,8 +123,16 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
     uncorrected_images[*, *, i] = temporary(uncorrected_tmp_image)
 
     nd = comp_get_nd_filter(date_dir, wave_type, header)
-    transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
-    images[*, *, i] *= transmission_correction
+    if (wave_type eq '1074' || wave_type eq '1079') then begin
+      transmisson_correction = 1.0
+      if (nd ne 8) then begin
+        mg_log, 'non-ND=8 (%d) found for %s nm image', nd, wave_type, $
+                name='comp', /warn
+      endif
+    endif else begin
+      transmission_correction = comp_correct_nd(nd, flat_nd, wave[i])
+      images[*, *, i] *= transmission_correction
+    endelse
 
     if (flat_found[iflat]) then begin
       flat_image = flat[*, *, iflat] * flat_mask
