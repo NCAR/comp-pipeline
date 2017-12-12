@@ -95,6 +95,15 @@ pro comp_l1_check, date_dir, wave_type
 
   med_background = median(background)
 
+  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+  med_back_basename = string(date_dir, wave_type, $
+                             format='(%"%s.comp.%s.background.txt")')
+  med_back_filename = filepath(med_back_basename, root=eng_dir)
+  openr, lun, med_back_filename
+  printf, lun, med_back, format='(%"%0.1f")'
+  free_lun, lun
+
   case wave_type of
     '1074': n_files_post_angle_diff = n_1074_files_post_angle_diff
     '1079': n_files_post_angle_diff = n_1079_files_post_angle_diff

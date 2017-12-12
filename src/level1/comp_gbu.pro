@@ -16,7 +16,7 @@
 ;
 ;     1   data doesn't exist on disk but is in inventory file
 ;     2   3 standard wavelengths not found (not necessarily bad data)
-;     4   background > 30 ppm
+;     4   background > 16.0 ppm
 ;     8   background anamolously low, defined as < 1 ppm  
 ;     16  standard deviation of intensity image - median intensity
 ;         image > 2.5 ppm
@@ -262,23 +262,40 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   ; check for dirty O1 using the background level in the morning, as long as
   ; there are observations then skip the first one of the day
-  morning = where(time lt 21, count)
+  morning = where(time gt 16 and time lt 21, count)
   if (count gt 1) then begin
     med_back = median(back[morning[1:*]])
+
+    if (med_back gt gbu_med_background) then begin
+      mg_log, 'bkg median %0.1f exceeds %0.1f, 01 might need to be cleaned', $
+              med_back, gbu_med_background, $
+              name='comp', /warn
+    endif
+
+    eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+    if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+    med_back_basename = string(date_dir, wave_type, $
+                               format='(%"%s.comp.%s.morning.background.txt")')
+    med_back_filename = filepath(med_back_basename, root=eng_dir)
+    openr, lun, med_back_filename
+    printf, lun, med_back, format='(%"%0.1f")'
+    free_lun, lun
   endif else begin
     ; skip first image of the day, if there are more than 1 images
     if (n_files gt 1L) then begin
       med_back = median(back[1:*])
+
+      if (med_back gt gbu_med_background) then begin
+        mg_log, 'after 2100 UT bkg median %0.1f exceeds %0.1f', $
+                med_back, gbu_med_background, $
+                name='comp', /warn
+      endif
     endif else begin
       med_back = back[0]
     endelse
   endelse
-  mg_log, 'median background %f', med_back, name='comp', /info
-  if (med_back gt gbu_med_background) then begin
-    mg_log, 'background median exceeds %0.1f, 01 might need to be cleaned', $
-            gbu_med_background, $
-            name='comp', /warn
-  endif
+
+  mg_log, 'median background %0.1f', med_back, name='comp', /info
 
   ; find median intensity image using only good images so far
   good_subs = where(good_files eq 0, count)
