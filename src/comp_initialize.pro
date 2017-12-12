@@ -190,6 +190,18 @@ pro comp_initialize, date_dir
   ; width of the post (pixels)
   post_width = comp_initialize_readconfig('post_width', date_dir, options, type=4)
 
+  ; initial guess to find post
+  post_angle_guess = comp_initialize_readconfig('post_angle_guess', $
+                                                date_dir, $
+                                                options, $
+                                                type=4)
+
+  ; +/- tolerance from post_angle_guess to look for post
+  post_angle_tolerance = comp_initialize_readconfig('post_angle_tolerance', $
+                                                    date_dir, $
+                                                    options, $
+                                                    type=4)
+
   ; over or undersize occulter mask
   occulter_offset = comp_initialize_readconfig('occulter_offset', date_dir, options, type=4)
 
