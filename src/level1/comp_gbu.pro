@@ -197,7 +197,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     if (wave_type ne '1083') then begin
       ; skip observation if standard 3 wavelengths don't exist for the wave type
       if (wave_error gt 0L) then begin
-        mg_log, 'standard 3 wavelengths not found, skipping observation %s', name, $
+        mg_log, '%s: standard 3 wavelengths not found', name, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 2
 
@@ -209,16 +209,16 @@ pro comp_gbu, date_dir, wave_type, error=error
 
       ; reject high background images
       if (back[ifile] gt gbu_max_background) then begin
-        mg_log, 'background %0.1f > max %0.1f, reject %s', $
-                back[ifile], gbu_max_background, name, $
+        mg_log, '%s: bkg %0.1f > max %0.1f', $
+                name, back[ifile], gbu_max_background, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 4
       endif
 
       ; reject anamolously low background images
       if (back[ifile] lt gbu_min_background) then begin
-        mg_log, 'background %0.1f < min %0.1f, reject %s', $
-                back[ifile], gbu_min_background, name, $
+        mg_log, '%s: bkg %0.1f < min %0.1f', $
+                name, back[ifile], gbu_min_background, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 8
       endif
@@ -249,8 +249,8 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     if (wave_type ne '1083') then begin
       if (gt_threshold_count gt gbu_threshold_count) then begin
-        mg_log, '%d background pixels > %0.1f, reject %s', $
-                gt_threshold_count, gbu_background_threshold, name, $
+        mg_log, '%s: %d bkg pixels > %0.1f', $
+                name, gt_threshold_count, gbu_background_threshold, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 64
       endif
@@ -311,8 +311,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   if (wave_type ne '1083') then begin
     bad = where(sigma gt gbu_max_sigma, count)
     if (count gt 0) then begin
-      mg_log, 'sigma > max sigma %0.2f at %d files', $
-              gbu_max_sigma, count, $
+      mg_log, 'sigma > max sigma %0.2f at %d %s nm files', $
+              gbu_max_sigma, count, wave_type, $
               name='comp', /warn
       if (perform_gbu) then good_files[bad] += 16
     endif
