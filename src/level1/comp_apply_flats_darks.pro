@@ -124,7 +124,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
     nd = comp_get_nd_filter(date_dir, wave_type, header)
     if (wave_type eq '1074' || wave_type eq '1079') then begin
-      transmisson_correction = 1.0
+      transmission_correction = 1.0
       if (nd ne 8) then begin
         mg_log, 'non-ND=8 (%d) found for %s nm image', nd, wave_type, $
                 name='comp', /warn
