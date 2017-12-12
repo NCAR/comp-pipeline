@@ -338,7 +338,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; test where background changes radically (defined as 40% of background)
   if (wave_type ne '1083') then begin
     run_back = run_med(back, 10)
-    bad = where(abs(back - run_back) gt 0.4 * med_back, count)
+    bad = where(abs(back - run_back) gt gbu_percent_background_change * med_back, count)
     if (count gt 0) then if (perform_gbu) then good_files[bad] += 32
   endif
 

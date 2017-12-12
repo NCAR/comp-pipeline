@@ -115,7 +115,8 @@ pro comp_l1_check, date_dir, wave_type
              string(gbu_max_background, format='(%"background > max %0.1f ppm")'), $
              string(gbu_min_background, format='(%"background < min %0.1f ppm")'), $
              string(gbu_max_sigma, format='(%"std dev of intensity - median intensity > %0.2f ppm")'), $
-             'background changes by more than 40% of median background', $
+             string(gbu_percent_background_change * 100.0, $
+                    format='(%"background changes by more than %0.1f%% of median background")'), $
              string(gbu_threshold_count, gbu_background_threshold, $
                     format='(%"background contains more than %d pixels with value > %0.1f")'), $
              'std dev of intensity - median intensity is NaN of Inf']
