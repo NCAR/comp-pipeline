@@ -81,6 +81,8 @@ pro comp_initialize, date_dir
                                                      date_dir, options, type=4)
   overlap_angle_tolerance = comp_initialize_readconfig('overlap_angle_tolerance', $
                                                        date_dir, options, type=4)
+  post_angle_diff_tolerance = comp_initialize_readconfig('post_angle_diff_tolerance', $
+                                                         date_dir, options, type=4)
   lcvr6_temp_tolerance = comp_initialize_readconfig('lcvr6_temp_tolerance', $
                                                     date_dir, options, type=4)
   nominal_lcvr6_temp = comp_initialize_readconfig('nominal_lcvr6_temp', $
@@ -220,5 +222,9 @@ pro comp_initialize, date_dir
 
   obj_destroy, options
 
+  ; initialize L1 check values
   n_images_off_detector = 0L
+  n_1074_files_post_angle_diff = 0L
+  n_1079_files_post_angle_diff = 0L
+  n_1083_files_post_angle_diff = 0L
 end

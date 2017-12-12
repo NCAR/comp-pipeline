@@ -21,6 +21,7 @@ common comp_constants, nx, ny, $
                        gbu_threshold_count, $
                        nominal_overlap_angle, $
                        overlap_angle_tolerance, $
+                       post_angle_diff_tolerance, $
                        lcvr6_temp_tolerance, $
                        nominal_lcvr6_temp, $
                        check_lcvr6_temp, $

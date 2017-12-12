@@ -77,6 +77,18 @@ pro comp_combine_beams, images, headers, date_dir, $
 
   image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
                                        primary_header=primary_header)
+  n_bad_post_angle = abs(image_geometry.post_angle1 - image_geometry.post_angle2) gt post_angle_diff_tolerance
+  if (n_bad_post_angle) then begin
+    mg_log, 'post angles differ by more than tolerance: %0.2f and %0.2f', $
+            image_geometry.post_angle1, image_geometry.post_angle2, $
+            name='comp', /warn
+  endif
+  case wave_type of
+    '1074': n_1074_files_post_angle_diff += n_bad_post_angle
+    '1079': n_1079_files_post_angle_diff += n_bad_post_angle
+    '1083': n_1083_files_post_angle_diff += n_bad_post_angle
+  endcase
+
 ;  image_geometry = comp_image_geometry(images, headers, date_dir, $
 ;                                       primary_header=primary_header)
 ;  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)

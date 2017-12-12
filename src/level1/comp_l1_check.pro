@@ -107,6 +107,15 @@ pro comp_l1_check, date_dir, wave_type
       body->add, string(med_background, background_limit, $
                         format='(%"median background %0.1f exceeds limit %0.1f")')
     endif
+    case wave_type of
+      '1074': n_files_post_angle_diff = n_1074_files_post_angle_diff
+      '1079': n_files_post_angle_diff = n_1079_files_post_angle_diff
+      '1083': n_files_post_angle_diff = n_1083_files_post_angle_diff
+    endcase
+    if (n_files_post_angle_diff) then begin
+      body->add, string(n_files_post_angle_diff, $
+                        format='(%"%d files with post angle difference greater than tolerance")')
+    endif
     if (n_images_off_detector gt 0L) then begin
       body->add, string(n_images_off_detector, format='(%"%d images off detector")')
     endif

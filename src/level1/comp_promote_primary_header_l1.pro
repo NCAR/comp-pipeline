@@ -184,11 +184,13 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   ; post P angle
   sxaddpar, primary_header, 'POSTPANG', $
             (image_geometry.post_angle1 + image_geometry.post_angle2) / 2.0, $
-            ' [degrees] P Angle of occulter post'
+            ' [degrees] P Angle of occulter post', $
+            FORMAT='(F0.2)'
 
-  ; overlap P angle (from the field stop)
+  ; overlap angle (from the field stop)
   sxaddpar, primary_header, 'OVRLPANG', image_geometry.overlap_angle, $
-            ' [deg] Ang. of img. separation between camera diag. and optic plane', format='(F0.2)'
+            ' [deg] Ang. of img. separation between camera diag. and optic plane', $
+            format='(F0.2)'
 
   ; occulter ID and size
   occ_id = sxpar(primary_header, 'OCCULTER')
