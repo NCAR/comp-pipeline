@@ -80,7 +80,7 @@ pro comp_combine_beams, images, headers, date_dir, $
                                        primary_header=primary_header)
   n_bad_post_angle = abs(image_geometry.post_angle1 - image_geometry.post_angle2) gt post_angle_diff_tolerance
   if (n_bad_post_angle) then begin
-    mg_log, 'post angle difference > %0.1f: %0.1f and %0.1f', $
+    mg_log, 'post angle difference > %0.1f deg: %0.1f and %0.1f', $
             post_angle_diff_tolerance, $
             image_geometry.post_angle1, $
             image_geometry.post_angle2, $
