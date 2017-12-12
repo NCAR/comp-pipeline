@@ -134,7 +134,10 @@ pro comp_l1_check, date_dir, wave_type
     body->add, ['', ''], /extract
     body->add, string(mg_src_root(/filename), $
                       getenv('USER'), getenv('HOSTNAME'), $
-                      format='(%"Sent from %s (%s@%s")')
+                      format='(%"Sent from %s (%s@%s)")')
+    code_version = comp_find_code_version(revision=revision, branch=branch)
+    body->add, string(code_version, revision, branch, $
+                      format='(%"comp-pipeline %s (%s on %s)")')
 
     body_text = body->toArray()
     obj_destroy, body
