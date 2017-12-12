@@ -430,7 +430,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; plot azimuth
     if (qu_files[ii] eq 1) then begin
-      azimuth = comp_azimuth(stks_u, stks_q)
+      azimuth = comp_azimuth(stks_u, stks_q, /radial)
 
       loadct, 4, /silent
       tvlct, r, g, b, /get
@@ -439,10 +439,10 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       azi = bytscl(azimuth, min=0, max=180, top=254)
       azi[unmasked] = 0.
       tv, azi
-      colorbar2, position=colbarpos,chars=1.25, title='Azimuth [degrees]', $
+      colorbar2, position=colbarpos, charsize=1.25, title='Radial azimuth [degrees]', $
                  range=[0, 180], font=-1, divisions=6, color=255, ncolors=254
       loadct, 0, /silent
-      xyouts, 4 * 48, 4 * 78, 'Azimuth',chars=6, /device, color=255
+      xyouts, 4 * 48, 4 * 78, 'Radial azimuth', chars=6, /device, color=255
       !p.font = -1
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
@@ -488,7 +488,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       write_png, filepath('q.' + png_ext, root=temp_path), qoveri
       write_png, filepath('u.' + png_ext, root=temp_path), uoveri
       write_png, filepath('ltot.' + png_ext, root=temp_path), ltot
-      write_png, filepath('azimuth.' + png_ext, root=temp_path), azim
+      write_png, filepath('rad-azimuth.' + png_ext, root=temp_path), azim
     endif
   endfor
 
@@ -614,13 +614,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       mg_log, 'no files found matching %s', glob, name='comp', /debug
     endelse
 
-    type = 'azimuth'
+    type = 'rad-azimuth'
     glob = string(1, format='(%"' + type + infile_ext + '")')
     files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
-                                   pass, 'azi', '3000k', $
-                                   date_dir, wave_type, 'daily_azimuth', $
+                                   pass, 'rad-azi', '3000k', $
+                                   date_dir, wave_type, 'daily_rad-azimuth', $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -632,7 +632,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
   clean_ffmpeg_logs = 1B
   if (clean_ffmpeg_logs) then begin
-    types = ['azi', 'corr_velo', 'enh_int', 'int', 'line_width', 'lin_pol', 'stks_q', 'stks_u']
+    types = ['rad-azi', 'corr_velo', 'enh_int', 'int', 'line_width', 'lin_pol', 'stks_q', 'stks_u']
     for t = 0L, n_elements(types) - 1L do begin
       log_filename = string(types[t], format='(%"%s-0.log")')
       if (file_test(log_filename)) then file_delete, log_filename
@@ -655,7 +655,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   if (n_files gt 0L) then file_delete, files
   files = file_search('u.' + wave_type + '.*.png', count=n_files)
   if (n_files gt 0L) then file_delete, files
-  files = file_search('azimuth.' + wave_type + '.*.png', count=n_files)
+  files = file_search('rad-azimuth.' + wave_type + '.*.png', count=n_files)
   if (n_files gt 0L) then file_delete, files
 
   cd, pwd
