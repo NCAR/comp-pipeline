@@ -7,7 +7,7 @@
 ;   For example, call like::
 ;
 ;     cd, '/hao/kaula1/Data/CoMP/process/20120606'
-;     gbu = comp_read_gbu('20120606.comp.1074gbu.log')
+;     gbu = comp_read_gbu('20120606.comp.1074.gbu.log')
 ;
 ; :Uses:
 ;   merge_struct, str_sep, mg_log
@@ -50,12 +50,13 @@ function comp_read_gbu, gbu_file, count=count
   if (count eq 0) then return, !null
 
   for ii = 1L, n_elements(sarr) - 1L do begin
-    str = {l1file:'', $
-           time_obs:'', $
-           quality:'', $
-           background:0., $
-           variance:0., $
-           wavelengths:0}
+    str = {l1file: '', $
+           time_obs: '', $
+           quality: '', $
+           background: 0.0, $
+           variance: 0.0, $
+           wavelengths: 0, $
+           reason: 0L}
     x = str_sep(sarr[ii], ' ')
     best = where(x ne '', bc)
     x = x[best]
@@ -86,6 +87,7 @@ function comp_read_gbu, gbu_file, count=count
       str.background = float(x[2])
       str.variance = float(x[3])
       str.wavelengths = fix(x[4])
+      str.reason = long(x[5])
     endelse
 
     ;   ofile = base+'.FitI.'+fns('#',str.wavelengths)+'.sav'

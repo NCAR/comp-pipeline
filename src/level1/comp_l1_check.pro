@@ -95,23 +95,64 @@ pro comp_l1_check, date_dir, wave_type
 
   med_background = median(background)
 
-  send_warning = overlap_angle_warning $
-                   || (med_background gt background_limit) $
-                   || (n_images_off_detector gt 0L) $
-                   || (n_images_bad_temp gt 0L) $
-                   || (n_images_bad_filttemp gt 0L)
+  case wave_type of
+    '1074': n_files_post_angle_diff = n_1074_files_post_angle_diff
+    '1079': n_files_post_angle_diff = n_1079_files_post_angle_diff
+    '1083': n_files_post_angle_diff = n_1083_files_post_angle_diff
+  endcase
+
+  reasons = ['data doesn''t exist on disk, but is in inventory file', $
+             'standard 3 wavelengths not found for non-1083 data', $
+             string(gbu_max_background, format='(%"background > max %0.1f ppm")'), $
+             string(gbu_min_background, format='(%"background < min %0.1f ppm")'), $
+             string(gbu_max_sigma, format='(%"std dev of intensity - median intensity > %0.2f ppm")'), $
+             'background changes by more than 40% of median background', $
+             string(gbu_threshold_count, gbu_background_threshold, $
+                    format='(%"background contains more than %d pixels with value > %0.1f")'), $
+             'std dev of intensity - median intensity is NaN of Inf']
+
+  n_reasons = n_elements(reasons)
+  bad_for_reason = lonarr(n_reasons)
+  gbu_basename = string(date_dir, wave_type, format='(%"%s.comp.%s.gbu.log")')
+  gbu_filename = filepath(gbu_basename, $
+                          subdir=[date_dir, 'level1'], $
+                          root=process_basedir)
+  gbu = comp_read_gbu(gbu_filename)
+
+  reason = 1L
+  for r = 0L, n_reasons - 1L do begin
+    !null = where((gbu.reason and reason) eq reason, n_bad_files)
+    bad_for_reason[r] = n_bad_files
+    reason = ishft(reason, 1)
+  endfor
+
+  ind = where(bad_for_reason, n_bad_reasons)
+
+  n_warnings = overlap_angle_warning $
+                 + (med_background gt background_limit) $
+                 + (n_files_post_angle_diff gt 0L) $
+                 + (n_images_off_detector gt 0L) $
+                 + (n_images_bad_temp gt 0L) $
+                 + (n_images_bad_filttemp gt 0L)
+
+  send_warning = (n_warnings gt 0L) || (n_bad_reasons gt 0L)
   if (send_warning && notification_email ne '') then begin
+    mg_log, 'sending warnings to %s', notification_email, name='comp', /info
+
     body = list()
+
+    body->add, '# Warnings'
+
+    body->add, ''
+
+    if (n_warnings eq 0L) then body->add, 'no warnings'
+
     if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
     if (med_background gt background_limit) then begin
       body->add, string(med_background, background_limit, $
                         format='(%"median background %0.1f exceeds limit %0.1f")')
     endif
-    case wave_type of
-      '1074': n_files_post_angle_diff = n_1074_files_post_angle_diff
-      '1079': n_files_post_angle_diff = n_1079_files_post_angle_diff
-      '1083': n_files_post_angle_diff = n_1083_files_post_angle_diff
-    endcase
+
     if (n_files_post_angle_diff) then begin
       body->add, string(n_files_post_angle_diff, $
                         format='(%"%d files with post angle difference greater than tolerance")')
@@ -130,7 +171,18 @@ pro comp_l1_check, date_dir, wave_type
 
     body->add, ''
     log_filename = filepath(date_dir + '.log', root=log_dir)
-    body->add, string(log_filename, format='(%"See warnings in log %s for details")')
+    body->add, string(log_filename, format='(%"See log %s for details")')
+
+    body->add, ['', '', '# GBU'], /extract
+
+    body->add, ''
+    if (n_bad_reasons eq 0L) then body->add, 'no bad files in GBU'
+
+    for r = 0L, n_bad_reasons - 1L do begin
+      body->add, string(bad_for_reason[ind[r]], reasons[ind[r]], $
+                        format='(%"%d bad images because %s")')
+    endfor
+
     body->add, ['', ''], /extract
     body->add, string(mg_src_root(/filename), $
                       getenv('USER'), getenv('HOSTNAME'), $
@@ -147,4 +199,20 @@ pro comp_l1_check, date_dir, wave_type
 
     comp_send_mail, notification_email, subject, body_text
   endif
+end
+
+
+; main-level example program
+
+date = '20171001'
+config_basename = 'comp.mgalloy.mahi.latest.cfg'
+config_filename = filepath(config_basename, $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+comp_configuration, config_filename=config_filename
+comp_initialize, date
+
+comp_l1_check, date, '1074'
+
 end
