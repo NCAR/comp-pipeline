@@ -61,7 +61,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
 
   image_color = 'a0a0a0'x
   flat_color = '0000ff'x
-  charsize = 1.1
+  charsize = 1.25
 
   ;occ_radius_range = [227.0, 234.0]
   occ_ul_radius_range = [min(image_occ_ul.r) < min(flat_occ_ul.r), $
