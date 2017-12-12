@@ -38,3 +38,10 @@
 1.3.9
   cuts down on number of warnings in logs about temperatures
   does not delete engineering logs if raw dir is locked
+1.3.10
+  limits search for post
+  add "comp" to all output filenames and more consistency in filenames
+  add GBU problems to L1 check notification
+  add warnings for to great of a post angle difference between beams
+  removing useless warnings
+  set notification email from:
