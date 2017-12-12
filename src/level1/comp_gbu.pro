@@ -311,8 +311,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   if (wave_type ne '1083') then begin
     bad = where(sigma gt gbu_max_sigma, count)
     if (count gt 0) then begin
-      mg_log, 'sigma %0.2f > max sigma %0.2f at %d files', $
-              sigma, gbu_max_sigma, count, $
+      mg_log, 'sigma > max sigma %0.2f at %d files', $
+              gbu_max_sigma, count, $
               name='comp', /warn
       if (perform_gbu) then good_files[bad] += 16
     endif
