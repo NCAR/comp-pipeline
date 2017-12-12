@@ -61,7 +61,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
 
   image_color = 'a0a0a0'x
   flat_color = '0000ff'x
-  charsize = 1.25
+  charsize = 1.3
 
   ;occ_radius_range = [227.0, 234.0]
   occ_ul_radius_range = [min(image_occ_ul.r) < min(flat_occ_ul.r), $
@@ -139,7 +139,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
   !p.multi = 0
   xyouts, 0.95, 0.985, $
           string(date, wave_type, format='(%"Centering for %s (%s nm)")'), $
-          alignment=1.0, charsize=1.1, /normal, font=1
+          alignment=1.0, charsize=charsize, /normal, font=1
 
   mg_psend
 end
