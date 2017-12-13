@@ -101,7 +101,7 @@ pro comp_l1_check, date_dir, wave_type
                              format='(%"%s.comp.%s.background.txt")')
   med_back_filename = filepath(med_back_basename, root=eng_dir)
   openw, lun, med_back_filename, /get_lun
-  printf, lun, med_back, format='(%"%0.1f")'
+  printf, lun, med_background, format='(%"%0.1f")'
   free_lun, lun
 
   case wave_type of
