@@ -277,7 +277,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     med_back_basename = string(date_dir, wave_type, $
                                format='(%"%s.comp.%s.morning.background.txt")')
     med_back_filename = filepath(med_back_basename, root=eng_dir)
-    openr, med_back_lun, med_back_filename, /get_lun
+    openw, med_back_lun, med_back_filename, /get_lun
     printf, med_back_lun, med_back, format='(%"%0.1f")'
     free_lun, med_back_lun
   endif else begin
