@@ -37,11 +37,11 @@ pro comp_find_post, image, occulter, field, pa
   ans = ' '
   debug = 0   ; debug mode just for this routine (1=yes, 0=no)
 
-  new_nx = 1500     ; sampling in theta direction
-  new_ny = 70       ; sampling in radius direction
+  new_nx = 4 * 360     ; sampling in theta direction
+  new_ny = 70          ; sampling in radius direction
 
   ; this is theta from 0 to 2*pi
-  new_th = rebin(findgen(new_nx) / float(new_nx) * (2. * !dpi), new_nx, new_ny)
+  new_th = rebin(findgen(new_nx) / float(new_nx) * (2.0 * !dpi), new_nx, new_ny)
 
   ; this is r from the occulter radius to the field stop radius
   new_r = rebin(transpose((field.r - occulter.r) * findgen(new_ny) / float(new_ny - 1) $
@@ -53,7 +53,7 @@ pro comp_find_post, image, occulter, field, pa
   new_y = new_r * sin(new_th) + ny * 0.5 + occulter.y
 
   ; use bilinear to extract the values
-  new_img = bilinear(image, new_x ,new_y)
+  new_img = bilinear(image, new_x, new_y)
 
   ; extract center of annulus to avoid overlap and off-center
   new_img = new_img[*, 25:new_ny - 20]
@@ -66,8 +66,8 @@ pro comp_find_post, image, occulter, field, pa
   y = median(theta_scan) - theta_scan
   x = findgen(new_nx) / float(new_nx) * 360.
 
-  ind = where(x gt post_angle_guess + 90 - post_angle_tolerance $
-                and post_angle_guess + 90 + post_angle_tolerance, $
+  ind = where((x gt post_angle_guess + 90 - post_angle_tolerance) $
+                and (x lt post_angle_guess + 90 + post_angle_tolerance), $
               count)
 
   x = x[ind]
