@@ -430,19 +430,33 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
     ; plot azimuth
     if (qu_files[ii] eq 1) then begin
-      azimuth = comp_azimuth(stks_u, stks_q, /radial)
+      azimuth = comp_azimuth(stks_u, stks_q, radial_azimuth=radial_azimuth)
 
-      loadct, 4, /silent
+      ;loadct, 4, /silent
+      ;tvlct, r, g, b, /get
+      ;b[255] = 255
+      ;tvlct, r, g, b
+      ncolors = 256 - 1 - 1 ; one for annotation color, one for bad data
+      loadct, 6, /silent, ncolors=ncolors
       tvlct, r, g, b, /get
-      b[255] = 255
+      r[0:ncolors - 1] = shift(r[0:ncolors - 1], ncolors / 2)
+      g[0:ncolors - 1] = shift(g[0:ncolors - 1], ncolors / 2)
+      b[0:ncolors - 1] = shift(b[0:ncolors - 1], ncolors / 2)
       tvlct, r, g, b
-      azi = bytscl(azimuth, min=0, max=180, top=254)
-      azi[unmasked] = 0.
-      tv, azi
+      ;tvlct, 128B, 128B, 128B, 254L   ; bad values are grey
+      tvlct, 0B, 0B, 0B, 254L ; bad values are black
+      tvlct, 255B, 255B, 255B, 255L   ; annotation color is white
+
+      bad_aziind = where(radial_azimuth lt -90, n_bad_aziind)
+      rad_azi = bytscl(radial_azimuth, min=-90.0, max=90.0, top=ncolors - 1)
+      if (n_bad_aziind gt 0L) then rad_azi[bad_aziind] = 254
+      rad_azi[unmasked] = 254
+      tv, rad_azi
       colorbar2, position=colbarpos, charsize=1.25, title='Radial azimuth [degrees]', $
-                 range=[0, 180], font=-1, divisions=6, color=255, ncolors=254
+                 range=[-90, 90], font=-1, divisions=6, color=255, ncolors=253
       loadct, 0, /silent
-      xyouts, 4 * 48, 4 * 78, 'Radial azimuth', chars=6, /device, color=255
+      xyouts, 620.0 / 2.0, 4 * 78, 'Radial Azimuth', $
+              charsize=6, /device, color=255, alignment=0.5
       !p.font = -1
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
@@ -488,7 +502,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       write_png, filepath('q.' + png_ext, root=temp_path), qoveri
       write_png, filepath('u.' + png_ext, root=temp_path), uoveri
       write_png, filepath('ltot.' + png_ext, root=temp_path), ltot
-      write_png, filepath('rad-azimuth.' + png_ext, root=temp_path), azim
+      write_png, filepath('radial_azimuth.' + png_ext, root=temp_path), azim
     endif
   endfor
 
@@ -614,13 +628,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       mg_log, 'no files found matching %s', glob, name='comp', /debug
     endelse
 
-    type = 'rad-azimuth'
+    type = 'radial_azimuth'
     glob = string(1, format='(%"' + type + infile_ext + '")')
     files = file_search(glob, count=n_files)
     if (n_files gt 0L) then begin
       ffmpeg_cmd = filepath(string(type + infile_ext, $
                                    pass, 'rad-azi', '3000k', $
-                                   date_dir, wave_type, 'daily_rad-azimuth', $
+                                   date_dir, wave_type, 'daily_radial_azimuth', $
                                    format=ffmpeg_fmt), $
                             root=ffmpeg_dir)
       mg_log, ffmpeg_cmd, name='comp', /debug
@@ -632,7 +646,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
   clean_ffmpeg_logs = 1B
   if (clean_ffmpeg_logs) then begin
-    types = ['rad-azi', 'corr_velo', 'enh_int', 'int', 'line_width', 'lin_pol', 'stks_q', 'stks_u']
+    types = ['rad-azi', 'corr_velo', 'enh_int', 'int', 'line_width', $
+             'lin_pol', 'stks_q', 'stks_u']
     for t = 0L, n_elements(types) - 1L do begin
       log_filename = string(types[t], format='(%"%s-0.log")')
       if (file_test(log_filename)) then file_delete, log_filename
@@ -655,11 +670,29 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   if (n_files gt 0L) then file_delete, files
   files = file_search('u.' + wave_type + '.*.png', count=n_files)
   if (n_files gt 0L) then file_delete, files
-  files = file_search('rad-azimuth.' + wave_type + '.*.png', count=n_files)
+  files = file_search('radial_azimuth.' + wave_type + '.*.png', count=n_files)
   if (n_files gt 0L) then file_delete, files
 
   cd, pwd
 
   skip:
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+date = '20171001'
+wave_type = '1074'
+
+config_basename = 'comp.mgalloy.mahi.latest.cfg'
+config_filename = filepath(config_basename, $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+comp_configuration, config_filename=config_filename
+comp_initialize, date
+
+comp_l2_create_movies, date, wave_type, nwl=3
+
 end
