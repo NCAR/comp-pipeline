@@ -156,11 +156,11 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     tvlct, old_r, old_g, old_b, /get
     colbarpos = [0.27, 0.31, 0.27 + 0.465, 0.31 + 0.03]
 
-    bad_val = where(finite(velocity) ne 1)
+    undef_velocity_ind = where(finite(velocity) ne 1, n_undef_velocity)
     comp_mask = mask
     masked = where(comp_mask eq 1 $
                      and intensity gt int_min_thresh $
-                     and intensity lt int_max_thresh, comp=unmasked)
+                     and intensity lt int_max_thresh, complement=unmasked)
 
     ; plot Q/I in b/w
     loadct, 0, /silent
@@ -248,7 +248,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       poi[unmasked] = 0
       poi = alog10(poi)
       poi = bytscl(poi, min=-2.3, max=-0.3, /nan)
-      if ((size(bad_val))[0] eq 1) then poi[bad_val] = 0
+      if (n_undef_velocity gt 0L) then poi[undef_velocity_ind] = 0
       tv, poi
       colorbar2, position=colbarpos, charsize=1.25, title='log(L!Itot !N/I)', $
                  range=[-2.3, -0.3], font=-1, divisions=4, format='(F5.1)'
@@ -284,7 +284,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     tvlct, r, g, b
     vel = bytscl(velocity, min=-10, max=10, top=253)
     vel[unmasked] = 254
-    if ((size(bad_val))[0] eq 1) then vel[bad_val] = 254
+    if (n_undef_velocity gt 0L) then vel[undef_velocity_ind] = 254
     tv, vel
     colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $
                range=[-10, 10], font=-1, divisions=10, color=255, ncolors=253
@@ -322,7 +322,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     display_min_i = 0.3
     display_max_i = 4.0
     int = bytscl(int, min=display_min_i, max=display_max_i)
-    if ((size(bad_val))[0] eq 1) then int[bad_val] = 0
+    if (n_undef_velocity gt 0L) then int[undef_velocity_ind] = 0
     tv, int
     colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
                range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
@@ -397,7 +397,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ;width = bytscl(width, min=35, max=65, top=253)
     ;width[unmasked] = 254
     width = bytscl(width, min=25, max=55, top=254)
-    if ((size(bad_val))[0] eq 1) then width[bad_val] = 0
+    if (n_undef_velocity gt 0L) then width[undef_velocity_ind] = 0
     tv, width
     colorbar2, position=colbarpos,chars=1.25, title='line width [km/s]', $
                range=[25,55], font=-1, divisions=3, color=255, ncolors=254

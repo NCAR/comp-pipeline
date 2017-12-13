@@ -129,7 +129,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   stks_u[mask_ind] = 0.0
   azimuth[mask_ind] = 0.0
   poi[mask_ind] = 0.0
-  velocity[mask_ind] = 0.0
+  ;velocity[mask_ind] = 0.0
   width[mask_ind] = 0.0
 
   ; get some info
@@ -174,7 +174,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   tvlct, r, g, b
   vel = bytscl(velocity, min=-10, max=10, top=253)
   vel[mask_ind] = 254
-  if (n_undef_velocity gt 0) then vel[undef_velocity_ind] = 254
+  if (n_undef_velocity gt 0L) then vel[undef_velocity_ind] = 254
   tv, vel, 4 * 165, 4 * 5
 
   ; plot intensity and enhanced intensity
