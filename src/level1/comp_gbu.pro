@@ -19,7 +19,7 @@
 ;     4   background > 16.0 ppm
 ;     8   background anamolously low, defined as < 1 ppm  
 ;     16  standard deviation of intensity image - median intensity
-;         image > 2.5 ppm
+;         image > 2.0 ppm
 ;     32  background changes abruptly by more than 40% of the median background
 ;         level
 ;     64  background image contains more than 150 pixels with a value > 70
