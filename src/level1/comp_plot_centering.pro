@@ -61,7 +61,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
 
   image_color = 'a0a0a0'x
   flat_color = '0000ff'x
-  charsize = 1.3
+  charsize = 2.0
 
   ;occ_radius_range = [227.0, 234.0]
   occ_ul_radius_range = [min(image_occ_ul.r) < min(flat_occ_ul.r), $
@@ -137,8 +137,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
   oplot, flat_occ_lr.time, flat_occ_lr.r, color=flat_color, /noclip
 
   !p.multi = 0
-  xyouts, 0.95, 0.985, $
-          string(date, wave_type, format='(%"Centering for %s (%s nm)")'), $
+  xyouts, 0.95, 0.98, $
+          string(date, wave_type, format='(%"%s (%s nm)")'), $
           alignment=1.0, charsize=charsize, /normal, font=1
 
   mg_psend
@@ -147,44 +147,8 @@ end
 
 ; main-level example program
 
-;dates = '20161111'
-;dates = ['20161110', $
-;         '20161111', $
-;         '20161112', $
-;         '20161113', $
-;         '20161114', $
-;         '20161115', $
-;         '20161116', $
-;         '20161117', $
-;         '20161118']
-;dates = ['20161112', $
-;         '20161113', $
-;         '20161114', $
-;         '20161115', $
-;         '20161116', $
-;         '20161117']
-;flag_name = 'centering'
-;flag_number = 21
-
-
-comp_plot_centering, '/hao/mahidata1/Data/CoMP/engineering.latest2/2017/10/01', $
-                     '20171001.centering2.ps', $
+comp_plot_centering, '/hao/mahidata1/Data/CoMP/engineering.latest/2017/10/01', $
+                     '20171001.centering-new.ps', $
                      '20171001', '1074'
-
-;dates = ['20150418']
-;flag_name = 'expan_factor_azi'
-;flag_number = 4
-
-;flags = string(flag_name, flag_number, format='(%".%s%d")')
-;note = 'find center from unflat corrected images; modified epoch.cfg'
-
-;for d = 0L, n_elements(dates) - 1L do begin
-;  dir = filepath('', subdir=comp_decompose_date(dates[d]), $
-;                 root='/hao/mahidata1/Data/CoMP/engineering' + flags)
-;  output_filename = string(flags, dates[d], format='(%"centering%s-%s.ps")')
-;
-;  print, 'Writing to ' + output_filename
-;  comp_plot_centering, dir, output_filename, note
-;endfor
 
 end
