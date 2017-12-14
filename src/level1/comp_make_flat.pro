@@ -210,7 +210,17 @@ pro comp_make_flat, date_dir, error=error
     endif
 
     sxaddpar, header, 'FILENAME', opalfile, ' Name of raw opal file'
-    sxaddpar, header, 'EXPOSURE', exposure
+    sxaddpar, header, 'EXPOSURE', exposure, ' Exposure time (millisec)', $
+              format='(F0.2)'
+
+    sxaddpar, header, 'WAVELENG', sxpar(header, 'WAVELENG'), $
+              ' Wavelength (nm)', format='(F0.3)'
+    ext_beam = sxpar(header, 'BEAM')
+    sxaddpar, header, 'BEAM', ext_beam, $
+              ext_beam gt 0.0 $
+                ? ' corona in lower-right, background in upper-left' $
+                : ' corona in upper-left, background in lower-right'
+
     sxaddpar, header, 'NDFILTER', nd_filter, $
               ' ND 1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=clr, 8=clr'
 
@@ -304,7 +314,8 @@ pro comp_make_flat, date_dir, error=error
       ; Check signal: a mask with only occulter and field, but right at edges
       tmp_image = mask_full_fill * image
       medflat = median(tmp_image[where(tmp_image ne 0.)])
-      sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli'
+      sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli', $
+                format='(F0.2)'
 
       ; the flat can be blocked by the dome or the sky conditions could limit
       ; the lights, which lowers the value of the flat

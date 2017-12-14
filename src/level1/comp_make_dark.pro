@@ -153,8 +153,17 @@ pro comp_make_dark, date_dir, error=error
     ; write out dark
     sxdelpar, header, 'POLSTATE'
     sxdelpar, header, 'SEQUENCE'
-    sxaddpar, header, 'DATATYPE','DARK'
+    sxaddpar, header, 'DATATYPE', 'DARK'
     sxaddpar, header, 'DEMULT', 1
+
+    ; fix formats
+    sxaddpar, header, 'EXPOSURE', sxpar(header, 'EXPOSURE'), $
+              ' Exposure time (millisec)', format='(F0.2)'
+    beam = sxpar(header, 'BEAM')
+    sxaddpar, header, 'BEAM', beam, $
+              beam gt 0.0 $
+                ? ' corona in lower-right, background in upper-left' $
+                : ' corona in upper-left, background in lower-right'
 
     time[nout] = comp_parse_time(time_str, $
                                  hours=hours, minutes=minutes, seconds=seconds)
