@@ -12,7 +12,7 @@
 ;   image : in
 ;     the large format comp image
 ;   header : out
-;     the resulting fits header
+;     the resulting FITS header
 ;   date_dir : in, required, type=string
 ;     date to process, in YYYYMMDD format
 ;   uncorrected_occulter1 : out
@@ -103,6 +103,18 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
+  occulter1.x += corrected_occulter_guess1[0]
+  occulter1.y += corrected_occulter_guess1[1]
+
+  field1.x += corrected_occulter_guess1[0]
+  field1.y += corrected_occulter_guess1[1]
+
+  uncorrected_occulter1.x += uncorrected_occulter_guess1[0]
+  uncorrected_occulter1.y += uncorrected_occulter_guess1[1]
+
+  uncorrected_field1.x += uncorrected_occulter_guess1[0]
+  uncorrected_field1.y += uncorrected_occulter_guess1[1]
+
   comp_find_post, flat1, occulter1, field1, post_angle1
   comp_find_post, uncorrected_flat1, $
                   uncorrected_occulter1, uncorrected_field1, $
@@ -131,6 +143,18 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
+  occulter2.x += corrected_occulter_guess2[0]
+  occulter2.y += corrected_occulter_guess2[1]
+
+  field2.x += corrected_occulter_guess2[0]
+  field2.y += corrected_occulter_guess2[1]
+
+  uncorrected_occulter2.x += uncorrected_occulter_guess2[0]
+  uncorrected_occulter2.y += uncorrected_occulter_guess2[1]
+
+  uncorrected_field2.x += uncorrected_occulter_guess2[0]
+  uncorrected_field2.y += uncorrected_occulter_guess2[1]
+
   comp_find_post, flat2, occulter2, field2, post_angle2
   comp_find_post, uncorrected_flat2, $
                   uncorrected_occulter2, uncorrected_field2, $
@@ -149,24 +173,6 @@ pro comp_make_header, image, header, date_dir, $
                             subdir=comp_decompose_date(date_dir), $
                             root=engineering_dir)
   endif
-
-  occulter1.x += corrected_occulter_guess1[0]
-  occulter1.y += corrected_occulter_guess1[1]
-  occulter2.x += corrected_occulter_guess2[0]
-  occulter2.y += corrected_occulter_guess2[1]
-  field1.x += corrected_occulter_guess1[0]
-  field1.y += corrected_occulter_guess1[1]
-  field2.x += corrected_occulter_guess2[0]
-  field2.y += corrected_occulter_guess2[1]
-
-  uncorrected_occulter1.x += uncorrected_occulter_guess1[0]
-  uncorrected_occulter1.y += uncorrected_occulter_guess1[1]
-  uncorrected_occulter2.x += uncorrected_occulter_guess2[0]
-  uncorrected_occulter2.y += uncorrected_occulter_guess2[1]
-  uncorrected_field1.x += uncorrected_occulter_guess1[0]
-  uncorrected_field1.y += uncorrected_occulter_guess1[1]
-  uncorrected_field2.x += uncorrected_occulter_guess2[0]
-  uncorrected_field2.y += uncorrected_occulter_guess2[1]
 
   ; occulter position
   sxaddpar, header, 'OXCNTER1', occulter1.x + nx / 2 + 1.0, $
