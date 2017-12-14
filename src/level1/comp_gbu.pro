@@ -104,6 +104,9 @@ pro comp_gbu, date_dir, wave_type, error=error
     return
   endif
 
+  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
+  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+
   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   if (~file_test(process_dir, /directory)) then begin
     mg_log, 'level1 process directory %s does not exist, exiting', process_dir, $
@@ -272,8 +275,6 @@ pro comp_gbu, date_dir, wave_type, error=error
               name='comp', /warn
     endif
 
-    eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
-    if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
     med_back_basename = string(date_dir, wave_type, $
                                format='(%"%s.comp.%s.morning.background.txt")')
     med_back_filename = filepath(med_back_basename, root=eng_dir)
@@ -312,6 +313,11 @@ pro comp_gbu, date_dir, wave_type, error=error
     endfor
   endif
 
+  ; save med in .sav file
+  med_basename = string(date_dir, wave_type, format='(%"%s.comp.%s.median.gbu.sav")')
+  med_filename = filepath(med_basename, root=eng_dir)
+  save, med, filename=med_filename
+
   ; create mask of good pixels
   good = where(med gt 1.0, count)
   if (count eq 0) then mg_log, 'med le 1', name='comp', /warn
@@ -324,7 +330,7 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   sigma /= median(sigma)
 
-  ; test for large sigma defind as > 2.5
+  ; test for large sigma defind as > gbu_max_sigma from epochs file
   if (wave_type ne '1083') then begin
     bad = where(sigma gt gbu_max_sigma, count)
     if (count gt 0) then begin
@@ -426,9 +432,6 @@ pro comp_gbu, date_dir, wave_type, error=error
 ;  endif
 
   ; engineering plots
-  eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
-  if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
-
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_sigma.txt', $
                       root=eng_dir), $
              time, sigma
