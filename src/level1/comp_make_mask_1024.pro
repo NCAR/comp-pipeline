@@ -44,19 +44,19 @@ pro comp_make_mask_1024, date_dir, flat_header, mask, $
   comp_initialize, date_dir
 
   ; get parameters from FITS header
-  occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2, $
-               y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2, $
+  occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2 - 1.0, $
+               y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2 - 1.0, $
                r:sxpar(flat_header, 'ORADIUS1')}
-  occulter2 = {x:sxpar(flat_header, 'OXCNTER2') - 1024 + nx / 2, $
-               y:sxpar(flat_header, 'OYCNTER2') - ny / 2, $
+  occulter2 = {x:sxpar(flat_header, 'OXCNTER2') - 1024 + nx / 2 - 1.0, $
+               y:sxpar(flat_header, 'OYCNTER2') - ny / 2 - 1.0, $
                r:sxpar(flat_header, 'ORADIUS2')}
 
   ; field position
-  field1 = {x:sxpar(flat_header, 'FXCNTER1') - nx / 2, $
-            y:sxpar(flat_header, 'FYCNTER1') - 1024 + ny / 2, $
+  field1 = {x:sxpar(flat_header, 'FXCNTER1') - nx / 2 - 1.0, $
+            y:sxpar(flat_header, 'FYCNTER1') - 1024 + ny / 2 - 1.0, $
             r:sxpar(flat_header, 'FRADIUS1')}
-  field2 = {x:sxpar(flat_header, 'FXCNTER2') - 1024 + nx / 2, $
-            y:sxpar(flat_header, 'FYCNTER2') - ny / 2, $
+  field2 = {x:sxpar(flat_header, 'FXCNTER2') - 1024 + nx / 2 - 1.0, $
+            y:sxpar(flat_header, 'FYCNTER2') - ny / 2 - 1.0, $
             r:sxpar(flat_header, 'FRADIUS2')}
 
   ; P angles of post
