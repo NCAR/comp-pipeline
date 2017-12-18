@@ -41,9 +41,6 @@ pro comp_make_mask, date_dir, fits_header, mask
   @comp_constants_common
   @comp_mask_constants_common
 
-  ; configure
-  comp_initialize, date_dir
-
   ; get parameters from FITS header
 
   ; look for new keyword
