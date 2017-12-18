@@ -29,7 +29,7 @@ pro comp_l1_check, date_dir, wave_type
 
   n_images_bad_temp = 0L
   n_images_bad_filttemp = 0L
-  overlap_angle_warning = 0B
+  n_overlap_angle_warnings = 0L
   background = fltarr(n_l1_files)
 
   for f = 0L, n_l1_files - 1L do begin
@@ -44,7 +44,7 @@ pro comp_l1_check, date_dir, wave_type
     background[f] = size(im_background, /type) eq 7 ? !values.f_nan : im_background
 
     if (abs(overlap_angle - nominal_overlap_angle) gt overlap_angle_tolerance) then begin
-      overlap_angle_warning = 1B
+      n_overlap_angle_warnings += 1L
       mg_log, 'overlap angle %0.1f outside normal range %0.1f-%0.1f', $
               overlap_angle, $
               nominal_overlap_angle - overlap_angle_tolerance, $
@@ -138,7 +138,7 @@ pro comp_l1_check, date_dir, wave_type
 
   ind = where(bad_for_reason, n_bad_reasons)
 
-  n_warnings = overlap_angle_warning $
+  n_warnings = (n_overlap_angle_warnings gt 0L) $
                  + (med_background gt background_limit) $
                  + (n_files_post_angle_diff gt 0L) $
                  + (n_images_off_detector gt 0L) $
@@ -146,7 +146,7 @@ pro comp_l1_check, date_dir, wave_type
                  + (n_images_bad_filttemp gt 0L)
 
   send_warning = (n_warnings gt 0L) || (n_bad_reasons gt 0L)
-  if (send_warning && notification_email ne '') then begin
+  if (send_warning && (notification_email ne '')) then begin
     mg_log, 'sending warnings to %s', notification_email, name='comp', /info
 
     body = list()
@@ -157,7 +157,10 @@ pro comp_l1_check, date_dir, wave_type
 
     if (n_warnings eq 0L) then body->add, 'no warnings'
 
-    if (overlap_angle_warning) then body->add, 'overlap angle exceeds tolerance'
+    if (n_overlap_angle_warnings gt 0L) then begin
+      body->add, string(n_overlap_angle_warnings, $
+                        format='(%"%d files with overlap angle exceeding tolerance")')
+    endif
     if (med_background gt background_limit) then begin
       body->add, string(med_background, background_limit, $
                         format='(%"median background %0.1f exceeds limit %0.1f")')
@@ -208,7 +211,14 @@ pro comp_l1_check, date_dir, wave_type
                      format='(%"Warnings for CoMP on %s (%s nm)")')
 
     comp_send_mail, notification_email, subject, body_text
-  endif
+  endif else begin
+    if (send_warning eq 0B) then begin
+      mg_log, 'not sending notification because no warnings', name='comp', /info
+    endif
+    if (notification_email eq '') then begin
+      mg_log, 'not sending notification because no notification email', name='comp', /info
+    endif
+  endelse
 end
 
 
