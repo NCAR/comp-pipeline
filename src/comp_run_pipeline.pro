@@ -86,7 +86,6 @@ pro comp_run_pipeline, config_filename=config_filename
 
     comp_initialize, date_dir
     if (~dry_run) then comp_setup_loggers_date, date_dir
-
     if (lock_raw) then begin
       available = comp_state(date_dir)
       if (available ne 1) then begin
@@ -270,29 +269,25 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
     endif
 
-    if (perform_gbu) then begin
-      ; identify good data
-      mg_log, 'determining GBU', name='comp', /info
-      for w = 0L, n_elements(process_wavelengths) - 1L do begin
-        gbu_t0 = systime(/seconds)
-        if (~dry_run) then begin
-          comp_gbu, date_dir, process_wavelengths[w], error=error
-        endif
-        gbu_t1 = systime(/seconds)
-        mg_log, 'total time for COMP_GBU: %0.1f seconds', $
-                gbu_t1 - gbu_t0, $
-                name='comp', /debug
-        if (error ne 0) then begin
-          mg_log, 'error with determing GBU, stopping day', name='comp', /error
-          goto, done_with_day
-        endif
-      endfor
-      mg_log, 'memory usage: %0.1fM', $
-              (memory(/highwater) - start_memory) / 1024. / 1024., $
+    ; identify good data
+    mg_log, 'determining GBU', name='comp', /info
+    for w = 0L, n_elements(process_wavelengths) - 1L do begin
+      gbu_t0 = systime(/seconds)
+      if (~dry_run) then begin
+        comp_gbu, date_dir, process_wavelengths[w], error=error
+      endif
+      gbu_t1 = systime(/seconds)
+      mg_log, 'total time for COMP_GBU: %0.1f seconds', $
+              gbu_t1 - gbu_t0, $
               name='comp', /debug
-    endif else begin
-      mg_log, 'skipping GBU', name='comp', /info
-    endelse
+      if (error ne 0) then begin
+        mg_log, 'error with determing GBU, stopping day', name='comp', /error
+        goto, done_with_day
+      endif
+    endfor
+    mg_log, 'memory usage: %0.1fM', $
+            (memory(/highwater) - start_memory) / 1024. / 1024., $
+            name='comp', /debug
 
     if (check_l1) then begin
       ; check metrics of final L1 data
