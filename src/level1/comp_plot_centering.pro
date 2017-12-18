@@ -42,6 +42,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
   wave_ind = where(image_occ_ul.wave_type eq long(wave_type), count)
   if (count eq 0L) then begin
     mg_log, 'no %s centering information to plot', wave_type, name='comp', /warn
+    return
   endif
 
   image_occ_ul = image_occ_ul[wave_ind]
