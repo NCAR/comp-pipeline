@@ -194,7 +194,7 @@ pro comp_make_flat, date_dir, error=error
     endif
 
     ; extract masking information from second flat image (don't use first)
-    image = flats[*, *, 1]
+    image = flats[*, *, nwaves / 2]
 
     ; fix hot pixels
     image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
@@ -359,7 +359,7 @@ pro comp_make_flat, date_dir, error=error
   if (nflat eq 0L) then begin
     mg_log, 'no flats for this day', name='comp', /critical
     error = 1L
-    return
+    goto, done
   endif
 
   ;  write times, wavelengths and exposure times
@@ -405,7 +405,7 @@ pro comp_make_flat, date_dir, error=error
   sxaddpar, header, 'DATATYPE', 'EXPOSURES'
   fits_write, fcbout, exposures, header, extname='Exposure'
 
+  done:
   fits_close, fcbout
-
   mg_log, 'done', name='comp', /info
 end

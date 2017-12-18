@@ -14,15 +14,26 @@
 ;   images : in, required, type="fltarr(620, 620, nimg)"
 ;     images to use to find field stop/occulter centers
 ;   headers : in, required, type="strarr(ntags, nimg)"
-;     the fits headers from which we want the geometry
+;     the FITS headers from which we want the geometry
 ;   date_dir : in, required, type=string
 ;     the directory for containing the files for the date in question, used to
 ;     find the flat file
 ;
+; :Keywords:
+;   primary_header : in, required, type=strarr
+;     primary FITS header
+;   uncorrected_geometry : out, optional, type=structure
+;     set to a named variable to retrieve a structure with fields `occulter1`,
+;     `occulter2`, `field1`, and `field2` -- all which are also structures with
+;     fields `x`, `y`, and `r` -- as well as fields `post_angle1` and
+;     `post_angle2`
+;
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_image_geometry, images, headers, date_dir, primary_header=primary_header
+function comp_image_geometry, images, headers, date_dir, $
+                              primary_header=primary_header, $
+                              uncorrected_geometry=uncorrected_geometry
   @comp_constants_common
   @comp_config_common
   @comp_diagnostics_common
@@ -39,11 +50,8 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
 
-  ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+  ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
-
-  ; TODO: are the below correct? are we correcting for difference between
-  ; FITS and IDL standards (off by 1)?
 
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2 - 1.0, $
                y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2 - 1.0, $
@@ -60,11 +68,45 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
             y:sxpar(flat_header, 'FYCNTER2') - ny / 2 - 1.0, $
             r:sxpar(flat_header, 'FRADIUS2')}
 
+  if (arg_present(uncorrected_geometry)) then begin
+    uncorrected_geometry = { occulter1: {x:sxpar(flat_header, 'OXCNTRU1') - nx / 2 - 1.0, $
+                                         y:sxpar(flat_header, 'OYCNTRU1') - 1024 + ny / 2 - 1.0, $
+                                         r:sxpar(flat_header, 'ORADU1')}, $
+                             occulter2: {x:sxpar(flat_header, 'OXCNTRU2') - 1024 + nx / 2 - 1.0, $
+                                         y:sxpar(flat_header, 'OYCNTRU2') - ny / 2 - 1.0, $
+                                         r:sxpar(flat_header, 'ORADU2')}, $
+                             field1: {x:sxpar(flat_header, 'FXCNTRU1') - nx / 2 - 1.0, $
+                                      y:sxpar(flat_header, 'FYCNTRU1') - 1024 + ny / 2 - 1.0, $
+                                      r:sxpar(flat_header, 'FRADU1')}, $
+                             field2: {x:sxpar(flat_header, 'FXCNTRU2') - 1024 + nx / 2 - 1.0, $
+                                      y:sxpar(flat_header, 'FYCNTRU2') - ny / 2 - 1.0, $
+                                      r:sxpar(flat_header, 'FRADU2')}, $
+                             post_angle1: sxpar(flat_header, 'PSTANGU1'), $
+                             post_angle2: sxpar(flat_header, 'PSTANGU2') $
+                           }
+  endif
+
   ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
 
   ind1 = where(beam gt 0, n_plus_beam)
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
+
+    if (arg_present(uncorrected_geometry)) then begin
+      comp_find_annulus, sub1, uncorrected_calc_occulter1, $
+                         occulter_guess=[uncorrected_geometry.occulter1.x, $
+                                         uncorrected_geometry.occulter1.y, $
+                                         uncorrected_geometry.occulter1.r], $
+                         occulter_points=occulter_points1, $
+                         /occulter_only, $
+                         error=error
+      if (error ne 0L) then begin
+        mg_log, 'error finding center in uncorrected image', name='comp', /warn
+        ; TODO: skip this image
+      endif
+
+      uncorrected_geometry.occulter1 = uncorrected_calc_occulter1
+    endif
 
     ; remove distortion
     sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
@@ -73,7 +115,6 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
                        occulter_guess=[occulter1.x, $
                                        occulter1.y, $
                                        occulter1.r], $
-                       occulter_points=occulter_points1, $
                        /occulter_only, $
                        error=error
     if (error ne 0L) then begin
@@ -98,6 +139,21 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   ind2 = where(beam lt 0, n_minus_beam)
   if (n_minus_beam gt 0) then begin
     sub2 = comp_extract2(reform(images[*, *, ind2[0]]))
+
+    if (arg_present(uncorrected_geometry)) then begin
+      comp_find_annulus, sub2, uncorrected_calc_occulter2, $
+                         occulter_guess=[uncorrected_geometry.occulter2.x, $
+                                         uncorrected_geometry.occulter2.y, $
+                                         uncorrected_geometry.occulter2.r], $
+                         /occulter_only, $
+                         error=error
+      if (error ne 0L) then begin
+        mg_log, 'error finding center in uncorrected image', name='comp', /warn
+        ; TODO: skip this image
+      endif
+
+      uncorrected_geometry.occulter2 = uncorrected_calc_occulter2
+    endif
 
     ; remove distortion
     sub2 = comp_apply_distortion(sub2, dx2_c, dy2_c)
@@ -156,7 +212,6 @@ function comp_image_geometry, images, headers, date_dir, primary_header=primary_
   delta_y = calc_occulter1.y - calc_occulter2.y + 1024.0 - ny
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
-  mg_log, '%s', current_l1_filename, name='comp', /debug
   if (centering_diagnostics) then begin
     if (n_elements(current_l1_filename) gt 0L) then begin
       if (n_plus_beam gt 0) then begin
