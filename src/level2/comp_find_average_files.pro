@@ -190,7 +190,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
     endif
   endfor
 
-  mg_log, 'didn''t find any files to average', name='comp', /warn
+  mg_log, 'no files to average', name='comp', /warn
 
   count = 0L
   l1_filenames = !null

@@ -94,7 +94,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   endelse
 
   if (~file_test(file) || file_test(file, /zero_length)) then begin
-    mg_log, '%s does not exist, exiting', file, name='comp', /warn
+    mg_log, '%s not found', file, name='comp', /warn
     return
   endif
 
@@ -103,7 +103,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   comp_inventory, fcb, beam, wavelengths, error=error
   if (error gt 0L) then begin
-    mg_log, 'error reading %s, quitting', file, name='comp', /error
+    mg_log, 'error reading %s', file, name='comp', /error
     goto, done
   endif
 
