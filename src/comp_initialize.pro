@@ -114,9 +114,10 @@ pro comp_initialize, date_dir
   gbu_med_background = comp_initialize_readconfig('gbu_med_background', $
                                                   date_dir, options, type=4, default=8.0)
   gbu_max_sigma = comp_initialize_readconfig('gbu_max_sigma', $
-                                             date_dir, options, type=4, default=2.0)
+                                             date_dir, options, type=4, default=2.5)
   gbu_percent_background_change = comp_initialize_readconfig('gbu_percent_background_change', $
-                                                             date_dir, options, type=4, default=0.4)
+                                                             date_dir, options, $
+                                                             type=4, default=0.5)
   gbu_background_threshold = comp_initialize_readconfig('gbu_background_threshold', $
                                                         date_dir, options, $
                                                         type=4, default=70.0)
