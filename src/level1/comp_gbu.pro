@@ -19,8 +19,8 @@
 ;     4   background > 16.0 ppm
 ;     8   background anamolously low, defined as < 1 ppm  
 ;     16  standard deviation of intensity image - median intensity
-;         image > 2.0 ppm
-;     32  background changes abruptly by more than 40% of the median background
+;         image > 2.5 ppm
+;     32  background changes abruptly by more than 50% of the median background
 ;         level
 ;     64  background image contains more than 150 pixels with a value > 70
 ;    128  standard deviation of intensity image - median intensity image = NaN
@@ -135,7 +135,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; arrays for header data
   back = fltarr(n_files)
   time = fltarr(n_files)
-  sigma = fltarr(n_files)
+  img_sigma = fltarr(n_files)
   n_waves = intarr(n_files)
   polstates = strarr(n_files)
 
@@ -318,39 +318,49 @@ pro comp_gbu, date_dir, wave_type, error=error
   med_filename = filepath(med_basename, root=eng_dir)
   save, med, filename=med_filename
 
-  ; create mask of good pixels
+  ; check if there are good images
   good = where(med gt 1.0, count)
-  if (count eq 0) then mg_log, 'med le 1', name='comp', /warn
+  if (count eq 0) then begin
+    mg_log, 'med le 1', name='comp', /warn
+  endif else begin
+    for ifile = 0L, n_files - 1L do begin
+      ; take difference between data and median image to get pseudo sigma
+      diff = data[*, *, ifile] - med
 
-  ; take difference between data and median image to get pseudo sigma
-  for ifile = 0L, n_files - 1L do begin
-    diff = abs(data[*, *, ifile] - med)
-    sigma[ifile] = mean(diff[good])
-  endfor
+      ; neglect pixels that are masked, i.e. zero pixels
+      ; neglect pixel that are below 1.0
+      good = where(data[*, *, ifile] gt 1 and med gt 1, n_good)
+      if (n_good gt 0L) then img_sigma[ifile] = stddev(diff[good])
+    endfor
 
-  sigma /= median(sigma)
-
-  ; test for large sigma defind as > gbu_max_sigma from epochs file
-  if (wave_type ne '1083') then begin
-    bad = where(sigma gt gbu_max_sigma, count)
-    if (count gt 0) then begin
-      mg_log, 'sigma > max sigma %0.2f at %d %s nm files', $
-              gbu_max_sigma, count, wave_type, $
-              name='comp', /warn
-      if (perform_gbu) then good_files[bad] += 16
+    ; test for large sigma defind as > 2.5
+    if (wave_type ne '1083') then begin
+      bad = where(img_sigma gt gbu_max_sigma, count)
+      if (count gt 0L) then begin
+        mg_log, 'sigma > max sigma %0.2f at %d %s nm files', $
+                gbu_max_sigma, count, wave_type, $
+                name='comp', /warn
+        if (perform_gbu) then good_files[bad] += 16
+      endif
     endif
-  endif
+  endelse
 
-  ; test where background changes radically (defined as 40% of background)
+  ; test where background changes radically (defined as 50% of background)
   if (wave_type ne '1083') then begin
-    run_back = run_med(back, 10)
-    bad = where(abs(back - run_back) gt gbu_percent_background_change * med_back, count)
-    if (count gt 0) then if (perform_gbu) then good_files[bad] += 32
+    back_good = where(good_files eq 0, n_back_good)
+
+    ; if all files are bad, we don't tack on this reason as well
+    if (n_back_good gt 0L) then begin
+      run_back = run_med(back[back_good], 10)
+      change_threshold = gbu_percent_background_change * back[back_good]
+      bad = where(abs(back - run_back) gt change_threshold, count)
+      if (count gt 0) then if (perform_gbu) then good_files[bad] += 32
+    endif
   endif
 
   ; test for sigma = NaN
   if (wave_type ne '1083') then begin
-    bad = where(finite(sigma) eq 0, count)
+    bad = where(finite(img_sigma) eq 0, count)
     if (count gt 0) then if (perform_gbu) then good_files[bad] += 128
   endif
 
@@ -407,7 +417,7 @@ pro comp_gbu, date_dir, wave_type, error=error
             filenames[i], $
             good_files[i] eq 0 ? '  Good' : '   Bad', $
             back[i], $
-            sigma[i], $
+            img_sigma[i], $
             n_waves[i], $
             good_files[i], $
             format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)'
@@ -434,7 +444,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; engineering plots
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_sigma.txt', $
                       root=eng_dir), $
-             time, sigma
+             time, img_sigma
 
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_background.txt', $
                       root=eng_dir), $
