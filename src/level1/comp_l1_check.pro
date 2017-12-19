@@ -14,7 +14,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_l1_check, date_dir, wave_type
+pro comp_l1_check, date_dir, wave_type, body=body
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -146,88 +146,63 @@ pro comp_l1_check, date_dir, wave_type
                  + (n_images_bad_filttemp gt 0L)
 
   send_warning = (n_warnings gt 0L) || (n_bad_reasons gt 0L)
-  if (send_warning && (notification_email ne '')) then begin
-    mg_log, 'sending warnings to %s', notification_email, name='comp', /info
+  
+  if (~obj_valid(body)) then body = list()
 
-    body = list()
+  body->add, string(wave_type, format='(%"# %s nm files")')
+  body->add, ''
+  body->add, '## Warnings'
+  body->add, ''
 
-    body->add, '# Warnings'
+  if (n_warnings eq 0L) then body->add, 'no warnings'
 
-    body->add, ''
+  if (n_overlap_angle_warnings gt 0L) then begin
+    body->add, string(n_overlap_angle_warnings, $
+                      format='(%"%d files with overlap angle exceeding tolerance")')
+  endif
+  if (med_background gt background_limit) then begin
+    body->add, string(med_background, background_limit, $
+                      format='(%"median background %0.1f exceeds limit %0.1f")')
+  endif
 
-    if (n_warnings eq 0L) then body->add, 'no warnings'
+  if (n_files_post_angle_diff) then begin
+    body->add, string(n_files_post_angle_diff, $
+                      format='(%"%d files with post angle difference greater than tolerance")')
+  endif
+  if (n_images_off_detector gt 0L) then begin
+    body->add, string(n_images_off_detector, format='(%"%d images off detector")')
+  endif
+  if (n_images_bad_temp gt 0L) then begin
+    body->add, string(n_images_bad_temp, $
+                      format='(%"%d images with bad temperature (LCVR6TMP)")')
+  endif
+  if (n_images_bad_filttemp gt 0L) then begin
+    body->add, string(n_images_bad_filttemp, $
+                      format='(%"%d images with bad temperature (FILTTEMP)")')
+  endif
 
-    if (n_overlap_angle_warnings gt 0L) then begin
-      body->add, string(n_overlap_angle_warnings, $
-                        format='(%"%d files with overlap angle exceeding tolerance")')
-    endif
-    if (med_background gt background_limit) then begin
-      body->add, string(med_background, background_limit, $
-                        format='(%"median background %0.1f exceeds limit %0.1f")')
-    endif
+  body->add, ''
+  log_filename = filepath(date_dir + '.log', root=log_dir)
+  body->add, string(log_filename, format='(%"See log %s for details")')
 
-    if (n_files_post_angle_diff) then begin
-      body->add, string(n_files_post_angle_diff, $
-                        format='(%"%d files with post angle difference greater than tolerance")')
-    endif
-    if (n_images_off_detector gt 0L) then begin
-      body->add, string(n_images_off_detector, format='(%"%d images off detector")')
-    endif
-    if (n_images_bad_temp gt 0L) then begin
-      body->add, string(n_images_bad_temp, $
-                        format='(%"%d images with bad temperature (LCVR6TMP)")')
-    endif
-    if (n_images_bad_filttemp gt 0L) then begin
-      body->add, string(n_images_bad_filttemp, $
-                        format='(%"%d images with bad temperature (FILTTEMP)")')
-    endif
+  body->add, ['', '', '## GBU'], /extract
 
-    body->add, ''
-    log_filename = filepath(date_dir + '.log', root=log_dir)
-    body->add, string(log_filename, format='(%"See log %s for details")')
-
-    body->add, ['', '', '# GBU'], /extract
-
-    body->add, ''
-    if (n_bad_reasons eq 0L) then begin
-      body->add, string(n_elements(gbu), $
-                        wave_type, $
-                        format='(%"no bad files out of %d total %s nm files")')
-    endif else begin
-      for r = 0L, n_bad_reasons - 1L do begin
-        body->add, string(bad_for_reason[ind[r]], reasons[ind[r]], $
-                          format='(%"%d bad images because %s")')
-      endfor
-
-      body->add, ''
-      body->add, string(total(gbu.reason ne 0, /integer), $
-                        n_elements(gbu), $
-                        wave_type, $
-                        format='(%"%d bad files out of %d total %s nm files")')
-    endelse
-
-    body->add, ['', ''], /extract
-    body->add, string(mg_src_root(/filename), $
-                      getenv('USER'), getenv('HOSTNAME'), $
-                      format='(%"Sent from %s (%s@%s)")')
-    code_version = comp_find_code_version(revision=revision, branch=branch)
-    body->add, string(code_version, revision, branch, $
-                      format='(%"comp-pipeline %s (%s on %s)")')
-
-    body_text = body->toArray()
-    obj_destroy, body
-
-    subject = string(date_dir, wave_type, $
-                     format='(%"Warnings for CoMP on %s (%s nm)")')
-
-    comp_send_mail, notification_email, subject, body_text
+  body->add, ''
+  if (n_bad_reasons eq 0L) then begin
+    body->add, string(n_elements(gbu), $
+                      wave_type, $
+                      format='(%"no bad files out of %d total %s nm files")')
   endif else begin
-    if (send_warning eq 0B) then begin
-      mg_log, 'not sending notification because no warnings', name='comp', /info
-    endif
-    if (notification_email eq '') then begin
-      mg_log, 'not sending notification because no notification email', name='comp', /info
-    endif
+    for r = 0L, n_bad_reasons - 1L do begin
+      body->add, string(bad_for_reason[ind[r]], reasons[ind[r]], $
+                        format='(%"%d bad images because %s")')
+    endfor
+    
+    body->add, ''
+    body->add, string(total(gbu.reason ne 0, /integer), $
+                      n_elements(gbu), $
+                      wave_type, $
+                      format='(%"%d bad files out of %d total %s nm files")')
   endelse
 end
 

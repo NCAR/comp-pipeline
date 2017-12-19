@@ -558,19 +558,23 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
     if (check_l1) then begin
+      check_l1_t0 = systime(/seconds)
+
       ; check metrics of final L1 data
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         mg_log, 'checking %s L1 data', process_wavelengths[w], $
                 name='comp', /info
-        check_l1_t0 = systime(/seconds)
         if (~dry_run) then begin
-          comp_l1_check, date_dir, process_wavelengths[w]
+          comp_l1_check, date_dir, process_wavelengths[w], body=body
         endif
-        check_l1_t1 = systime(/seconds)
-        mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $
-                check_l1_t1 - check_l1_t0, $
-                name='comp', /debug
       endfor
+
+      comp_send_notification, date_dir, body, t0
+
+      check_l1_t1 = systime(/seconds)
+      mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $
+              check_l1_t1 - check_l1_t0, $
+              name='comp', /debug
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
@@ -578,7 +582,8 @@ pro comp_run_pipeline, config_filename=config_filename
 
     done_with_day:
     t1 = systime(/seconds)
-    mg_log, 'total running time: %0.2f sec', t1 - t0, name='comp', /info
+    mg_log, 'total running time: %s sec', comp_sec2str(t1 - t0), $
+            name='comp', /info
 
     if (lock_raw && ~dry_run) then begin
       unlocked = comp_state(date_dir, /unlock)
