@@ -65,7 +65,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   endfor
 
   ; only want the good measurements
-  good_files = where(gbu.quality eq 'Good', n_good_files)
+  good_files = where(gbu.reason eq 0, n_good_files)
   mg_log, '%d good files...', n_good_files, name='comp', /info
 
   if (n_good_files eq 0) then goto, skip

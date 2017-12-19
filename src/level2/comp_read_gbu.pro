@@ -20,7 +20,8 @@
 ;       quality:'', $
 ;       background:0., $
 ;       variance:0., $
-;       wavelengths:0 }
+;       wavelengths:0, $
+;       reason: 0}
 ;
 ; :Params:
 ;   gbu_file : in, required, type=string

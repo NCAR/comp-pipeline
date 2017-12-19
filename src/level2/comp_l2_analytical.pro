@@ -72,7 +72,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   endfor
 
   ; only want the good measurements with at least nwl wavelengths
-  good = where(gbu.quality eq 'Good' and gbu.wavelengths ge nwl, n_good)
+  good = where(gbu.reason eq 0 and gbu.wavelengths ge nwl, n_good)
   mg_log, '%d good %d point files...', n_good, nwl, name='comp', /info
 
   if (n_good eq 0) then goto, skip
