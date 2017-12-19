@@ -120,10 +120,10 @@ pro comp_initialize, date_dir
                                                              type=4, default=0.5)
   gbu_background_threshold = comp_initialize_readconfig('gbu_background_threshold', $
                                                         date_dir, options, $
-                                                        type=4, default=70.0)
+                                                        type=4, default=100.0)
   gbu_threshold_count = comp_initialize_readconfig('gbu_threshold_count', $
                                                    date_dir, options, $
-                                                   type=3, default=150)
+                                                   type=3, default=100L)
 
   ; millionths of solar disk intensity
   int_min_thresh  = comp_initialize_readconfig('int_min_thresh', date_dir, options, type=4)
@@ -166,6 +166,13 @@ pro comp_initialize, date_dir
   dispexp1074 = comp_initialize_readconfig('display_exp_1074', date_dir, options, type=4)
   dispexp1079 = comp_initialize_readconfig('display_exp_1079', date_dir, options, type=4)
   dispexp1083 = comp_initialize_readconfig('display_exp_1083', date_dir, options, type=4)
+
+  dispmin1074bkg = comp_initialize_readconfig('display_min_1074_bkg', $
+                                              date_dir, options, type=4)
+  dispmax1074bkg = comp_initialize_readconfig('display_max_1074_bkg', $
+                                              date_dir, options, type=4)
+  dispexp1074bkg = comp_initialize_readconfig('display_exp_1074_bkg', $
+                                              date_dir, options, type=4)
 
   ; number of stokes parameters
   stokes = comp_initialize_readconfig('stokes', date_dir, options, /extract)

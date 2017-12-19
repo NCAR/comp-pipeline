@@ -22,7 +22,7 @@
 ;         image > 2.5 ppm
 ;     32  background changes abruptly by more than 50% of the median background
 ;         level
-;     64  background image contains more than 150 pixels with a value > 70
+;     64  background image contains more than 100 pixels with a value > 100.0
 ;    128  standard deviation of intensity image - median intensity image = NaN
 ;         or Inf
 ;
@@ -139,6 +139,9 @@ pro comp_gbu, date_dir, wave_type, error=error
   n_waves = intarr(n_files)
   polstates = strarr(n_files)
 
+  background_thresholds = [60.0, 70.0, 100.0]
+  background_counts = lonarr(n_elements(background_thresholds), n_files)
+
   str = ''
   openr, lun, all_files, /get_lun
 
@@ -164,7 +167,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     endif
 
     back_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.bkg.fts.gz'
-    back_name = (file_search(search_filter, count=n_name_found))[0]
+    back_name = (file_search(back_filter, count=n_name_found))[0]
 
     if (n_name_found lt 1L || ~file_test(name)) then begin
       mg_log, 'L1 background %s doesn''t exist on disk but is in inventory file', $
@@ -240,13 +243,13 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     ; use average of intensities (/2 not 3 since blue and red are about 0.5
     ; center intensity)
-    data[*, *, ifile] = (dat + dat_b + dat_r) * mask / 2.
+    data[*, *, ifile] = (dat + dat_b + dat_r) * mask / 2.0
 
     ; read central background image
     fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
 
-    ; reject file if there are more than 150 background pixels with a level of
-    ; >70
+    ; reject file if there are more than 100 background pixels with a level of
+    ; > 100.0
     good = where(mask eq 1)
     gt_threshold = where(dat_back[good] gt gbu_background_threshold, gt_threshold_count)
 
@@ -258,6 +261,11 @@ pro comp_gbu, date_dir, wave_type, error=error
         if (perform_gbu) then good_files[ifile] += 64
       endif
     endif
+
+    for b = 0L, n_elements(background_thresholds) - 1L do begin
+      gt_threshold = where(dat_back[good] gt background_thresholds[b], threshold_count)
+      background_counts[b, ifile] = threshold_count
+    endfor
 
     fits_close, fcb
     fits_close, back_fcb
@@ -441,6 +449,18 @@ pro comp_gbu, date_dir, wave_type, error=error
 ;    endif
 ;  endif
 
+  bkg_counts_basename = string(date_dir, wave_type, $
+                               format='(%"%s.comp.%s.gbu.bkg.counts.txt")')
+  openw, lun, filepath(bkg_counts_basename, root=eng_dir), /get_lun
+  for f = 0L, n_files - 1L do begin
+    printf, lun, filenames[f], $
+            background_counts[0, f], $
+            background_counts[1, f], $
+            background_counts[2, f], $
+            format='(%"%-45s%10d%10d%10d")'
+  endfor
+  free_lun, lun
+
   ; engineering plots
   write_csv, filepath(date_dir + '.comp.' + wave_type + '.qa_sigma.txt', $
                       root=eng_dir), $
@@ -456,20 +476,20 @@ end
 
 ; main-level program to run COMP_GBU outside of the pipeline
 
-date_dir = '20150624'
-mg_log, name='comp', logger=logger
-logger->setProperty, level=2
-
-; initialize comp_constants_common
-comp_initialize, date_dir
-
-; initialize comp_config_common
-config_filename = filepath('comp.mgalloy.pike.cfg', $
+dates = ['20171001', '20171105', '20171121', '20171124', '20171201', $
+         '20171202', '20171203', '20171204', '20171205', '20171206', $
+         '20171207', '20171208', '20171209', '20171210', '20171211', $
+         '20171212', '20171213', '20171214']
+dates = ['20171216']
+config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
  
-comp_gbu, date_dir, '1074', error=error
-help, error
+
+for d = 0L, n_elements(dates) - 1L do begin
+  comp_initialize, dates[d]
+  comp_gbu, dates[d], '1074', error=error
+endfor
 
 end
