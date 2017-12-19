@@ -123,7 +123,10 @@ pro comp_initialize, date_dir
                                                         type=4, default=100.0)
   gbu_threshold_count = comp_initialize_readconfig('gbu_threshold_count', $
                                                    date_dir, options, $
-                                                   type=3, default=100L)
+                                                   type=3, default=200L)
+  gbu_offset_count = comp_initialize_readconfig('gbu_offset_count', $
+                                                date_dir, options, $
+                                                type=3, default=100L)
 
   ; millionths of solar disk intensity
   int_min_thresh  = comp_initialize_readconfig('int_min_thresh', date_dir, options, type=4)

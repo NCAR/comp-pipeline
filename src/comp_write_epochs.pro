@@ -123,6 +123,7 @@ pro comp_write_epochs, date_dir
   printf, lun, 'gbu_background_threshold', gbu_background_threshold, $
           format='(%"%-30s : %0.1f")'
   printf, lun, 'gbu_theshold_count', gbu_threshold_count, format='(%"%-30s : %d")'
+  printf, lun, 'gbu_offset_count', gbu_offset_count, format='(%"%-30s : %d")'
 
   printf, lun
 
