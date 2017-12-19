@@ -10,6 +10,7 @@ common comp_constants, nx, ny, $
                        dispmin1074, dispmin1079, dispmin1083, $
                        dispmax1074, dispmax1079, dispmax1083, $
                        dispexp1074, dispexp1079, dispexp1083, $
+                       dispmin1074bkg, dispmax1074bkg, dispexp1074bkg, $
                        stokes, n_stokes, $
                        debug, $
                        gbu_max_background, $

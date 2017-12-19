@@ -22,11 +22,16 @@
 ;   wave : in, required, type=string
 ;     wave type, '1074', '1079', or '1083'
 ;
+; :Keywords:
+;   background : in, optional, type=boolean
+;     set to produce a GIF of background data
+;
 ; :Author:
 ;   MLSO Software Team
 ;-
 pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
-                   wave
+                   wave, $
+                   background=background
   compile_opt strictarr
   @comp_constants_common
 
@@ -38,9 +43,15 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   ; square root stretch
   case wave of
     '1074': begin
-        min = dispmin1074
-        max = dispmax1074
-        dispexp = dispexp1074
+        if (keyword_set(background)) then begin
+          min = dispmin1074bkg
+          max = dispmax1074bkg
+          dispexp = dispexp1074bkg
+        endif else begin
+          min = dispmin1074
+          max = dispmax1074
+          dispexp = dispexp1074
+        endelse
       end
     '1079': begin
         min = dispmin1079

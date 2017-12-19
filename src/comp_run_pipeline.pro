@@ -254,6 +254,11 @@ pro comp_run_pipeline, config_filename=config_filename
         error = 0L
         if (~dry_run) then begin
           comp_extract_intensity, date_dir, process_wavelengths[w], error=error
+          if (process_wavelengths[w] eq '1074') then begin
+            comp_extract_intensity, date_dir, process_wavelengths[w], $
+                                    /background, $
+                                    error=error
+          endif
         endif
         extract_intensity_t1 = systime(/seconds)
         mg_log, 'total time for COMP_EXTRACT_INTENSITY: %0.1f seconds', $

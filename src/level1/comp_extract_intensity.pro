@@ -33,6 +33,8 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to return the error status of the routine, 0 for
 ;     success, anything else for failure
+;   background : in, optional, type=boolean
+;     set to extract center wavelength intensity from background images
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -41,7 +43,7 @@
 ;   removed gzip Oct 1 2014  GdT
 ;   see git log for recent changes
 ;-
-pro comp_extract_intensity, date_dir, wave_type, error=error
+pro comp_extract_intensity, date_dir, wave_type, error=error, background=background
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
@@ -84,7 +86,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
   endcase
 
   ; the FITS image file
-  files = comp_find_l1_file(date_dir, wave_type, /all, count=n_files)
+  files = comp_find_l1_file(date_dir, wave_type, /all, count=n_files, background=background)
   mg_log, 'found %d files for %s', n_files, wave_type, name='comp', /info
 
   for f = 0L, n_files - 1L do begin
@@ -94,7 +96,8 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
                                  images=images, $
                                  wavelengths=wavelengths, $
                                  primary_header=primary_header, $
-                                 headers=headers
+                                 headers=headers, $
+                                 background=background
 
     nd_filter = comp_get_nd_filter(date_dir, wave_type, headers[*, 0])
     if (wave_type eq '1083' && nd_filter eq 8) then begin
@@ -116,10 +119,15 @@ pro comp_extract_intensity, date_dir, wave_type, error=error
     ; image, then smaller of image and scale_max
 
     ; make GIF from I
-    output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
-                             format='(%"%s.comp.%s.intensity.gif")')
+    if (keyword_set(background)) then begin
+    endif else begin
+      output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
+                               format='(%"%s.comp.%s.intensity.gif")')
+    endelse
     comp_make_gif, date_dir, intensity, primary_header, output_filename, $
-                   nx, 'Intensity', wave_type
+                   nx, $
+                   keyword_set(background) ? 'Background intensity' : 'Intensity', $
+                   wave_type, background=background
   endfor
 
   mg_log, 'done', name='comp', /info

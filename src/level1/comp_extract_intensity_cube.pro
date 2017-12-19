@@ -20,6 +20,8 @@
 ;     primary header
 ;   headers : out, optional, type="strarr(n_keywords, n_waves)"
 ;     extension headers
+;   background : in, optional, type=boolean
+;     set to extract from a background file
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -28,7 +30,8 @@ pro comp_extract_intensity_cube, filename, $
                                  images=images, $
                                  wavelengths=wavelengths, $
                                  primary_header=primary_header, $
-                                 headers=headers
+                                 headers=headers, $
+                                 background=background
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
@@ -52,7 +55,9 @@ pro comp_extract_intensity_cube, filename, $
     wavelength = sxpar(header, 'WAVELENG')
     polstate   = strtrim(sxpar(header, 'POLSTATE'), 2)
 
-    if (polstate eq 'I') then begin
+    target_polstate = keyword_set(background) ? 'BKGI' : 'I'
+
+    if (polstate eq target_polstate) then begin
       ; save the wavelength and data
       wavelengths[i - 1L] = wavelength
       images[*, *, i - 1L] = data
