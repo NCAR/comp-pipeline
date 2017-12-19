@@ -275,43 +275,28 @@ pro comp_run_pipeline, config_filename=config_filename
     endif
 
     ; identify good data
-    mg_log, 'determining GBU', name='comp', /info
-    for w = 0L, n_elements(process_wavelengths) - 1L do begin
-      gbu_t0 = systime(/seconds)
-      if (~dry_run) then begin
-        comp_gbu, date_dir, process_wavelengths[w], error=error
-      endif
-      gbu_t1 = systime(/seconds)
-      mg_log, 'total time for COMP_GBU: %0.1f seconds', $
-              gbu_t1 - gbu_t0, $
-              name='comp', /debug
-      if (error ne 0) then begin
-        mg_log, 'error with determing GBU, stopping day', name='comp', /error
-        goto, done_with_day
-      endif
-    endfor
-    mg_log, 'memory usage: %0.1fM', $
-            (memory(/highwater) - start_memory) / 1024. / 1024., $
-            name='comp', /debug
-
-    if (check_l1) then begin
-      ; check metrics of final L1 data
+    if (create_l1 || perform_gbu) then begin
+      mg_log, 'determining GBU', name='comp', /info
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
-        mg_log, 'checking %s L1 data', process_wavelengths[w], $
-                name='comp', /info
-        check_l1_t0 = systime(/seconds)
+        gbu_t0 = systime(/seconds)
         if (~dry_run) then begin
-          comp_l1_check, date_dir, process_wavelengths[w]
+          comp_gbu, date_dir, process_wavelengths[w], error=error
         endif
-        check_l1_t1 = systime(/seconds)
-        mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $
-                check_l1_t1 - check_l1_t0, $
+        gbu_t1 = systime(/seconds)
+        mg_log, 'total time for COMP_GBU: %0.1f seconds', $
+                gbu_t1 - gbu_t0, $
                 name='comp', /debug
+        if (error ne 0) then begin
+          mg_log, 'error with determing GBU, stopping day', name='comp', /error
+          goto, done_with_day
+        endif
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
               name='comp', /debug
-    endif
+    endif else begin
+      mg_log, 'skipping GBU', name='comp', /info
+    endelse
 
     if (create_l1) then begin
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
@@ -571,6 +556,25 @@ pro comp_run_pipeline, config_filename=config_filename
     endif else begin
       mg_log, 'skipping updating database', name='comp', /info
     endelse
+
+    if (check_l1) then begin
+      ; check metrics of final L1 data
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        mg_log, 'checking %s L1 data', process_wavelengths[w], $
+                name='comp', /info
+        check_l1_t0 = systime(/seconds)
+        if (~dry_run) then begin
+          comp_l1_check, date_dir, process_wavelengths[w]
+        endif
+        check_l1_t1 = systime(/seconds)
+        mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $
+                check_l1_t1 - check_l1_t0, $
+                name='comp', /debug
+      endfor
+      mg_log, 'memory usage: %0.1fM', $
+              (memory(/highwater) - start_memory) / 1024. / 1024., $
+              name='comp', /debug
+    endif
 
     done_with_day:
     t1 = systime(/seconds)
