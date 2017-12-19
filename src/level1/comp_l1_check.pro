@@ -189,12 +189,22 @@ pro comp_l1_check, date_dir, wave_type
     body->add, ['', '', '# GBU'], /extract
 
     body->add, ''
-    if (n_bad_reasons eq 0L) then body->add, 'no bad files in GBU'
+    if (n_bad_reasons eq 0L) then begin
+      body->add, string(n_elements(gbu), $
+                        wave_type, $
+                        format='(%"no bad files out of %d total %s nm files")')
+    endif else begin
+      for r = 0L, n_bad_reasons - 1L do begin
+        body->add, string(bad_for_reason[ind[r]], reasons[ind[r]], $
+                          format='(%"%d bad images because %s")')
+      endfor
 
-    for r = 0L, n_bad_reasons - 1L do begin
-      body->add, string(bad_for_reason[ind[r]], reasons[ind[r]], $
-                        format='(%"%d bad images because %s")')
-    endfor
+      body->add, ''
+      body->add, string(total(gbu.reason ne 0, /integer), $
+                        n_elements(gbu), $
+                        wave_type, $
+                        format='(%"%d bad files out of %d total %s nm files")')
+    endelse
 
     body->add, ['', ''], /extract
     body->add, string(mg_src_root(/filename), $
