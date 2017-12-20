@@ -37,10 +37,9 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   ; mask
   comp_make_mask, date_dir, primary_header, mask
-
   image *= mask
 
-  ; square root stretch
+  ; exponent stretch
   case wave of
     '1074': begin
         if (keyword_set(background)) then begin
@@ -70,24 +69,28 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   top = 250
   image = bytscl(image, min=min, max=max, top=top)
 
-  ; Resize the data
+  ; resize the data
   s = size(image)
   if (size ne s[1]) then begin
     image = rebin(image, size, size)
   endif
 
   ; configure the device
-  set_plot, 'z'
+  set_plot, 'Z'
   device, set_resolution=[size, size], set_colors=256, z_buffering=0, $
           decomposed=0
   loadct, 3, /silent
+  fcol = 254
+  tvlct, 255, 255, 0, fcol
+  ccol = 255
+  tvlct, 255, 255, 255, ccol
 
   tv, image
 
   ; locations and such
   xdim = size
   ydim = size
-  ccol = 255
+
   xstrt = xdim - 2 * xdim / 512
   strt = ydim - 10 * ydim / 512
   Bsz = 1.4
@@ -100,13 +103,9 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   xyouts, 5, 25, 'Scaling:' + string(min, max, format='(F4.1, " to ", F4.1)'), $
           charsize=Lsz, /device, color=ccol, font=font
-  if (wave eq '1083') then begin
-    xyouts, 5, 5, wave + ' -- im^0.3 ' + label, charsize=Lsz, /device, $
-            color=ccol, font=font
-  endif else begin
-    xyouts, 5, 5, wave + ' -- sqrt ' + label, charsize=Lsz, /device, $
-            color=ccol, font=font
-  endelse
+  xyouts, 5, 5, string(wave, dispexp, label, format='(%"%s -- im^%0.1f %s")'), $
+          charsize=Lsz, /device, $
+          color=ccol, font=font
 
   xyouts, 5, strt - del * 1, 'MLSO/HAO/CoMP', charsize=Bsz, /device, color=ccol, $
           font=font
@@ -123,6 +122,39 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max + 0.5], $
              divisions=5, charsize=0.6, font=font
+
+  if (keyword_set(background)) then begin
+    oradius = sxpar(primary_header, 'ORADIUS')
+    oxcenter = sxpar(primary_header, 'CRPIX1') - 1.0
+    oycenter = sxpar(primary_header, 'CRPIX2') - 1.0
+
+    fradius = sxpar(primary_header, 'FRADIUS')
+    fxcenter = sxpar(primary_header, 'FRPIX1') - 1.0
+    fycenter = sxpar(primary_header, 'FRPIX2') - 1.0
+
+    post_angle = sxpar(primary_header, 'POSTPANG')
+
+    theta = findgen(360) * !dtor
+
+    ; occulter center and outline
+    x = oradius * cos(theta) + oxcenter
+    y = oradius * sin(theta) + oycenter
+    plots, x, y, /device, color=ccol
+    plots, [oxcenter], [oycenter], /device, color=ccol, psym=1
+
+    ; field center and outline
+    x = fradius * cos(theta) + fxcenter
+    y = fradius * sin(theta) + fycenter
+    plots, x, y, /device, color=fcol
+    plots, [fxcenter], [fycenter], /device, color=fcol, psym=1
+
+    ; post
+    r = (oradius + fradius) / 2.0
+    ; convert from N up is 0 deg to mathematical convention in rad
+    pa = (post_angle + 90.0) * !dtor
+    plots, [r * cos(pa) + oxcenter], [r * sin(pa) + oycenter], $
+           /device, color=ccol, psym=1
+  endif
 
   write_gif, filename, tvrd()
 end
