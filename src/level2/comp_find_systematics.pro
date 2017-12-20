@@ -70,7 +70,7 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
   filename = file_dir + '.fts.gz'
 
   if (~file_test(filename) || file_test(filename, /zero_length)) then begin
-    mg_log, '%s does not exist, skipping', filename, name='comp', /warn
+    mg_log, '%s does not exist', filename, name='comp', /warn
     mg_log, 'done', name='comp', /info
     return
   endif
