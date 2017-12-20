@@ -66,9 +66,9 @@ pro comp_find_post, image, occulter, field, pa
   y = median(theta_scan) - theta_scan
   x = findgen(new_nx) / float(new_nx) * 360.
 
-  ind = where((x gt post_angle_guess + 90 - post_angle_tolerance) $
-                and (x lt post_angle_guess + 90 + post_angle_tolerance), $
-              count)
+  lower_limit = post_angle_guess + 90 - post_angle_tolerance
+  upper_limit = post_angle_guess + 90 + post_angle_tolerance
+  ind = where((x gt lower_limit) and (x lt upper_limit), count)
 
   x = x[ind]
   y = y[ind]

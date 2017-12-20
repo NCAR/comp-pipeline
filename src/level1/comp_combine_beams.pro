@@ -66,7 +66,6 @@ pro comp_combine_beams, images, headers, date_dir, $
   images_combine = dblarr(nx, ny, 2 * np * nw)
   headers_combine = strarr(ntags, 2 * np * nw)
 
-  ; call comp_image_geometry
   plus_indices = where(beam gt 0, n_plus_images, $
                        complement=minus_indices, $
                        ncomplement=n_minus_images)
@@ -77,8 +76,12 @@ pro comp_combine_beams, images, headers, date_dir, $
   minus_headers = headers[*, minus_indices]
 
   image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
-                                       primary_header=primary_header)
-  n_bad_post_angle = abs(image_geometry.post_angle1 - image_geometry.post_angle2) gt post_angle_diff_tolerance
+                                       primary_header=primary_header, $
+                                       uncorrected_geometry=uncorrected_geometry)
+
+  n_bad_post_angle = abs(image_geometry.post_angle1 $
+                           - image_geometry.post_angle2) $
+                       gt post_angle_diff_tolerance
   if (n_bad_post_angle) then begin
     mg_log, 'post angle difference > %0.1f deg: %0.1f and %0.1f', $
             post_angle_diff_tolerance, $
@@ -86,16 +89,12 @@ pro comp_combine_beams, images, headers, date_dir, $
             image_geometry.post_angle2, $
             name='comp', /warn
   endif
+
   case wave_type of
     '1074': n_1074_files_post_angle_diff += n_bad_post_angle
     '1079': n_1079_files_post_angle_diff += n_bad_post_angle
     '1083': n_1083_files_post_angle_diff += n_bad_post_angle
   endcase
-
-;  image_geometry = comp_image_geometry(images, headers, date_dir, $
-;                                       primary_header=primary_header)
-;  plus_image_geometry = comp_image_geometry(plus_images, plus_headers, date_dir)
-;  minus_image_geometry = comp_image_geometry(minus_images, minus_headers, date_dir)
 
   for i = 0L, np - 1L do begin   ; loop over unique polarizations
     for j = 0L, nw - 1L do begin   ; loop over unique wavelengths
@@ -107,9 +106,11 @@ pro comp_combine_beams, images, headers, date_dir, $
 
       ; extract the foreground and background subimages from both
       comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus, $
-                          image_geometry=image_geometry
+                          image_geometry=image_geometry, $
+                          uncorrected_geometry=uncorrected_geometry
       comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus, $
-                          image_geometry=image_geometry
+                          image_geometry=image_geometry, $
+                          uncorrected_geometry=uncorrected_geometry
 
       ; foreground part (with background subtracted)
       nonzero = (fgplus ne 0.0) + (fgminus ne 0.0)  ; 0.0's are missing (off detector)

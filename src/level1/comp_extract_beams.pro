@@ -21,13 +21,16 @@
 ;
 ; :Keywords:
 ;   image_geometry : in, required, type=structure
-;     image geometry specifications
+;     image geometry specifications from distortion corrected images
+;   uncorrected_geometry : in, required, type=structure
+;     image geometry specifications from distortion uncorrected images
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
 pro comp_extract_beams, images, headers, date_dir, d1, d2, $
-                        image_geometry=image_geometry
+                        image_geometry=image_geometry, $
+                        uncorrected_geometry=uncorrected_geometry
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -63,31 +66,47 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   ypp2 = yp + y0 + image_geometry.occulter2.y
 
   ; determine if UL beam if off the detector
-  off_left = image_geometry.field1.r gt (image_geometry.field1.x + nx / 2)
-  off_top = (image_geometry.field1.r + image_geometry.field1.y + 1024 - ny / 2) gt 1023
+  left_edge = (uncorrected_geometry.field1.x + nx / 2) - uncorrected_geometry.field1.r
+  top_edge = 1023 - (uncorrected_geometry.field1.r + uncorrected_geometry.field1.y + 1024 - ny / 2)
+
+  mg_log, 'left edge gap = %0.1f pixels', left_edge, name='comp', /debug
+  mg_log, 'top edge gap = %0.1f pixels', top_edge, name='comp', /debug
+
+  off_left = uncorrected_geometry.field1.r gt (uncorrected_geometry.field1.x + nx / 2)
+  off_top = (uncorrected_geometry.field1.r + uncorrected_geometry.field1.y + 1024 - ny / 2) gt 1023
   off1 = off_left || off_top
 
   ; determine if the LR beam if off the detector
-  off_right = (image_geometry.field2.r + image_geometry.field2.x + 1024 - nx / 2) gt 1023
-  off_bottom = image_geometry.field2.r lt (image_geometry.field2.y + ny / 2)
+  right_edge = 1023 - (uncorrected_geometry.field2.r + uncorrected_geometry.field2.x + 1024 - nx / 2)
+  bottom_edge = (uncorrected_geometry.field2.y + ny / 2) - uncorrected_geometry.field2.r
+
+  mg_log, 'right edge gap = %0.1f pixels', right_edge, name='comp', /debug
+  mg_log, 'bottom edge gap = %0.1f pixels', bottom_edge, name='comp', /debug
+
+  off_right = (uncorrected_geometry.field2.r + uncorrected_geometry.field2.x + 1024 - nx / 2) gt 1023
+  off_bottom = uncorrected_geometry.field2.r gt (uncorrected_geometry.field2.y + ny / 2)
   off2 = off_right || off_bottom
 
   if (off1) then begin
-    annulus_mask1 = comp_disk_mask(image_geometry.occulter1.r, $
-                                   dx=image_geometry.occulter1.x, $
-                                   dy=image_geometry.occulter1.y) $
-                      and comp_field_mask(image_geometry.field1.r, $
-                                          dx=image_geometry.field1.x, $
-                                          dy=image_geometry.field1.y)
+    annulus_mask1 = comp_disk_mask(uncorrected_geometry.occulter1.r, $
+                                   dx=uncorrected_geometry.occulter1.x, $
+                                   dy=uncorrected_geometry.occulter1.y) $
+                      and comp_field_mask(uncorrected_geometry.field1.r, $
+                                          dx=uncorrected_geometry.field1.x, $
+                                          dy=uncorrected_geometry.field1.y)
+    if (off_left) then mg_log, 'off detector on left', name='comp', /warn
+    if (off_top) then mg_log, 'off detector on top', name='comp', /warn
     n_images_off_detector += 1
   endif
   if (off2) then begin
-    annulus_mask2 = comp_disk_mask(image_geometry.occulter2.r, $
-                                   dx=image_geometry.occulter2.x, $
-                                   dy=image_geometry.occulter2.y) $
-                      and comp_field_mask(image_geometry.field2.r, $
-                                          dx=image_geometry.field2.x, $
-                                          dy=image_geometry.field2.y)
+    annulus_mask2 = comp_disk_mask(uncorrected_geometry.occulter2.r, $
+                                   dx=uncorrected_geometry.occulter2.x, $
+                                   dy=uncorrected_geometry.occulter2.y) $
+                      and comp_field_mask(uncorrected_geometry.field2.r, $
+                                          dx=uncorrected_geometry.field2.x, $
+                                          dy=uncorrected_geometry.field2.y)
+    if (off_right) then mg_log, 'off detector on right', name='comp', /warn
+    if (off_bottom) then mg_log, 'off detector on bottom', name='comp', /warn
     n_images_off_detector += 1
   endif
 
