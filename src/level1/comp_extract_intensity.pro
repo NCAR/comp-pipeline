@@ -120,13 +120,15 @@ pro comp_extract_intensity, date_dir, wave_type, error=error, background=backgro
 
     ; make GIF from I
     if (keyword_set(background)) then begin
+      output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
+                               format='(%"%s.comp.%s.intensity.bkg.gif")')
     endif else begin
       output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
                                format='(%"%s.comp.%s.intensity.gif")')
     endelse
     comp_make_gif, date_dir, intensity, primary_header, output_filename, $
                    nx, $
-                   keyword_set(background) ? 'Background intensity' : 'Intensity', $
+                   keyword_set(background) ? 'Background' : 'Intensity', $
                    wave_type, background=background
   endfor
 
