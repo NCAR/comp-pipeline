@@ -95,7 +95,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   comp_initialize, date_dir
   comp_configuration
 
-  mg_log, 'wave_type %s', wave_type, name='comp', /info
+  mg_log, 'wave type %s nm', wave_type, name='comp', /info
 
   catch, error
   if (error ne 0) then begin
@@ -169,7 +169,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     back_filter = datetime + '.comp.' + wave_type + '.[iquv]*.[1-9]{,[1-9]}.bkg.fts.gz'
     back_name = (file_search(back_filter, count=n_name_found))[0]
 
-    if (n_name_found lt 1L || ~file_test(name)) then begin
+    if (wave_type ne '1083' && (n_name_found lt 1L || ~file_test(name))) then begin
       mg_log, 'L1 background %s doesn''t exist on disk but is in inventory file', $
               back_filter, $
               name='comp', /warn
@@ -179,7 +179,10 @@ pro comp_gbu, date_dir, wave_type, error=error
     fits_open, name, fcb     ; open fits file
     num_ext = fcb.nextend    ; get number of fits extensions
 
-    fits_open, back_name, back_fcb
+    if (wave_type ne '1083') then begin
+      fits_open, back_name, back_fcb
+    endif
+
 
     ; read primary header
     fits_read, fcb, d, header, /header_only, exten_no=0
@@ -245,66 +248,70 @@ pro comp_gbu, date_dir, wave_type, error=error
     ; center intensity)
     data[*, *, ifile] = (dat + dat_b + dat_r) * mask / 2.0
 
-    ; read central background image
-    fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
-
-    ; reject file if there are more than 100 background pixels with a level of
-    ; > 100.0
-    good = where(mask eq 1)
-    gt_threshold = where(dat_back[good] gt gbu_background_threshold, gt_threshold_count)
-
     if (wave_type ne '1083') then begin
+      ; read central background image
+      fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
+
+      ; reject file if there are more than 100 background pixels with a level of
+      ; > 100.0
+      good = where(mask eq 1)
+      gt_threshold = where(dat_back[good] gt gbu_background_threshold, $
+                           gt_threshold_count)
+
       if (gt_threshold_count gt gbu_threshold_count) then begin
         mg_log, '%s: %d bkg pixels > %0.1f', $
                 name, gt_threshold_count, gbu_background_threshold, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 64
       endif
+
+      for b = 0L, n_elements(background_thresholds) - 1L do begin
+        gt_threshold = where(dat_back[good] gt background_thresholds[b], $
+                             threshold_count)
+        background_counts[b, ifile] = threshold_count
+      endfor
     endif
 
-    for b = 0L, n_elements(background_thresholds) - 1L do begin
-      gt_threshold = where(dat_back[good] gt background_thresholds[b], threshold_count)
-      background_counts[b, ifile] = threshold_count
-    endfor
-
     fits_close, fcb
-    fits_close, back_fcb
+    if (wave_type ne '1083') then fits_close, back_fcb
   endfor
 
   ; check for dirty O1 using the background level in the morning, as long as
   ; there are observations then skip the first one of the day
-  morning = where(time gt 16 and time lt 21, count)
-  if (count gt 1) then begin
-    med_back = median(back[morning[1:*]])
-
-    if (med_back gt gbu_med_background) then begin
-      mg_log, 'bkg median %0.1f exceeds %0.1f, 01 might need to be cleaned', $
-              med_back, gbu_med_background, $
-              name='comp', /warn
-    endif
-
-    med_back_basename = string(date_dir, wave_type, $
-                               format='(%"%s.comp.%s.morning.background.txt")')
-    med_back_filename = filepath(med_back_basename, root=eng_dir)
-    openw, med_back_lun, med_back_filename, /get_lun
-    printf, med_back_lun, med_back, format='(%"%0.1f")'
-    free_lun, med_back_lun
-  endif else begin
-    ; skip first image of the day, if there are more than 1 images
-    if (n_files gt 1L) then begin
-      med_back = median(back[1:*])
+  if (wave_type ne '1083') then begin
+    morning = where(time gt 16 and time lt 21, count)
+    if (count gt 1) then begin
+      med_back = median(back[morning[1:*]])
 
       if (med_back gt gbu_med_background) then begin
-        mg_log, 'after 2100 UT bkg median %0.1f exceeds %0.1f', $
+        mg_log, 'bkg median %0.1f exceeds %0.1f, 01 might need to be cleaned', $
                 med_back, gbu_med_background, $
                 name='comp', /warn
       endif
-    endif else begin
-      med_back = back[0]
-    endelse
-  endelse
 
-  mg_log, 'median background %0.1f', med_back, name='comp', /info
+      med_back_basename = string(date_dir, wave_type, $
+                                 format='(%"%s.comp.%s.morning.background.txt")')
+      med_back_filename = filepath(med_back_basename, root=eng_dir)
+      openw, med_back_lun, med_back_filename, /get_lun
+      printf, med_back_lun, med_back, format='(%"%0.1f")'
+      free_lun, med_back_lun
+    endif else begin
+      ; skip first image of the day, if there are more than 1 images
+      if (n_files gt 1L) then begin
+        med_back = median(back[1:*])
+        
+        if (med_back gt gbu_med_background) then begin
+          mg_log, 'after 2100 UT bkg median %0.1f exceeds %0.1f', $
+                  med_back, gbu_med_background, $
+                  name='comp', /warn
+        endif
+      endif else begin
+        med_back = back[0]
+      endelse
+    endelse
+
+    mg_log, 'median background %0.1f', med_back, name='comp', /info
+  endif
 
   ; find median intensity image using only good images so far
   good_subs = where(good_files eq 0, count)
@@ -476,20 +483,20 @@ end
 
 ; main-level program to run COMP_GBU outside of the pipeline
 
-dates = ['20171001', '20171105', '20171121', '20171124', '20171201', $
-         '20171202', '20171203', '20171204', '20171205', '20171206', $
-         '20171207', '20171208', '20171209', '20171210', '20171211', $
-         '20171212', '20171213', '20171214']
-dates = ['20171216']
+;dates = ['20171001', '20171105', '20171121', '20171124', '20171201', $
+;         '20171202', '20171203', '20171204', '20171205', '20171206', $
+;         '20171207', '20171208', '20171209', '20171210', '20171211', $
+;         '20171212', '20171213', '20171214', '20171216']
+dates = ['20171001']
 config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
- 
+ wave_type = '1083'
 
 for d = 0L, n_elements(dates) - 1L do begin
   comp_initialize, dates[d]
-  comp_gbu, dates[d], '1074', error=error
+  comp_gbu, dates[d], wave_type, error=error
 endfor
 
 end
