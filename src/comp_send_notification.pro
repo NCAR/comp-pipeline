@@ -15,7 +15,6 @@ pro comp_send_notification, date, body, t0
   @comp_config_common
 
   ; add tag about pipeline and process at the end of body
-  body->add, ['', ''], /extract
   body->add, string(mg_src_root(/filename), $
                     getenv('USER'), getenv('HOSTNAME'), $
                     format='(%"Sent from %s (%s@%s)")')

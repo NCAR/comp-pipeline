@@ -204,6 +204,8 @@ pro comp_l1_check, date_dir, wave_type, body=body
                       wave_type, $
                       format='(%"%d bad files out of %d total %s nm files")')
   endelse
+
+  body->add, ['', ''], /extract
 end
 
 
