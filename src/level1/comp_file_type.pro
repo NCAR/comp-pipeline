@@ -61,10 +61,6 @@ pro comp_file_type, date_dir
   @comp_constants_common
   @comp_config_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_configuration
-
   mg_log, 'starting', name='comp', /info
 
   raw_dir = filepath(date_dir, root=raw_basedir)

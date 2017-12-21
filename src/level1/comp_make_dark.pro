@@ -48,10 +48,6 @@ pro comp_make_dark, date_dir, error=error
   @comp_constants_common
   @comp_config_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_configuration
-
   mg_log, 'starting', name='comp', /info
 
   ; Establish error handler. When errors occur, the index of the

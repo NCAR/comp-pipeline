@@ -91,10 +91,6 @@ pro comp_gbu, date_dir, wave_type, error=error
   @comp_constants_common
   @comp_config_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_configuration
-
   mg_log, 'wave type %s nm', wave_type, name='comp', /info
 
   catch, error

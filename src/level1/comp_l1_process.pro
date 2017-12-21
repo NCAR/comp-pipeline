@@ -28,10 +28,6 @@ pro comp_l1_process, date_dir, wave_type, error=error
   @comp_config_common
   @comp_mask_constants_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_configuration
-
   mg_log, 'wave type: %s', wave_type, name='comp', /info
 
   catch, error

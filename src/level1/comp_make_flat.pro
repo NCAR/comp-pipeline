@@ -45,10 +45,6 @@ pro comp_make_flat, date_dir, error=error
   @comp_flats_common
   @comp_diagnostics_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_configuration
-  
   debug = 0
 
   mg_log, 'starting', name='comp', /info

@@ -48,10 +48,6 @@ pro comp_extract_intensity, date_dir, wave_type, error=error, background=backgro
   @comp_constants_common
   @comp_config_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_configuration
-
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
   ; establish error handler; when errors occur, the index of the
