@@ -97,6 +97,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     if (off_left) then mg_log, 'off detector on left', name='comp', /warn
     if (off_top) then mg_log, 'off detector on top', name='comp', /warn
     n_images_off_detector += 1
+    ;mg_log, '%d images off detector so far', n_images_off_detector, name='comp', /debug
   endif
   if (off2) then begin
     annulus_mask2 = comp_disk_mask(uncorrected_geometry.occulter2.r, $
@@ -108,6 +109,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     if (off_right) then mg_log, 'off detector on right', name='comp', /warn
     if (off_bottom) then mg_log, 'off detector on bottom', name='comp', /warn
     n_images_off_detector += 1
+    ;mg_log, '%d images off detector so far', n_images_off_detector, name='comp', /debug
   endif
 
   n_images = n_elements(images[0, 0, *])
