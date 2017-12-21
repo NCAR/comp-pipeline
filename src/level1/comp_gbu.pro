@@ -429,7 +429,7 @@ pro comp_gbu, date_dir, wave_type, error=error
             filenames[i], $
             good_files[i] ne 0 $
               ? 'Bad' $
-              : (gt_threshold_count[i] ge gbu_offset_count ? 'Offset' : 'Good')
+              : (gt_threshold_count[i] ge gbu_offset_count ? 'Offset' : 'Good'), $
             back[i], $
             img_sigma[i], $
             gt_threshold_count[i], $
