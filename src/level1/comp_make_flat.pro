@@ -44,6 +44,7 @@ pro comp_make_flat, date_dir, error=error
   @comp_fit_common
   @comp_flats_common
   @comp_diagnostics_common
+  @comp_check_common
 
   debug = 0
 
@@ -323,6 +324,7 @@ pro comp_make_flat, date_dir, error=error
                 opalfile, uniq_waves[i], name='comp', /warn
         mg_log, '  %0.2f (flat median) < %0.2f (minimum theshold)', $
                 medflat, threshold, name='comp', /warn
+        n_flats_too_low += 1
         continue
       endif
       

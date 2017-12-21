@@ -15,6 +15,7 @@ pro comp_l1_check_all, date_dir, body=body
   compile_opt strictarr
   @comp_config_common
   @comp_check_common
+  @comp_constants_common
 
   body = list()
 
@@ -23,13 +24,21 @@ pro comp_l1_check_all, date_dir, body=body
   body->add, '## Warnings'
   body->add, ''
 
-  n_warnings = (n_images_off_detector gt 0L)
+  n_warnings = (n_images_off_detector gt 0L) $
+                 + (n_flat_too_low)
 
   if (n_warnings eq 0L) then body->add, 'no warnings'
 
   if (n_images_off_detector gt 0L) then begin
     body->add, string(n_images_off_detector, format='(%"%d images off detector")')
     mg_log, '%d images off detector', n_images_off_detector, name='comp', /warn
+  endif
+
+  if (n_flats_too_low gt 0L) then begin
+    body->add, string(n_flats_too_low, $
+                      format='(%"%d flats rejected for being below threshold")')
+    mg_log, '%d flats rejected for being below threshold', n_flats_too_low, $
+            name='comp', /warn
   endif
 
   body->add, ''
