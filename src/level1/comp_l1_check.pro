@@ -89,10 +89,6 @@ pro comp_l1_check, date_dir, wave_type, body=body
     fits_close, fcb
   endfor
 
-  if (n_images_off_detector gt 0L) then begin
-    mg_log, '%d images off detector', n_images_off_detector, name='comp', /warn
-  endif
-
   med_background = median(background)
 
   eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
@@ -141,14 +137,11 @@ pro comp_l1_check, date_dir, wave_type, body=body
   n_warnings = (n_overlap_angle_warnings gt 0L) $
                  + (med_background gt background_limit) $
                  + (n_files_post_angle_diff gt 0L) $
-                 + (n_images_off_detector gt 0L) $
                  + (n_images_bad_temp gt 0L) $
                  + (n_images_bad_filttemp gt 0L)
 
   send_warning = (n_warnings gt 0L) || (n_bad_reasons gt 0L)
   
-  if (~obj_valid(body)) then body = list()
-
   body->add, string(wave_type, format='(%"# %s nm files")')
   body->add, ''
   body->add, '## Warnings'
@@ -169,9 +162,6 @@ pro comp_l1_check, date_dir, wave_type, body=body
     body->add, string(n_files_post_angle_diff, $
                       format='(%"%d files with post angle difference greater than tolerance")')
   endif
-  if (n_images_off_detector gt 0L) then begin
-    body->add, string(n_images_off_detector, format='(%"%d images off detector")')
-  endif
   if (n_images_bad_temp gt 0L) then begin
     body->add, string(n_images_bad_temp, $
                       format='(%"%d images with bad temperature (LCVR6TMP)")')
@@ -180,10 +170,6 @@ pro comp_l1_check, date_dir, wave_type, body=body
     body->add, string(n_images_bad_filttemp, $
                       format='(%"%d images with bad temperature (FILTTEMP)")')
   endif
-
-  body->add, ''
-  log_filename = filepath(date_dir + '.log', root=log_dir)
-  body->add, string(log_filename, format='(%"See log %s for details")')
 
   body->add, ['', '', '## GBU'], /extract
 

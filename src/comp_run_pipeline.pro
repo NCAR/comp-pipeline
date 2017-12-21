@@ -560,7 +560,10 @@ pro comp_run_pipeline, config_filename=config_filename
     if (check_l1) then begin
       check_l1_t0 = systime(/seconds)
 
-      ; check metrics of final L1 data
+      ; check metrics of L1 data
+
+      comp_l1_check_all, date_dir, body=body
+
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         mg_log, 'checking %s L1 data', process_wavelengths[w], $
                 name='comp', /info
@@ -582,7 +585,7 @@ pro comp_run_pipeline, config_filename=config_filename
 
     done_with_day:
     t1 = systime(/seconds)
-    mg_log, 'total running time: %s sec', comp_sec2str(t1 - t0), $
+    mg_log, 'total running time: %s', comp_sec2str(t1 - t0), $
             name='comp', /info
 
     if (lock_raw && ~dry_run) then begin

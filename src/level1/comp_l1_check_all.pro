@@ -1,0 +1,40 @@
+; docformat = 'rst'
+
+
+;+
+; Perform the checks on L1 files that are not wave type dependent.
+;
+; :Params:
+;   date_dir : in, required, type=string
+;     date to process, in YYYYMMDD format
+;
+; :Author:
+;   MLSO Software Team
+;-
+pro comp_l1_check_all, date_dir, body=body
+  compile_opt strictarr
+  @comp_config_common
+  @comp_check_common
+
+  body = list()
+
+  body->add, '# All files'
+  body->add, ''
+  body->add, '## Warnings'
+  body->add, ''
+
+  n_warnings = (n_images_off_detector gt 0L)
+
+  if (n_warnings eq 0L) then body->add, 'no warnings'
+
+  if (n_images_off_detector gt 0L) then begin
+    body->add, string(n_images_off_detector, format='(%"%d images off detector")')
+    mg_log, '%d images off detector', n_images_off_detector, name='comp', /warn
+  endif
+
+  body->add, ''
+  log_filename = filepath(date_dir + '.comp.log', root=log_dir)
+  body->add, string(log_filename, format='(%"See log %s for details")')
+
+  body->add, ['', ''], /extract
+end
