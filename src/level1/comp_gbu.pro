@@ -22,7 +22,7 @@
 ;         image > 2.5 ppm
 ;     32  background changes abruptly by more than 50% of the median background
 ;         level
-;     64  background image contains more than 100 pixels with a value > 100.0
+;     64  background image contains more than 2000 pixels with a value > 70.0
 ;    128  standard deviation of intensity image - median intensity image = NaN
 ;         or Inf
 ;
@@ -132,6 +132,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   back = fltarr(n_files)
   time = fltarr(n_files)
   img_sigma = fltarr(n_files)
+  gt_threshold_count = fltarr(n_files)
   n_waves = intarr(n_files)
   polstates = strarr(n_files)
 
@@ -249,14 +250,15 @@ pro comp_gbu, date_dir, wave_type, error=error
       fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
 
       ; reject file if there are more than 100 background pixels with a level of
-      ; > 100.0
+      ; > 70.0
       good = where(mask eq 1)
       gt_threshold = where(dat_back[good] gt gbu_background_threshold, $
-                           gt_threshold_count)
+                           file_gt_threshold_count)
 
-      if (gt_threshold_count gt gbu_threshold_count) then begin
+      gt_threshold_count[ifile] = file_get_threshold_count
+      if (file_gt_threshold_count ge gbu_threshold_count) then begin
         mg_log, '%s: %d bkg pixels > %0.1f', $
-                name, gt_threshold_count, gbu_background_threshold, $
+                name, file_gt_threshold_count, gbu_background_threshold, $
                 name='comp', /warn
         if (perform_gbu) then good_files[ifile] += 64
       endif
@@ -284,13 +286,6 @@ pro comp_gbu, date_dir, wave_type, error=error
                 med_back, gbu_med_background, $
                 name='comp', /warn
       endif
-
-      med_back_basename = string(date_dir, wave_type, $
-                                 format='(%"%s.comp.%s.morning.background.txt")')
-      med_back_filename = filepath(med_back_basename, root=eng_dir)
-      openw, med_back_lun, med_back_filename, /get_lun
-      printf, med_back_lun, med_back, format='(%"%0.1f")'
-      free_lun, med_back_lun
     endif else begin
       ; skip first image of the day, if there are more than 1 images
       if (n_files gt 1L) then begin
@@ -403,7 +398,13 @@ pro comp_gbu, date_dir, wave_type, error=error
          string(date_dir, wave_type, format='(%"%s.comp.%s.good.all.files.txt")'), $
          /get_lun
 
-  printf, gbu_lun, 'Filename                                   Quality     Back     Sigma   #waves  Reason'
+  printf, gbu_lun, med_back, median([back]), $
+          format='(%"Median morning background: %0.2f, median background: %0.2f")'
+  printf, gbu_lun, $
+          'Filename', 'Quality', 'Back', 'Sigma', $
+          string(gbu_threshold_count, format='(%"#>%5.1f")'), $
+          '#waves', 'Reason', $
+          format='(A-41, X, A7, X, A8, A8, 2x, A7, 2x, A5, 3x, A3)'
 
   for i = 0L, n_files - 1L do begin
     ; don't put nonexistent files in the GBU file
@@ -426,12 +427,15 @@ pro comp_gbu, date_dir, wave_type, error=error
     if (good_files[i] eq 0) then printf, good_all_lun, good_lines[i]
     printf, gbu_lun, $
             filenames[i], $
-            good_files[i] eq 0 ? '  Good' : '   Bad', $
+            good_files[i] ne 0 $
+              ? 'Bad' $
+              : (gt_threshold_count[i] ge gbu_offset_count ? 'Offset' : 'Good')
             back[i], $
             img_sigma[i], $
+            gt_threshold_count[i], $
             n_waves[i], $
             good_files[i], $
-            format='(A41, X, A6, X, F10.2, F10.2, 2x, I5, 3x, i3)'
+            format='(A41, X, A7, X, F8.2, F8.2, 2x, I7, 2x, I5, 3x, i3)'
   endfor
 
   free_lun, lun
@@ -444,13 +448,6 @@ pro comp_gbu, date_dir, wave_type, error=error
   bad = where(good_files gt 0, bad_total)
   mg_log, '%d bad files out of %d total %s files', $
           bad_total, n_files, wave_type, name='comp', /info
-
-;  if (bad_total gt 0) then begin
-;    bad_existing = where(good_files gt 0 and good_files mod 2 eq 0, n_bad_existing)
-;    if (n_bad_existing gt 0L) then begin
-;      mg_log, 'bad: %s', strjoin(filenames[bad_existing], ', '), name='comp', /warn
-;    endif
-;  endif
 
   bkg_counts_basename = string(date_dir, wave_type, $
                                format='(%"%s.comp.%s.gbu.bkg.counts.txt")')

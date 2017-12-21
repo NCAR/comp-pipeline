@@ -39,7 +39,7 @@ function comp_read_gbu, gbu_file, count=count
   compile_opt strictarr
 
   nlines = file_lines(gbu_file)
-  count = nlines - 1
+  count = nlines - 2L   ; skip 2 lines of header
   sarr = strarr(nlines)
   openr, unit, gbu_file, /get_lun
   readf, unit, sarr
@@ -50,12 +50,13 @@ function comp_read_gbu, gbu_file, count=count
 
   if (count eq 0) then return, !null
 
-  for ii = 1L, n_elements(sarr) - 1L do begin
+  for ii = 2L, n_elements(sarr) - 1L do begin
     str = {l1file: '', $
            time_obs: '', $
            quality: '', $
            background: 0.0, $
            variance: 0.0, $
+           gt_threshold: 0L, $
            wavelengths: 0, $
            reason: 0L}
     x = str_sep(sarr[ii], ' ')
@@ -87,8 +88,9 @@ function comp_read_gbu, gbu_file, count=count
       str.quality = x[1]
       str.background = float(x[2])
       str.variance = float(x[3])
-      str.wavelengths = fix(x[4])
-      str.reason = long(x[5])
+      str.gt_threshold = long(x[4])
+      str.wavelengths = fix(x[5])
+      str.reason = long(x[6])
     endelse
 
     ;   ofile = base+'.FitI.'+fns('#',str.wavelengths)+'.sav'
@@ -104,9 +106,10 @@ function comp_read_gbu, gbu_file, count=count
     good = where(gbu.quality eq 'Good', n_good)
     bad = where(gbu.quality eq 'Bad', n_bad)
     ugly = where(gbu.quality eq 'Ugly', n_ugly)
+    offset = where(gbu.quality eq 'Offset', n_ugly)
 
-    mg_log, 'GBU file %s has %d good, %d bad, and %d ugly images', $
-            file_basename(gbu_file), n_good, n_bad, n_ugly, $
+    mg_log, 'GBU file %s has %d good, %d bad, %d ugly images, and %d offset images', $
+            file_basename(gbu_file), n_good, n_bad, n_ugly, n_offset, $
             name='comp', /debug
 
     nfive = where(gbu.quality eq 'Good' and gbu.wavelengths eq 5, ng5)
