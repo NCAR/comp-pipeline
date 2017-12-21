@@ -93,6 +93,7 @@ pro comp_l1_check, date_dir, wave_type, body=body
 
   eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
   if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+
   med_back_basename = string(date_dir, wave_type, $
                              format='(%"%s.comp.%s.background.txt")')
   med_back_filename = filepath(med_back_basename, root=eng_dir)
@@ -160,7 +161,8 @@ pro comp_l1_check, date_dir, wave_type, body=body
 
   if (n_files_post_angle_diff) then begin
     body->add, string(n_files_post_angle_diff, $
-                      format='(%"%d files with post angle difference greater than tolerance")')
+                      post_angle_diff_tolerance, $
+                      format='(%"%d files with post angle difference greater than tolerance (%0.1f deg)")')
   endif
   if (n_images_bad_temp gt 0L) then begin
     body->add, string(n_images_bad_temp, $
