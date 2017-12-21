@@ -80,6 +80,8 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   device, set_resolution=[size, size], set_colors=256, z_buffering=0, $
           decomposed=0
   loadct, 3, /silent
+  ocol = 253
+  tvlct, 0, 255, 255, fcol
   fcol = 254
   tvlct, 255, 255, 0, fcol
   ccol = 255
@@ -121,7 +123,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
           alignment=0.5, orientation=90, font=font
 
   colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max + 0.5], $
-             divisions=5, charsize=0.6, font=font
+             divisions=5, charsize=0.6, font=font, ncolors=top + 1L
 
   if (keyword_set(background)) then begin
     oradius = sxpar(primary_header, 'ORADIUS')
@@ -133,14 +135,15 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     fycenter = sxpar(primary_header, 'FRPIX2') - 1.0
 
     post_angle = sxpar(primary_header, 'POSTPANG')
+    p_angle = sxpar(primary_header, 'SOLAR_P0')
 
     theta = findgen(360) * !dtor
 
     ; occulter center and outline
     x = oradius * cos(theta) + oxcenter
     y = oradius * sin(theta) + oycenter
-    plots, x, y, /device, color=ccol
-    plots, [oxcenter], [oycenter], /device, color=ccol, psym=1
+    plots, x, y, /device, color=ocol
+    plots, [oxcenter], [oycenter], /device, color=ocol, psym=1
 
     ; field center and outline
     x = fradius * cos(theta) + fxcenter
@@ -151,9 +154,9 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     ; post
     r = (oradius + fradius) / 2.0
     ; convert from N up is 0 deg to mathematical convention in rad
-    pa = (post_angle + 90.0) * !dtor
+    pa = (post_angle + 90.0 + p_angle) * !dtor
     plots, [r * cos(pa) + oxcenter], [r * sin(pa) + oycenter], $
-           /device, color=ccol, psym=1
+           /device, color=ocol, psym=1
   endif
 
   write_gif, filename, tvrd()
