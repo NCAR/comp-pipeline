@@ -49,3 +49,6 @@
   add warnings for too great of a post angle difference between beams
   removing useless warnings from logs
   set notification email from: field
+  condensed notification emails to a single email
+  1074 background GIFs
+  fixed offsensor warnings
