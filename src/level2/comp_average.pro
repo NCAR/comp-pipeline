@@ -400,7 +400,7 @@ pro comp_average, date_dir, wave_type, $
 
       ; use /NAN to not use masked pixels
       med = median(data, dimension=3, /nan)
-      aver = mean(data, dimension=3)
+      aver = mean(data, dimension=3, /nan)
 
       ; write Stokes parameters to output files
       if (compute_median) then begin
