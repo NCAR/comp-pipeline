@@ -112,7 +112,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   delta_time = times[1:*] - times[0:-2]
 
   time_check = [1B, delta_time lt max_cadence_interval]
-
+stop
   flat_bins = value_locate(times, flat_times) + 1L
   flat_check = histogram(flat_bins, min=0, max=n_elements(time_check) - 1L) eq 0
 
@@ -306,6 +306,8 @@ function comp_find_average_files, date_dir, wave_type, $
 
   for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
     interval = averaging_max_cadence_interval[mci]
+    ; convert to seconds to days
+    interval /= 60.0D * 60.0D * 24.0D
     case 1 of
       keyword_set(synoptic): begin
           max_n_files = averaging_max_n_synoptic_files
@@ -347,23 +349,25 @@ end
 
 ; main-level example program
 
-dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
-         '20171006', '20171007', '20171008', '20171009', '20171010', $
-         '20171011', '20171012', '20171013', '20171014']
+;dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
+;         '20171006', '20171007', '20171008', '20171009', '20171010', $
+;         '20171011', '20171012', '20171013', '20171014']
+dates = ['20171001']
+
 for d = 0L, n_elements(dates) - 1L do begin
   comp_initialize, dates[d]
   comp_configuration, config_filename='../../config/comp.mgalloy.mahi.latest.cfg'
 
   synoptic_files = comp_find_average_files(dates[d], '1074', $
                                            count=n_synoptic_files, /synoptic)
-  waves_files = comp_find_average_files(dates[d], '1074', $
-                                        count=n_waves_files)
-  combined_files = comp_find_average_files(dates[d], '1074', $
-                                           count=n_combined_files, $
-                                           /combined)
+;  waves_files = comp_find_average_files(dates[d], '1074', $
+;                                        count=n_waves_files)
+;  combined_files = comp_find_average_files(dates[d], '1074', $
+;                                           count=n_combined_files, $
+;                                           /combined)
 
-  print, dates[d], n_synoptic_files, n_waves_files, n_combined_files, $
-         format='(%"---> %s: %d synoptic, %d waves, %d combined")'
+;  print, dates[d], n_synoptic_files, n_waves_files, n_combined_files, $
+;         format='(%"---> %s: %d synoptic, %d waves, %d combined")'
 endfor
 
 end
