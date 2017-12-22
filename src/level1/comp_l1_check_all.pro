@@ -25,7 +25,7 @@ pro comp_l1_check_all, date_dir, body=body
   body->add, ''
 
   n_warnings = (n_images_off_detector gt 0L) $
-                 + (n_flat_too_low)
+                 + (n_flats_too_low)
 
   if (n_warnings eq 0L) then body->add, 'no warnings'
 
