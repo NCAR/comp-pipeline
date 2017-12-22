@@ -304,6 +304,12 @@ pro comp_average, date_dir, wave_type, $
         endif
         fits_read, fcb, dat, header, exten_no=good[0] + 1
         naverage[ist, iw] += sxpar(header, 'NAVERAGE')
+
+        ; put NaNs for masked out pixels, so averaging doesn't include a
+        ; bunch of 0's
+        bad_ind = where(mask eq 0.0, n_bad)
+        if (n_bad gt 0L) then mask[bad_ind] = !values.f_nan
+
         data[*, *, ifile] = dat * mask
         if (num_averaged[ist, iw] eq 0) then average_times[0, ist, iw] = strmid(name, 9, 6)
         num_averaged[ist, iw] += 1
@@ -375,8 +381,9 @@ pro comp_average, date_dir, wave_type, $
       sigma = fltarr(nx, nx)
       for ia = 0L, nx - 1L do begin
         for ib = 0L, nx - 1L do begin
-          sumx = total(data[ia, ib, *])
-          sumx2 = total(data[ia, ib, *]^2)
+          ; use /NAN keyword to not count masked pixels
+          sumx = total(data[ia, ib, *], /nan)
+          sumx2 = total(data[ia, ib, *]^2, /nan)
           xbar = sumx / m
           var = (sumx2 - 2.0 * xbar * sumx + m * xbar^2) / (m - 1.0)
           ; TODO
@@ -391,7 +398,8 @@ pro comp_average, date_dir, wave_type, $
       ; find median and mean across image
       sxaddpar, header, 'NAVERAGE', naverage[ist, iw]
 
-      med = median(data, dimension=3)
+      ; use /NAN to not use masked pixels
+      med = median(data, dimension=3, /nan)
       aver = mean(data, dimension=3)
 
       ; write Stokes parameters to output files
