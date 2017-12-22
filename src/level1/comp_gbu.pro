@@ -373,7 +373,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   endif
 
   ; make new text file for synoptic program (first files with n_waves = 5)
-  openw, synoptic_lun, $
+  openw, good_synoptic_lun, $
          string(date_dir, wave_type, format='(%"%s.comp.%s.good.synoptic.files.txt")'), $
          /get_lun
 
@@ -386,7 +386,7 @@ pro comp_gbu, date_dir, wave_type, error=error
          /get_lun
 
   ; make new text file with only good filenames
-  openw, good_lun, $
+  openw, good_iqu_lun, $
          string(date_dir, wave_type, format='(%"%s.comp.%s.good.iqu.files.txt")'), $
          /get_lun
 
@@ -414,19 +414,26 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     ; stop saving to synoptic when obs switch to 3 waves
     if ((synoptic_flag eq 1) and (n_waves[i] lt 5)) then synoptic_flag = 0
-    if ((synoptic_flag eq 1) and (good_files[i] eq 0)) then begin
-      printf, synoptic_lun, good_lines[i]
+    if ((synoptic_flag eq 1) and (good_files[i] eq 0) $
+          and (gt_threshold_count[i] lt gbu_offset_count)) then begin
+      printf, good_synoptic_lun, good_lines[i]
     endif
     if ((good_files[i] eq 0) $
           and (strpos(polstates[i], 'Q') ge 0) $
-          and (strpos(polstates[i], 'U') ge 0)) then begin
-      printf, good_lun, good_lines[i]
+          and (strpos(polstates[i], 'U') ge 0) $
+          and (gt_threshold_count[i] lt gbu_offset_count)) then begin
+      printf, good_iqu_lun, good_lines[i]
     endif
     ; need fast cadence for waves (only way to tell now is 3 points)
-    if ((good_files[i] eq 0) and (n_waves[i] eq 3)) then begin
+    if ((good_files[i] eq 0) and (n_waves[i] eq 3) $
+        and (gt_threshold_count[i] lt gbu_offset_count)) then begin
       printf, good_waves_lun, good_lines[i]
     endif
-    if (good_files[i] eq 0) then printf, good_all_lun, good_lines[i]
+    if ((good_files[i] eq 0) $
+          and (gt_threshold_count[i] lt gbu_offset_count)) then begin
+      printf, good_all_lun, good_lines[i]
+    endif
+
     printf, gbu_lun, $
             filenames[i], $
             good_files[i] ne 0 $
@@ -441,8 +448,8 @@ pro comp_gbu, date_dir, wave_type, error=error
   endfor
 
   free_lun, lun
-  free_lun, synoptic_lun
-  free_lun, good_lun
+  free_lun, good_synoptic_lun
+  free_lun, good_iqu_lun
   free_lun, gbu_lun
   free_lun, good_waves_lun
   free_lun, good_all_lun
