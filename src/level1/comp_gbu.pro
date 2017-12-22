@@ -302,7 +302,9 @@ pro comp_gbu, date_dir, wave_type, error=error
     endelse
 
     mg_log, 'median background %0.1f', med_back, name='comp', /info
-  endif
+  endif else begin
+    med_back = !values.f_nan
+  endelse
 
   ; find median intensity image using only good images so far
   good_subs = where(good_files eq 0, count)
