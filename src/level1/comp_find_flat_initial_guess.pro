@@ -20,7 +20,7 @@ function comp_find_flat_initial_guess, flat
   @comp_constants_common
 
   ; TODO: this threshold should be a function of time
-  threshold = 25.0
+  threshold = 250.0
 
   ; mask flat into various in/out of annuli connected regions
   lr = label_region(flat lt threshold)
@@ -35,5 +35,7 @@ function comp_find_flat_initial_guess, flat
   center = reform(mean(xy, dimension=2))
 
   ; initial guess is an offset from the center of the image
-  return, center - [nx / 2, ny / 2]
+  ; TODO: put this back
+  ;return, center - [nx / 2, ny / 2]
+  return, [0.0, 0.0]
 end
