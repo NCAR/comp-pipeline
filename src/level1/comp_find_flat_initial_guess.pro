@@ -20,9 +20,9 @@ function comp_find_flat_initial_guess, flat
   @comp_constants_common
 
   ; TODO: this threshold should be a function of time
+  threshold = 25.0
 
   ; mask flat into various in/out of annuli connected regions
-  threshold = 250.0
   lr = label_region(flat lt threshold)
 
   ; assume the region in the center of the image is in the under the occulter
