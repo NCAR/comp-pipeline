@@ -27,7 +27,7 @@ function comp_disk_mask, radius, dx=dx, dy=dy
   compile_opt strictarr
   @comp_constants_common
 
-  mask = fltarr(nx, ny) + 1.
+  mask = fltarr(nx, ny) + 1.0
 
   x = rebin(indgen(nx) - nx / 2., nx, nx)
   y = transpose(x)
@@ -39,7 +39,7 @@ function comp_disk_mask, radius, dx=dx, dy=dy
   r = sqrt(x^2 + y^2)
 
   bad = where(r lt radius, count)
-  if (count gt 0) then mask[bad] = 0.
+  if (count gt 0) then mask[bad] = 0.0
 
   return, mask
 end
