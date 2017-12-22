@@ -106,7 +106,7 @@ function comp_read_gbu, gbu_file, count=count
     good = where(gbu.quality eq 'Good', n_good)
     bad = where(gbu.quality eq 'Bad', n_bad)
     ugly = where(gbu.quality eq 'Ugly', n_ugly)
-    offset = where(gbu.quality eq 'Offset', n_ugly)
+    offset = where(gbu.quality eq 'Offset', n_offset)
 
     mg_log, 'GBU file %s has %d good, %d bad, %d ugly images, and %d offset images', $
             file_basename(gbu_file), n_good, n_bad, n_ugly, n_offset, $
