@@ -81,7 +81,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
           decomposed=0
   loadct, 3, /silent
   ocol = 253
-  tvlct, 0, 255, 255, fcol
+  tvlct, 0, 255, 255, ocol
   fcol = 254
   tvlct, 255, 255, 0, fcol
   ccol = 255
