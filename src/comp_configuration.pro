@@ -197,7 +197,7 @@ pro comp_configuration, config_filename=config_filename
   averaging_max_cadence_interval   = config->get('max_cadence_interval', $
                                                  section='averaging', $
                                                  /extract, type=4, $
-                                                 default=[180.0, 360.0, 600.0])
+                                                 default=[300.0, 600.0])
   averaging_max_n_noncluster_files = config->get('max_n_noncluster_files', $
                                                  section='averaging', $
                                                  default=50L, type=3)
