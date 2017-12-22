@@ -255,7 +255,7 @@ pro comp_gbu, date_dir, wave_type, error=error
       gt_threshold = where(dat_back[good] gt gbu_background_threshold, $
                            file_gt_threshold_count)
 
-      gt_threshold_count[ifile] = file_get_threshold_count
+      gt_threshold_count[ifile] = file_gt_threshold_count
       if (file_gt_threshold_count ge gbu_threshold_count) then begin
         mg_log, '%s: %d bkg pixels > %0.1f', $
                 name, file_gt_threshold_count, gbu_background_threshold, $
