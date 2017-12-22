@@ -406,7 +406,7 @@ pro comp_gbu, date_dir, wave_type, error=error
           'Filename', 'Quality', 'Back', 'Sigma', $
           string(gbu_threshold_count, format='(%"#>%6.1f")'), $
           '#waves', 'Reason', $
-          format='(A-41, X, A7, X, A8, A8, 2x, A8, 2x, A5, 3x, A3)'
+          format='(A-41, X, A7, X, A6, X, A6, 2X, A8, 2X, A6, 2X, A6)'
 
   for i = 0L, n_files - 1L do begin
     ; don't put nonexistent files in the GBU file
@@ -444,7 +444,7 @@ pro comp_gbu, date_dir, wave_type, error=error
             gt_threshold_count[i], $
             n_waves[i], $
             good_files[i], $
-            format='(A41, X, A7, X, F8.2, F8.2, 2x, I8, 2x, I5, 3x, i3)'
+            format='(A41, X, A7, X, F6.2, X, F6.2, 2X, I8, 2X, I6, 2X, i6)'
   endfor
 
   free_lun, lun
@@ -494,7 +494,7 @@ config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
- wave_type = '1083'
+wave_type = '1074'
 
 for d = 0L, n_elements(dates) - 1L do begin
   comp_initialize, dates[d]
