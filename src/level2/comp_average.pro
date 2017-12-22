@@ -398,9 +398,8 @@ pro comp_average, date_dir, wave_type, $
       ; find median and mean across image
       sxaddpar, header, 'NAVERAGE', naverage[ist, iw]
 
-      ; use /NAN to not use masked pixels
-      med = median(data, dimension=3, /nan)
-      aver = mean(data, dimension=3, /nan)
+      med = median(data, dimension=3)
+      aver = mean(data, dimension=3, /nan)   ; use /NAN to not use masked pixels
 
       ; write Stokes parameters to output files
       if (compute_median) then begin
