@@ -112,7 +112,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
   delta_time = times[1:*] - times[0:-2]
 
   time_check = [1B, delta_time lt max_cadence_interval]
-stop
+
   flat_bins = value_locate(times, flat_times) + 1L
   flat_check = histogram(flat_bins, min=0, max=n_elements(time_check) - 1L) eq 0
 
