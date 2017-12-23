@@ -37,7 +37,7 @@ pro comp_l1_check_all, date_dir, body=body
   if (n_flats_too_low gt 0L) then begin
     body->add, string(n_flats_too_low, $
                       format='(%"%d flats rejected for being below threshold")')
-    mg_log, '%d flats rejected for being below threshold', n_flats_too_low, $
+    mg_log, '%d flats rejected for median below threshold', n_flats_too_low, $
             name='comp', /warn
   endif
 
