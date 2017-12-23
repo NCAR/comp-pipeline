@@ -141,8 +141,6 @@ pro comp_l1_check, date_dir, wave_type, body=body
                  + (n_images_bad_temp gt 0L) $
                  + (n_images_bad_filttemp gt 0L)
 
-  send_warning = (n_warnings gt 0L) || (n_bad_reasons gt 0L)
-  
   body->add, string(wave_type, format='(%"# %s nm files")')
   body->add, ''
   body->add, '## Warnings'
@@ -159,7 +157,7 @@ pro comp_l1_check, date_dir, wave_type, body=body
                       format='(%"median background %0.1f exceeds limit %0.1f")')
   endif
 
-  if (n_files_post_angle_diff) then begin
+  if (n_files_post_angle_diff gt 0L) then begin
     body->add, string(n_files_post_angle_diff, $
                       post_angle_diff_tolerance, $
                       format='(%"%d files with post angle difference greater than tolerance (%0.1f deg)")')
@@ -185,7 +183,7 @@ pro comp_l1_check, date_dir, wave_type, body=body
       body->add, string(bad_for_reason[ind[r]], reasons[ind[r]], $
                         format='(%"%d bad images because %s")')
     endfor
-    
+
     body->add, ''
     body->add, string(total(gbu.reason ne 0, /integer), $
                       n_elements(gbu), $
