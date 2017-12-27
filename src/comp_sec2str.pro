@@ -33,5 +33,6 @@ function comp_sec2str, secs
     endif
   endfor
 
-  return, strjoin(result[where(result ne '', /null)], ' ')
+  ind = result[where(result ne '', count, /null)]
+  return, count gt 0L ? strjoin(ind, ' ') : string(secs, format='(%"%0.1 secs")')
 end
