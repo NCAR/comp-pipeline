@@ -27,6 +27,10 @@
 ;   gbu_file : in, required, type=string
 ;     GBU filename
 ;
+; :Keywords:
+;   count : out, optional, type=long
+;     set to a named variable to retrieve the number of entries in the GBU log
+;
 ; :Author:
 ;   MLSO Software Team
 ;
@@ -39,17 +43,19 @@ function comp_read_gbu, gbu_file, count=count
   compile_opt strictarr
 
   nlines = file_lines(gbu_file)
-  count = nlines - 2L   ; skip 2 lines of header
+  count = nlines - 2L
   sarr = strarr(nlines)
   openr, unit, gbu_file, /get_lun
   readf, unit, sarr
   free_lun, unit
 
-  mg_log, 'GBU file %s has %d entries', file_basename(gbu_file), count, $
+  mg_log, 'GBU file %s has %d entries', $
+          file_basename(gbu_file), count, $
           name='comp', /debug
 
   if (count eq 0) then return, !null
 
+  ; skip 2 lines of header
   for ii = 2L, n_elements(sarr) - 1L do begin
     str = {l1file: '', $
            time_obs: '', $
