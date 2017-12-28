@@ -52,34 +52,35 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
-
-  occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2 - 1.0, $
-               y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2 - 1.0, $
+ 
+  ;read occulter center in 620x620 frames to use as center guess
+  occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - 1.0, $
+               y:sxpar(flat_header, 'OYCNTER1') - 1.0 - 1024 + ny, $
                r:sxpar(flat_header, 'ORADIUS1')}
-  occulter2 = {x:sxpar(flat_header, 'OXCNTER2') - 1024 + nx / 2 - 1.0, $
-               y:sxpar(flat_header, 'OYCNTER2') - ny / 2 - 1.0, $
+  occulter2 = {x:sxpar(flat_header, 'OXCNTER2') - 1.0 - 1024 + nx, $
+               y:sxpar(flat_header, 'OYCNTER2') - 1.0, $
                r:sxpar(flat_header, 'ORADIUS2')}
 
   ; field position
-  field1 = {x:sxpar(flat_header, 'FXCNTER1') - nx / 2 - 1.0, $
-            y:sxpar(flat_header, 'FYCNTER1') - 1024 + ny / 2 - 1.0, $
+  field1 = {x:sxpar(flat_header, 'FXCNTER1') - 1.0, $
+            y:sxpar(flat_header, 'FYCNTER1') - 1.0 - 1024 + ny, $
             r:sxpar(flat_header, 'FRADIUS1')}
-  field2 = {x:sxpar(flat_header, 'FXCNTER2') - 1024 + nx / 2 - 1.0, $
-            y:sxpar(flat_header, 'FYCNTER2') - ny / 2 - 1.0, $
+  field2 = {x:sxpar(flat_header, 'FXCNTER2') - 1.0 - 1024 + nx, $
+            y:sxpar(flat_header, 'FYCNTER2') - 1.0, $
             r:sxpar(flat_header, 'FRADIUS2')}
 
   if (arg_present(uncorrected_geometry)) then begin
-    uncorrected_geometry = { occulter1: {x:sxpar(flat_header, 'OXCNTRU1') - nx / 2 - 1.0, $
-                                         y:sxpar(flat_header, 'OYCNTRU1') - 1024 + ny / 2 - 1.0, $
+    uncorrected_geometry = { occulter1: {x:sxpar(flat_header, 'OXCNTRU1') - 1.0, $
+                                         y:sxpar(flat_header, 'OYCNTRU1') - 1.0 - 1024 + ny, $
                                          r:sxpar(flat_header, 'ORADU1')}, $
-                             occulter2: {x:sxpar(flat_header, 'OXCNTRU2') - 1024 + nx / 2 - 1.0, $
-                                         y:sxpar(flat_header, 'OYCNTRU2') - ny / 2 - 1.0, $
+                             occulter2: {x:sxpar(flat_header, 'OXCNTRU2') - 1.0 - 1024 + nx, $
+                                         y:sxpar(flat_header, 'OYCNTRU2') - 1.0, $
                                          r:sxpar(flat_header, 'ORADU2')}, $
-                             field1: {x:sxpar(flat_header, 'FXCNTRU1') - nx / 2 - 1.0, $
-                                      y:sxpar(flat_header, 'FYCNTRU1') - 1024 + ny / 2 - 1.0, $
+                             field1: {x:sxpar(flat_header, 'FXCNTRU1') - 1.0, $
+                                      y:sxpar(flat_header, 'FYCNTRU1') - 1.0 - 1024 + ny, $
                                       r:sxpar(flat_header, 'FRADU1')}, $
-                             field2: {x:sxpar(flat_header, 'FXCNTRU2') - 1024 + nx / 2 - 1.0, $
-                                      y:sxpar(flat_header, 'FYCNTRU2') - ny / 2 - 1.0, $
+                             field2: {x:sxpar(flat_header, 'FXCNTRU2') - 1.0 - 1024 + nx, $
+                                      y:sxpar(flat_header, 'FYCNTRU2') - 1.0, $
                                       r:sxpar(flat_header, 'FRADU2')}, $
                              post_angle1: sxpar(flat_header, 'PSTANGU1'), $
                              post_angle2: sxpar(flat_header, 'PSTANGU2') $
@@ -124,14 +125,14 @@ function comp_image_geometry, images, headers, date_dir, $
 
     ; the output of comp_find_annulus is an offset from the original guess, so
     ; so we must add the offsets together to get the final offset
-    calc_occulter1.x += occulter1.x
-    calc_occulter1.y += occulter1.y
+    ;calc_occulter1.x += occulter1.x
+    ;calc_occulter1.y += occulter1.y
   
     mg_log, '%s, %f, %f, %f, %f, %d', $
             wave_type, $
             time, $
-            calc_occulter1.x + nx / 2, $
-            calc_occulter1.y + 1024 - ny / 2, $
+            calc_occulter1.x, $
+            calc_occulter1.y, $
             calc_occulter1.r, ind1[0], $
             name='image.occ.ul', /debug
   endif
@@ -172,14 +173,14 @@ function comp_image_geometry, images, headers, date_dir, $
 
     ; the output of comp_find_annulus is an offset from the original guess, so
     ; so we must add the offsets together to get the final offset
-    calc_occulter2.x += occulter2.x
-    calc_occulter2.y += occulter2.y
+    ;calc_occulter2.x += occulter2.x
+    ;calc_occulter2.y += occulter2.y
 
     mg_log, '%s, %f, %f, %f, %f, %d', $
             wave_type, $
             time, $
-            calc_occulter2.x + 1024 - nx / 2, $
-            calc_occulter2.y + ny / 2, $
+            calc_occulter2.x, $
+            calc_occulter2.y, $
             calc_occulter2.r, $
             ind2[0], $
             name='image.occ.lr', /debug
@@ -189,11 +190,11 @@ function comp_image_geometry, images, headers, date_dir, $
 
   mg_log, '%s, %f, %f, %f, %f', $
           wave_type, time, $
-          occulter1.x + nx / 2, occulter1.y + 1024 - ny / 2, occulter1.r, $
+          occulter1.x, occulter1.y, occulter1.r, $
           name='flat.occ.ul', /debug
   mg_log, '%s, %f, %f, %f, %f', $
           wave_type, time, $
-          occulter2.x + 1024 - nx / 2, occulter2.y + ny / 2, occulter2.r, $
+          occulter2.x, occulter2.y, occulter2.r, $
           name='flat.occ.lr', /debug
 
   mg_log, '%s, %d, %d, %d', $

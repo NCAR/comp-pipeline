@@ -48,8 +48,12 @@ pro comp_fix_trend, image_full, occulter1, occulter2, field1, field2, $
   flat = comp_extract1(image_full) 
   mask = comp_extract1(mask_for_fit)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; TODO check that center changes are included properly
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   ; Use the field mask to eliminate the crescent of the other beam that is the sub-image
-  field_mask = comp_field_mask(field1.r, dx=field1.x, dy=field1.y)
+  field_mask = comp_field_mask(field1.r, xcen=field1.x, ycen=field1.y)
   mask *= field_mask
   fit1 = comp_detrender(flat, mask)
 
@@ -61,7 +65,7 @@ pro comp_fix_trend, image_full, occulter1, occulter2, field1, field2, $
 
   ; put back into 1024 image
   tmp_mask = fltarr(1024, 1024)
-  dmask = comp_disk_mask(occulter1.r, dx=occulter1.x, dy=occulter1.y)
+  dmask = comp_disk_mask(occulter1.r, xcen=occulter1.x, ycen=occulter1.y)
   tmp_mask[0L:nx - 1L, 1024L - nx:1024L - 1L] = dmask * field_mask
   good = where(tmp_mask)
   tmp_flat = fltarr(1024,1024)
@@ -74,7 +78,7 @@ pro comp_fix_trend, image_full, occulter1, occulter2, field1, field2, $
 
   ; use the field mask to eliminate the crescent of the other beam that is the
   ; sub-image
-  field_mask = comp_field_mask(field2.r, dx=field2.x, dy=field2.y)
+  field_mask = comp_field_mask(field2.r, xcen=field2.x, ycen=field2.y)
   mask *= field_mask
   fit2 = comp_detrender(flat, mask)
 
@@ -86,12 +90,14 @@ pro comp_fix_trend, image_full, occulter1, occulter2, field1, field2, $
 
   ; put back into 1024 image
   tmp_mask = fltarr(1024,1024)
-  dmask = comp_disk_mask(occulter2.r, dx=occulter2.x, dy=occulter2.y)
+  dmask = comp_disk_mask(occulter2.r, xcen=occulter2.x, ycen=occulter2.y)
   tmp_mask[1024L - nx:1024L - 1L, 0L:nx - 1L] = dmask * field_mask
   good = where(tmp_mask)
   tmp_flat = fltarr(1024, 1024)
   tmp_flat[1024L - nx:1024L - 1L, 0L:nx - 1L] = detrended_flat
   image_full[good] = tmp_flat[good]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   fit = (fit1 + fit2) / 2.0
 end

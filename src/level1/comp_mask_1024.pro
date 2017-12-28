@@ -13,7 +13,7 @@
 ;   mask image, `fltarr(1024, 1024)`
 ;
 ; :Params:
-;   occulter1 : in, required, type=structure
+;   occulter1 : in, required, type=structure 
 ;     structure for occulter in sub-image 1 of the form `{x:0.0, y:0.0, r:0.0}`
 ;   occulter2 : in, required, type=structure
 ;     structure for occulter in sub-image 2 of the form `{x:0.0, y:0.0, r:0.0}`
@@ -21,6 +21,8 @@
 ;     structure for field in sub-image 1 of the form `{x:0.0, y:0.0, r:0.0}`
 ;   field2 : in, required, type=structure
 ;     structure for field in sub-image 2 of the form `{x:0.0, y:0.0, r:0.0}`
+;   occulter1, occulter2, filed1, field2 x and y coordinates are the center 
+;   coordinates for the 620x620 sub-arrays 
 ;   post_angle1 : in, required, type=float
 ;     position angle for post in sub-image 1
 ;   post_angle2 : in, required, type=float
@@ -83,13 +85,13 @@ function comp_mask_1024, occulter1, occulter2, $
 
   ; occulter mask
   radius = (occulter1.r + occulter2.r) * 0.5
-  dmask1 = comp_disk_mask(radius + local_o_offset, dx=occulter1.x, dy=occulter1.y)
-  dmask2 = comp_disk_mask(radius + local_o_offset, dx=occulter2.x, dy=occulter2.y)
+  dmask1 = comp_disk_mask(radius + local_o_offset, xcen=occulter1.x, ycen=occulter1.y)
+  dmask2 = comp_disk_mask(radius + local_o_offset, xcen=occulter2.x, ycen=occulter2.y)
 
   ; field mask
   fradius = (field1.r + field2.r) * 0.5
-  field_mask_1 = comp_field_mask(fradius + local_f_offset, dx=field1.x, dy=field1.y)
-  field_mask_2 = comp_field_mask(fradius + local_f_offset, dx=field2.x, dy=field2.y)
+  field_mask_1 = comp_field_mask(fradius + local_f_offset, xcen=field1.x, ycen=field1.y)
+  field_mask_2 = comp_field_mask(fradius + local_f_offset, xcen=field2.x, ycen=field2.y)
 
   ; post mask
   if (keyword_set(nopost)) then begin
@@ -103,32 +105,21 @@ function comp_mask_1024, occulter1, occulter2, $
     mask2 = dmask2 * field_mask_2 * pmask2
   endelse
 
-  ; construct large mask
-  mask_image = fltarr(1024, 1024)
-  mask_image[0:nx - 1, 1024 - nx:1024 - 1] $
-    = mask_image[0:nx - 1, 1024 - nx:1024 - 1] + mask1 / local_bc1
-  mask_image[1024 - nx:1024 - 1,0:nx - 1] $
-    = mask_image[1024 - nx:1024 - 1, 0:nx - 1] + mask2 / local_bc2
 
-  ; mask out overlap
-  if (n_elements(nooverlap) eq 0) then begin
-    ; wew field masks, slightly larger, to create larger overlap to mask
-    overlap_mask_1 = comp_field_mask(field1.r + field_overlap, dx=field1.x, dy=field1.y)
-    overlap_mask_2 = comp_field_mask(field2.r + field_overlap, dx=field2.x, dy=field2.y)
+  ; construct 1024x1024 mask
+  mask_image1 = fltarr(1024, 1024)
+  mask_image2 = fltarr(1024, 1024)
+  mask_image1[0:nx - 1, 1024 - ny:1024 - 1] = mask1 / local_bc1
+  mask_image2[1024 - nx:1024 - 1,0:ny - 1]  = mask2 / local_bc2
 
-    ; identify the overlap of images, from the field positions
-    tmp_img = fltarr(1024,1024)
-    tmp_img[0:nx - 1, 1024 - nx:1024 - 1] = tmp_img[0:nx - 1, 1024 - nx:1024 - 1] $
-                                              + overlap_mask_1
-    tmp_img[1024 - nx:1024 - 1, 0:nx - 1] = tmp_img[1024 - nx:1024 - 1, 0:nx - 1] $
-                                              + overlap_mask_2
-    overlap = where(tmp_img gt 1.0, count)
+  mask_image = mask_image1 + mask_image2
+  overlap = where(mask_image gt 1.0, count)
     if (count eq 0) then begin
       mg_log, 'no overlap', name='comp', /warn
     endif
-
     mask_image[overlap] = 0.0
-  endif
+  endif  
+
 
   ; set first four columns to 1 so that they will not be used
   if (keyword_set(nullcolumns)) then begin  

@@ -5,8 +5,6 @@
 ; occulting disk, field stop, occulter post and the overlap of the two
 ; sub-images.
 ;
-; THIS ASSUMES THAT THE IMAGE HAS ALREADY BEEN CENTERED USING THE CENTER OF THE
-; OCCULTER
 ;
 ; :Examples:
 ;   For example, call like::
@@ -47,8 +45,10 @@ pro comp_make_mask, date_dir, fits_header, mask
   fradius = sxpar(fits_header, 'FRADIUS', count=count)
 
   if (count eq 0) then begin
-    ; old keywords
-    occulter = {x:sxpar(fits_header, 'CRPIX1'), $
+    ; old keywords 
+    ; TODO: does it need to subtract 1 ?
+    ; Or does this apply only to old headers that did not have 1 added ????
+    occulter = {x:sxpar(fits_header, 'CRPIX1') , $
                 y:sxpar(fits_header, 'CRPIX2'), $
                 r:((sxpar(fits_header, 'OCRAD1') $
                     + sxpar(fits_header, 'OCRAD2')) / 2.0)}
@@ -62,21 +62,20 @@ pro comp_make_mask, date_dir, fits_header, mask
     ; create the mask from individual masks
 
     ; occulter mask
-    dmask = comp_disk_mask(occulter.r + occulter_offset)
+    dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset, $
-                                 dx=(occulter.x - field.x), $
-                                 dy=(occulter.y - field.y))
+    field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
 
     mask = dmask * field_mask
   endif else begin
-    occulter = {x:sxpar(fits_header, 'CRPIX1'), $
-                y:sxpar(fits_header, 'CRPIX2'), $
+    ; for new headers subtract 1 
+    occulter = {x:sxpar(fits_header, 'CRPIX1') - 1.0, $
+                y:sxpar(fits_header, 'CRPIX2') - 1.0, $
                 r:sxpar(fits_header, 'ORADIUS')}
-    field = {x:sxpar(fits_header, 'FRPIX1'), $
-             y:sxpar(fits_header,'FRPIX2'), $
-             r:sxpar(fits_header,'FRADIUS')}
+    field = {x:sxpar(fits_header, 'FRPIX1') - 1.0, $
+             y:sxpar(fits_header, 'FRPIX2') - 1.0, $
+             r:sxpar(fits_header, 'FRADIUS')}
     post_angle = sxpar(fits_header, 'POSTPANG')
     overlap_angle = sxpar(fits_header, 'OVRLPANG')
     p_angle = sxpar(fits_header, 'SOLAR_P0')
@@ -84,22 +83,20 @@ pro comp_make_mask, date_dir, fits_header, mask
     ; create the mask from individual masks
 
     ; occulter mask
-    dmask = comp_disk_mask(occulter.r + occulter_offset)
+    dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset, $
-                                 dx=field.x - occulter.x, $
-                                 dy=field.y - occulter.y)
-
+    field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
+  
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
-    ;pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
+      pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
 
     ; overlap mask
     omask = comp_overlap_mask(field.r, overlap_angle + p_angle, $
                               dx=(occulter.x - field.x), $
                               dy=(occulter.y - field.y))
 
-    mask = dmask * field_mask * omask
+    mask = dmask * field_mask * pmask * omask
   endelse
 end
