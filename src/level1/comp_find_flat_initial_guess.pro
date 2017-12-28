@@ -19,7 +19,7 @@ function comp_find_flat_initial_guess, flat
   compile_opt strictarr
   @comp_constants_common
 
-  ; TODO: this threshold should be a function of time
+  ; TODO: this threshold should be a function of time and exposure
   threshold = 250.0
 
   ; mask flat into various in/out of annuli connected regions
@@ -34,8 +34,8 @@ function comp_find_flat_initial_guess, flat
   xy = array_indices(lr, ind)
   center = reform(mean(xy, dimension=2))
 
-  ; initial guess is an offset from the center of the image
-  ; TODO: put this back
-  ;return, center - [nx / 2, ny / 2]
-  return, [0.0, 0.0]
+  ; initial guess for the center of the image
+  
+  return, center 
+
 end

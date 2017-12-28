@@ -65,10 +65,9 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
 
   cent = dblarr(nscan)
 
-  ; make initial guess of x and y positions the center of the array
   if (n_elements(center_guess) gt 0L) then begin
-    x0 = center_guess[0] + double(nx) / 2.0D
-    y0 = center_guess[1] + double(ny) / 2.0D
+    x0 = center_guess[0] 
+    y0 = center_guess[1] 
 
     ; TODO: remove when done
     mg_log, 'new guess: %0.1f, %0.1f, %0.1f', $
@@ -77,8 +76,9 @@ function comp_radial_der, data, theta, radius, dr, neg_pol=neg_pol, $
     mg_log, 'old guess: %0.1f, %0.1f, %0.1f', $
             double(nx) / 2.0D, double(ny) / 2.0D, radius, $
             name='comp', /debug
+    ; if center_guess not specified use as initial guess the center of the array  
   endif else begin
-    x0 = double(nx) / 2.D0
+    x0 = double(nx) / 2.D0 
     y0 = double(ny) / 2.D0
   endelse
 
