@@ -48,9 +48,10 @@ pro comp_find_post, image, occulter, field, pa
                             + occulter.r), $
                 new_nx, new_ny)
 
-  ; now convert to rectangular coordinates
-  new_x = new_r * cos(new_th) + nx * 0.5 + occulter.x
-  new_y = new_r * sin(new_th) + ny * 0.5 + occulter.y
+; convert to rectangular coordinates 
+; occulter.x and occulter.y are the center of the occulter - not the offset
+  new_x = new_r * cos(new_th) + occulter.x
+  new_y = new_r * sin(new_th) + occulter.y
 
   ; use bilinear to extract the values
   new_img = bilinear(image, new_x, new_y)
