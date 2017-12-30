@@ -112,7 +112,9 @@ pro comp_configuration, config_filename=config_filename
   validate            = config->get('validate', section='actions', $
                                     /boolean, default=1B)
   lock_raw            = config->get('lock_raw', section='actions', $
-                                  /boolean, default=1B)
+                                    /boolean, default=1B)
+  max_n_concurrent    = config->get('max_n_concurrent', section='actions', $
+                                    type=3, default=3L)
 
   ; database options
   update_database = config->get('update_database', section='database', $

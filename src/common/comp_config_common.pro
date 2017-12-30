@@ -51,6 +51,7 @@ common comp_config, doi_1074,$
                     send_to_hpss, $
                     validate, $
                     lock_raw, $
+                    max_n_concurrent, $
                     update_database, $
                     code_version, $
                     code_revision, $

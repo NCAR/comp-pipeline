@@ -18,14 +18,20 @@
 ;     set to unlock a `date_dir` in the raw directory
 ;   processed : in, optional, type=boolean
 ;     set to set a lock indicating the directory has been processed
+;   n_concurrent : in, out, optional, type=long
+;     incremented if a directory was locked, not available or processed; this
+;     should give a number of concurrent production pipeline processes running
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
+function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed, $
+                     n_concurrent=n_concurrent
   compile_opt strictarr, logical_predicate
   on_error, 2
   @comp_config_common
+
+  if (n_elements(n_concurrent) eq 0L) then n_concurrent = 0L
 
   raw_dir = filepath(date_dir, root=raw_basedir)
   lock_file = filepath('.lock', root=raw_dir)
@@ -35,6 +41,7 @@ function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
 
   if (keyword_set(lock)) then begin
     if (available) then begin
+      n_concurrent += 1L
       openw, lun, lock_file, /get_lun
       free_lun, lun
     endif
@@ -44,6 +51,7 @@ function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
   if (keyword_set(unlock)) then begin
     locked = file_test(lock_file)
     if (locked) then begin
+      n_concurrent -= 1L
       file_delete, lock_file
     endif
     return, locked
@@ -54,6 +62,9 @@ function comp_state, date_dir, lock=lock, unlock=unlock, processed=processed
     free_lun, lun
     return, 1B
   endif
+
+  ; this was just a test call, increment if lock_file was present
+  if (file_test(lock_file)) then n_concurrent += 1L
 
   return, available
 end

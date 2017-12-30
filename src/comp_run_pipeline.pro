@@ -87,13 +87,18 @@ pro comp_run_pipeline, config_filename=config_filename
     comp_initialize, date_dir
     if (~dry_run) then comp_setup_loggers_date, date_dir
     if (lock_raw) then begin
-      available = comp_state(date_dir)
+      available = comp_state(date_dir, n_concurrent=n_concurrent)
       if (available ne 1) then begin
         mg_log, '%s locked, skipping...', date_dir, name='comp', /info
         continue
       endif else begin
         if (~dry_run) then begin
-          available = comp_state(date_dir, /lock)
+          if (n_concurrent gt max_n_concurrent) then begin
+            mg_log, '%d processes running currently, quitting', n_concurrent, $
+                    name='comp', /info
+            goto, done
+          endif
+          available = comp_state(date_dir, /lock, n_concurrent=n_concurrent)
           mg_log, 'locked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
@@ -119,7 +124,7 @@ pro comp_run_pipeline, config_filename=config_filename
         if (~valid) then begin
           mg_log, 'skipping %s...', date_dir, name='comp', /info
           if (lock_raw) then begin
-            unlocked = comp_state(date_dir, /unlock)
+            unlocked = comp_state(date_dir, /unlock, n_concurrent=n_concurrent)
             mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
                     name='comp', /info
           endif
@@ -175,10 +180,10 @@ pro comp_run_pipeline, config_filename=config_filename
 
       if (error ne 0) then begin
         if (lock_raw) then begin
-          unlocked = comp_state(date_dir, /unlock)
+          unlocked = comp_state(date_dir, /unlock, n_concurrent=n_concurrent)
           mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
-          processed = comp_state(date_dir, /processed)
+          processed = comp_state(date_dir, /processed, n_concurrent=n_concurrent)
           mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
@@ -201,10 +206,10 @@ pro comp_run_pipeline, config_filename=config_filename
 
       if (error ne 0) then begin
         if (lock_raw) then begin
-          unlocked = comp_state(date_dir, /unlock)
+          unlocked = comp_state(date_dir, /unlock, n_concurrent=n_concurrent)
           mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
-          processed = comp_state(date_dir, /processed)
+          processed = comp_state(date_dir, /processed, n_concurrent=n_concurrent)
           mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
                   name='comp', /info
         endif
@@ -589,16 +594,16 @@ pro comp_run_pipeline, config_filename=config_filename
             name='comp', /info
 
     if (lock_raw && ~dry_run) then begin
-      unlocked = comp_state(date_dir, /unlock)
+      unlocked = comp_state(date_dir, /unlock, n_concurrent=n_concurrent)
       mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
-      processed = comp_state(date_dir, /processed)
+      processed = comp_state(date_dir, /processed, n_concurrent=n_concurrent)
       mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
     endif
   endfor
 
+  done:
   !except = orig_except
-
   mg_log, /quit
 end
