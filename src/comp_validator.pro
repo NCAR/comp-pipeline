@@ -24,11 +24,11 @@
 ;
 ; :History:
 ;   Berkey, modified by Sitongia and de Toma
-;   Fixed logical error: code was creating a tar file and sending it to the 
+;   Fixed logical error: code was creating a tar file and sending it to the
 ;                        mass-store even if validation test had failed (GdT)
 ;   Added tarlist for tar file (GdT)
-;   Replaced spawn commands with unix script zipCoMPL0.sh that runs in the bkg 
-;   so processing code can start without waiting for the tar file to be created 
+;   Replaced spawn commands with unix script zipCoMPL0.sh that runs in the bkg
+;   so processing code can start without waiting for the tar file to be created
 ;   tarring is done with 12h delay so it does not use CPU during processing
 ;   (GdT)
 ;   Made a more generic tar_and_hpss.sh script to be used for L1 and L2 results
@@ -112,7 +112,7 @@ function comp_validator, date_dir
                                 root=binary_dir)
       cmd = string(archive_script, date_dir, hpss_gateway, time_delay, $
                    format='(%"%s %s %s %s &")')
-      
+
       spawn, cmd, result, error_result, exit_status=status
       if (status ne 0L) then begin
         mg_log, 'problem sending data to HPSS with command: %s', cmd, $
