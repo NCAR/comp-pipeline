@@ -103,17 +103,6 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
-  occulter1.x += corrected_occulter_guess1[0]
-  occulter1.y += corrected_occulter_guess1[1]
-
-  field1.x += corrected_occulter_guess1[0]
-  field1.y += corrected_occulter_guess1[1]
-
-  uncorrected_occulter1.x += uncorrected_occulter_guess1[0]
-  uncorrected_occulter1.y += uncorrected_occulter_guess1[1]
-
-  uncorrected_field1.x += uncorrected_occulter_guess1[0]
-  uncorrected_field1.y += uncorrected_occulter_guess1[1]
 
   comp_find_post, flat1, occulter1, field1, post_angle1
   comp_find_post, uncorrected_flat1, $
@@ -143,20 +132,9 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
-  occulter2.x += corrected_occulter_guess2[0]
-  occulter2.y += corrected_occulter_guess2[1]
 
-  field2.x += corrected_occulter_guess2[0]
-  field2.y += corrected_occulter_guess2[1]
-
-  uncorrected_occulter2.x += uncorrected_occulter_guess2[0]
-  uncorrected_occulter2.y += uncorrected_occulter_guess2[1]
-
-  uncorrected_field2.x += uncorrected_occulter_guess2[0]
-  uncorrected_field2.y += uncorrected_occulter_guess2[1]
-
-  comp_find_post, flat2, occulter2, field2, post_angle2
-  comp_find_post, uncorrected_flat2, $
+ comp_find_post, flat2, occulter2, field2, post_angle2
+ comp_find_post, uncorrected_flat2, $
                   uncorrected_occulter2, uncorrected_field2, $
                   uncorrected_post_angle2
 
@@ -174,56 +152,58 @@ pro comp_make_header, image, header, date_dir, $
                             root=engineering_dir)
   endif
 
-  ; occulter position
-  sxaddpar, header, 'OXCNTER1', occulter1.x + nx / 2 + 1.0, $
+  ; write occulter position
+  ; add 1 to adopt FITS standard
+  ; convert 620x620 geometry to 1024x1204 geometry
+  sxaddpar, header, 'OXCNTER1', occulter1.x + 1.0, $
             ' Occulter center X for distortion corrected sub-image 1'
-  sxaddpar, header, 'OYCNTER1', occulter1.y + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'OYCNTER1', occulter1.y + 1.0 + 1024 - ny, $
             ' Occulter center Y for distortion corrected sub-image 1'
   sxaddpar, header, 'ORADIUS1', occulter1.r, $
             ' Occulter Radius for distortion corrected sub-image 1'
-  sxaddpar, header, 'OXCNTER2', occulter2.x + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'OXCNTER2', occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for distortion corrected sub-image 2'
-  sxaddpar, header, 'OYCNTER2', occulter2.y + nx / 2 + 1.0, $
+  sxaddpar, header, 'OYCNTER2', occulter2.y + 1.0, $
             ' Occulter center Y for distortion corrected sub-image 2'
   sxaddpar, header, 'ORADIUS2', occulter2.r, $
             ' Occulter Radius for distortion corrected sub-image 2'
 
-  sxaddpar, header, 'OXCNTRU1', uncorrected_occulter1.x + nx / 2 + 1.0, $
+  sxaddpar, header, 'OXCNTRU1', uncorrected_occulter1.x + 1.0, $
             ' Occulter center X for distortion uncorrected sub-image 1'
-  sxaddpar, header, 'OYCNTRU1', uncorrected_occulter1.y + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'OYCNTRU1', uncorrected_occulter1.y + 1.0 + 1024 - ny, $
             ' Occulter center Y for distortion uncorrected sub-image 1'
   sxaddpar, header, 'ORADU1', uncorrected_occulter1.r, $
             ' Occulter Radius for distortion uncorrected sub-image 1'
-  sxaddpar, header, 'OXCNTRU2', uncorrected_occulter2.x + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'OXCNTRU2', uncorrected_occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for distortion uncorrected sub-image 2'
-  sxaddpar, header, 'OYCNTRU2', uncorrected_occulter2.y + nx / 2 + 1.0, $
+  sxaddpar, header, 'OYCNTRU2', uncorrected_occulter2.y + 1.0, $
             ' Occulter center Y for distortion uncorrected sub-image 2'
   sxaddpar, header, 'ORADU2', uncorrected_occulter2.r, $
             ' Occulter Radius for distortion uncorrected sub-image 2'
 
   ; field position
-  sxaddpar, header, 'FXCNTER1', field1.x + nx / 2 + 1.0, $
+  sxaddpar, header, 'FXCNTER1', field1.x + 1.0, $
             ' Field Stop center X for distortion corrected sub-image 1'
-  sxaddpar, header, 'FYCNTER1', field1.y + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'FYCNTER1', field1.y + 1.0 + 1024 - ny, $
             ' Field Stop center Y for distortion corrected sub-image 1'
   sxaddpar, header, 'FRADIUS1', field1.r, $
             ' Field Stop Radius for distortion corrected sub-image 1'
-  sxaddpar, header, 'FXCNTER2', field2.x + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'FXCNTER2', field2.x + 1.0 + 1024 - nx, $
             ' Field Stop center X for distortion corrected sub-image 2'
-  sxaddpar, header, 'FYCNTER2', field2.y + nx / 2 + 1.0, $
+  sxaddpar, header, 'FYCNTER2', field2.y + 1.0, $
             ' Field Stop center Y for distortion corrected sub-image 2'
   sxaddpar, header, 'FRADIUS2', field2.r, $
             ' Field Stop Radius for distortion corrected sub-image 2'
 
-  sxaddpar, header, 'FXCNTRU1', uncorrected_field1.x + nx / 2 + 1.0, $
+  sxaddpar, header, 'FXCNTRU1', uncorrected_field1.x + 1.0, $
             ' Field Stop center X for distortion uncorrected sub-image 1'
-  sxaddpar, header, 'FYCNTRU1', uncorrected_field1.y + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'FYCNTRU1', uncorrected_field1.y + 1.0 + 1024 - ny, $
             ' Field Stop center Y for distortion uncorrected sub-image 1'
   sxaddpar, header, 'FRADU1', uncorrected_field1.r, $
             ' Field Stop Radius for distortion uncorrected sub-image 1'
-  sxaddpar, header, 'FXCNTRU2', uncorrected_field2.x + 1024 - nx / 2 + 1.0, $
+  sxaddpar, header, 'FXCNTRU2', uncorrected_field2.x + 1.0 + 1024 - nx,  $
             ' Field Stop center X for distortion uncorrected sub-image 2'
-  sxaddpar, header, 'FYCNTRU2', uncorrected_field2.y + nx / 2 + 1.0, $
+  sxaddpar, header, 'FYCNTRU2', uncorrected_field2.y + 1.0, $
             ' Field Stop center Y for distortion uncorrected sub-image 2'
   sxaddpar, header, 'FRADU2', uncorrected_field2.r, $
             ' Field Stop Radius for distortion uncorrected sub-image 2'

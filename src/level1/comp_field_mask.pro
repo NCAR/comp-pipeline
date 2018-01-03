@@ -1,10 +1,9 @@
 ; docformat = 'rst'
 
 ;+
-; Procedure to create field mask. If `dx` and `dy` are present, the mask will
-; be shifted by `dx`, `dy` due to the field stop being off-center in the
-; detector with respect to the occulter changed x, y equation to save memory
-; (GdT).
+; Procedure to create field mask. If xcen and ycen are not specified, the
+; code assumes the image is 620x620 and the occulter is already shifted to
+; the middle of the array
 ;
 ; :Uses:
 ;   comp_constants_common
@@ -16,26 +15,29 @@
 ;   radius : in, required, type=float
 ;
 ; :Keywords:
-;   dx : in, optional, type=float
-;     shift in the x-direction
-;   dy : in, optional, type=float
-;     shift in the y-direction
+;   xcen : in, optional, type=float
+;     x-coordinate of occulter center 
+;   ycen : in, optional, type=float
+;     y-coordinate of occulter center 
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_field_mask, radius, dx=dx, dy=dy
+function comp_field_mask, radius, xcen=xcen, ycen=ycen
+
+default, xcen, 309.5
+default, ycen, 309.5
+
+
   compile_opt strictarr
   @comp_constants_common
 
   mask = fltarr(nx, ny) + 1.0
 
-  x = rebin(indgen(nx) - nx / 2.0, nx, ny)
-  y = transpose(x)
-  if (n_elements(dx) gt 0 or n_elements(dy) gt 0) then begin
-    x -= dx
-    y -= dy
-  endif
+     x = findgen(nx,ny)mod(nx) - xcen
+     y = transpose(findgen(ny,nx)mod(ny) ) - ycen
+     x=double(x)
+     y=double(y)
 
   r = sqrt(x^2 + y^2)
 

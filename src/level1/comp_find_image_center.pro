@@ -104,7 +104,12 @@ function comp_find_image_center, dat, $
 ;help, x_center, center_guess[0], y_center, center_guess[1], radius
 ;print, a
 
-  return, [x_center - nx / 2.0 - center_guess[0], $
-           y_center - ny / 2.0 - center_guess[1], $
-           radius]
+; changed this to return real center values
+;  return, [x_center - nx / 2.0 - center_guess[0], $
+;           y_center - ny / 2.0 - center_guess[1], $
+;           radius]
+
+return, [x_center, y_center, radius]
+
+
 end
