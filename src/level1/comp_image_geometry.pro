@@ -70,20 +70,20 @@ function comp_image_geometry, images, headers, date_dir, $
             r:sxpar(flat_header, 'FRADIUS2')}
 
   if (arg_present(uncorrected_geometry)) then begin
-    uncorrected_geometry = { occulter1: {x:sxpar(flat_header, 'OXCNTRU1') - 1.0, $
-                                         y:sxpar(flat_header, 'OYCNTRU1') - 1.0 - 1024 + ny, $
-                                         r:sxpar(flat_header, 'ORADU1')}, $
-                             occulter2: {x:sxpar(flat_header, 'OXCNTRU2') - 1.0 - 1024 + nx, $
-                                         y:sxpar(flat_header, 'OYCNTRU2') - 1.0, $
-                                         r:sxpar(flat_header, 'ORADU2')}, $
-                             field1: {x:sxpar(flat_header, 'FXCNTRU1') - 1.0, $
-                                      y:sxpar(flat_header, 'FYCNTRU1') - 1.0 - 1024 + ny, $
-                                      r:sxpar(flat_header, 'FRADU1')}, $
-                             field2: {x:sxpar(flat_header, 'FXCNTRU2') - 1.0 - 1024 + nx, $
-                                      y:sxpar(flat_header, 'FYCNTRU2') - 1.0, $
-                                      r:sxpar(flat_header, 'FRADU2')}, $
-                             post_angle1: sxpar(flat_header, 'PSTANGU1'), $
-                             post_angle2: sxpar(flat_header, 'PSTANGU2') $
+    uncorrected_geometry = {occulter1: {x:sxpar(flat_header, 'OXCNTRU1') - 1.0, $
+                                        y:sxpar(flat_header, 'OYCNTRU1') - 1.0 - 1024 + ny, $
+                                        r:sxpar(flat_header, 'ORADU1')}, $
+                            occulter2: {x:sxpar(flat_header, 'OXCNTRU2') - 1.0 - 1024 + nx, $
+                                        y:sxpar(flat_header, 'OYCNTRU2') - 1.0, $
+                                        r:sxpar(flat_header, 'ORADU2')}, $
+                            field1: {x:sxpar(flat_header, 'FXCNTRU1') - 1.0, $
+                                     y:sxpar(flat_header, 'FYCNTRU1') - 1.0 - 1024 + ny, $
+                                     r:sxpar(flat_header, 'FRADU1')}, $
+                            field2: {x:sxpar(flat_header, 'FXCNTRU2') - 1.0 - 1024 + nx, $
+                                     y:sxpar(flat_header, 'FYCNTRU2') - 1.0, $
+                                     r:sxpar(flat_header, 'FRADU2')}, $
+                            post_angle1: sxpar(flat_header, 'PSTANGU1'), $
+                            post_angle2: sxpar(flat_header, 'PSTANGU2') $
                            }
   endif
 
