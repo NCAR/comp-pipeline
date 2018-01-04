@@ -406,7 +406,7 @@ pro comp_gbu, date_dir, wave_type, error=error
           'Filename', 'Quality', 'Back', 'Sigma', $
           string(gbu_threshold_count, format='(%"#>%6.1f")'), $
           '#waves', 'Reason', $
-          format='(A-41, X, A7, X, A6, X, A6, 2X, A8, 2X, A6, 2X, A6)'
+          format='(A-41, X, A7, X, A6, X, A8, 2X, A8, 2X, A6, 2X, A6)'
 
   for i = 0L, n_files - 1L do begin
     ; don't put nonexistent files in the GBU file
@@ -444,7 +444,7 @@ pro comp_gbu, date_dir, wave_type, error=error
             gt_threshold_count[i], $
             n_waves[i], $
             good_files[i], $
-            format='(A41, X, A7, X, F6.2, X, F6.2, 2X, I8, 2X, I6, 2X, i6)'
+            format='(A41, X, A7, X, F6.2, X, F8.2, 2X, I8, 2X, I6, 2X, i6)'
   endfor
 
   free_lun, lun

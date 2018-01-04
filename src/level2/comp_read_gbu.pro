@@ -93,7 +93,11 @@ function comp_read_gbu, gbu_file, count=count
     endif else begin
       str.quality = x[1]
       str.background = float(x[2])
-      str.variance = float(x[3])
+      if (strmid(x[3], 0, 1) eq '*') then begin
+        str.variance = !values.f_nan
+      endif else begin
+        str.variance = float(x[3])
+      endelse
       str.gt_threshold = long(x[4])
       str.wavelengths = fix(x[5])
       str.reason = long(x[6])
