@@ -26,13 +26,13 @@ pro comp_send_notification, date, body, t0
 
   ; send the email
   if (notification_email ne '') then begin
-    mg_log, 'sending notification email to %s', notification_email, $
+    mg_log, 'sending email to %s', notification_email, $
             name='comp', /info
     subject = string(date, format='(%"CoMP results for %s")')
     body_text = body->toArray()
     comp_send_mail, notification_email, subject, body_text
   endif else begin
-    mg_log, 'not sending notification because no notification email', name='comp', /info
+    mg_log, 'not sending notification because no email', name='comp', /info
   endelse
 
   obj_destroy, body
