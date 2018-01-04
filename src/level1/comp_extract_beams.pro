@@ -49,8 +49,8 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
 
   ; set up matrix for image rotation
-  x0 = float(nx) / 2.0 
-  y0 = float(ny) / 2.0 
+  x0 = float(nx) / 2.0
+  y0 = float(ny) / 2.0
 
   x = rebin(findgen(nx) - x0, nx, nx)
   y = transpose(rebin(findgen(nx) - y0, nx, nx))
@@ -64,11 +64,6 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   ypp1 = yp + y0 - image_geometry.occulter1.y
   xpp2 = xp + x0 - image_geometry.occulter2.x
   ypp2 = yp + y0 - image_geometry.occulter2.y
-
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ; TODO THIS NEEDS TO CHANGE 
-  ; uncorrected_geometry.field1.x and uncorrected_geometry.field1.y
-  ; are not offset are the center coordinates of the field
 
   ; determine if UL beam if off the detector
   left_edge = (uncorrected_geometry.field1.x + nx / 2) - uncorrected_geometry.field1.r
@@ -94,27 +89,22 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
 
   if (off1) then begin
     annulus_mask1 = comp_disk_mask(uncorrected_geometry.occulter1.r, $
-                                   dx=uncorrected_geometry.occulter1.x, $
-                                   dy=uncorrected_geometry.occulter1.y) $
+                                   xcen=uncorrected_geometry.occulter1.x, $
+                                   ycen=uncorrected_geometry.occulter1.y) $
                       and comp_field_mask(uncorrected_geometry.field1.r, $
-                                          dx=uncorrected_geometry.field1.x, $
-                                          dy=uncorrected_geometry.field1.y)
-    ;if (off_left) then mg_log, 'off detector on left', name='comp', /warn
-    ;if (off_top) then mg_log, 'off detector on top', name='comp', /warn
+                                          xcen=uncorrected_geometry.field1.x, $
+                                          ycen=uncorrected_geometry.field1.y)
     n_images_off_detector += 1
   endif
   if (off2) then begin
     annulus_mask2 = comp_disk_mask(uncorrected_geometry.occulter2.r, $
-                                   dx=uncorrected_geometry.occulter2.x, $
-                                   dy=uncorrected_geometry.occulter2.y) $
+                                   xcen=uncorrected_geometry.occulter2.x, $
+                                   ycen=uncorrected_geometry.occulter2.y) $
                       and comp_field_mask(uncorrected_geometry.field2.r, $
-                                          dx=uncorrected_geometry.field2.x, $
-                                          dy=uncorrected_geometry.field2.y)
-    ;if (off_right) then mg_log, 'off detector on right', name='comp', /warn
-    ;if (off_bottom) then mg_log, 'off detector on bottom', name='comp', /warn
+                                          xcen=uncorrected_geometry.field2.x, $
+                                          ycen=uncorrected_geometry.field2.y)
     n_images_off_detector += 1
   endif
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   n_images = n_elements(images[0, 0, *])
   d1 = fltarr(nx, ny, n_images)
