@@ -57,7 +57,7 @@ pro comp_find_post, image, occulter, field, pa
   new_img = bilinear(image, new_x, new_y)
 
   ; extract center of annulus to avoid overlap and off-center
-  new_img = new_img[*, 25:new_ny - 20]
+  new_img = new_img[*, 25:new_ny - 21]
 
   ; average over y
   theta_scan = mean(new_img, dimension=2)
@@ -77,8 +77,8 @@ pro comp_find_post, image, occulter, field, pa
   max_value = max(y, max_pixel)
 
   yfit = mlso_gaussfit(x, y, coeff, $
-                       nterms=5, status=status, iter=n_iterations, $
-                       estimates=[max(y), x[max_pixel], 15., 0., 0.])
+                       nterms=6, status=status, iter=n_iterations, $
+                       estimates=[max(y), x[max_pixel], 6., 0., 0., 0.])
 
   case status of
     0:
