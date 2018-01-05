@@ -24,14 +24,14 @@ function comp_post_mask, angle, post_width
 
   post_mask = fltarr(nx, ny) + 1.0
 
-  x = rebin(indgen(nx) - nx / 2.0, nx, ny)
-  y = rebin(indgen(ny) - ny / 2.0, nx, ny)
+  x = findgen(nx,ny)mod(nx) -  nx*0.5 + 0.5
+  y = transpose(findgen(ny,nx)mod(ny) ) - ny*0.5 + 0.5
 
   ;mask out occulter post (to south)
   ;post_mask[where(abs(x) lt post_width/2. and y lt 0.)]=0.
 
   ; mask out occulter post (to north)
-  post_mask[where(abs(x) lt post_width / 2. and y gt 0.)] = 0.
+  post_mask[where(abs(x) lt post_width*0.5 and y gt 0.)] = 0.
 
   ;mask out occulter post at angle 0
   ;post_mask[where(abs(y) lt post_width/2. and x gt 0.)]=0.

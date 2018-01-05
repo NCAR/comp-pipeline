@@ -42,7 +42,7 @@ pro comp_fix_stray_light, image, flat_header, fit
 
   ; create arrays of x coordinate and y coordinate assuming image is square
 
-  x = rebin(findgen(nx), nx, nx) - float(nx) / 2.0
+  x = rebin(findgen(nx), nx, nx) - float(nx)*0.5 
   y = transpose(x)
 
   ; create mask with cutoff inside of occulter and outside of field mask

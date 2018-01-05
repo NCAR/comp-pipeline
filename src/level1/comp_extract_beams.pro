@@ -49,21 +49,19 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
 
   ; set up matrix for image rotation
-  x0 = float(nx) / 2.0
-  y0 = float(ny) / 2.0
 
-  x = rebin(findgen(nx) - x0, nx, nx)
-  y = transpose(rebin(findgen(nx) - y0, nx, nx))
-
+  x = findgen(nx,ny)mod(nx) -  nx*0.5 + 0.5
+  y = transpose(findgen(ny,nx)mod(ny) ) - ny*0.5 + 0.5
+ 
   angle = p_angle + 180.0   ; raw image oriented south up
   xp = x * cos(angle * !dtor) - y * sin(angle * !dtor)
   yp = x * sin(angle * !dtor) + y * cos(angle * !dtor)
 
-  ; correct center 
-  xpp1 = xp + x0 - image_geometry.occulter1.x
-  ypp1 = yp + y0 - image_geometry.occulter1.y
-  xpp2 = xp + x0 - image_geometry.occulter2.x
-  ypp2 = yp + y0 - image_geometry.occulter2.y
+  ; correct center to account for image offset
+  xpp1 = xp + image_geometry.occulter1.x
+  ypp1 = yp + image_geometry.occulter1.y
+  xpp2 = xp + image_geometry.occulter2.x
+  ypp2 = yp + image_geometry.occulter2.y
 
   ; determine if UL beam if off the detector
   left_edge = (uncorrected_geometry.field1.x + nx / 2) - uncorrected_geometry.field1.r

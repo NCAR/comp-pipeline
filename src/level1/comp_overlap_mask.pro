@@ -33,8 +33,12 @@ function comp_overlap_mask, radius, angle, dx=dx, dy=dy
 
   mask = fltarr(nx, ny) + 1.0
 
-  x = rebin(indgen(nx)-(nx*0.5-0.5), nx, ny)
-  y = transpose(x)
+  x = findgen(nx,ny)mod(nx) -  nx*0.5 + 0.5
+  y = transpose(findgen(ny,nx)mod(ny) ) - ny*0.5 + 0.5
+
+  x = double(x)
+  y = double(y)
+ 
   if (n_elements(dx) gt 0 or n_elements(dy) gt 0) then begin
     x = x - dx
     y = y - dy

@@ -22,8 +22,10 @@ function comp_apply_distortion, dat, dx_c, dy_c
   nx = s[1]
   ny = s[2]
 
-  x = rebin(findgen(nx), nx, ny)
-  y = transpose(x)
+  x = findgen(nx,ny)mod(nx) 
+  y = transpose(findgen(ny,nx)mod(ny) )
+  x = double(x)
+  y = double(y)
 
   dist_corrected = interpolate(dat, $
                                x + comp_eval_surf(dx_c, findgen(nx), findgen(ny)), $
