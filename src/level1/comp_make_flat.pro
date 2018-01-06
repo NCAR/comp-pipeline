@@ -229,8 +229,10 @@ pro comp_make_flat, date_dir, error=error
 
     if (make_flat_spectral_correction eq 0B) then begin
       ; Mask is not wavelength dependent
-      mask_full_fill = comp_annulus_1024(header, o_offset=0.0, f_offset=0.0, $
-                                         /uncorrected)
+       mask_full_fill = comp_mask_1024(occulter1, occulter2, $
+                                        field1, field2, $
+                                        post_angle1, post_angle2, $
+                                        o_offset=0.0, f_offset=0.0 )         
     endif
 
     ; Process by wavelength
@@ -301,14 +303,13 @@ pro comp_make_flat, date_dir, error=error
                                         post_angle1, post_angle2, $
                                         o_offset=0.0, f_offset=0.0, $
                                         bc1=background_correction_1, $
-                                        bc2=background_correction_2, $
-                                        /nopost, /nooverlap, /nullcolumns)
+                                        bc2=background_correction_2 )
       endif
 
       ;  normalize flats so that they are in units of millionths
       image /= norm
 
-      ; Check signal: a mask with only occulter and field, but right at edges
+      ; Check signal inside the mask which excludes the occulter, field, post, and overlap
       tmp_image = mask_full_fill * image
       medflat = median(tmp_image[where(tmp_image ne 0.)])
       sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli', $
