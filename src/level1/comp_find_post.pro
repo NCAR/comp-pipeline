@@ -45,8 +45,7 @@ pro comp_find_post, image, occulter, field, pa
 
   ; this is r from the occulter radius to the field stop radius
   new_r = rebin(transpose((field.r - occulter.r) * findgen(new_ny) / float(new_ny - 1) $
-                            + occulter.r), $
-                new_nx, new_ny)
+                            + occulter.r), new_nx, new_ny)
 
 ; convert to rectangular coordinates 
 ; occulter.x and occulter.y are the center of the occulter - not the offset
@@ -67,8 +66,8 @@ pro comp_find_post, image, occulter, field, pa
   y = median(theta_scan) - theta_scan
   x = findgen(new_nx) / float(new_nx) * 360.
 
-  lower_limit = post_angle_guess + 90 - post_angle_tolerance
-  upper_limit = post_angle_guess + 90 + post_angle_tolerance
+  lower_limit = post_angle_guess + 90. - post_angle_tolerance
+  upper_limit = post_angle_guess + 90. + post_angle_tolerance
   ind = where((x gt lower_limit) and (x lt upper_limit), count)
 
   x = x[ind]
