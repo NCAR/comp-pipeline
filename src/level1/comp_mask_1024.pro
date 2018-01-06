@@ -1,5 +1,4 @@
 ; docformat = 'rst'
-
 ;+
 ; Create a mask for CoMP images in the 1024x1024 spatial resolution. Include
 ; the occulting disk, field stop, occulter post and the overlap of the two
@@ -113,17 +112,18 @@ function comp_mask_1024, occulter1, occulter2, $
   mask_image2[1024 - nx:1024 - 1,0:ny - 1]  = mask2 / local_bc2
 
   mask_image = mask_image1 + mask_image2
+
+  ; mask out overlap 
   overlap = where(mask_image gt 1.0, count)
     if (count eq 0) then begin
       mg_log, 'no overlap', name='comp', /warn
-    endif
-    mask_image[overlap] = 0.0
-  endif  
+   endif else begin 
+    if keyword_set(nooverlap) then mask_image[overlap] = 0.5 else mask_image[overlap] = 0.0
+   endelse
 
-
-  ; set first four columns to 1 so that they will not be used
+  ; set first four columns to 0 so that they will not be used
   if (keyword_set(nullcolumns)) then begin  
-    mask_image[0:3, *] = 1.0
+    mask_image[0:3, *] = 0.0
   endif
 
   return, mask_image
