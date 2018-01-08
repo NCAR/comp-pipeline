@@ -91,6 +91,8 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
+  comp_find_post, flat1, occulter1, field1, post_angle1
+
   comp_find_annulus, uncorrected_flat1, $
                      uncorrected_occulter1, uncorrected_field1, $
                      occulter_guess=[uncorrected_occulter_guess1, 226.0], $
@@ -101,10 +103,8 @@ pro comp_make_header, image, header, date_dir, $
   if (error ne 0L) then begin
     mg_log, 'error finding image center', name='comp', /warn
     return
-  endif
+ endif
 
-
-  comp_find_post, flat1, occulter1, field1, post_angle1
   comp_find_post, uncorrected_flat1, $
                   uncorrected_occulter1, uncorrected_field1, $
                   uncorrected_post_angle1
@@ -120,7 +120,9 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
-  comp_find_annulus, uncorrected_flat2, $
+ comp_find_post, flat2, occulter2, field2, post_angle2
+
+ comp_find_annulus,  uncorrected_flat2, $
                      uncorrected_occulter2, uncorrected_field2, $
                      occulter_guess=[uncorrected_occulter_guess2, 226.0], $
                      field_guess=[uncorrected_occulter_guess2, 297.0], $
@@ -132,9 +134,7 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
-
- comp_find_post, flat2, occulter2, field2, post_angle2
- comp_find_post, uncorrected_flat2, $
+ comp_find_post,  uncorrected_flat2, $
                   uncorrected_occulter2, uncorrected_field2, $
                   uncorrected_post_angle2
 
