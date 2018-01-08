@@ -190,8 +190,10 @@ pro comp_make_flat, date_dir, error=error
               name='comp', /error
     endif
 
-    ; extract masking information from second flat image (don't use first)
-    image = flats[*, *, nwaves / 2]
+    ; extract masking information from center wavelength
+    ; we have both beam states, i.e. pos and neg wavelength
+    ; divide by 4 instead of 2
+    image = flats[*, *, nwaves / 4]
 
     ; fix hot pixels
     image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
@@ -301,7 +303,7 @@ pro comp_make_flat, date_dir, error=error
         mask_full_fill = comp_mask_1024(occulter1, occulter2, $
                                         field1, field2, $
                                         post_angle1, post_angle2, $
-                                        o_offset=0.0, f_offset=0.0, $
+                                        o_offset=+1.0, f_offset=-2.0, $
                                         bc1=background_correction_1, $
                                         bc2=background_correction_2 )
       endif
