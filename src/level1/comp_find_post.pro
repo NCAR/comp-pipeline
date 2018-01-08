@@ -75,7 +75,7 @@ pro comp_find_post, image, occulter, field, pa
 
   max_value = max(y, max_pixel)
 
-  yfit = gaussfit(x, y, coeff, $
+  yfit = mlso_gaussfit(x, y, coeff, $
                        nterms=6, status=status, iter=n_iterations, $
                        estimates=[max(y), x[max_pixel], 6., 0., 0., 0.])
 
