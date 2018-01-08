@@ -70,14 +70,18 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
   endif
 
 ;  flat_mask = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0, /uncorrected)
-
+  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; TODO PASS HEADERS INSTEAD
  ; find name of flat files 
    process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
    flatfile = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
                         root=process_dir)
 
+
   ; open flat file to read header later on
-  fits_open, flatfile, fcb
+   fits_open, flatfile, fcb
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   for f = 0L, n_elements(flat_expose) - 1L do begin
     if (flat_found[f]) then begin
@@ -144,8 +148,10 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
     endelse
 
     if (flat_found[iflat]) then begin
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     fits_read, fcb, tmpi, tmp_header, exten_no=flat_extensions[iflat]
     medflat = sxpar(tmp_header, 'MEDIAN')
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     endif else medflat = !values.f_nan
 
     ; update the header with the flat information
@@ -162,8 +168,9 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
     headersout[0, i] = reform(header, n_elements(header), 1)
  endfor
-
-  fits_close, fcb
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ fits_close, fcb
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   headers = headersout
 end
