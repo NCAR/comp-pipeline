@@ -118,3 +118,5 @@ install(PROGRAMS
 	  mail_results.sh
         DESTINATION .)
 install(FILES Makefile DESTINATION .)
+
+message(STATUS "Installation location = ${CMAKE_INSTALL_PREFIX}")
