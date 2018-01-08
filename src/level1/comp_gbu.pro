@@ -329,7 +329,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   ; check if there are good images
   good = where(med gt 1.0, count)
   if (count eq 0) then begin
-    mg_log, 'med le 1', name='comp', /warn
+    mg_log, 'median <= 1', name='comp', /warn
   endif else begin
     for ifile = 0L, n_files - 1L do begin
       ; take difference between data and median image to get pseudo sigma
