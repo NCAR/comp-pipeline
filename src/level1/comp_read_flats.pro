@@ -18,8 +18,9 @@
 ;     time of data image
 ;   flat : out, required, type="fltarr(1024, 1024, nwave)"
 ;     set to a named variable to retrieve the corresponding flat
-;   flat_header : out, required, type=strarr
-;     set to a named variable to retrieve the header of the last flat read
+;   file_flat_headers : out, required, type="strarr(nkeywords, nwave)"
+;     set to a named variable to retrieve the headers corresponding to the flats
+;     returned
 ;   flat_waves : out, optional, type=fltarr
 ;     set to a named variable to retrieve the unique wavelengths in `wave`,
 ;     possibly given sign through multiplying by beam state
@@ -42,7 +43,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
+pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
                      flat_waves, flat_names, flat_exposure, $
                      file=file, flat_extensions=flat_extensions, $
                      flat_found=flat_found
@@ -94,6 +95,16 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
   dt = time - flat_times   ; find time difference from flat times
   bad = where(dt lt 0., count)
   if (count gt 0L) then dt[bad] = 1000.  ; use only flats before time
+
+
+  if (cache_flats) then begin
+    n_keywords = n_elements(flat_headers[*, 0])
+  endif else begin
+    fits_read, fcb, image, flat_header, exten_no=iflat
+    n_keywords = n_elements(flat_header)
+  endelse
+
+  file_flat_headers = strarr(n_keywords, nwave)
 
   ; use closest flat in time with correct wavelength and polarization state
   for iw = 0L, nwave - 1L do begin
@@ -164,6 +175,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, flat_header, $
 
     flat[*, *, iw] = float(image)
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
+    file_flat_headers[iw] = flat_header
 
     flat_exposure[iw] = flat_exposures[iflat - 1L]
     mg_log, 'closest flat ext %d:', iflat, $

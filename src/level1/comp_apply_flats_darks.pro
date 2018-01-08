@@ -60,7 +60,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
-  comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
+  comp_read_flats, date_dir, wave, beam, time, flat, flat_headers, flat_waves, $
                    flat_names, flat_expose, flat_extensions=flat_extensions, $
                    flat_found=flat_found
   if (total(flat_found, /integer) eq 0L) then begin
@@ -71,18 +71,6 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
 ;  flat_mask = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0, /uncorrected)
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; TODO PASS HEADERS INSTEAD
- ; find name of flat files 
-   process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
-   flatfile = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
-                        root=process_dir)
-
-
-  ; open flat file to read header later on
-   fits_open, flatfile, fcb
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
   for f = 0L, n_elements(flat_expose) - 1L do begin
     if (flat_found[f]) then begin
       flat[*, *, f] *= expose / flat_expose[f]   ; modify for exposure times
@@ -92,8 +80,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
   endfor
 
   wave_type = comp_find_wavelength(wave[0], /name)
-  flat_nd = comp_get_nd_filter(date_dir, wave_type, flat_header)
-   
+  flat_nd = comp_get_nd_filter(date_dir, wave_type, reform(flat_header[*, 0])
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
@@ -103,6 +90,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
     ; select the correct flat for this image
     iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
+    iflat = iflat[0]
 
     ; subtract darks, fix sensor quirks, and divide by the flats
     tmp_image  = images[*, *, i]
@@ -148,18 +136,15 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
     endelse
 
     if (flat_found[iflat]) then begin
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    fits_read, fcb, tmpi, tmp_header, exten_no=flat_extensions[iflat]
-    medflat = sxpar(tmp_header, 'MEDIAN')
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      medflat = sxpar(reform(flat_headers[*, iflat]), 'MEDIAN')
     endif else medflat = !values.f_nan
 
     ; update the header with the flat information
     sxaddpar, header, 'ND-TRANS', transmission_correction, $
               ' Mult. factor=transmission of flat ND/img ND', after='NDFILTER'
-    sxaddpar, header, 'FLATFILE', flat_names[iflat[0]], $
+    sxaddpar, header, 'FLATFILE', flat_names[iflat], $
               ' Name of flat field file'
-    sxaddpar, header, 'FLATEXT', flat_extensions[iflat[0]], $
+    sxaddpar, header, 'FLATEXT', flat_extensions[iflat], $
               string(date_dir, $
                      format='(%" Extension in %s.comp.flat.fts used")'), $
               after='FLATFILE'
@@ -168,9 +153,6 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
     headersout[0, i] = reform(header, n_elements(header), 1)
  endfor
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- fits_close, fcb
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   headers = headersout
 end
