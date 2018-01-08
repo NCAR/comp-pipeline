@@ -111,12 +111,14 @@ if (IDLdoc_FOUND)
   add_dependencies(dist doc)
 endif ()
 
+configure_file(Makefile.in Makefile.in @ONLY)
+
 file(GLOB SH_FILES "*.sh")
 install(PROGRAMS
           comp_get_hostname.sh
           comp_run_latest.sh
 	  mail_results.sh
         DESTINATION .)
-install(FILES Makefile DESTINATION .)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Makefile.in DESTINATION . RENAME Makefile)
 
 message(STATUS "Installation location = ${CMAKE_INSTALL_PREFIX}")

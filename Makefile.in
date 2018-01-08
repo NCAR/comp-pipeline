@@ -13,8 +13,8 @@ else
 endif
 
 unexport IDL_DIR
-IDL=idl85
-SSWDEPS_IDL=idl85
+IDL=@IDL_EXECUTABLE@
+SSWDEPS_IDL=@IDL_EXECUTABLE@
 
 OS:=$(shell uname)
 
