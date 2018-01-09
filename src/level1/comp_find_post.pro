@@ -47,8 +47,8 @@ pro comp_find_post, image, occulter, field, pa
   new_r = rebin(transpose((field.r - occulter.r) * findgen(new_ny) / float(new_ny - 1) $
                             + occulter.r), new_nx, new_ny)
 
-; convert to rectangular coordinates 
-; occulter.x and occulter.y are the center of the occulter - not the offset
+  ; convert to rectangular coordinates
+  ; occulter.x and occulter.y are the center of the occulter - not the offset
   new_x = new_r * cos(new_th) + occulter.x
   new_y = new_r * sin(new_th) + occulter.y
 
