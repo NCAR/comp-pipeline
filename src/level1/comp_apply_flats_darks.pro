@@ -60,7 +60,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
 
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
-  comp_read_flats, date_dir, wave, beam, time, flat, flat_headers, flat_waves, $
+  comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose, flat_extensions=flat_extensions, $
                    flat_found=flat_found
   if (total(flat_found, /integer) eq 0L) then begin
@@ -80,7 +80,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
   endfor
 
   wave_type = comp_find_wavelength(wave[0], /name)
-  flat_nd = comp_get_nd_filter(date_dir, wave_type, reform(flat_header[*, 0])
+  flat_nd = comp_get_nd_filter(date_dir, wave_type, reform(flat_header[*, 0]))
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
@@ -136,7 +136,7 @@ pro comp_apply_flats_darks, images, headers, date_dir, $
     endelse
 
     if (flat_found[iflat]) then begin
-      medflat = sxpar(reform(flat_headers[*, iflat]), 'MEDIAN')
+      medflat = sxpar(reform(flat_header[*, iflat]), 'MEDIAN')
     endif else medflat = !values.f_nan
 
     ; update the header with the flat information

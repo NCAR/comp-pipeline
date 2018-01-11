@@ -106,24 +106,34 @@ function comp_mask_1024, occulter1, occulter2, $
 
 
   ; construct 1024x1024 mask
-  mask_image1 = fltarr(1024, 1024)
-  mask_image2 = fltarr(1024, 1024)
-  mask_image1[0:nx - 1, 1024 - ny:1024 - 1] = mask1 / local_bc1
-  mask_image2[1024 - nx:1024 - 1,0:ny - 1]  = mask2 / local_bc2
+   mask_image = fltarr(1024, 1024)
+   mask_image[0:nx - 1, 1024 - nx:1024 - 1] $
+    = mask_image[0:nx - 1, 1024 - nx:1024 - 1] + mask1 / local_bc1
+   mask_image[1024 - nx:1024 - 1,0:nx - 1] $
+    = mask_image[1024 - nx:1024 - 1, 0:nx - 1] + mask2 / local_bc2
 
-  mask_image = mask_image1 + mask_image2
+   ; mask out overlap
+   if (n_elements(nooverlap) eq 0) then begin
+   overlap_mask_1 = comp_field_mask(field1.r + field_overlap, xcen=field1.x, ycen=field1.y)
+   overlap_mask_2 = comp_field_mask(field2.r + field_overlap, xcen=field2.x, ycen=field2.y)
 
-  ; mask out overlap 
-  overlap = where(mask_image gt 1.0, count)
+    ; identify the overlap of images, from the field positions
+    tmp_img = fltarr(1024,1024)
+    tmp_img[0:nx - 1, 1024 - nx:1024 - 1] = tmp_img[0:nx - 1, 1024 - nx:1024 - 1] $
+                                              + overlap_mask_1
+    tmp_img[1024 - nx:1024 - 1, 0:nx - 1] = tmp_img[1024 - nx:1024 - 1, 0:nx - 1] $
+                                              + overlap_mask_2
+    overlap = where(tmp_img gt 1.0, count)
     if (count eq 0) then begin
       mg_log, 'no overlap', name='comp', /warn
-   endif else begin 
-    if keyword_set(nooverlap) then mask_image[overlap] = 0.5 else mask_image[overlap] = 0.0
-   endelse
+    endif
 
-  ; set first four columns to 0 so that they will not be used
+    mask_image[overlap] = 0.0
+    endif
+
+  ; set first four columns to 1
   if (keyword_set(nullcolumns)) then begin  
-    mask_image[0:3, *] = 0.0
+    mask_image[0:3, *] = 1.0
   endif
 
   return, mask_image

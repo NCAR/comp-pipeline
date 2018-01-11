@@ -61,7 +61,7 @@ pro comp_make_header, image, header, date_dir, $
 
   ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
-
+ 
   flat1 = comp_extract1(image)   ; extract the subimage
   flat2 = comp_extract2(image)   ; extract the subimage
 
@@ -77,8 +77,8 @@ pro comp_make_header, image, header, date_dir, $
   ; TODO: should check that exposure is 250.0 ms, might not work if not
   uncorrected_occulter_guess1 = comp_find_flat_initial_guess(uncorrected_flat1)
   uncorrected_occulter_guess2 = comp_find_flat_initial_guess(uncorrected_flat2)
-  corrected_occulter_guess1 = comp_find_flat_initial_guess(flat1)
-  corrected_occulter_guess2 = comp_find_flat_initial_guess(flat2)
+  corrected_occulter_guess1   = comp_find_flat_initial_guess(flat1)
+  corrected_occulter_guess2   = comp_find_flat_initial_guess(flat2)
 
   ; image 1
   comp_find_annulus, flat1, occulter1, field1, error=error, $
@@ -138,6 +138,7 @@ pro comp_make_header, image, header, date_dir, $
                   uncorrected_occulter2, uncorrected_field2, $
                   uncorrected_post_angle2
 
+
   if (centering_diagnostics) then begin
     save, corrected_occulter_points1, $
           corrected_occulter_points2, $
@@ -172,13 +173,13 @@ pro comp_make_header, image, header, date_dir, $
             ' Occulter center X for distortion uncorrected sub-image 1'
   sxaddpar, header, 'OYCNTRU1', uncorrected_occulter1.y + 1.0 + 1024 - ny, $
             ' Occulter center Y for distortion uncorrected sub-image 1'
-  sxaddpar, header, 'ORADU1', uncorrected_occulter1.r, $
+  sxaddpar, header, 'ORADU1',   uncorrected_occulter1.r, $
             ' Occulter Radius for distortion uncorrected sub-image 1'
   sxaddpar, header, 'OXCNTRU2', uncorrected_occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for distortion uncorrected sub-image 2'
   sxaddpar, header, 'OYCNTRU2', uncorrected_occulter2.y + 1.0, $
             ' Occulter center Y for distortion uncorrected sub-image 2'
-  sxaddpar, header, 'ORADU2', uncorrected_occulter2.r, $
+  sxaddpar, header, 'ORADU2',   uncorrected_occulter2.r, $
             ' Occulter Radius for distortion uncorrected sub-image 2'
 
   ; field position
@@ -199,23 +200,23 @@ pro comp_make_header, image, header, date_dir, $
             ' Field Stop center X for distortion uncorrected sub-image 1'
   sxaddpar, header, 'FYCNTRU1', uncorrected_field1.y + 1.0 + 1024 - ny, $
             ' Field Stop center Y for distortion uncorrected sub-image 1'
-  sxaddpar, header, 'FRADU1', uncorrected_field1.r, $
+  sxaddpar, header, 'FRADU1',   uncorrected_field1.r, $
             ' Field Stop Radius for distortion uncorrected sub-image 1'
   sxaddpar, header, 'FXCNTRU2', uncorrected_field2.x + 1.0 + 1024 - nx,  $
             ' Field Stop center X for distortion uncorrected sub-image 2'
   sxaddpar, header, 'FYCNTRU2', uncorrected_field2.y + 1.0, $
             ' Field Stop center Y for distortion uncorrected sub-image 2'
-  sxaddpar, header, 'FRADU2', uncorrected_field2.r, $
+  sxaddpar, header, 'FRADU2',   uncorrected_field2.r, $
             ' Field Stop Radius for distortion uncorrected sub-image 2'
 
   ; position angles for post
   sxaddpar, header, 'POSTANG1', post_angle1, $
-            ' Position Angle of post for distortion corrected sub-image 1'
+            ' Position Angle of post for distortion corrected sub-image 1',format='(F0.3)'
   sxaddpar, header, 'POSTANG2', post_angle2, $
-            ' Position Angle of post for distortion corrected sub-image 2'
+            ' Position Angle of post for distortion corrected sub-image 2',format='(F0.3)'
 
   sxaddpar, header, 'PSTANGU1', uncorrected_post_angle1, $
-            ' Position Angle of post for distortion uncorrected sub-image 1'
+            ' Position Angle of post for distortion uncorrected sub-image 1',format='(F0.3)'
   sxaddpar, header, 'PSTANGU2', uncorrected_post_angle2, $
-            ' Position Angle of post for distortion uncorrected sub-image 2'
+            ' Position Angle of post for distortion uncorrected sub-image 2',format='(F0.3)'
 end
