@@ -142,14 +142,14 @@ pro comp_make_flat, date_dir, error=error
     ; open flat file and average images at each wavelength
     fits_open, filepath(opalfile, root=raw_dir), fcbin
     num = fcbin.nextend   ; number of images in file
-    fits_read, fcbin, dat, header, /header_only, exten_no=0, /no_abort, message=message
+    fits_read, fcbin, dat, header_opal, /header_only, exten_no=0, /no_abort, message=message
     if (message ne '') then begin
       mg_log, 'error reading %s: %s', opalfile, message, name='comp', /error
       mg_log, 'skipping %s', opalfile, name='comp', /error
       continue
     endif
 
-    time = comp_parse_time(sxpar(header, 'TIME_OBS'), $
+    time = comp_parse_time(sxpar(header_opal, 'TIME_OBS'), $
                            hours=hours, minutes=minutes, seconds=seconds)
 
     mg_log, '%02d:%02d:%02d %d images', hours, minutes, seconds, num, $
@@ -200,8 +200,8 @@ pro comp_make_flat, date_dir, error=error
 
     ; make FITS extension header for the images with masking parameters included
     comp_make_header, image, header, date_dir, $
-                      occulter1, field1, post_angle1, $
-                      occulter2, field2, post_angle2, $
+                      uncorrected_occulter1, uncorrected_field1, uncorrected_post_angle1, $
+                      uncorrected_occulter2, uncorrected_field2, uncorrected_post_angle2, $
                       error=header_error
     if (header_error ne 0L) then begin
       mg_log, 'skipping flat creation for %s', opalfile, name='comp', /warn
@@ -231,10 +231,10 @@ pro comp_make_flat, date_dir, error=error
 
     if (make_flat_spectral_correction eq 0B) then begin
       ; Mask is not wavelength dependent
-       mask_full_fill = comp_mask_1024(occulter1, occulter2, $
-                                        field1, field2, $
-                                        post_angle1, post_angle2, $
-                                        o_offset=0.0, f_offset=0.0 )         
+       mask_full_fill = comp_mask_1024(uncorrected_occulter1, uncorrected_occulter2, $
+                                        uncorrected_field1, uncorrected_field2, $
+                                        uncorrected_post_angle1, uncorrected_post_angle2, $
+                                        o_offset=1.0, f_offset=-1.0 )         
     endif
 
     ; Process by wavelength
@@ -279,9 +279,11 @@ pro comp_make_flat, date_dir, error=error
       ; detrend across large image
       if (make_flat_detrending) then begin
         ; use post_angle1 for second post because second is in wrong position
-        comp_fix_trend, image, $
-                        occulter1, occulter2, $
-                        field1, field2, post_angle1, post_angle1, fit
+        ; this should be no longer needed 
+       comp_fix_trend, image, $
+                        uncorrected_occulter1, uncorrected_occulter2, $
+                        uncorrected_field1, uncorrected_field2, $
+                        uncorrected_post_angle1, uncorrected_post_angle2, fit
         fit_moment = moment(fit)
         sxaddpar, header, 'DETMNFLT', fit_moment[0], ' Detrend Fit Mean for Flat'
         sxaddpar, header, 'DETVRFLT', fit_moment[1], ' Detrend Fit Variance for Flat'
@@ -300,10 +302,10 @@ pro comp_make_flat, date_dir, error=error
           background_correction_2 = t_on
         endelse
 
-        mask_full_fill = comp_mask_1024(occulter1, occulter2, $
-                                        field1, field2, $
-                                        post_angle1, post_angle2, $
-                                        o_offset=+1.0, f_offset=-2.0, $
+        mask_full_fill = comp_mask_1024(uncorrected_occulter1, uncorrected_occulter2, $
+                                        uncorrected_field1, uncorrected_field2, $
+                                        uncorrected_post_angle1, uncorrected_post_angle2, $
+                                        o_offset=+1.0, f_offset=-1.0, $
                                         bc1=background_correction_1, $
                                         bc2=background_correction_2 )
       endif
@@ -315,7 +317,7 @@ pro comp_make_flat, date_dir, error=error
       tmp_image = mask_full_fill * image
       medflat = median(tmp_image[where(tmp_image ne 0.)])
       sxaddpar, header, 'MEDIAN', medflat, ' Median value inside annuli', $
-                format='(F0.2)'
+                format='(F0.3)'
 
       ; the flat can be blocked by the dome or the sky conditions could limit
       ; the lights, which lowers the value of the flat

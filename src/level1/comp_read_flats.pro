@@ -139,43 +139,31 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
               name='comp', /warn
     endif
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; TODO
+; this should use a better masking for the flat
+; does not properly account for post and overlap
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
     if (make_flat_fill) then begin
-   ; get center and radius for uncorreted flat from FITS header for 620x620 sub-arrays
-   occulter1 = {x:sxpar(flat_header, 'OXCNTRU1') - 1.0, $
-                y:sxpar(flat_header, 'OYCNTRU1') - 1.0 - 1024 + ny, $
-                r:sxpar(flat_header, 'ORADU1')}
-   occulter2 = {x:sxpar(flat_header, 'OXCNTRU2') - 1.0 - 1024 + nx, $
-                y:sxpar(flat_header, 'OYCNTRU2') - 1.0, $
-                r:sxpar(flat_header, 'ORADU2')}
-
-   ; field position
-   field1 = {x:sxpar(flat_header, 'FXCNTRU1') - 1.0, $
-             y:sxpar(flat_header, 'FYCNTRU1') - 1.0 - 1024 + ny, $
-             r:sxpar(flat_header, 'FRADU1')}
-   field2 = {x:sxpar(flat_header, 'FXCNTRU2') - 1.0 - 1024 + nx, $
-             y:sxpar(flat_header, 'FYCNTRU2') - 1.0, $
-             r:sxpar(flat_header, 'FRADU2')}
-
-   ; post angle
-   post_angle1 = sxpar(flat_header, 'PSTANGU1')
-   post_angle2 = sxpar(flat_header, 'PSTANGU2')
-   ; exclude a few pixels to make mask more severe
-   mask_full_fill = comp_mask_1024(occulter1, occulter2, $
-                                        field1, field2, $
-                                        post_angle1, post_angle2, $
-                                        o_offset=+1.0, f_offset=-2.0)  
-
+      mask_full_fill = comp_annulus_1024(flat_header, $
+                                         o_offset=0.0, f_offset=0.0, $
+                                         /uncorrected)
+  
       good_pixels = where(mask_full_fill eq 1.0, n_good_pixels, $
                           complement=bad_pixels, ncomplement=n_bad_pixels)
       medflat = median(image[good_pixels])
       image[bad_pixels] = medflat
       mg_log, 'filling flat values with %0.2f outside annulus', medflat, $
               name='comp', /debug
+
+
     endif
 
     flat[*, *, iw] = float(image)
     flat_names[iw] = sxpar(flat_header, 'FILENAME')
-    file_flat_headers[iw] = flat_header
+    file_flat_headers[*,iw] = flat_header
 
     flat_exposure[iw] = flat_exposures[iflat - 1L]
     mg_log, 'closest flat ext %d:', iflat, $
@@ -189,5 +177,6 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
 
   if (~cache_flats) then begin
     fits_close, fcb
-  endif
+ endif
+
 end
