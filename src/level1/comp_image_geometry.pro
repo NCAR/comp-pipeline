@@ -50,6 +50,9 @@ function comp_image_geometry, images, headers, date_dir, $
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
 
+  ;flat_header is now an array of flats - extract first one
+  flat_header= reform(flat_header[*, 0])
+  
   ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
  
@@ -122,11 +125,6 @@ function comp_image_geometry, images, headers, date_dir, $
       mg_log, 'error finding center', name='comp', /warn
       ; TODO: skip this image
     endif
-
-    ; the output of comp_find_annulus is an offset from the original guess, so
-    ; so we must add the offsets together to get the final offset
-    ;calc_occulter1.x += occulter1.x
-    ;calc_occulter1.y += occulter1.y
   
     mg_log, '%s, %f, %f, %f, %f, %d', $
             wave_type, $
@@ -171,11 +169,6 @@ function comp_image_geometry, images, headers, date_dir, $
       ; TODO: skip this image
     endif
 
-    ; the output of comp_find_annulus is an offset from the original guess, so
-    ; so we must add the offsets together to get the final offset
-    ;calc_occulter2.x += occulter2.x
-    ;calc_occulter2.y += occulter2.y
-
     mg_log, '%s, %f, %f, %f, %f, %d', $
             wave_type, $
             time, $
@@ -208,6 +201,11 @@ function comp_image_geometry, images, headers, date_dir, $
   pang1 = sxpar(flat_header, 'POSTANG1')
   pang2 = sxpar(flat_header, 'POSTANG2')
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; TODO: double check this equation
+; should we use the field or occulter centers?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   ; overlap P angle (from the field stop)
   delta_x = calc_occulter2.x - calc_occulter1.x + 1024.0 - nx
   delta_y = calc_occulter1.y - calc_occulter2.y + 1024.0 - ny
@@ -231,6 +229,11 @@ function comp_image_geometry, images, headers, date_dir, $
       endif
     endif
   endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; TODO
+; we do not use anymore deltacenterx1, deltacentery1, etc...
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   return, { occulter1: calc_occulter1, $
             occulter2: calc_occulter2, $
