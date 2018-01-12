@@ -118,6 +118,12 @@ pro comp_run_pipeline, config_filename=config_filename
 
     ;---------------  Prep  ----------------------------------------
 
+    ; prepare if reprocessing
+    if (~dry_run) then begin
+      mg_log, 'prepping for reprocessing', name='comp', /info
+      comp_reprocess, date_dir
+    endif
+
     if (validate) then begin
       mg_log, 'validating raw data', name='comp', /info
       if (~dry_run) then begin

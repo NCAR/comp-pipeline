@@ -1,0 +1,151 @@
+# CoMP primary header
+
+DATE-OBS= '2017-10-02'         / [UTC] OBSERVATION DATE: CCYY-MM-DD
+TIME-OBS= '22:07:45'           / [UTC] OBSERVATION TIME: HH:MM:SS
+NTUNES  =                    5 / Number of wavelength tunings
+WAVETYPE= '1079    '           / Wavelength type
+WAVE_REF=              1079.78 / [nm] Center wavelength
+POL_LIST= 'IV      '           / Unique polarization states
+TNELNGTH=                    0 / Duration of Transient Pneumatic Effect Puls (ms
+TUNEDLAY=                  200 / TUNER DELAY (MS)
+H-OCCULT=              -330000 / HORIZONTAL OCCULTER POSITION
+V-OCCULT=                83500 / VERTICAL OCCULTER POSITION
+FOCUS   =                30000 / FOCUS STAGE POSITION
+COVER   =                    1 / LENS COVER 0=CLOSED, 1=OPEN
+OPAL    =                    0 / OPAL 0=OUT, 1=IN
+OBS_ID  = '1079    '           / Name of Current Observing Seq.
+OBS_PLAN= 'synoptic-00010'     / Name of Current Observing Observing program
+O1FOCS  =                 32.0 / O1 Position in [mm] We expect this value to be
+LEVEL   = 'L1      '           / Processing Level
+DATE-CAL= '2017-10-03'         / Date of calibration processing
+ORADIUS =               228.70 / [pixels] Occulter Radius
+FRADIUS =               299.27 / [pixels] Field Radius
+FRPIX1  =               313.26 / [pixels] X [EAST->WEST ] FIELD CENTER [PIXELS]
+FRPIX2  =               312.63 / [pixels] Y [SOUTH->NORTH] FIELD CENTER [PIXELS]
+POSTPANG=       -12.9860000000 / [degrees] P Angle of occulter post
+OVRLPANG=                46.22 / [deg] Ang. of img. separation between camera di
+OCC-ID  =                   31 / Occulter Identification Number
+OCC-SIZE=               22.022 / [mm] Occulter size
+
+
+# CoMP L1 extension headers
+
+WAVELENG=             1079.540 / WAVELENGTH OF OBS (NM)
+POLSTATE= 'I       '           / POLARIZATION STATE
+EXPOSURE=               250.00 / EXPOSURE TIME (MILLISEC)
+NAVERAGE=                   16 / Number of images averaged together
+FILTER  =                    2 / FILTER WHEEL POSITION (1-4)
+DATATYPE=               'DATA' / DATA, DARK OR FLAT
+NDFILTER=                    8 / ND  1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=4, 8=cle
+ND-TRANS=              1.00000 / Mult. factor=transmission of flat ND/img ND
+BACKGRND=               12.513 / Median of masked line center background
+FLATFILE= '20171002.115342.FTS' / Name of flat field file
+FLATEXT =                  231 / Extension in flat.fts (not FLATFILE) used
+FLATMED =              18.8604 / median of dark and exposure corrected flat
+
+
+
+# CoMP software table
+
+VERSION = '1.2.5   '           / Calibration processing software version
+REVISION= 'c19fb4f '           / Calibration processing software revision
+
+
+
+
+
+# CoMP L2 table?
+
+LEVEL   = 'L2      '           /
+DATE-CAL= '2017-10-03'         / Date of calibration processing
+VERSION = '1.2.5   '           / Calibration software version
+REVISION= 'c19fb4f '           / Calibration software revision
+
+
+# CoMP eng table
+
+
+
+# CoMP cal table (darks, flats, and polarimetric calibration images)
+
+cal_id
+file_name
+date_obs
+obs_day
+level
+exptime
+nd
+darkshut
+diffuser
+calpol
+calpang
+median_int_img0-1 (continuum/line center)
+occltrid
++other ext fields, i.e., wavelength, pol state, etc.
+
+
+# CoMP sci table
+
+sci_id
+file_name
+date_obs
+obs_day
+total I (annulus in heliographic coordinates)
+total Q (annulus in heliographic coordinates)
+total U (annulus in heliographic coordinates)
+radial profile (azimuthal average of I)
+radial profile (azimuthal average of Q)
+radial profile (azimuthal average of U)
+r108 (I)
+r13 (I)
+r108 (L)
+r13 (L)
+r108 (radial azimuth?)
+r13 (radial azimuth?)
+
+
+# CoMP mission table
+
+start date
+mlso_url
+doi_url
+
+ORIGIN  =           'HAO/NCAR' /
+INSTRUME=               'COMP' / CORONAL MULTICHANNEL POLARIMETER
+TELESCOP=     '20 CM ONE SHOT' /
+LOCATION=               'MLSO' /
+OBJECT  = 'corona  '           / Coronal Emission
+BUNIT   = '1.E-06 B/Bsun'      / Intensity of Millionths of solar disk brightnes
+METHOD  = 'mean    '           / Averaging method
+WAVESTEP=                 0.12 / [nm] Spacing between wavelengths
+WAVEFWHM=                 0.12 / [nm] full width half max of bandpass filter
+cdelt = 4.35
+fov_min
+fov_max
+
+BITPIX-L0  =                  16 /bits per data value
+BITPIX-L1  =                  -32 /bits per data value
+NAXIS1-L0  =                  1024 /
+NAXIS2-L0  =                  1024 /
+NAXIS1-L1  =                  620 /
+NAXIS2-L1  =                  620 /
+
+wcsname = Heliocentric-cartesian
+ctype1 = SOLX
+ctype2 = SOLY
+TIMESYS = 'UTC     '           / Coordinated Universal Time
+
+inst_rot = 0.00
+
+pc1_1 = 1.00
+pc1_2 = 0.00
+pc2_1 = 0.00
+pc2_2 = 1.00
+
+I_TO_Q  =         -0.000581000 / Crosstalk coefficient from I to Q
+I_TO_U  =           0.00484100 / Crosstalk coefficient from I to U
+Q_TO_U  =              0.00000 / Crosstalk coefficient from Q to U
+U_TO_Q  =              0.00000 / Crosstalk coefficient from U to Q
+I_TO_V  =          -0.00115800 / Crosstalk coefficient from I to V
+Q_TO_V  =            0.0738020 / Crosstalk coefficient from Q to V
+U_TO_V  =            -0.155195 / Crosstalk coefficient from U to V
