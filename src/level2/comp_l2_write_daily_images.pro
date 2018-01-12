@@ -111,7 +111,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   fits_close, polarization_quick_invert_fcb
 
   ; create enhanced intensity
-  enhanced_intensity = comp_intensity_enhancement(intensity, intensity_header)
+  enhanced_intensity = comp_intensity_enhancement(intensity, intensity_header, $
+                                                  status=status, error_msg=error_msg)
+  if (status le 0L) then begin
+    mg_log, 'error creating enhanced intensity', name='comp', /warn
+    mg_log, error_msg, name='comp', /warn
+  endif
 
   ; prepare and write out daily images
   mg_log, 'creating daily JPGs now...', name='comp', /info
