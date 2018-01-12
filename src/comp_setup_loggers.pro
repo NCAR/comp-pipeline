@@ -10,7 +10,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_setup_loggers_date, date_dir
+pro comp_setup_loggers_date, date_dir, rotate=rotate
   compile_opt strictarr
   @comp_config_common
 
@@ -18,7 +18,7 @@ pro comp_setup_loggers_date, date_dir
 
   mg_log, name='comp', logger=logger
   log_filename = filepath(date_dir + '.comp.log', root=log_dir)
-  mg_rotate_log, log_filename, max_version=max_log_version
+  if (keyword_set(rotate)) then mg_rotate_log, log_filename, max_version=max_log_version
   logger->setProperty, filename=log_filename
 end
 
