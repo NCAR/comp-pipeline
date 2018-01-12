@@ -56,6 +56,8 @@ pro comp_configuration, config_filename=config_filename
   log_dir                     = config->get('log_dir', section='log')
   log_level                   = config->get('level', section='log', $
                                             default=4L, type=3)
+  max_log_version             = config->get('max_log_version', section='log', $
+                                            default=10L, type=3)
 
   ; notifications
   notification_email = config->get('email', section='notifications', default='')

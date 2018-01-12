@@ -18,6 +18,7 @@ pro comp_setup_loggers_date, date_dir
 
   mg_log, name='comp', logger=logger
   log_filename = filepath(date_dir + '.comp.log', root=log_dir)
+  mg_rotate_log, log_filename, max_version=max_log_version
   logger->setProperty, filename=log_filename
 end
 

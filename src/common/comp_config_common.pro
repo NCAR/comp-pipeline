@@ -12,6 +12,8 @@ common comp_config, doi_1074,$
                     movie_dir, $
                     fullres_dir, $
                     log_dir, $
+                    log_level, $
+                    max_log_version, $
                     notification_email, $
                     engineering_dir, $
                     centering_diagnostics, $
@@ -19,7 +21,6 @@ common comp_config, doi_1074,$
                     demodulated_output, $
                     ffmpeg_dir, $
                     hsi_dir, $
-                    log_level, $
                     l1_process_log_level, $
                     circfit_log_level, $
                     quick_invert_log_level, $
