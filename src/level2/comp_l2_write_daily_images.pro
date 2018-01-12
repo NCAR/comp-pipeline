@@ -193,9 +193,10 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   ; plot line width
   loadct, 4, /silent
-  tvlct, r, g, b, /get
-  b[255] = 0
-  tvlct, r, g, b
+  tvlct, rgb, /get
+  rgb[254, *] = 0
+  rgb[255, *] = 255
+  tvlct, rgb
   width = bytscl(width, min=25, max=55, top=254)
   if (n_undef_velocity gt 0) then width[undef_velocity_ind] = 254
   tv, width, 4 * 325, 4 * 5
@@ -262,9 +263,10 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
              range=[display_min_i, display_max_i], format='(F0.1)', font=-1, $
              divisions=4
   loadct, 4, /silent
-  tvlct, r, g, b, /get
-  b[255] = 255.
-  tvlct, r, g, b
+  tvlct, rgb, /get
+  rgb[254, *] = 0
+  rgb[255, *] = 255
+  tvlct, rgb
   colorbar2, position=[0.753, 0.17, 0.753 + 0.158, 0.17 + 0.015], $
              charsize=1.25, title='line width [km/s]', range=[25, 55], $
              font=-1, divisions=3, color=255, ncolors=254
@@ -504,10 +506,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   ; plot line width
   loadct, 4, /silent
-  tvlct, r, g, b, /get
-  b[255] = 255
-  tvlct, r, g, b
+  tvlct, rgb, /get
+  rgb[254, *] = 0
+  rgb[255, *] = 255
+  tvlct, rgb
   tv, width
+
   colorbar2, position=colbarpos, charsize=1.25, title='line width [km/s]',$
              range=[25, 55], font=-1, divisions=3, color=255, ncolors=254
   loadct, 0, /silent
