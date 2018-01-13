@@ -12,7 +12,7 @@ pro comp_reprocess, date
   @comp_config_common
 
   ; remove files from the archive
-  ymd = comp_decompose_date(date_dir)
+  ymd = comp_decompose_date(date)
   adir  = filepath('', subdir=ymd, root=archive_dir)
   frdir = filepath('', subdir=ymd, root=fullres_dir)
   mdir = filepath('', subdir=ymd, root=movie_dir)
