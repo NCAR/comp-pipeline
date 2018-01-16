@@ -115,11 +115,13 @@ function comp_image_geometry, images, headers, date_dir, $
     ; remove distortion
     sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
 
-    comp_find_annulus, sub1, calc_occulter1, $
+    comp_find_annulus, sub1, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
                                        occulter1.y, $
                                        occulter1.r], $
-                       /occulter_only, $
+                       field_guess=[field1.x, $
+                                    field1.y, $
+                                    field1.r], $
                        error=error
     if (error ne 0L) then begin
       mg_log, 'error finding center', name='comp', /warn
@@ -157,12 +159,14 @@ function comp_image_geometry, images, headers, date_dir, $
     ; remove distortion
     sub2 = comp_apply_distortion(sub2, dx2_c, dy2_c)
 
-    comp_find_annulus, sub2, calc_occulter2, $
+    comp_find_annulus, sub2, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $
                                        occulter2.y, $
                                        occulter2.r], $
+                       field_guess=[field2.x, $
+                                    field2.y, $
+                                    field2.r], $
                        occulter_points=occulter_points2, $
-                       /occulter_only, $
                        error=error
     if (error ne 0L) then begin
       mg_log, 'error finding center', name='comp', /warn
@@ -207,8 +211,8 @@ function comp_image_geometry, images, headers, date_dir, $
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ; overlap P angle (from the field stop)
-  delta_x = calc_occulter2.x - calc_occulter1.x + 1024.0 - nx
-  delta_y = calc_occulter1.y - calc_occulter2.y + 1024.0 - ny
+  delta_x = calc_field2.x - calc_field1.x + 1024.0 - nx
+  delta_y = calc_field1.y - calc_field2.y + 1024.0 - ny
   overlap_angle = !radeg * atan(delta_y / delta_x)
 
   if (centering_diagnostics) then begin
