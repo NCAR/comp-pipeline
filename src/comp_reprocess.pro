@@ -21,7 +21,7 @@ pro comp_reprocess, date
 
   for d = 0L, n_elements(dirs) - 1L do begin
     if (file_test(dirs[d])) then begin
-      mg_log, 'removing old files from...', dirs[d], name='comp', /info
+      mg_log, 'removing old files from %s...', dirs[d], name='comp', /info
       archived_files = file_search(filepath('*', root=dirs[d]), count=n_archived_files)
       
       if (n_archived_files gt 0L) then begin
