@@ -430,7 +430,7 @@ pro comp_average, date_dir, wave_type, $
 
         nans = where(finite(aver, /nan), count)
         if (count gt 0) then begin
-          mg_log, 'found NaNs in mean result', name='comp', /warn
+          mg_log, 'found %d NaNs in mean result', count, name='comp', /warn
         endif
 
         fits_write, fcbavg, aver, header, extname=ename
@@ -486,14 +486,16 @@ pro comp_average, date_dir, wave_type, $
       if (compute_median) then begin
         nans = where(finite(back[*, *, iw], /nan), count)
         if (count gt 0) then begin
-          mg_log, 'found NaNs in median values of background', name='comp', /warn
+          mg_log, 'found %d NaNs in median values of background', count, $
+                  name='comp', /warn
         endif
         fits_write, fcbmed, back[*, *, iw], header, extname=ename
       endif
       if (compute_mean) then begin
         nans = where(finite(back[*, *, iw], /nan), count)
         if (count gt 0) then begin
-          mg_log, 'found NaNs in mean values of background', name='comp', /warn
+          mg_log, 'found %d NaNs in mean values of background', count, $
+                  name='comp', /warn
         endif
 
         fits_write, fcbavg, back[*, *, iw], header, extname=ename
