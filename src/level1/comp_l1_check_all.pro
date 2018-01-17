@@ -24,8 +24,7 @@ pro comp_l1_check_all, date_dir, body=body
   body->add, '## Warnings'
   body->add, ''
 
-  n_warnings = (n_images_off_detector gt 0L) $
-                 + (n_flats_too_low)
+  n_warnings = (n_images_off_detector gt 0L) + (n_flats_too_low)
 
   if (n_warnings eq 0L) then body->add, 'no warnings'
 
@@ -42,7 +41,16 @@ pro comp_l1_check_all, date_dir, body=body
   endif
 
   body->add, ''
+  body->add, '## Log message warnings'
   log_filename = filepath(date_dir + '.comp.log', root=log_dir)
+  warning_msgs = comp_filter_log(log_filename, /warning, n_messages=n_messages)
+  if (n_messages eq 0L) then begin
+    body->add, 'no warning messages'
+  endif else begin
+    body->add, warning_msgs, /extract
+  endelse
+
+  body->add, ''
   body->add, string(log_filename, format='(%"See log %s for details")')
 
   body->add, ['', ''], /extract
