@@ -71,7 +71,7 @@ pipe:
 #	fi
 	$(ECHO_PREFIX)mail_results.sh $(CONFIG) $(CONFIG_FILENAME) $(EMAIL)
 	$(ECHO_PREFIX)rm $(CONFIG_FILENAME)
-	@echo "Finished at $(date)"
+	@echo "Finished at $(shell date)"
 
 cal:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH):"+$(FULL_SSW_DIR)" -e ".run comp_cal_example_script"
