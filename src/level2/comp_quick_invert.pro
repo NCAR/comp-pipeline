@@ -108,7 +108,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   endif
 
   ; copy the primary header from the median file to the output file
-  fits_read, fcb, d, primary_header, /header_only, exten_no=0
+  fits_read, fcb, d, primary_header, /header_only, exten_no=0, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   sxdelpar, primary_header, 'OBS_PLAN'
   sxdelpar, primary_header, 'OBS_ID'
@@ -132,7 +134,8 @@ pro comp_quick_invert, date_dir, wave_type, $
   e = 1
   for is = 0L, nstokes - 1L do begin
     for iw = 0L, ntune - 1L do begin
-      fits_read, fcb, dat, h, exten_no=e
+      fits_read, fcb, dat, h, exten_no=e, /no_abort, message=msg
+      if (msg ne '') then message, msg
       comp_obs[*, *, is, iw] = dat
       wave[iw] = sxpar(h, 'WAVELENG')
       ++e
@@ -140,7 +143,8 @@ pro comp_quick_invert, date_dir, wave_type, $
   endfor
 
   ; use header for center wavelength for I as template
-  fits_read, fcb, dat, header, exten_no=ntune / 2
+  fits_read, fcb, dat, header, exten_no=ntune / 2, /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   fits_close, fcb
 

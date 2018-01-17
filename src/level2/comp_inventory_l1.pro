@@ -22,13 +22,17 @@
 pro comp_inventory_l1, fcbin, wave, pol
   compile_opt idl2
 
-  fits_read, fcbin, data, header, /header_only, exten_no=0
+  fits_read, fcbin, data, header, /header_only, exten_no=0, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   wave = fltarr(fcbin.nextend)
   pol  = strarr(fcbin.nextend)
 
   for i = 1L, fcbin.nextend do begin
-    fits_read, fcbin, data, header, /header_only, exten_no=i
+    fits_read, fcbin, data, header, /header_only, exten_no=i, $
+               /no_abort, message=msg
+    if (msg ne '') then message, msg
     wave[i - 1] = sxpar(header, 'WAVELENG')
     pol[i - 1]  = strcompress(sxpar(header, 'POLSTATE'), /remove_all)
   endfor

@@ -37,7 +37,8 @@ pro comp_l1_check, date_dir, wave_type, body=body
 
     ; check overlap angle deviation from its nominal value
     fits_open, l1_files[f], fcb
-    fits_read, fcb, data, primary_header, exten_no=0
+    fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
+    if (msg ne '') then message, msg
     overlap_angle = sxpar(primary_header, 'OVRLPANG')
 
     im_background = sxpar(primary_header, 'BACKGRND')
@@ -55,7 +56,8 @@ pro comp_l1_check, date_dir, wave_type, body=body
     n_images_bad_temp_file = 0L
     n_images_bad_filttemp_file = 0L
     for e = 1L, fcb.nextend do begin
-      fits_read, fcb, date, header, exten_no=e
+      fits_read, fcb, date, header, exten_no=e, /no_abort, message=msg
+      if (msg ne '') then message, msg
 
       lcvr6temp = sxpar(header, 'LCVR6TMP')
       min_lcvr6temp = nominal_lcvr6_temp - lcvr6_temp_tolerance

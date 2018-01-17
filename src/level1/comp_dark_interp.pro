@@ -59,14 +59,19 @@ function comp_dark_interp, date_dir, time, exposure
 
   ; check for time beyond endpoints
   if (time le min(times[good])) then begin   ; time before first bias
-    fits_read, fcb, bias, exten_no=good[0] + 1
+    fits_read, fcb, bias, exten_no=good[0] + 1, /no_abort, message=msg
+    if (message ne '') then begin
+      mg_log, 'error reading ext %d in %s', $
+              good[0] + 1, file_basename(dark_filename), $
+              name='comp', /error
+    endif
     mg_log, '%d at %f', good[0], times[good[0]], name='comp', /debug
   endif else begin
     if (time ge max(times[good])) then begin   ; time after last bias
       fits_read, fcb, bias, exten_no=good[count-1] + 1, /no_abort, message=message
       if (message ne '') then begin
         mg_log, 'error reading ext %d in %s', $
-                good[count - 1], file_basename(dark_filename), $
+                good[count - 1] + 1, file_basename(dark_filename), $
                 name='comp', /error
       endif
 

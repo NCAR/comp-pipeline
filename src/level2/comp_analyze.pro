@@ -68,7 +68,8 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
   waves = fltarr(n - 1)
   pol   = strarr(n - 1)
   for i = 0, n - 2 do begin
-    fits_read, fcb, dat, header, /header_only, exten_no=i + 1
+    fits_read, fcb, dat, header, /header_only, exten_no=i + 1, /no_abort, message=msg
+    if (msg ne '') then message, msg
     waves[i] = sxpar(header, 'WAVELENG')
     pol[i]   = sxpar(header, 'POLSTATE')
   endfor
@@ -84,14 +85,16 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
   i = 1
   for is = 0, nstokes - 1 do begin
     for iw = 0, ntune - 1 do begin
-      fits_read, fcb, dat, header, exten_no=i
+      fits_read, fcb, dat, header, exten_no=i, /no_abort, message=msg
+      if (msg ne '') then message, msg
       comp_obs[*, *, is, iw] = dat
       i += 1
     endfor
   endfor
 
   ; copy the primary header from the mean file to the output file
-  fits_read, fcb, d, primary_header, /header_only, exten_no=0  
+  fits_read, fcb, d, primary_header, /header_only, exten_no=0, /no_abort, message=msg
+  if (msg ne '') then message, msg
   fits_close, fcb
 
   ;  create wavelength scale (nm)

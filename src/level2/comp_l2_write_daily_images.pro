@@ -87,9 +87,15 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   fits_open, dynamics_quick_invert_filename, dynamics_quick_invert_fcb
 
-  fits_read, dynamics_quick_invert_fcb, intensity, intensity_header, exten_no=1
-  fits_read, dynamics_quick_invert_fcb, velocity, velocity_header, exten_no=6
-  fits_read, dynamics_quick_invert_fcb, width, width_header, exten_no=7
+  fits_read, dynamics_quick_invert_fcb, intensity, intensity_header, exten_no=1, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
+  fits_read, dynamics_quick_invert_fcb, velocity, velocity_header, exten_no=6, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
+  fits_read, dynamics_quick_invert_fcb, width, width_header, exten_no=7, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   fits_close, dynamics_quick_invert_fcb
 
@@ -99,14 +105,24 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   fits_open, polarization_quick_invert_filename, polarization_quick_invert_fcb
 
-  fits_read, polarization_quick_invert_fcb, stks_q, stks_q_header, exten_no=2
-  fits_read, polarization_quick_invert_fcb, stks_u, stks_u_header, exten_no=3
-  fits_read, polarization_quick_invert_fcb, lpol, lpol_header, exten_no=4
-  fits_read, polarization_quick_invert_fcb, azimuth, azimuth_header, exten_no=5
+  fits_read, polarization_quick_invert_fcb, stks_q, stks_q_header, exten_no=2, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
+  fits_read, polarization_quick_invert_fcb, stks_u, stks_u_header, exten_no=3, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
+  fits_read, polarization_quick_invert_fcb, lpol, lpol_header, exten_no=4, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
+  fits_read, polarization_quick_invert_fcb, azimuth, azimuth_header, exten_no=5, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
   fits_read, polarization_quick_invert_fcb, $
              radial_azimuth, $
              radial_azimuth_header, $
-             exten_no=8
+             exten_no=8, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   fits_close, polarization_quick_invert_fcb
 

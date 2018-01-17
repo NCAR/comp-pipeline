@@ -32,7 +32,8 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   ; loop through L1 files
   for f = 0L, n_l1_files - 1L do begin
     fits_open, l1_files[f], fcb
-    fits_read, fcb, data, primary_header, exten_no=0
+    fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
+    if (msg ne '') then message, msg
     date_obs = strin(sxpar(primary_header, 'DATE-OBS'), $
                      sxpar(primary_header, 'TIME-OBS'), $
                      format='(%"%sT%s")')

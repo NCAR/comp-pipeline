@@ -76,7 +76,8 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
   endif
 
   fits_open, filename, fcb   ; open input file
-  fits_read, fcb, data, header, /header_only, exten_no=0
+  fits_read, fcb, data, header, /header_only, exten_no=0, /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   mg_log, 'reading %s', file_basename(filename), name='comp', /debug
 
@@ -90,7 +91,8 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
 
   ; read in all images
   for i = 0L, ndat - 1L do begin
-    fits_read, fcb, d, header, exten_no=i + 1
+    fits_read, fcb, d, header, exten_no=i + 1, /no_abort, message=msg
+    if (msg ne '') then message, msg
     dat[*, *, i] = d
     wav[i] = sxpar(header, 'WAVELENG')
     pol[i] = sxpar(header, 'POLSTATE')

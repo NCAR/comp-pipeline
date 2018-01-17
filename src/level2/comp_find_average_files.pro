@@ -264,7 +264,9 @@ function comp_find_average_files, date_dir, wave_type, $
   ; at least one extension representing a flat
   if (size(flat_fcb, /type) ne 8 || flat_fcb.nextend lt 4) then return, []
 
-  fits_read, flat_fcb, flat_times, flat_times_header, exten_no=flat_fcb.nextend - 2
+  fits_read, flat_fcb, flat_times, flat_times_header, exten_no=flat_fcb.nextend - 2, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
   fits_close, flat_fcb
 
   year  = long(strmid(date_dir, 0, 4))

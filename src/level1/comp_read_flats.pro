@@ -87,9 +87,12 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
     num = fcb.nextend
 
     ; read arrays with times, wavelengths and polarizations
-    fits_read, fcb, flat_times, exten_no=num - 2
-    fits_read, fcb, flat_wavelengths, exten_no=num - 1
-    fits_read, fcb, flat_exposures, exten_no=num
+    fits_read, fcb, flat_times, exten_no=num - 2, /no_abort, message=msg
+    if (msg ne '') then message, msg
+    fits_read, fcb, flat_wavelengths, exten_no=num - 1, /no_abort, message=msg
+    if (msg ne '') then message, msg
+    fits_read, fcb, flat_exposures, exten_no=num, /no_abort, message=msg
+    if (msg ne '') then message, msg
   endif
 
   dt = time - flat_times   ; find time difference from flat times
@@ -100,7 +103,8 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
   if (cache_flats) then begin
     n_keywords = n_elements(flat_headers[*, 0])
   endif else begin
-    fits_read, fcb, image, flat_header, exten_no=iflat
+    fits_read, fcb, image, flat_header, exten_no=iflat, /no_abort, message=msg
+    if (msg ne '') then message, msg
     n_keywords = n_elements(flat_header)
   endelse
 
@@ -129,7 +133,8 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
       image = flat_images[*, *, iflat - 1]
       flat_header = flat_headers[*, iflat - 1]
     endif else begin
-      fits_read, fcb, image, flat_header, exten_no=iflat
+      fits_read, fcb, image, flat_header, exten_no=iflat, /no_abort, message=msg
+      if (msg ne '') then message, msg
     endelse
 
     ; make sure there aren't any zeros
@@ -144,7 +149,6 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
 ; this should use a better masking for the flat
 ; does not properly account for post and overlap
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
     if (make_flat_fill) then begin
       mask_full_fill = comp_annulus_1024(flat_header, $

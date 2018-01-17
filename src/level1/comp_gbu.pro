@@ -182,7 +182,8 @@ pro comp_gbu, date_dir, wave_type, error=error
 
 
     ; read primary header
-    fits_read, fcb, d, header, /header_only, exten_no=0
+    fits_read, fcb, d, header, /header_only, exten_no=0, /no_abort, message=msg
+    if (msg ne '') then message, msg
 
     file_background = sxpar(header, 'BACKGRND')
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
@@ -235,11 +236,14 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     ; find standard 3 wavelengths for the wave type
     ; read line center intensity
-    fits_read, fcb, dat, header, exten_no=wave_indices[1] + 1
+    fits_read, fcb, dat, header, exten_no=wave_indices[1] + 1, /no_abort, message=msg
+    if (msg ne '') then message, msg
     ; read blue wing intensity
-    fits_read, fcb, dat_b, header, exten_no=wave_indices[0] + 1
+    fits_read, fcb, dat_b, header, exten_no=wave_indices[0] + 1, /no_abort, message=msg
+    if (msg ne '') then message, msg
     ; read red wing intensity
-    fits_read, fcb, dat_r, header, exten_no=wave_indices[2] + 1
+    fits_read, fcb, dat_r, header, exten_no=wave_indices[2] + 1, /no_abort, message=msg
+    if (msg ne '') then message, msg
 
     ; use average of intensities (/2 not 3 since blue and red are about 0.5
     ; center intensity)
@@ -247,7 +251,9 @@ pro comp_gbu, date_dir, wave_type, error=error
 
     if (wave_type ne '1083') then begin
       ; read central background image
-      fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1
+      fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1, $
+                 /no_abort, message=msg
+      if (msg ne '') then message, msg
 
       ; reject file if there are more than 100 background pixels with a level of
       ; > 70.0

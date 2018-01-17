@@ -201,7 +201,9 @@ pro comp_average, date_dir, wave_type, $
   fits_open, test_filename, fcb
 
   ; read the primary header to use for the output
-  fits_read, fcb, d, primary_header, /header_only, exten_no=0
+  fits_read, fcb, d, primary_header, /header_only, exten_no=0, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
   sxdelpar, primary_header, 'DATE_HST'
   sxdelpar, primary_header, 'TIME_HST'
   sxdelpar, primary_header, 'METHOD'
@@ -286,7 +288,9 @@ pro comp_average, date_dir, wave_type, $
                 name='comp', /debug
 
         fits_open, filename, fcb
-        fits_read, fcb, d, theader, /header_only, exten_no=0
+        fits_read, fcb, d, theader, /header_only, exten_no=0, $
+                   /no_abort, message=msg
+        if (msg ne '') then message, msg
         comp_make_mask, date_dir, theader, mask
 
         comp_inventory_l1, fcb, wave, pol
@@ -302,7 +306,9 @@ pro comp_average, date_dir, wave_type, $
           fits_close, fcb
           continue
         endif
-        fits_read, fcb, dat, header, exten_no=good[0] + 1
+        fits_read, fcb, dat, header, exten_no=good[0] + 1, $
+                   /no_abort, message=msg
+        if (msg ne '') then message, msg
         naverage[ist, iw] += sxpar(header, 'NAVERAGE')
 
         ; put NaNs for masked out pixels, so averaging doesn't include a
@@ -322,7 +328,9 @@ pro comp_average, date_dir, wave_type, $
                                                   /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
-                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')
+                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")'), $
+                     /no_abort, message=msg
+          if (msg ne '') then message, msg
           back[*, *, ist, iw] += dat * mask
           back_naverage[ist, iw] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[ist, iw] += 1
@@ -333,7 +341,9 @@ pro comp_average, date_dir, wave_type, $
                                                   /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
-                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")')
+                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")'), $
+                     /no_abort, message=msg
+          if (msg ne '') then message, msg
           back[*, *, iw] += dat * mask
           back_naverage[iw] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[iw] += 1

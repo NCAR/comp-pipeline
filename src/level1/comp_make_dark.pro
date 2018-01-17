@@ -80,7 +80,8 @@ pro comp_make_dark, date_dir, error=error
 
     fits_open, filepath(darkfile, root=raw_dir), fcb
     num = fcb.nextend
-    fits_read, fcb, dat, primary_header, /header_only, exten_no=0
+    fits_read, fcb, dat, primary_header, /header_only, exten_no=0, /no_abort, message=msg
+    if (msg ne '') then message, msg
     time_str = sxpar(primary_header, 'TIME_OBS')
 
     ; write the primary header of the first dark file as the primary header of
@@ -104,7 +105,8 @@ pro comp_make_dark, date_dir, error=error
     mean_dark = fltarr(num)
 
     for i = 0L, num - 1L do begin
-      fits_read, fcb, dat, header, exten_no=i + 2
+      fits_read, fcb, dat, header, exten_no=i + 2, /no_abort, message=msg
+      if (msg ne '') then message, msg
       if (sxpar(header, 'DEMULT') eq 0) then begin
         dat = comp_demultiplex(dat)
       endif

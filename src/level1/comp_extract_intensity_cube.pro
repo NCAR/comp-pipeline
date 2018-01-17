@@ -39,7 +39,8 @@ pro comp_extract_intensity_cube, filename, $
   fits_open, filename, fcbin  ; open input fits file
   
   ; assume I images are always at beginning of file and read until non-I
-  fits_read, fcbin, data, primary_header, exten_no=0
+  fits_read, fcbin, data, primary_header, exten_no=0, /no_abort, message=msg
+  if (msg ne '') then message, msg
 
   n_extensions = fcbin.nextend   ; number of images in file
 
@@ -49,7 +50,8 @@ pro comp_extract_intensity_cube, filename, $
 
   ; extract I images
   for i = 1L, n_extensions do begin
-    fits_read, fcbin, data, header, exten_no=i
+    fits_read, fcbin, data, header, exten_no=i, /no_abort, message=msg
+    if (msg ne '') then message, msg
     if (i eq 1) then headers = strarr(n_elements(header), n_extensions)
 
     wavelength = sxpar(header, 'WAVELENG')

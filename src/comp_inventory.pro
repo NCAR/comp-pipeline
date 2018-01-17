@@ -82,7 +82,9 @@ pro comp_inventory, fcbin, beam, wave, pol, type, expose, cover, $
 
   ; other keywords
   for i = 0L, num - 1L do begin
-    fits_read, fcbin, data, header, /header_only, exten_no=i + 1
+    fits_read, fcbin, data, header, /header_only, exten_no=i + 1, $
+               /no_abort, message=msg
+    if (msg ne '') then message, msg
     beam[i] = sxpar(header, 'BEAM')
     wave[i] = sxpar(header, 'WAVELENG')
     pol[i] = strcompress(sxpar(header, 'POLSTATE'), /remove_all)
