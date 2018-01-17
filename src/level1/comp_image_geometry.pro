@@ -27,16 +27,22 @@
 ;     `occulter2`, `field1`, and `field2` -- all which are also structures with
 ;     fields `x`, `y`, and `r` -- as well as fields `post_angle1` and
 ;     `post_angle2`
+;   error : out, optional, type=integer
+;     set to a named variable to retrieve the error status of the routine --
+;     if center cannot be found, error=1, it is 0 for success
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
 function comp_image_geometry, images, headers, date_dir, $
                               primary_header=primary_header, $
-                              uncorrected_geometry=uncorrected_geometry
+                              uncorrected_geometry=uncorrected_geometry, $
+                              error=error
   @comp_constants_common
   @comp_config_common
   @comp_diagnostics_common
+
+  error = 0L
 
   ; scan the headers to find out what observations the files contain
   comp_inventory_header, headers, beam, wave, pol, type, expose, $
@@ -50,7 +56,7 @@ function comp_image_geometry, images, headers, date_dir, $
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
                    flat_names, flat_expose
 
-  ;flat_header is now an array of flats - extract first one
+  ; flat_header is now an array of flats - extract first one
   flat_header= reform(flat_header[*, 0])
   
   ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
@@ -103,10 +109,10 @@ function comp_image_geometry, images, headers, date_dir, $
                                          uncorrected_geometry.occulter1.r], $
                          occulter_points=occulter_points1, $
                          /occulter_only, $
-                         error=error
-      if (error ne 0L) then begin
+                         error=annulus_error
+      if (annulus_error ne 0L) then begin
         mg_log, 'error finding center in uncorrected image', name='comp', /warn
-        ; TODO: skip this image
+        error = 1L
       endif
 
       uncorrected_geometry.occulter1 = uncorrected_calc_occulter1
@@ -122,10 +128,10 @@ function comp_image_geometry, images, headers, date_dir, $
                        field_guess=[field1.x, $
                                     field1.y, $
                                     field1.r], $
-                       error=error
-    if (error ne 0L) then begin
+                       error=annulus_error
+    if (annulus_error ne 0L) then begin
       mg_log, 'error finding center', name='comp', /warn
-      ; TODO: skip this image
+      error = 1L
     endif
   
     mg_log, '%s, %f, %f, %f, %f, %d', $
@@ -147,10 +153,10 @@ function comp_image_geometry, images, headers, date_dir, $
                                          uncorrected_geometry.occulter2.y, $
                                          uncorrected_geometry.occulter2.r], $
                          /occulter_only, $
-                         error=error
-      if (error ne 0L) then begin
+                         error=annulus_error
+      if (annulus_error ne 0L) then begin
         mg_log, 'error finding center in uncorrected image', name='comp', /warn
-        ; TODO: skip this image
+        error = 1L
       endif
 
       uncorrected_geometry.occulter2 = uncorrected_calc_occulter2
@@ -167,10 +173,10 @@ function comp_image_geometry, images, headers, date_dir, $
                                     field2.y, $
                                     field2.r], $
                        occulter_points=occulter_points2, $
-                       error=error
-    if (error ne 0L) then begin
+                       error=annulus_error
+    if (annulus_error ne 0L) then begin
       mg_log, 'error finding center', name='comp', /warn
-      ; TODO: skip this image
+      error = 1L
     endif
 
     mg_log, '%s, %f, %f, %f, %f, %d', $
@@ -205,11 +211,6 @@ function comp_image_geometry, images, headers, date_dir, $
   pang1 = sxpar(flat_header, 'POSTANG1')
   pang2 = sxpar(flat_header, 'POSTANG2')
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; TODO: double check this equation
-; should we use the field or occulter centers?
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
   ; overlap P angle (from the field stop)
   delta_x = calc_field2.x - calc_field1.x + 1024.0 - nx
   delta_y = calc_field1.y - calc_field2.y + 1024.0 - ny
@@ -234,11 +235,6 @@ function comp_image_geometry, images, headers, date_dir, $
     endif
   endif
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; TODO
-; we do not use anymore deltacenterx1, deltacentery1, etc...
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
   return, { occulter1: calc_occulter1, $
             occulter2: calc_occulter2, $
             field1: field1, $
@@ -247,11 +243,7 @@ function comp_image_geometry, images, headers, date_dir, $
             post_angle2: pang2, $
             delta_x: delta_x, $
             delta_y: delta_y, $
-            overlap_angle: overlap_angle, $
-            deltacenterx1: occulter1.x - calc_occulter1.x, $
-            deltacentery1: occulter1.y - calc_occulter1.y, $
-            deltacenterx2: occulter2.x - calc_occulter2.x, $
-            deltacentery2: occulter2.y - calc_occulter2.y $
+            overlap_angle: overlap_angle $
           }
 end
 

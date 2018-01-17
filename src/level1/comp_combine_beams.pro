@@ -45,7 +45,8 @@ pro comp_combine_beams, images, headers, date_dir, $
                         n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                         image_geometry=image_geometry, $
                         wave_type=wave_type, $
-                        uncorrected_images=uncorrected_images
+                        uncorrected_images=uncorrected_images, $
+                        error=error
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -77,7 +78,8 @@ pro comp_combine_beams, images, headers, date_dir, $
 
   image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
                                        primary_header=primary_header, $
-                                       uncorrected_geometry=uncorrected_geometry)
+                                       uncorrected_geometry=uncorrected_geometry, $
+                                       error=error)
 
   n_bad_post_angle = abs(image_geometry.post_angle1 $
                            - image_geometry.post_angle2) $
