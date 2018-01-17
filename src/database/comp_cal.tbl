@@ -1,30 +1,29 @@
+ask Giuliana: center info for occulter and field stop (2 sets) (distortion corrected)
+
+-- one entry per flat/dark or actual pol calibration file, just line center
+
 CREATE TABLE comp_cal (
   cal_id                  INT (10) AUTO_INCREMENT PRIMARY KEY,
   file_name               CHAR (40) NOT NULL,
   date_obs                DATETIME NOT NULL,
   date_end                DATETIME NOT NULL,
   obs_day                 MEDIUMINT (5) NOT NULL,
-  wavelength
+  wavelength              float (8, 3),
+  n_points                tinyint (2),
   level                   TINYINT (2) NOT NULL,
   exptime                 FLOAT (7, 4),
   nd                      tinyint (2),
-  darkshut                CHAR (3),
-  diffuser                CHAR (3),
-  calpol                  CHAR (3),
-  calpang                 FLOAT (8, 3),
-  median_int_continuum    FLOAT (14, 7),
-  median_int_linecenter   FLOAT (14, 7),
+  cover                   tinyint (1),
+  opal                    tinyint (1),
+  polangle                float (8, 3),
+  polarizer               tinyint (1),
+  retarder                tinyint (1),
+  median_int_continuum    FLOAT (14, 7),   # dark corrected annulus
+  median_int_linecenter   FLOAT (14, 7),   # dark corrected annulus
   occltrid                CHAR (10),
-
-# other fields from extension, i.e., wavelength, pol state, etc.
-
   UNIQUE (file_name),
   INDEX (date_obs),
   INDEX (obs_day),
   FOREIGN KEY (level) REFERENCES comp_level(level_id),
   FOREIGN KEY (obs_day) REFERENCES mlso_numfiles(day_id)  
 )
-
-center info for occulter and field stop (2 sets) (distortion corrected)
-
--- one entry per file, just line center

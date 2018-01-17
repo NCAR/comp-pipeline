@@ -1,3 +1,5 @@
+-- one entry per L1 file (but you need corresponding pol/dynamics files) for line center
+
 CREATE TABLE comp_sci (
   sci_id              INT (10) AUTO_INCREMENT PRIMARY KEY,
   file_name           CHAR (40) NOT NULL,

@@ -38,3 +38,8 @@ CREATE TABLE comp_mission (
   u_to_v          FLOAT (7, 6),
   UNIQUE (date)
 )
+
+
+nd1   # transmission of ND filter 1
+...
+nd8
