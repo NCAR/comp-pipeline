@@ -42,6 +42,7 @@ pro comp_l1_check_all, date_dir, body=body
 
   body->add, ''
   body->add, '## Log message warnings'
+  body->add, ''
   log_filename = filepath(date_dir + '.comp.log', root=log_dir)
   warning_msgs = comp_filter_log(log_filename, /warning, n_messages=n_messages)
   if (n_messages eq 0L) then begin
