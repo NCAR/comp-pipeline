@@ -33,7 +33,7 @@ pro comp_reprocess, date
             goto, done
           endif
         endfor
-        mg_log, 'removed %d files from %s', n_old_files, dirs[d], $
+        mg_log, 'removed %d files from %s', n_archived_files, dirs[d], $
                 name='comp', /info
       endif else begin
         mg_log, 'no files to remove from %s', dirs[d], name='comp', /info
