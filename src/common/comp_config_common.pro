@@ -7,6 +7,9 @@ common comp_config, doi_1074,$
                     date_pattern, $
                     process_basedir, $
                     process_wavelengths, $
+                    delete_archive, $
+                    rotate_logs, $
+                    movie_repository, $
                     hpss_gateway, $
                     archive_dir, $
                     movie_dir, $

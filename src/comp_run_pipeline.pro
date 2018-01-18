@@ -106,7 +106,7 @@ pro comp_run_pipeline, config_filename=config_filename
     endif
 
     if (~dry_run) then comp_setup_loggers_eng, date_dir
-    if (~dry_run) then comp_setup_loggers_date, date_dir, /rotate
+    if (~dry_run && rotate_logs) then comp_setup_loggers_date, date_dir, /rotate
 
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 

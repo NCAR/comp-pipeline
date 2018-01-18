@@ -46,6 +46,16 @@ pro comp_configuration, config_filename=config_filename
   process_wavelengths = config->get('wavelengths', section='processing', $
                                     /extract)
 
+  ; reprocessing
+  delete_archive      = config->get('delete_archive', $
+                                    section='reprocessing', $
+                                    /boolean, default=1B)
+  rotate_logs         = config->get('rotate_logs', $
+                                    section='reprocessing', $
+                                    /boolean, default=1B)
+  movie_repository    = config->get('movie_repository', section='reprocessing', $
+                                    default='')
+
   ; distribution of results
   archive_dir  = config->get('archive_dir', section='results')
   movie_dir    = config->get('movie_dir', section='results')
