@@ -416,22 +416,12 @@ pro comp_average, date_dir, wave_type, $
         sxaddpar, header, 'DATAMIN', min(med), ' MINIMUM DATA VALUE'
         sxaddpar, header, 'DATAMAX', max(med), ' MAXIMUM DATA VALUE'
 
-        nans = where(finite(med, /nan), count)
-        if (count gt 0) then begin
-          mg_log, 'found %d NaNs in median result', count, name='comp', /warn
-        endif
-
         fits_write, fcbmed, med, header, extname=ename
       endif
 
       if (compute_mean) then begin
         sxaddpar, header, 'DATAMIN', min(aver), ' MINIMUM DATA VALUE'
         sxaddpar, header, 'DATAMAX', max(aver), ' MAXIMUM DATA VALUE'
-
-        nans = where(finite(aver, /nan), count)
-        if (count gt 0) then begin
-          mg_log, 'found %d NaNs in mean result', count, name='comp', /warn
-        endif
 
         fits_write, fcbavg, aver, header, extname=ename
       endif
@@ -454,20 +444,9 @@ pro comp_average, date_dir, wave_type, $
         sxaddpar, header, 'POLSTATE', string(stokes[ist], format='(%"BKG%s")')
         ename = string(stokes[ist], waves[iw], format='(%"B%s, %7.2f")')
         if (compute_median) then begin
-          nans = where(finite(back[*, *, ist, iw], /nan), count)
-          if (count gt 0) then begin
-            mg_log, 'found %d NaNs in median values of background', count, $
-                    name='comp', /warn
-          endif
           fits_write, fcbmed, back[*, *, ist, iw], header, extname=ename
         endif
         if (compute_mean) then begin
-          nans = where(finite(back[*, *, ist, iw], /nan), count)
-          if (count gt 0) then begin
-            mg_log, 'found %d NaNs in mean values of background', count, $
-                    name='comp', /warn
-          endif
-
           fits_write, fcbavg, back[*, *, ist, iw], header, extname=ename
         endif
       endfor
@@ -484,20 +463,9 @@ pro comp_average, date_dir, wave_type, $
       sxaddpar, header, 'POLSTATE', 'BKG'
       ename = 'B, ' + string(format='(f7.2)', waves[iw])
       if (compute_median) then begin
-        nans = where(finite(back[*, *, iw], /nan), count)
-        if (count gt 0) then begin
-          mg_log, 'found %d NaNs in median values of background', count, $
-                  name='comp', /warn
-        endif
         fits_write, fcbmed, back[*, *, iw], header, extname=ename
       endif
       if (compute_mean) then begin
-        nans = where(finite(back[*, *, iw], /nan), count)
-        if (count gt 0) then begin
-          mg_log, 'found %d NaNs in mean values of background', count, $
-                  name='comp', /warn
-        endif
-
         fits_write, fcbavg, back[*, *, iw], header, extname=ename
       endif
     endfor
