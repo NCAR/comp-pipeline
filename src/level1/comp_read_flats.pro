@@ -39,6 +39,9 @@
 ;   flat_found : out, optional, type=bytarr(nwave)
 ;     set to a named variable to retrieve whether a flat was found for the given
 ;     wavelength
+;   normalize : out, optional, type=float
+;     set to a named variable to retrieve the correction for diffuser
+;     degradation
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -86,6 +89,11 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
     fits_open, flatfile, fcb
     num = fcb.nextend
 
+    ; get normalize
+    fits_read, fcb, dummy, header, exten_no=1, /no_abort, message=msg
+    if (msg ne '') then message, msg
+    normalize = sxpar(header, 'NORMALIZ')
+
     ; read arrays with times, wavelengths and polarizations
     fits_read, fcb, flat_times, exten_no=num - 2, /no_abort, message=msg
     if (msg ne '') then message, msg
@@ -93,7 +101,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
     if (msg ne '') then message, msg
     fits_read, fcb, flat_exposures, exten_no=num, /no_abort, message=msg
     if (msg ne '') then message, msg
-  endif
+  endif else normalize = flat_normalize
 
   dt = time - flat_times   ; find time difference from flat times
   bad = where(dt lt 0., count)

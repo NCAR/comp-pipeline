@@ -34,7 +34,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   comp_read_data, filename, images, headers, header0
 
-  comp_apply_flats_darks, images, headers, date_dir, error=error, $
+  comp_apply_flats_darks, images, headers, header0, date_dir, error=error, $
                           uncorrected_images=uncorrected_images
   if (error ne 0L) then begin
     mg_log, 'skipping %s (no flats/darks)', $
