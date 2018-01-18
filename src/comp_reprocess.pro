@@ -21,7 +21,7 @@ pro comp_reprocess, date
 
   if (movie_repository ne '') then begin
     mg_log, 'saving old movies and images', name='comp', /info
-    movie_dir = filepath('', subdir=ymd, movie_repository)
+    movie_dir = filepath('', subdir=ymd, root=movie_repository)
     if (~file_test(movie_dir, /directory)) then file_mkdir, movie_dir
 
     archived_files = file_search(filepath('*', root=frdir), count=n_archived_files)

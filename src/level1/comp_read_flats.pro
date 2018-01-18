@@ -49,7 +49,7 @@
 pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
                      flat_waves, flat_names, flat_exposure, $
                      file=file, flat_extensions=flat_extensions, $
-                     flat_found=flat_found
+                     flat_found=flat_found, normalize=normalize
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
