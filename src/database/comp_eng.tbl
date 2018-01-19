@@ -30,7 +30,10 @@ IRADIUS2=               Occulter Radius for distortion corrected sub-image2
 
   # derived from L1 filename
   wavelength              float (8, 3),
-  POL_?  = 'IQU'
+  ntunes                tinyint (2),
+  POL_list  = 'IQU'
+
+  nextensions   SMALLINT,
 
   # extract the rest from from first extension
 
@@ -43,8 +46,10 @@ IRADIUS2=               Occulter Radius for distortion corrected sub-image2
   OPTRTEMP float (9, 6) # optical rail temp (C)
   LCVR4TMP float (9, 6) # (C)
 
-
+  occltrid        CHAR (10),
+  
   comp_sw_id    INT (10),
+
   UNIQUE (file_name),
   INDEX (date_obs),
   FOREIGN KEY (level) REFERENCES comp_level(level_id),

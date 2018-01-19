@@ -1,18 +1,22 @@
+-- one per L1 or L2 file
+-- for user searches
+
 CREATE TABLE comp_file (
   file_id       INT (10) AUTO_INCREMENT PRIMARY KEY,
   file_name     CHAR (35) NOT NULL, 
   date_obs      DATETIME NOT NULL, 
-  date_end      DATETIME NOT NULL, 
   obs_day       MEDIUMINT (5) NOT NULL,
+
   level         TINYINT (2) NOT NULL,
-  quality       TINYINT (2),   ???
   producttype   TINYINT (2),
   filetype      TINYINT (2),
-  exptime       FLOAT (7, 4),
+
+  quality       TINYINT (2),   ???
+
   pol_list      CHAR (4),
   wavetype      SMALLINT,
   ntunes        TINYINT (2),
-  nextensions   SMALLINT,
+
   UNIQUE (file_name),
   INDEX (date_obs),
   INDEX (obs_day),

@@ -1,5 +1,4 @@
-CREATE TABLE comp_hw 
-  (
+CREATE TABLE comp_hw (
   hw_id           INT (10) AUTO_INCREMENT PRIMARY KEY,
   date            DATETIME NOT NULL,
   diffsrid        CHAR (8),
@@ -14,4 +13,4 @@ CREATE TABLE comp_hw
   filterid        CHAR (12),
   calpolid        CHAR (12),
   UNIQUE (date)
-  )
+)
