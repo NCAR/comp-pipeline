@@ -107,7 +107,9 @@ pro comp_make_flat, date_dir, error=error
   sxaddpar, primary_header, 'DATATYPE', 'FLAT', ' Flat field image'
   sxaddpar, primary_header, 'DETREND', make_flat_detrending ? 'YES' : 'NO'
   sxaddpar, primary_header, 'DESTRAY', make_flat_destraying ? 'YES' : 'NO'
-  sxaddpar, primary_header, 'NORMALIZ', norm, ' Correct for diffuser degradation'
+  sxaddpar, primary_header, 'NORMALIZ', norm, $
+            ' Transmission of diffuser millionths B/Bsun', $
+            format='(F0.3)'
   sxaddpar, primary_header, 'VERSION', code_version, $
             ' Calibration processing software version'
   sxaddpar, primary_header, 'REVISION', code_revision, $

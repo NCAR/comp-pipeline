@@ -70,7 +70,8 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
   endif
 
   sxaddpar, primary_header, 'NORMALIZ', normalize, $
-            ' Correct for diffuser degradation'
+            ' Transmission of diffuser millionths B/Bsun', $
+            format='(F0.3)'
 
 ;  flat_mask = comp_annulus_1024(flat_header, o_offset=0.0, f_offset=0.0, /uncorrected)
   
