@@ -12,7 +12,7 @@ log_name=/hao/acos/comp/logs/$yesterday.log
 
 if [ -f $log_name ]; then
   # check total running time
-  grep "INFO: COMP_RUN_PIPELINE: Total running time:" $log_name >> $output 2>&1
+  grep "INFO: COMP_RUN_PIPELINE: total running time:" $log_name >> $output 2>&1
   if [ $? -eq 1 ]; then
     echo "CoMP pipeline not finished yet at $(date +'%Y-%m-%d %H:%M:%S')" >> $output 2>&1
   fi
