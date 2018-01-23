@@ -1,5 +1,7 @@
-CREATE TABLE comp_level (
-  level_id       TINYINT (2) AUTO_INCREMENT PRIMARY KEY,
-  level          CHAR (5) NOT NULL,
-  description    VARCHAR (512)
+-- there will be several entries in this table
+
+create table comp_level (
+  level_id       tinyint (2) auto_increment primary key,
+  level          char (5) not null,
+  description    varchar (512)
 )
