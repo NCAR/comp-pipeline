@@ -1,10 +1,12 @@
 CREATE TABLE comp_sw (
   sw_id          INT (10) AUTO_INCREMENT PRIMARY KEY,
   date           DATETIME NOT NULL,
-  dmodswid       CHAR (24),
-  distort        CHAR (28),
-  sw_version     CHAR (24),
-  labviewid      VARCHAR (20),
-  sw_revision    VARCHAR (20),
+  distort        CHAR (28),   # filename of distortion file used
+  hot_pixel      char (28),   # filename of hot pixel correction used
+  sw_version_l1     CHAR (24),
+  sw_revision_l1    VARCHAR (20),
+  sw_version_l2     CHAR (24),
+  sw_revision_l2    VARCHAR (20),
+  labviewid      VARCHAR (20),  # ask Ben/Steve how to get this?
   UNIQUE (date)
 )

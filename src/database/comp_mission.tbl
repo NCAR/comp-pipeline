@@ -1,35 +1,60 @@
+# one entry
+
+# ask Steve: are there any instrument hardware changes that need to be captured in this table?
+
 CREATE TABLE comp_mission (
   mission_id      INT (10) AUTO_INCREMENT PRIMARY KEY, 
   date            DATETIME NOT NULL, 
+
+  # added in L1 primary header
   mlso_url        CHAR (24),
   doi_url         CHAR (48),
-  telescope       CHAR (24),
-  instrument      CHAR (24),
-  location        CHAR (27),
-  origin          CHAR (12),
-  object          CHAR (32),
   bunit           CHAR (15),
   method          CHAR (10),
   wavestep        FLOAT (7, 2),
   wavefwhm        FLOAT (5, 2),
   cdelt           FLOAT (7, 3),
-  fov_min         FLOAT (4, 2),
-  fov_max         FLOAT (4, 2),
-  bitpixl0        TINYINT (3),
-  bitpixl1        TINYINT (3),
-  xdiml0          SMALLINT (5),
-  ydiml0          SMALLINT (5),
-  xdiml1          SMALLINT (5),
-  ydiml1          SMALLINT (5),
-  wcsname         CHAR (26),
-  ctype1          CHAR (8),
-  ctype2          CHAR (8),
-  timesys         CHAR (3),
-  inst_rot        FLOAT (7, 2),
-  pc1_1           FLOAT (4, 3),
-  pc1_2           FLOAT (4, 3),
-  pc2_1           FLOAT (4, 3),
-  pc2_2           FLOAT (4, 3),
+
+  # primary header
+  telescope       CHAR (24),
+  instrument      CHAR (24),
+  location        CHAR (27),
+  origin          CHAR (12),
+  object          CHAR (32),
+
+  fov_min         FLOAT (4, 2),   # about 1.05
+  fov_max         FLOAT (4, 2),   # about 1.25
+
+  bitpixl0        TINYINT (3),  # 16
+  bitpixl1        TINYINT (3),  # -32
+
+  xdiml0          SMALLINT (5),  # 1024
+  ydiml0          SMALLINT (5),  # 1024
+  xdiml1          SMALLINT (5),  # 620
+  ydiml1          SMALLINT (5),  # 620
+  wcsname         CHAR (26),  # helioprojective-cartesian
+  ctype1          CHAR (8),   # X
+  ctype2          CHAR (8),   # Y
+  timesysl0         CHAR (3),  # HST
+  timesysl1         CHAR (3),  # UTC
+  inst_rot        FLOAT (7, 2),  # 0.0
+
+  demult          tinyint (1)  # 1 (ask Steve if this changes)
+
+  nd1   float (5, 3)   # transmission of ND filter 1
+  nd2   float (5, 3)
+  nd3   float (5, 3)
+  nd4   float (5, 3)
+  nd5   float (5, 3)
+  nd6   float (5, 3)
+  nd7   float (5, 3)
+  nd8   float (5, 3)
+
+  pc1_1           FLOAT (4, 3),  # 1.0
+  pc1_2           FLOAT (4, 3),  # 0.0
+  pc2_1           FLOAT (4, 3),  # 0.0
+  pc2_2           FLOAT (4, 3),  # 1.0
+
   i_to_q          FLOAT (7, 6),
   i_to_u          FLOAT (7, 6),
   q_to_u          FLOAT (7, 6),
@@ -40,6 +65,3 @@ CREATE TABLE comp_mission (
 )
 
 
-nd1   # transmission of ND filter 1
-...
-nd8
