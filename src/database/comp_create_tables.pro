@@ -36,13 +36,12 @@ pro comp_create_tables, config_filename=config_filename
   mg_log, 'connected to %s', host, name=log_name, /info
 
 
-  tables = ['comp_file', 'comp_img', 'comp_sci', 'comp_cal', 'comp_eng', $
-            'comp_sw', 'comp_hw', 'comp_mission', 'comp_level']
+  tables = 'comp_' + ['file', 'sci', 'cal', 'eng', 'sw', 'mission', 'level']
 
   ; delete existing tables, if they exist
   for t = 0L, n_elements(tables) - 1L do begin
     mg_log, 'dropping %s...', tables[t], name=log_name, /info
-    db->execute, 'DROP TABLE IF EXISTS %s', tables[t], $
+    db->execute, 'drop table if exists %s', tables[t], $
                  status=status, error_message=error_message
     if (error ne 0L) then begin
       mg_log, 'problem dropping %s', tables[t], name=log_name, /error
