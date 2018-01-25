@@ -298,11 +298,11 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
                            root=l2_process_dir)
 
   fhover = tvrd(/true)
-  write_jpeg,  obasefilename + '.daily_fullr.3.jpg', fhover, $
+  write_jpeg,  obasefilename + '.daily_fullr.jpg', fhover, $
                true=1, quality=75
 
   hover = rebin(fhover, 3, 485, 325)
-  write_jpeg, obasefilename + '.daily_hover.3.jpg', hover, $
+  write_jpeg, obasefilename + '.daily_hover.jpg', hover, $
                true=1, quality=50
 
   ; plot the files for the dashboard
