@@ -21,6 +21,18 @@ pro comp_l1_check_all, date_dir, body=body
 
   body->add, '# All files'
   body->add, ''
+  body->add, '## Basic statistics'
+  body->add, ''
+
+  for w = 0L, n_elements(process_wavelengths) - 1L do begin
+    l1_files = comp_find_l1_file(date_dir, process_wavelengths[w], $
+                                 /all, count=n_l1_files)
+    body->add, string(n_l1_files, process_wavelengths[w], $
+                      format='(%"%d %s nm files")')
+  endfor
+
+  body->add, ''
+
   body->add, '## Warnings'
   body->add, ''
 
