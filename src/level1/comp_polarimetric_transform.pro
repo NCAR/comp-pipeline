@@ -29,6 +29,8 @@ pro comp_polarimetric_transform, q, u, p_angle, overlap_angle, $
 
   ; TODO: is the overlap angle used correctly here?
   p_angle_radians = (p_angle - 45.0) * !dtor
+  ;p_angle_radians = (p_angle - overlap_angle) * !dtor
+  ;p_angle_radians = (p_angle - 90.0 + overlap_angle) * !dtor
 
   new_q =   q * cos(2.0 * p_angle_radians) + u * sin(2.0 * p_angle_radians)
   new_u = - q * sin(2.0 * p_angle_radians) + u * cos(2.0 * p_angle_radians)
