@@ -176,7 +176,7 @@ end
 ;wave_types = ['1074', '1079', '1083']
 wave_types = ['1074']
 ;root = '/export/data1/Data/CoMP/process.overlap'
-root = '/hao/mahidata1/Data/CoMP/process.centering19'
+root = '/hao/mahidata1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
 
 for w = 0L, n_elements(wave_types) - 1L do begin
