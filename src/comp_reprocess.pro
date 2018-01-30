@@ -18,6 +18,7 @@ pro comp_reprocess, date
   mdir = filepath('', subdir=ymd, root=movie_dir)
 
   dirs = [adir, frdir, mdir]
+  dir_names = ['archive', 'fullres', 'movie'] + ' dir'
 
   if (movie_repository ne '') then begin
     mg_log, 'saving old movies and images', name='comp', /info
@@ -33,7 +34,7 @@ pro comp_reprocess, date
   if (delete_archive) then begin
     for d = 0L, n_elements(dirs) - 1L do begin
       if (file_test(dirs[d])) then begin
-        mg_log, 'removing old files from %s...', dirs[d], name='comp', /info
+        mg_log, 'removing old files from %s...', dir_names[d], name='comp', /info
         archived_files = file_search(filepath('*', root=dirs[d]), count=n_archived_files)
 
         if (n_archived_files gt 0L) then begin
@@ -45,12 +46,14 @@ pro comp_reprocess, date
               goto, done
             endif
           endfor
-          mg_log, 'removed %d files from %s', n_archived_files, dirs[d], $
+          mg_log, 'removed %d files from %s', n_archived_files, dir_names[d], $
                   name='comp', /info
         endif else begin
-          mg_log, 'no files to remove from %s', dirs[d], name='comp', /info
+          mg_log, 'no files to remove from %s', dir_names[d], name='comp', /info
         endelse
-      endif
+      endif else begin
+        mg_log, 'no %s to delete files from', dir_names[d], name='comp', /info
+      endelse
     endfor
   endif else begin
     mg_log, 'skipping deleting archive files', name='comp', /info
