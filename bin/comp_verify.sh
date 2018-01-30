@@ -17,6 +17,6 @@ else
   SUBJECT="CoMP verify for $START_DATE-$END_DATE (success)"
 fi
 
-mail -s "$SUBJECT" $(cat ~/.comp_notifiers) < $LOG_FILENAME
+mail -s "$SUBJECT" -r $(whoami)@ucar.edu $(cat ~/.comp_notifiers) < $LOG_FILENAME
 
 rm -f $LOG_FILENAME
