@@ -53,3 +53,4 @@
   1074 background GIFs
   fixed offsensor warnings
   added reprocess step
+1.3.11
