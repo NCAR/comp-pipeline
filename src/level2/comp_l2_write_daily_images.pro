@@ -202,7 +202,11 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   comp_aia_lct, wave=193, /load
   int = sqrt(intensity)
   display_min_i = 0.3
-  display_max_i = 4.0
+  case wave_type of
+    '1074': display_max_i = 3.0
+    '1079': display_max_i = 2.0
+    else: display_max_i = 3.0
+  endcase
   int = bytscl(int, min=display_min_i, max=display_max_i)
   tv, int, 4 * 5, 4 * 165
   tv, enhanced_intensity, 4 * 165, 4 * 165
