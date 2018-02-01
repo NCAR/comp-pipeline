@@ -123,7 +123,8 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
           alignment=0.5, orientation=90, font=font
 
   colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max + 0.5], $
-             divisions=5, charsize=0.6, font=font, ncolors=top + 1L
+             divisions=5, charsize=0.6, font=font, ncolors=top + 1L, $
+             format='(F0.1)'
 
   if (keyword_set(background)) then begin
     oradius = sxpar(primary_header, 'ORADIUS')

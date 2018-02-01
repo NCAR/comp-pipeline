@@ -399,7 +399,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     width = bytscl(width, min=25, max=55, top=254)
     if (n_undef_velocity gt 0L) then width[undef_velocity_ind] = 0
     tv, width
-    colorbar2, position=colbarpos,chars=1.25, title='line width [km/s]', $
+    colorbar2, position=colbarpos, chars=1.25, title='line width [km/s]', $
                range=[25,55], font=-1, divisions=3, color=255, ncolors=254
     loadct, 0, /silent
     xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255
