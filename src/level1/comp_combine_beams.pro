@@ -116,6 +116,7 @@ pro comp_combine_beams, images, headers, date_dir, $
 
       ; foreground part (with background subtracted)
       nonzero = (fgplus ne 0.0) + (fgminus ne 0.0)  ; 0.0's are missing (off detector)
+      ; TODO: create mask for off detector from zeros of `nonzero`
       nonzero >= 1.0                                ; don't divide by 0
       if (wave_type eq '1083' || ~subtract_background) then begin
         ; note: the He background is contaminated, so don't subtract
