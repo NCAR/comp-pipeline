@@ -41,7 +41,7 @@
 1.3.9 [Nov 30, 2017]
   cuts down on number of warnings in logs about temperatures
   does not delete engineering logs if raw dir is locked
-1.3.10
+1.3.10 [Feb 1, 2018]
   limits search for post
   add "comp" to all output filenames and more consistency in filenames
   fixed bugs in GBU
@@ -52,4 +52,4 @@
   condensed notification emails to a single email
   1074 background GIFs
   fixed offsensor warnings
-  reprocess step
+  added reprocess step
