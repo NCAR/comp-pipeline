@@ -59,4 +59,5 @@
   fixes for logging and reprocessing
 1.3.13 [Feb 2, 2018]
   another fix for rotate log interaction with reprocessing
-1.3.14
+1.3.14 [Feb 2, 2018]
+  put back restrictions on wings
