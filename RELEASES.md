@@ -57,4 +57,5 @@
   removing threshold for wings on gaussian fit
 1.3.12 [Feb 2, 2018]
   fixes for logging and reprocessing
-1.3.13
+1.3.13 [Feb 2, 2018]
+  another fix for rotate log interaction with reprocessing
