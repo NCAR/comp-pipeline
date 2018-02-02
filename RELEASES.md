@@ -53,4 +53,5 @@
   1074 background GIFs
   fixed offsensor warnings
   added reprocess step
-1.3.11
+1.3.11 [Feb 1, 2018]
+  removing threshold for wings on gaussian fit
