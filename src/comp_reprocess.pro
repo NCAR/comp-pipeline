@@ -26,7 +26,13 @@ pro comp_reprocess, date
     if (~file_test(movie_dir, /directory)) then file_mkdir, movie_dir
 
     archived_files = file_search(filepath('*', root=frdir), count=n_archived_files)
-    file_copy, archived_files, movie_dir
+    if (n_archived_files gt 0L) then begin
+      file_copy, archived_files, movie_dir
+      mg_log, 'saved %d old movies and images', n_archived_files, $
+              name='comp', /info
+    endif else begin
+      mg_log, 'no old movies and images to save', name='comp', /info
+    endelse
   endif else begin
     mg_log, 'skipping saving old movies and images', name='comp', /info
   endelse
