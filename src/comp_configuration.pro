@@ -47,6 +47,8 @@ pro comp_configuration, config_filename=config_filename
                                     /extract)
 
   ; reprocessing
+  reprocess           = config->get('reprocess', section='reprocessing', $
+                                    /boolean, default=0B)
   delete_archive      = config->get('delete_archive', $
                                     section='reprocessing', $
                                     /boolean, default=1B)

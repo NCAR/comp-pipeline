@@ -7,6 +7,7 @@ common comp_config, doi_1074,$
                     date_pattern, $
                     process_basedir, $
                     process_wavelengths, $
+                    reprocess, $
                     delete_archive, $
                     rotate_logs, $
                     movie_repository, $
