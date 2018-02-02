@@ -8,7 +8,7 @@ else
   date=$1
 fi
 yesterday=$(date +"%Y%m%d" --date="$date")
-log_name=/hao/acos/comp/logs/$yesterday.log
+log_name=/hao/acos/comp/logs/$yesterday.comp.log
 
 if [ -f $log_name ]; then
   # check total running time
