@@ -156,7 +156,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           sub_bad = where(profile le 0, n_bad)
           if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
-          if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh && profile[0] gt 0.01 && profile[2] gt 0.01) then begin
+          ; Removing restrictions on wings temporarily...
+          ; if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh
+          ;       && profile[0] gt 0.01 && profile[2] gt 0.01) then begin
+          if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
           endif else begin
             bad_pixels_mask[xx, yy] = 1B

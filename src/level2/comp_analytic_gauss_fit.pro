@@ -27,7 +27,9 @@
 pro comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
   compile_opt strictarr
 
-  if (profile[0] lt 0 or profile[1] lt 0 or profile[2] lt 0) then begin
+  ; Removing restrictions on wings temporarily...
+  ; if (profile[0] lt 0 or profile[1] lt 0 or profile[2] lt 0) then begin
+  if (profile[1] lt 0) then begin
     width = 0D
     doppler_shift = 0D
     i_cent = 0D
