@@ -61,4 +61,6 @@
   another fix for rotate log interaction with reprocessing
 1.3.14 [Feb 2, 2018]
   put back restrictions on wings
-1.3.15
+1.3.15 [Feb 2, 2018]
+  typo in wing restriction fix
+
