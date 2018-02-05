@@ -89,7 +89,7 @@ pro comp_combine_beams, images, headers, date_dir, $
             post_angle_diff_tolerance, $
             image_geometry.post_angle1, $
             image_geometry.post_angle2, $
-            name='comp', /warn
+            name='comp', /debug
   endif
 
   case wave_type of
