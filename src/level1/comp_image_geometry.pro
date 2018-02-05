@@ -141,6 +141,13 @@ function comp_image_geometry, images, headers, date_dir, $
             calc_occulter1.y, $
             calc_occulter1.r, ind1[0], $
             name='image.occ.ul', /debug
+    mg_log, '%s, %f, %f, %f, %f, %d', $
+            wave_type, $
+            time, $
+            calc_field1.x, $
+            calc_field1.y, $
+            calc_field1.r, ind1[0], $
+            name='image.field.ul', /debug
   endif
 
   ind2 = where(beam lt 0, n_minus_beam)
@@ -187,6 +194,14 @@ function comp_image_geometry, images, headers, date_dir, $
             calc_occulter2.r, $
             ind2[0], $
             name='image.occ.lr', /debug
+    mg_log, '%s, %f, %f, %f, %f, %d', $
+            wave_type, $
+            time, $
+            calc_field2.x, $
+            calc_field2.y, $
+            calc_field2.r, $
+            ind2[0], $
+            name='image.field.lr', /debug
   endif
 
   ; write flat centers
@@ -199,6 +214,15 @@ function comp_image_geometry, images, headers, date_dir, $
           wave_type, time, $
           occulter2.x, occulter2.y, occulter2.r, $
           name='flat.occ.lr', /debug
+
+  mg_log, '%s, %f, %f, %f, %f', $
+          wave_type, time, $
+          field1.x, field1.y, field1.r, $
+          name='flat.field.ul', /debug
+  mg_log, '%s, %f, %f, %f, %f', $
+          wave_type, time, $
+          field2.x, field2.y, field2.r, $
+          name='flat.field.lr', /debug
 
   mg_log, '%s, %d, %d, %d', $
           wave_type, $
