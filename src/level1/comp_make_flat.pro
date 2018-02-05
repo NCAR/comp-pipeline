@@ -282,7 +282,7 @@ pro comp_make_flat, date_dir, error=error
       if (make_flat_detrending) then begin
         ; use post_angle1 for second post because second is in wrong position
         ; this should be no longer needed 
-       comp_fix_trend, image, $
+        comp_fix_trend, image, $
                         uncorrected_occulter1, uncorrected_occulter2, $
                         uncorrected_field1, uncorrected_field2, $
                         uncorrected_post_angle1, uncorrected_post_angle2, fit
