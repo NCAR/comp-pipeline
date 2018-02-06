@@ -40,7 +40,7 @@ echo -e "\n\nSent by $(readlink -f $0) ($(whoami)@$(hostname))" >> $output 2>&1
 #recipient="iguana@ucar.edu, detoma@ucar.edu, mgalloy@ucar.edu, berkey@ucar.edu"
 recipient="mgalloy@ucar.edu"
 
-mail -s "CoMP messages from $yesterday logs" "$recipient" < $output
+mail -s "CoMP messages from $yesterday logs" -r $(whoami)@ucar.edu "$recipient" < $output
 
 # clean up
 rm $output
