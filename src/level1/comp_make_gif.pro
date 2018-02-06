@@ -76,14 +76,16 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   endif
 
   ; configure the device
+  original_device = !d.name
   set_plot, 'Z'
-  device, set_resolution=[size, size], set_colors=256, z_buffering=0, $
-          decomposed=0
-  loadct, 3, /silent
+  device, set_resolution=[size, size], z_buffering=0, decomposed=0
+
+  loadct, 3, /silent, ncolors=253
+
   ocol = 253
-  tvlct, 0, 255, 255, ocol
+  tvlct, 255, 255, 0, ocol
   fcol = 254
-  tvlct, 255, 255, 0, fcol
+  tvlct, 0, 255, 0, fcol
   ccol = 255
   tvlct, 255, 255, 255, ccol
 
@@ -154,11 +156,16 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
     ; post
     r = (oradius + fradius) / 2.0
-    ; convert from N up is 0 deg to mathematical convention in rad
-    pa = (post_angle + 90.0 + p_angle) * !dtor
+
+    ; convert from N up is 0 degree to mathematical convention in radians
+    pa = (post_angle - 90.0 - p_angle) * !dtor
     plots, [r * cos(pa) + oxcenter], [r * sin(pa) + oycenter], $
            /device, color=ocol, psym=1
   endif
 
-  write_gif, filename, tvrd()
+  im = tvrd()
+  tvlct, r, g, b, /get
+  set_plot, original_device
+
+  write_gif, filename, im, r, g, b
 end
