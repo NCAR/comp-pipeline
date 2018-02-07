@@ -108,10 +108,17 @@ end
 
 ; main-level example program
 
-comp_configuration, config_filename='config/comp.mgalloy.mahi.centering.cfg'
-comp_initialize, '20161112'
-comp_l1_process_file, '/export/data1/Data/CoMP/raw/20161112/20161112.073640.FTS', $
-                      '20161112', $
-                      '1074'
+date = '20150925'
+
+config_filename = filepath('comp.mgalloy.mahi.destray.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+comp_initialize, date
+
+@comp_config_common
+
+filename = filepath('20150925.112236.FTS', subdir=date, root=raw_basedir)
+comp_l1_process_file, filename, date, '1074'
 
 end
