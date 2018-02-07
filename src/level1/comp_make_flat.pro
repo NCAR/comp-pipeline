@@ -386,6 +386,7 @@ pro comp_make_flat, date_dir, error=error
     flat_normalize = norm
   endif
 
+  ; remove flat-specific FITS keywords to prepare header for use for an L1 file
   sxdelpar, header, 'BEAM'
   sxdelpar, header, 'WAVELENG'
   sxdelpar, header, 'OXCNTER1'
