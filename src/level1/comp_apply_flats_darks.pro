@@ -49,10 +49,11 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
   time = comp_extract_time(headers)
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
-  optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER', 'FLATFILE']
+  optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER']
   hastags = mg_fits_hastag(headers[*, 0], optional_tags, count=n_hastags)
   ntags += n_elements(optional_tags) - n_hastags
   ntags++   ; for the ND-TRANS tag we add below
+  ntags++   ; for the FLATFILE tag we add below
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
   if (remove_stray_light) then ntags += 2   ; for FITMNLIN/FITVRLIN
@@ -88,6 +89,8 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
 
   ; defines hot and adjacent variables
   restore, filename=hot_file
+
+  blank_line = string(bytarr(80) + (byte(' '))[0])
 
   for i = 0L, n_ext - 1L do begin   ; loop over the images...
     header = headers[*, i]
@@ -154,6 +157,10 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
               after='FLATFILE'
     sxaddpar, header, 'FLATMED', medflat, $
               ' median of dark and exposure corrected flat', format='(F0.2)', after='FLATEXT'
+
+    nonblank_ind = where(header ne blank_line, n_nonblank)
+    header = header[nonblank_ind]
+    if (ntags ne n_nonblank) then header = [header, strarr(ntags - n_nonblank) + blank_line]
 
     headersout[0, i] = reform(header, n_elements(header), 1)
  endfor
