@@ -57,12 +57,12 @@ function comp_image_geometry, images, headers, date_dir, $
                    flat_names, flat_expose
 
   ; flat_header is now an array of flats - extract first one
-  flat_header= reform(flat_header[*, 0])
+  flat_header = reform(flat_header[*, 0])
   
   ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
  
-  ;read occulter center in 620x620 frames to use as center guess
+  ; read occulter center in 620x620 frames to use as center guess
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - 1.0, $
                y:sxpar(flat_header, 'OYCNTER1') - 1.0 - 1024 + ny, $
                r:sxpar(flat_header, 'ORADIUS1')}
@@ -261,6 +261,8 @@ function comp_image_geometry, images, headers, date_dir, $
 
   return, { occulter1: calc_occulter1, $
             occulter2: calc_occulter2, $
+            flat_occulter1: occulter1, $
+            flat_occulter2: occulter2, $
             field1: field1, $
             field2: field2, $
             post_angle1: pang1, $

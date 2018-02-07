@@ -63,6 +63,8 @@ pro comp_combine_beams, images, headers, date_dir, $
   ntags = n_elements(headers[*, 0])
   if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
 
+  ntags += 6   ; for geometry keywords for flats
+
   ; output image and header array
   images_combine = dblarr(nx, ny, 2 * np * nw)
   headers_combine = strarr(ntags, 2 * np * nw)
@@ -133,8 +135,23 @@ pro comp_combine_beams, images, headers, date_dir, $
       sxaddpar, hplus, 'NAVERAGE', $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
 
+      sxaddpar, hplus, 'OXCNTER1', image_geometry.flat_occulter1.x + 1.0, $
+                'Occulter center X for distortion corrected sub-flat1'
+      sxaddpar, hplus, 'OYCNTER1', image_geometry.flat_occulter1.y + 1.0, $
+                'Occulter center Y for distortion corrected sub-flat1'
+      sxaddpar, hplus, 'ORADIUS1', image_geometry.flat_occulter1.r, $
+                'Occulter radius for distortion corrected sub-flat1'
+
+      sxaddpar, hplus, 'OXCNTER2', image_geometry.flat_occulter2.x + 1.0, $
+                'Occulter center X for distortion corrected sub-flat2'
+      sxaddpar, hplus, 'OYCNTER2', image_geometry.flat_occulter2.y + 1.0, $
+                'Occulter center Y for distortion corrected sub-flat2'
+      sxaddpar, hplus, 'ORADIUS2', image_geometry.flat_occulter2.r, $
+                'Occulter radius for distortion corrected sub-flat2'
+
       headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
-      sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i]
+      sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
+
       headers_combine[0, np * nw + i * nw + j] = reform(hplus, n_elements(hplus), 1)
     endfor
   endfor
