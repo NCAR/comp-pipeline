@@ -152,7 +152,22 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CROTA2', 0.0, $
             ' Y [SOUTH->NORTH] ROTATION [DEG.] WRT TO SOLAR NORTH', format='(F0.2)'
 
-  ; TODO: add center of distortion corrected image in 1..620 reference frame
+  ; add center of distortion corrected image in 1..620 reference frame
+
+  sxaddpar, primary_header, 'IXCNTER1', image_geometry.occulter1.x + 1.0, $
+            'Occulter center X for distortion corrected sub-image1'
+  sxaddpar, primary_header, 'IYCNTER1', image_geometry.occulter1.y + 1.0, $
+            'Occulter center Y for distortion corrected sub-image1'
+  sxaddpar, primary_header, 'IRADIUS1', image_geometry.occulter1.r, $
+            'Occulter radius for distortion corrected sub-image1'
+
+  sxaddpar, primary_header, 'IXCNTER2', image_geometry.occulter2.x + 1.0, $
+            'Occulter center X for distortion corrected sub-image2'
+  sxaddpar, primary_header, 'IYCNTER2', image_geometry.occulter2.y + 1.0, $
+            'Occulter center Y for distortion corrected sub-image2'
+  sxaddpar, primary_header, 'IRADIUS2', image_geometry.occulter2.r, $
+            'Occulter radius for distortion corrected sub-image2'
+
 
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
