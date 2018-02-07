@@ -14,13 +14,33 @@
 ;   header : in, required, type=strarr
 ;     extension header
 ;
+; :Keywords:
+;   error : out, optional, type=long
+;     set to a named variable to retrieve whether NDFILTER was found and valid;
+;     is 0 if no problems
+;
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_get_nd_filter, date, wave_type, header
+function comp_get_nd_filter, date, wave_type, header, error=error
   compile_opt strictarr
+  on_ioerror, conversion_error
 
+  error = 0L
   nd_filter = sxpar(header, 'NDFILTER', count=nd_filter_present)
   if (nd_filter_present eq 0) then nd_filter = 8
+
+  ; if this conversion has a problem, 8 will be returned
+  if (size(nd_filter, /type) eq 7) then nd_filter = long(nd_filter)
+
+  if (nd_filter lt 1 || nd_filter gt 8) then begin
+    error = 1L
+    nd_filter = 8
+  endif
+
   return, nd_filter
+
+  conversion_error:
+  error = 1L
+  return, 8
 end

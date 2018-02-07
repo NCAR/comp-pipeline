@@ -80,7 +80,10 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
       endif
 
       exposure = sxpar(header, 'EXPOSURE')
-      nd_filter = comp_get_nd_filter(date_dir, wave_type, header)
+      nd_filter = comp_get_nd_filter(date_dir, wave_type, header, error=nd_error)
+      if (nd_error ne 0) then begin
+        mg_log, 'error reading NDFILTER, using 8', name='comp', /warn
+      endif
 
       if (sxpar(header, 'DEMULT') eq 0) then dat = comp_demultiplex(temporary(dat))
       dat = float(dat)
