@@ -120,7 +120,12 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     uncorrected_tmp_image = tmp_image
     if (flat_found[iflat]) then begin
       tmp_image /= flat[*, *, iflat]
-    endif
+    endif else begin
+      mg_log, 'unable to flat correct extension %d', i + 1L, $
+              name='comp', /warn
+      error = 1L
+      goto, done
+    endelse
 
     tmp_image = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
     uncorrected_tmp_image = comp_fix_hot(temporary(uncorrected_tmp_image), $
@@ -166,5 +171,7 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
  endfor
 
   headers = headersout
+
+  done:
 end
   
