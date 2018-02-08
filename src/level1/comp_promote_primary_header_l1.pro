@@ -155,19 +155,24 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   ; add center of distortion corrected image in 1..620 reference frame
 
   sxaddpar, primary_header, 'IXCNTER1', image_geometry.occulter1.x + 1.0, $
-            'Occulter center X for distortion corrected sub-image1'
+            'Occulter center X for distortion corrected sub-image1', $
+            format='(F0.3)'
   sxaddpar, primary_header, 'IYCNTER1', image_geometry.occulter1.y + 1.0, $
-            'Occulter center Y for distortion corrected sub-image1'
+            'Occulter center Y for distortion corrected sub-image1', $
+            format='(F0.3)'
   sxaddpar, primary_header, 'IRADIUS1', image_geometry.occulter1.r, $
-            'Occulter radius for distortion corrected sub-image1'
+            'Occulter radius for distortion corrected sub-image1', $
+            format='(F0.3)'
 
   sxaddpar, primary_header, 'IXCNTER2', image_geometry.occulter2.x + 1.0, $
-            'Occulter center X for distortion corrected sub-image2'
+            'Occulter center X for distortion corrected sub-image2', $
+            format='(F0.3)'
   sxaddpar, primary_header, 'IYCNTER2', image_geometry.occulter2.y + 1.0, $
-            'Occulter center Y for distortion corrected sub-image2'
+            'Occulter center Y for distortion corrected sub-image2', $
+            format='(F0.3)'
   sxaddpar, primary_header, 'IRADIUS2', image_geometry.occulter2.r, $
-            'Occulter radius for distortion corrected sub-image2'
-
+            'Occulter radius for distortion corrected sub-image2', $
+            format='(F0.3)'
 
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
