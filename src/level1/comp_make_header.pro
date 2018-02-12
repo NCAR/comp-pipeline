@@ -134,10 +134,16 @@ pro comp_make_header, image, header, date_dir, $
     return
   endif
 
- comp_find_post,  uncorrected_flat2, $
-                  uncorrected_occulter2, uncorrected_field2, $
-                  uncorrected_post_angle2
+  comp_find_post,  uncorrected_flat2, $
+                   uncorrected_occulter2, uncorrected_field2, $
+                   uncorrected_post_angle2
 
+  if (eng_flat_gifs) then begin
+    comp_write_annotated_flat_gif, image, occulter1, occulter2, field1, field2, $
+                                   filename=filepath(current_flatname + '.flat.gif', $
+                                                     subdir=comp_decompose_date(date_dir), $
+                                                     root=engineering_dir)
+  endif
 
   if (centering_diagnostics) then begin
     save, corrected_occulter_points1, $
@@ -155,7 +161,7 @@ pro comp_make_header, image, header, date_dir, $
 
   ; write occulter position
   ; add 1 to adopt FITS standard
-  ; convert 620x620 geometry to 1024x1204 geometry
+  ; convert 620x620 geometry to 1024x1024 geometry
   sxaddpar, header, 'OXCNTER1', occulter1.x + 1.0, $
             ' Occulter center X for distortion corrected sub-image 1'
   sxaddpar, header, 'OYCNTER1', occulter1.y + 1.0 + 1024 - ny, $
