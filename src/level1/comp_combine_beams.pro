@@ -136,7 +136,7 @@ pro comp_combine_beams, images, headers, date_dir, $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
 
       sxaddpar, hplus, 'OXCNTER1', image_geometry.flat_occulter1.x + 1.0, $
-                'Occulter center X for distortion corrected sub-flat1'. $
+                'Occulter center X for distortion corrected sub-flat1', $
                 format='(F0.3)'
       sxaddpar, hplus, 'OYCNTER1', image_geometry.flat_occulter1.y + 1.0, $
                 'Occulter center Y for distortion corrected sub-flat1', $
