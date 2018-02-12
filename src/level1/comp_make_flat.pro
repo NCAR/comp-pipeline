@@ -105,8 +105,10 @@ pro comp_make_flat, date_dir, error=error
             ' CORONAL MULTICHANNEL POLARIMETER'
   sxaddpar, primary_header, 'LOCATION', 'Boulder, CO  USA'
   sxaddpar, primary_header, 'DATATYPE', 'FLAT', ' Flat field image'
-  sxaddpar, primary_header, 'DETREND', make_flat_detrending ? 'YES' : 'NO'
-  sxaddpar, primary_header, 'DESTRAY', make_flat_destraying ? 'YES' : 'NO'
+  sxaddpar, primary_header, 'DETREND', make_flat_detrending ? 'YES' : 'NO', $
+            ' Detrend flat'
+  sxaddpar, primary_header, 'DESTRAY', make_flat_destraying ? 'YES' : 'NO', $
+            ' Remove stray light from flat'
   sxaddpar, primary_header, 'NORMALIZ', norm, $
             ' Transmission of diffuser millionths B/Bsun', $
             format='(F0.3)'
