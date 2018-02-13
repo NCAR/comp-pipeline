@@ -4,7 +4,7 @@
 ; Write an annotated GIF of a flat image.
 ;
 ; :Params:
-;   flat : in, required, type="fltarr(1024, 1024)"
+;   flat : in, required, type="fltarr(620, 620)"
 ;     distortion corrected flat image to use as base of plot
 ;   occulter : in, required, type=structure
 ;     image geometry structure describing occulter for sub-image 
