@@ -107,11 +107,10 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
   bad = where(dt lt 0., count)
   if (count gt 0L) then dt[bad] = 1000.  ; use only flats before time
 
-
   if (cache_flats) then begin
     n_keywords = n_elements(flat_headers[*, 0])
   endif else begin
-    fits_read, fcb, image, flat_header, exten_no=iflat, /no_abort, message=msg
+    fits_read, fcb, image, flat_header, exten_no=1, /no_abort, message=msg
     if (msg ne '') then message, msg
     n_keywords = n_elements(flat_header)
   endelse
