@@ -139,8 +139,12 @@ pro comp_make_header, image, header, date_dir, $
                    uncorrected_post_angle2
 
   if (eng_flat_gifs) then begin
-    comp_write_annotated_flat_gif, image, occulter1, occulter2, field1, field2, $
-                                   filename=filepath(current_flatname + '.flat.gif', $
+    comp_write_annotated_flat_gif, flat1, occulter1, field1, $
+                                   filename=filepath(current_flatname + '.flat1.gif', $
+                                                     subdir=comp_decompose_date(date_dir), $
+                                                     root=engineering_dir)
+    comp_write_annotated_flat_gif, flat2, occulter2, field2, $
+                                   filename=filepath(current_flatname + '.flat2.gif', $
                                                      subdir=comp_decompose_date(date_dir), $
                                                      root=engineering_dir)
   endif
