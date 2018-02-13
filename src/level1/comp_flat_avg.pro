@@ -79,6 +79,14 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
         return
       endif
 
+      ; log polarization state, wavelength, and beam for this file
+      ext_polstate   = sxpar(header, 'POLSTATE')
+      ext_beam       = sxpar(header, 'BEAM')
+      ext_wavelength = sxpar(header, 'WAVELENG')
+      mg_log, '%d/%d: ext %d, %s, beam %d, %0.2f', $
+              j + 1, count, good[j] + 1, ext_polstate, ext_beam, ext_wavelength, $
+              name='comp', /debug
+
       exposure = sxpar(header, 'EXPOSURE')
       nd_filter = comp_get_nd_filter(date_dir, wave_type, header, error=nd_error)
       if (nd_error ne 0) then begin
