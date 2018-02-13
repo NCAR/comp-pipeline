@@ -106,7 +106,9 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     tmp_image  = comp_fix_image(temporary(tmp_image))
 
     if (remove_stray_light) then begin
-      comp_fix_stray_light, tmp_image, header, fit
+      ; TODO: this shouldn't really just use the flat_header for geometry here
+      ; since we are now finding centers for each image
+      comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit
 
       ; characterize the fit and save in the header
       fit_moment = moment(fit)
