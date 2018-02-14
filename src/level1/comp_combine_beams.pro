@@ -64,6 +64,7 @@ pro comp_combine_beams, images, headers, date_dir, $
   if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
 
   ntags += 6   ; for geometry keywords for flats
+  ntags += 1   ; for RAWEXTS keyword
 
   ; output image and header array
   images_combine = dblarr(nx, ny, 2 * np * nw)
@@ -104,9 +105,11 @@ pro comp_combine_beams, images, headers, date_dir, $
     for j = 0L, nw - 1L do begin   ; loop over unique wavelengths
       ; get the two beam states for this wavelength and polarization
       imgplus = comp_get_component(images, headers, upol[i], 1, uwave[j], $
-                                   headersout=hplus, /noskip)
+                                   headersout=hplus, /noskip, $
+                                   raw_extensions=plus_raw_extensions)
       imgminus = comp_get_component(images, headers, upol[i], -1, uwave[j], $
-                                    headersout=hminus, /noskip)
+                                    headersout=hminus, /noskip, $
+                                    raw_extensions=minus_raw_extensions)
 
       ; extract the foreground and background subimages from both
       comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus, $
@@ -136,24 +139,30 @@ pro comp_combine_beams, images, headers, date_dir, $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
 
       sxaddpar, hplus, 'OXCNTER1', image_geometry.flat_occulter1.x + 1.0, $
-                'Occulter center X for distortion corrected sub-flat1', $
+                ' Occulter center X for dist corrected sub-flat1', $
                 format='(F0.3)'
       sxaddpar, hplus, 'OYCNTER1', image_geometry.flat_occulter1.y + 1.0, $
-                'Occulter center Y for distortion corrected sub-flat1', $
+                ' Occulter center Y for dist corrected sub-flat1', $
                 format='(F0.3)'
       sxaddpar, hplus, 'ORADIUS1', image_geometry.flat_occulter1.r, $
-                'Occulter radius for distortion corrected sub-flat1', $
+                ' Occulter radius for dist corrected sub-flat1', $
                 format='(F0.3)'
 
       sxaddpar, hplus, 'OXCNTER2', image_geometry.flat_occulter2.x + 1.0, $
-                'Occulter center X for distortion corrected sub-flat2', $
+                ' Occulter center X for dist corrected sub-flat2', $
                 format='(F0.3)'
       sxaddpar, hplus, 'OYCNTER2', image_geometry.flat_occulter2.y + 1.0, $
-                'Occulter center Y for distortion corrected sub-flat2', $
+                ' Occulter center Y for dist corrected sub-flat2', $
                 format='(F0.3)'
       sxaddpar, hplus, 'ORADIUS2', image_geometry.flat_occulter2.r, $
-                'Occulter radius for distortion corrected sub-flat2', $
+                ' Occulter radius for dist corrected sub-flat2', $
                 format='(F0.3)'
+
+      raw_extensions = [plus_raw_extensions, minus_raw_extensions]
+      raw_extensions = raw_extensions[sort(raw_extensions)]
+
+      sxaddpar, hplus, 'RAWEXTS', strjoin(strtrim(raw_extensions, 2), ','), $
+                ' Extensions of raw file used'
 
       headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
       sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
