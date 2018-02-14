@@ -106,9 +106,14 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     tmp_image  = comp_fix_image(temporary(tmp_image))
 
     if (remove_stray_light) then begin
-      ; TODO: this shouldn't really just use the flat_header for geometry here
-      ; since we are now finding centers for each image
-      comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit
+      ; using the flat header is probably OK here since we over-occult by so
+      ; much in COMP_FIX_STRAY_LIGHT
+      comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit, $
+                            coefficients=stray_coefficients
+
+      mg_log, 'stray light coefficients: %s', $
+              strjoin(strjoin(strtrim(stray_coefficients, 2), ', '), ' / '), $
+              name='comp', /debug
 
       ; characterize the fit and save in the header
       fit_moment = moment(fit)
