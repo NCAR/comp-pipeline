@@ -49,16 +49,30 @@ pro comp_distribute_l2, date_dir, wave_type
     if (file_test(filename)) then file_copy, filename, adir, /overwrite
   endfor
 
-  averaging_types = ['mean', 'median']
+  averaging_types = ['mean', 'median', 'sigma']
   types = ['synoptic', 'waves']
   for t = 0L, n_elements(types) - 1L do begin
     for a = 0L, n_elements(averaging_types) - 1L do begin
-      mg_log, 'copying %s %s quick invert file...', $
-              averaging_types[a], types[t], $
-              name='comp', /info
+      ; quick invert file
       filename = string(date_dir, wave_type, averaging_types[a], types[t], $
                         format='(%"%s.comp.%s.quick_invert.%s.%s.fts.gz")')
-      if (file_test(filename)) then file_copy, filename, adir, /overwrite
+      if (file_test(filename)) then begin
+        mg_log, 'copying %s %s quick invert file...', $
+                averaging_types[a], types[t], $
+                name='comp', /info
+
+        file_copy, filename, adir, /overwrite
+      endif
+
+      ; average file
+      filename = string(date_dir, wave_type, averaging_types[a], types[t], $
+                        format='(%"%s.comp.%s.%s.%s.fts.gz")')
+      if (file_test(filename)) then begin
+        mg_log, 'copying %s %s file...', averaging_types[a], types[t], $
+                name='comp', /info
+
+        file_copy, filename, adir, /overwrite
+      endif
     endfor
   endfor
 
