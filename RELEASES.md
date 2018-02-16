@@ -64,3 +64,4 @@
 1.3.15 [Feb 2, 2018]
   typo in wing restriction fix
 1.3.16
+  fix bug in distributing quick invert files

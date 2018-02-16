@@ -53,10 +53,10 @@ pro comp_distribute_l2, date_dir, wave_type
   types = ['synoptic', 'waves']
   for t = 0L, n_elements(types) - 1L do begin
     for a = 0L, n_elements(averaging_types) - 1L do begin
-      mg_log, 'copying %s %s quick invert files...', $
+      mg_log, 'copying %s %s quick invert file...', $
               averaging_types[a], types[t], $
               name='comp', /info
-      filename = string(date_dir, wave_type, averaging_types[t], types[t], $
+      filename = string(date_dir, wave_type, averaging_types[a], types[t], $
                         format='(%"%s.comp.%s.quick_invert.%s.%s.fts.gz")')
       if (file_test(filename)) then file_copy, filename, adir, /overwrite
     endfor
