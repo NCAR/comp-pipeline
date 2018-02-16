@@ -18,7 +18,7 @@
 function comp_apply_distortion, sub_image, dx_c, dy_c
   compile_opt strictarr
 
-  dims = size(sub_image)
+  dims = size(sub_image, /dimensions)
   nx = dims[0]
   ny = dims[1]
 
