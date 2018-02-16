@@ -27,7 +27,7 @@ pro comp_reprocess, date
 
     archived_files = file_search(filepath('*', root=frdir), count=n_archived_files)
     if (n_archived_files gt 0L) then begin
-      file_copy, archived_files, movie_dir
+      file_copy, archived_files, movie_dir, /overwrite
       mg_log, 'saved %d old movies and images', n_archived_files, $
               name='comp', /info
     endif else begin
