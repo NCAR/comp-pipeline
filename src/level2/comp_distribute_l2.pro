@@ -42,13 +42,6 @@ pro comp_distribute_l2, date_dir, wave_type
 
   ; copy files
 
-  types = ['mean', 'median', 'sigma']
-  for t = 0L, n_elements(types) - 1L do begin
-    mg_log, 'copying %s files...', types[t], name='comp', /info
-    filename = string(date_dir, wave_type, types[t], format='(%"%s.comp.%s.%s.fts.gz")')
-    if (file_test(filename)) then file_copy, filename, adir, /overwrite
-  endfor
-
   averaging_types = ['mean', 'median', 'sigma']
   types = ['synoptic', 'waves']
   for t = 0L, n_elements(types) - 1L do begin

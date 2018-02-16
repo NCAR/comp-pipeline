@@ -65,4 +65,4 @@
   typo in wing restriction fix
 1.3.16
   fix bug in distributing quick invert files
-  distributing mean/median/sigma average files
+  fix distributing mean/median/sigma average files
