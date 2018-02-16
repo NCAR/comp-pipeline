@@ -35,11 +35,11 @@ pro comp_l2_summary, date, wave_type
 
   ; get some info
   l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
-  l1_basenames = file_basename(l1_files)
   if (n_l1_files eq 0L) then begin
     start_time  = '00:00:00'
     end_time    = '00:00:00'
   endif else begin
+    l1_basenames = file_basename(l1_files)
     start_dt = strmid(l1_basenames[0], 9, 6)
     start_time = string(strmid(start_dt, 0, 2), $
                         strmid(start_dt, 2, 2), $
