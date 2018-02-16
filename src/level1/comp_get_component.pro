@@ -41,9 +41,6 @@
 ;   noskip : in, optional, type=boolean
 ;     don't skip the very first image (due to an instrument issue, the very
 ;     first image in each raw file is bad)
-;   raw_extensions : out, optional, type=lonarr
-;     set to a named variable to retrieve the raw extensions that were used to
-;     provide the result
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -54,8 +51,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
                              headersout=headersout, $
                              average_wavelengths=average_wavelengths, $
                              n_wavelengths=n_wavelengths, $
-                             noskip=noskip, $
-                             raw_extensions=raw_extensions
+                             noskip=noskip
   compile_opt strictarr
   on_error, 2
 
@@ -81,7 +77,6 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   count = lonarr(nw)
   imgout = images[*, *, 0L:nw - 1L]
   headersout = strarr(ntags, nw)
-  raw_extensions_list = list()
 
   ; loop over unique wavelengths...
   for i = 0L, nw - 1L do begin
@@ -90,8 +85,6 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     if (counti lt 1) then begin
       message, 'no image at specified polarization/beam/wave'
     endif
-
-    raw_extensions_list->add, checki + 1, /extract
 
     imagei = images[*, *, checki]
 
@@ -135,9 +128,6 @@ function comp_get_component, images, headers, polstate, beam, wave, $
               ' Number of images averaged together', $
               after='EXPOSURE'
   endif
-
-  raw_extensions = raw_extensions_list->toArray()
-  obj_destroy, raw_extensions_list
 
   return, imgout
 end
