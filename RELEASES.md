@@ -66,3 +66,4 @@
 1.3.16
   fix bug in distributing quick invert files
   fix distributing mean/median/sigma average files
+  use coronal beam for 1083 centering
