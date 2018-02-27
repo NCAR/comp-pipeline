@@ -37,6 +37,7 @@
 function comp_image_geometry, images, headers, date_dir, $
                               primary_header=primary_header, $
                               uncorrected_geometry=uncorrected_geometry, $
+                              wave_type=wave_type, $
                               error=error
   @comp_constants_common
   @comp_config_common
@@ -98,7 +99,10 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
 
-  ind1 = where(beam gt 0, n_plus_beam)
+  ; use background for 1074 and 1079, but corona for 1083
+  test1 = wave_type eq '1083' ? beam lt 0 : beam gt 0
+  ind1 = where(test1, n_plus_beam)
+
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
 
@@ -150,7 +154,10 @@ function comp_image_geometry, images, headers, date_dir, $
             name='image.field.ul', /debug
   endif
 
-  ind2 = where(beam lt 0, n_minus_beam)
+  ; use background for 1074 and 1079, but corona for 1083
+  test2 = wave_type eq '1083' ? beam gt 0 : beam lt 0
+  ind2 = where(test2, n_minus_beam)
+
   if (n_minus_beam gt 0) then begin
     sub2 = comp_extract2(reform(images[*, *, ind2[0]]))
 

@@ -81,6 +81,7 @@ pro comp_combine_beams, images, headers, date_dir, $
   image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
                                        primary_header=primary_header, $
                                        uncorrected_geometry=uncorrected_geometry, $
+                                       wave_type=wave_type, $
                                        error=error)
 
   n_bad_post_angle = abs(image_geometry.post_angle1 $
