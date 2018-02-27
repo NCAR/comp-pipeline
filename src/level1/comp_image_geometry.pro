@@ -97,6 +97,9 @@ function comp_image_geometry, images, headers, date_dir, $
                            }
   endif
 
+  k1 = 0.99353
+  k2 = 1.00973
+
   ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
 
   ; use background for 1074 and 1079, but corona for 1083
@@ -123,7 +126,7 @@ function comp_image_geometry, images, headers, date_dir, $
     endif
 
     ; remove distortion
-    sub1 = comp_apply_distortion(sub1, dx1_c, dy1_c)
+    sub1 = comp_apply_distortion(sub1, k1)
 
     comp_find_annulus, sub1, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
@@ -177,7 +180,7 @@ function comp_image_geometry, images, headers, date_dir, $
     endif
 
     ; remove distortion
-    sub2 = comp_apply_distortion(sub2, dx2_c, dy2_c)
+    sub2 = comp_apply_distortion(sub2, k2)
 
     comp_find_annulus, sub2, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $

@@ -7,15 +7,13 @@
 ; :Params:
 ;   sub_image : in, out, required, type="fltarr(nx, ny)"
 ;     sub-image to correct
-;   dx_c : in, required, type="fltarr(3, 3)"
-;     x coefficients for subimage
-;   dy_c : in, required, type="fltarr(3, 3)"
-;     y coefficients for subimage
+;   k : in, required, type=float
+;     distortion coefficient for subimage
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_apply_distortion, sub_image, dx_c, dy_c
+function comp_apply_distortion, sub_image, k
   compile_opt strictarr
 
   dims = size(sub_image, /dimensions)
@@ -25,9 +23,10 @@ function comp_apply_distortion, sub_image, dx_c, dy_c
   x = dindgen(nx, ny) mod nx
   y = transpose(dindgen(ny, nx) mod ny)
 
-  dist_corrected = interpolate(sub_image, $
-                               x + comp_eval_surf(dx_c, dindgen(nx), dindgen(ny)), $
-                               y + comp_eval_surf(dy_c, dindgen(nx), dindgen(ny)), $
+  x_new = x * 0.5 * (1.0 + k) + y * 0.5 * (1.0 - k)
+  y_new = x * 0.5 * (1.0 - k) + y * 0.5 * (1.0 + k)
+
+  dist_corrected = interpolate(sub_image, x_new, y_new, $
                                cubic=-0.5, missing=0.0)
   return, dist_corrected
 end
