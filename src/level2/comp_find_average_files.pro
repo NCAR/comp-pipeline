@@ -175,7 +175,7 @@ function comp_find_average_files_findclusters, list_filename, flat_times, $
         ; remove last non-QU files
         n_to_remove = n_files - max_n_files
         ind = where(chosen and not qu_flat_mask, count)
-        new_chosen[ind[- n_to_remove:*]] = 0B
+        if (count gt 0L) then new_chosen[ind[- n_to_remove:*]] = 0B
       endif
       chosen = new_chosen
     endif
@@ -354,11 +354,13 @@ end
 ;dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
 ;         '20171006', '20171007', '20171008', '20171009', '20171010', $
 ;         '20171011', '20171012', '20171013', '20171014']
-dates = ['20171001']
+dates = ['20160819']
+
+config_filename = '../../config/comp.mgalloy.mahi.fix.cfg'
+comp_configuration, config_filename=config_filename
 
 for d = 0L, n_elements(dates) - 1L do begin
   comp_initialize, dates[d]
-  comp_configuration, config_filename='../../config/comp.mgalloy.mahi.latest.cfg'
 
   synoptic_files = comp_find_average_files(dates[d], '1074', $
                                            count=n_synoptic_files, /synoptic)

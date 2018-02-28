@@ -129,3 +129,17 @@ pro comp_extract_intensity, date_dir, wave_type, error=error, background=backgro
 
   mg_log, 'done', name='comp', /info
 end
+
+
+; main-level example program
+
+;date = '20180131'
+date = '20171001'
+comp_initialize, date
+config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+comp_extract_intensity, date, '1074', error=error, /background
+
+end

@@ -49,10 +49,11 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
   time = comp_extract_time(headers)
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
-  optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER', 'FLATFILE']
+  optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER']
   hastags = mg_fits_hastag(headers[*, 0], optional_tags, count=n_hastags)
   ntags += n_elements(optional_tags) - n_hastags
   ntags++   ; for the ND-TRANS tag we add below
+  ntags++   ; for the FLATFILE tag we add below
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
   if (remove_stray_light) then ntags += 2   ; for FITMNLIN/FITVRLIN
@@ -89,6 +90,8 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
   ; defines hot and adjacent variables
   restore, filename=hot_file
 
+  blank_line = string(bytarr(80) + (byte(' '))[0])
+
   for i = 0L, n_ext - 1L do begin   ; loop over the images...
     header = headers[*, i]
 
@@ -103,7 +106,14 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     tmp_image  = comp_fix_image(temporary(tmp_image))
 
     if (remove_stray_light) then begin
-      comp_fix_stray_light, tmp_image, header, fit
+      ; using the flat header is probably OK here since we over-occult by so
+      ; much in COMP_FIX_STRAY_LIGHT
+      comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit, $
+                            coefficients=stray_coefficients
+
+      mg_log, 'stray light coefficients: %s', $
+              strjoin(strjoin(strtrim(stray_coefficients, 2), ', '), ' / '), $
+              name='comp', /debug
 
       ; characterize the fit and save in the header
       fit_moment = moment(fit)
@@ -117,7 +127,12 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     uncorrected_tmp_image = tmp_image
     if (flat_found[iflat]) then begin
       tmp_image /= flat[*, *, iflat]
-    endif
+    endif else begin
+      mg_log, 'unable to flat correct extension %d', i + 1L, $
+              name='comp', /warn
+      error = 1L
+      goto, done
+    endelse
 
     tmp_image = comp_fix_hot(temporary(tmp_image), hot=hot, adjacent=adjacent)
     uncorrected_tmp_image = comp_fix_hot(temporary(uncorrected_tmp_image), $
@@ -155,9 +170,15 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     sxaddpar, header, 'FLATMED', medflat, $
               ' median of dark and exposure corrected flat', format='(F0.2)', after='FLATEXT'
 
+    nonblank_ind = where(header ne blank_line, n_nonblank)
+    header = header[nonblank_ind]
+    if (ntags ne n_nonblank) then header = [header, strarr(ntags - n_nonblank) + blank_line]
+
     headersout[0, i] = reform(header, n_elements(header), 1)
  endfor
 
   headers = headersout
+
+  done:
 end
   

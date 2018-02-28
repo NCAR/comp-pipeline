@@ -63,4 +63,8 @@
   put back restrictions on wings
 1.3.15 [Feb 2, 2018]
   typo in wing restriction fix
-
+1.3.16 [Feb 28, 2018]
+  fix bug in distributing quick invert files
+  fix distributing mean/median/sigma average files
+  use coronal beam for 1083 centering
+  bug fix for when no files to process in a wavelength

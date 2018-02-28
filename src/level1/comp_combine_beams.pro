@@ -63,6 +63,8 @@ pro comp_combine_beams, images, headers, date_dir, $
   ntags = n_elements(headers[*, 0])
   if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
 
+  ntags += 6   ; for geometry keywords for flats
+
   ; output image and header array
   images_combine = dblarr(nx, ny, 2 * np * nw)
   headers_combine = strarr(ntags, 2 * np * nw)
@@ -79,17 +81,18 @@ pro comp_combine_beams, images, headers, date_dir, $
   image_geometry = comp_image_geometry(uncorrected_images, headers, date_dir, $
                                        primary_header=primary_header, $
                                        uncorrected_geometry=uncorrected_geometry, $
+                                       wave_type=wave_type, $
                                        error=error)
 
   n_bad_post_angle = abs(image_geometry.post_angle1 $
                            - image_geometry.post_angle2) $
                        gt post_angle_diff_tolerance
-  if (n_bad_post_angle) then begin
-    mg_log, 'post angle difference > %0.1f deg: %0.1f and %0.1f', $
+  if (n_bad_post_angle gt 0L) then begin
+    mg_log, 'post angle diff > %0.1f deg: %0.1f and %0.1f', $
             post_angle_diff_tolerance, $
             image_geometry.post_angle1, $
             image_geometry.post_angle2, $
-            name='comp', /warn
+            name='comp', /debug
   endif
 
   case wave_type of
@@ -133,8 +136,29 @@ pro comp_combine_beams, images, headers, date_dir, $
       sxaddpar, hplus, 'NAVERAGE', $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
 
+      sxaddpar, hplus, 'OXCNTER1', image_geometry.flat_occulter1.x + 1.0, $
+                ' Occulter center X for dist corrected sub-flat1', $
+                format='(F0.3)'
+      sxaddpar, hplus, 'OYCNTER1', image_geometry.flat_occulter1.y + 1.0, $
+                ' Occulter center Y for dist corrected sub-flat1', $
+                format='(F0.3)'
+      sxaddpar, hplus, 'ORADIUS1', image_geometry.flat_occulter1.r, $
+                ' Occulter radius for dist corrected sub-flat1', $
+                format='(F0.3)'
+
+      sxaddpar, hplus, 'OXCNTER2', image_geometry.flat_occulter2.x + 1.0, $
+                ' Occulter center X for dist corrected sub-flat2', $
+                format='(F0.3)'
+      sxaddpar, hplus, 'OYCNTER2', image_geometry.flat_occulter2.y + 1.0, $
+                ' Occulter center Y for dist corrected sub-flat2', $
+                format='(F0.3)'
+      sxaddpar, hplus, 'ORADIUS2', image_geometry.flat_occulter2.r, $
+                ' Occulter radius for dist corrected sub-flat2', $
+                format='(F0.3)'
+
       headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
-      sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i]
+      sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
+
       headers_combine[0, np * nw + i * nw + j] = reform(hplus, n_elements(hplus), 1)
     endfor
   endfor

@@ -37,6 +37,7 @@
 function comp_image_geometry, images, headers, date_dir, $
                               primary_header=primary_header, $
                               uncorrected_geometry=uncorrected_geometry, $
+                              wave_type=wave_type, $
                               error=error
   @comp_constants_common
   @comp_config_common
@@ -57,12 +58,12 @@ function comp_image_geometry, images, headers, date_dir, $
                    flat_names, flat_expose
 
   ; flat_header is now an array of flats - extract first one
-  flat_header= reform(flat_header[*, 0])
+  flat_header = reform(flat_header[*, 0])
   
   ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
  
-  ;read occulter center in 620x620 frames to use as center guess
+  ; read occulter center in 620x620 frames to use as center guess
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - 1.0, $
                y:sxpar(flat_header, 'OYCNTER1') - 1.0 - 1024 + ny, $
                r:sxpar(flat_header, 'ORADIUS1')}
@@ -98,7 +99,10 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
 
-  ind1 = where(beam gt 0, n_plus_beam)
+  ; use background for 1074 and 1079, but corona for 1083
+  test1 = wave_type eq '1083' ? beam lt 0 : beam gt 0
+  ind1 = where(test1, n_plus_beam)
+
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
 
@@ -141,9 +145,19 @@ function comp_image_geometry, images, headers, date_dir, $
             calc_occulter1.y, $
             calc_occulter1.r, ind1[0], $
             name='image.occ.ul', /debug
+    mg_log, '%s, %f, %f, %f, %f, %d', $
+            wave_type, $
+            time, $
+            calc_field1.x, $
+            calc_field1.y, $
+            calc_field1.r, ind1[0], $
+            name='image.field.ul', /debug
   endif
 
-  ind2 = where(beam lt 0, n_minus_beam)
+  ; use background for 1074 and 1079, but corona for 1083
+  test2 = wave_type eq '1083' ? beam gt 0 : beam lt 0
+  ind2 = where(test2, n_minus_beam)
+
   if (n_minus_beam gt 0) then begin
     sub2 = comp_extract2(reform(images[*, *, ind2[0]]))
 
@@ -187,6 +201,14 @@ function comp_image_geometry, images, headers, date_dir, $
             calc_occulter2.r, $
             ind2[0], $
             name='image.occ.lr', /debug
+    mg_log, '%s, %f, %f, %f, %f, %d', $
+            wave_type, $
+            time, $
+            calc_field2.x, $
+            calc_field2.y, $
+            calc_field2.r, $
+            ind2[0], $
+            name='image.field.lr', /debug
   endif
 
   ; write flat centers
@@ -199,6 +221,15 @@ function comp_image_geometry, images, headers, date_dir, $
           wave_type, time, $
           occulter2.x, occulter2.y, occulter2.r, $
           name='flat.occ.lr', /debug
+
+  mg_log, '%s, %f, %f, %f, %f', $
+          wave_type, time, $
+          field1.x, field1.y, field1.r, $
+          name='flat.field.ul', /debug
+  mg_log, '%s, %f, %f, %f, %f', $
+          wave_type, time, $
+          field2.x, field2.y, field2.r, $
+          name='flat.field.lr', /debug
 
   mg_log, '%s, %d, %d, %d', $
           wave_type, $
@@ -237,6 +268,8 @@ function comp_image_geometry, images, headers, date_dir, $
 
   return, { occulter1: calc_occulter1, $
             occulter2: calc_occulter2, $
+            flat_occulter1: occulter1, $
+            flat_occulter2: occulter2, $
             field1: field1, $
             field2: field2, $
             post_angle1: pang1, $

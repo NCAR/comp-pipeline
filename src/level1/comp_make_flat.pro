@@ -105,8 +105,10 @@ pro comp_make_flat, date_dir, error=error
             ' CORONAL MULTICHANNEL POLARIMETER'
   sxaddpar, primary_header, 'LOCATION', 'Boulder, CO  USA'
   sxaddpar, primary_header, 'DATATYPE', 'FLAT', ' Flat field image'
-  sxaddpar, primary_header, 'DETREND', make_flat_detrending ? 'YES' : 'NO'
-  sxaddpar, primary_header, 'DESTRAY', make_flat_destraying ? 'YES' : 'NO'
+  sxaddpar, primary_header, 'DETREND', make_flat_detrending ? 'YES' : 'NO', $
+            ' Detrend flat'
+  sxaddpar, primary_header, 'DESTRAY', make_flat_destraying ? 'YES' : 'NO', $
+            ' Remove stray light from flat'
   sxaddpar, primary_header, 'NORMALIZ', norm, $
             ' Transmission of diffuser millionths B/Bsun', $
             format='(F0.3)'
@@ -282,7 +284,7 @@ pro comp_make_flat, date_dir, error=error
       if (make_flat_detrending) then begin
         ; use post_angle1 for second post because second is in wrong position
         ; this should be no longer needed 
-       comp_fix_trend, image, $
+        comp_fix_trend, image, $
                         uncorrected_occulter1, uncorrected_occulter2, $
                         uncorrected_field1, uncorrected_field2, $
                         uncorrected_post_angle1, uncorrected_post_angle2, fit
@@ -386,6 +388,7 @@ pro comp_make_flat, date_dir, error=error
     flat_normalize = norm
   endif
 
+  ; remove flat-specific FITS keywords to prepare header for use for an L1 file
   sxdelpar, header, 'BEAM'
   sxdelpar, header, 'WAVELENG'
   sxdelpar, header, 'OXCNTER1'

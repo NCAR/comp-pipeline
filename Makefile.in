@@ -77,6 +77,7 @@ cal:
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH calibration:$(COMP_PATH):"+$(FULL_SSW_DIR)" -e ".run comp_cal_example_script"
 
 env:
+	@echo "comp_run_pipeline, config_filename='$(CONFIG)'"
 	$(ECHO_PREFIX)$(IDL) -IDL_STARTUP "" -IDL_PATH $(COMP_PATH)
 
 doc:

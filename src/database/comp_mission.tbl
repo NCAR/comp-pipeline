@@ -39,8 +39,7 @@ create table comp_mission (
   timesysl0       char (3),      -- hst
   timesysl1       char (3),      -- utc
   inst_rot        float (7, 2),  -- 0.0
-
-  demult          tinyint (1),   -- 0 or 1 (0 possible in early mission)
+  demult          tinyint (1),   -- 0 (early mission possible) or 1
 
   -- transmission of ND filters
   nd1             float (5, 3),  -- 0.83820683

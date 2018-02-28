@@ -82,10 +82,12 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   for i = 0L, nw - 1L do begin
     ; find which indices have matching wavelength, polstate, and beam...
     checki = where(check1 and waves eq wave[i], counti)
-    imagei = images[*, *, checki]
     if (counti lt 1) then begin
       message, 'no image at specified polarization/beam/wave'
     endif
+
+    imagei = images[*, *, checki]
+
     if (keyword_set(skipall)) then begin
       imagei = imagei[*, *, 1:counti - 1]   ; skip first image at all wavelengths...
       --counti

@@ -9,13 +9,19 @@ else
 fi
 yesterday=$(date +"%Y%m%d" --date="$date")
 log_name=/hao/acos/comp/logs/$yesterday.comp.log
+raw_dir=/hao/mahidata1/Data/CoMP/raw/$yesterday
 
 if [ -f $log_name ]; then
   # check total running time
   grep "INFO: COMP_RUN_PIPELINE: total running time:" $log_name >> $output 2>&1
   if [ $? -eq 1 ]; then
-    echo "CoMP pipeline not finished yet at $(date +'%Y-%m-%d %H:%M:%S')" >> $output 2>&1
+    echo -e "CoMP pipeline not finished yet at $(date +'%Y-%m-%d %H:%M:%S')\n" >> $output 2>&1
   fi
+
+  # check for raw data files
+  echo -e "\n# Raw files in $raw_dir" >> $output 2>&1
+  nraw=$(find $raw_dir -name '*.FTS' | wc -l)
+  echo -e "\n$nraw raw files\n" >> $output 2>&1
 
   # check yesterday's CoMP log file for errors
   pattern="(WARN|ERROR|CRITICAL):"
@@ -40,7 +46,7 @@ echo -e "\n\nSent by $(readlink -f $0) ($(whoami)@$(hostname))" >> $output 2>&1
 #recipient="iguana@ucar.edu, detoma@ucar.edu, mgalloy@ucar.edu, berkey@ucar.edu"
 recipient="mgalloy@ucar.edu"
 
-mail -s "CoMP messages from $yesterday logs" "$recipient" < $output
+mail -s "CoMP messages from $yesterday logs" -r $(whoami)@ucar.edu "$recipient" < $output
 
 # clean up
 rm $output

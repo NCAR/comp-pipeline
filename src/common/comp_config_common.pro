@@ -23,6 +23,7 @@ common comp_config, doi_1074,$
                     centering_diagnostics, $
                     flat_corrected_output, $
                     demodulated_output, $
+                    eng_flat_gifs, $
                     ffmpeg_dir, $
                     hsi_dir, $
                     l1_process_log_level, $
