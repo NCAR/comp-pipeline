@@ -68,3 +68,4 @@
   fix distributing mean/median/sigma average files
   use coronal beam for 1083 centering
   bug fix for when no files to process in a wavelength
+1.3.17
