@@ -15,7 +15,7 @@ pro comp_send_notification, date, body, t0
   @comp_config_common
 
   ; add tag about pipeline and process at the end of body
-  spawn, 'hostname', hostname, status=status
+  spawn, 'hostname', hostname, exit_status=status
   if (status ne 0) then hostname = ''
   
   body->add, string(mg_src_root(/filename), $
