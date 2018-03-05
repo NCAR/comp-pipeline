@@ -72,4 +72,4 @@
   more fixes for when no files to process in a wavelength
 1.3.18 [Mar 5, 2018]
   bug fix
-
+1.3.19
