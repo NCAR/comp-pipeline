@@ -21,7 +21,7 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
     foreach stop, ['occ', 'field'] do begin
       foreach im, ['image', 'flat'] do begin
         name = string(im, stop, loc, format='(%"%s.%s.%s")')
-        filename = filepath(string(date, name, format='(%"%s.comp.%s.csv")'))
+        filename = filepath(string(date, name, format='(%"%s.comp.%s.csv")'), root=dir)
         if (~file_test(filename)) then begin
           mg_log, '%s file not found, quiting', name, name='comp', /warn
           goto, done
@@ -241,8 +241,10 @@ end
 
 ; main-level example program
 
-comp_plot_centering, '/hao/mahidata1/Data/CoMP/engineering.latest/2018/03/04', $
-                     '20180304.centering-new.ps', $
-                     '20180304', '1074'
+date = '20180304'
+eng_basedir = '/hao/mahidata1/Data/CoMP/engineering.latest'
+eng_dir = filepath('', subdir=comp_decompose_date(date), root=eng_basedir)
+print, eng_dir
+comp_plot_centering, eng_dir, date + '.centering-new.ps', date, '1074'
 
 end
