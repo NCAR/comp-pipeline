@@ -28,6 +28,8 @@ function comp_get_nd_filter, date, wave_type, header, error=error
 
   error = 0L
   nd_filter = sxpar(header, 'NDFILTER', count=nd_filter_present)
+
+  ; TODO: need to determine likely NDFILTER value if not present
   if (nd_filter_present eq 0) then nd_filter = 8
 
   ; if this conversion has a problem, 8 will be returned
