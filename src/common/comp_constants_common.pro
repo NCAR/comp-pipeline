@@ -40,4 +40,6 @@ common comp_constants, nx, ny, $
                        i_to_v_xtalk, $
                        q_to_v_xtalk, $
                        u_to_v_xtalk, $
-                       transmissions
+                       transmissions, $
+                       use_fe_ndfilter, $
+                       default_ndfilter

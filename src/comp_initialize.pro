@@ -242,6 +242,8 @@ pro comp_initialize, date_dir
                    comp_initialize_readconfig('nd6', date_dir, options, type=4), $
                    comp_initialize_readconfig('nd7', date_dir, options, type=4), $
                    comp_initialize_readconfig('nd8', date_dir, options, type=4)]
+  use_fe_ndfilter = comp_initialize_readconfig('use_fe_ndfilter', date_dir, options, /boolean)
+  default_ndfilter = comp_initialize_readconfig('default', date_dir, options, type=3, default=8)
 
   obj_destroy, options
 
