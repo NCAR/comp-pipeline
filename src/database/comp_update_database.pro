@@ -62,11 +62,15 @@ pro comp_update_database, date, wave_type
     obs_day_index = obs_day_results.day_id
   endelse
 
-  ; comp_sw_insert
-  ; comp_file_insert
-  ; comp_img_insert
-  ; comp_eng_insert
-  ; comp_cal_insert
+  comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index
+
+  comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
+
+  comp_img_insert, date, wave_type, database=db, obsday_index=obsday_index
+
+  comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
+
+  ; comp_cal_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   ; comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
