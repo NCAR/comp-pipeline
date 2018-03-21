@@ -194,7 +194,7 @@ end
 
 ; main-level example program
 
-root_dir = '/hao/compdata2/Data/CoMP/raw.ps'
+root_dir = '/hao/compdata3/Data/CoMP/raw.ps'
 dirs = file_search(filepath('*', root=root_dir), count=n_dirs, /test_directory)
 config_filename = filepath('comp.mgalloy.mahi.ps.cfg', $
                            subdir=['..', '..', 'config'], $
