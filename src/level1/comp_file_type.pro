@@ -191,3 +191,23 @@ pro comp_file_type, date_dir
   mg_log, 'done', name='comp', /info
 end
 
+
+; main-level example program
+
+root_dir = '/hao/compdata3/Data/CoMP/raw.ps'
+dirs = file_search(filepath('*', root=root_dir), count=n_dirs, /test_directory)
+config_filename = filepath('comp.mgalloy.mahi.ps.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+comp_setup_loggers
+
+for d = 0L, n_dirs - 1L do begin
+  date = file_basename(dirs[d])
+  comp_initialize, date
+  comp_setup_loggers_date, date
+
+  comp_file_type, date
+endfor
+
+end

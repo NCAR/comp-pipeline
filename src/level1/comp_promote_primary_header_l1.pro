@@ -97,12 +97,12 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'POLANGLE', sxpar(primary_header, 'POLANGLE'), $
             format='(F0.3)'
 
+  sprimary_header = fitshead2struct(primary_header)
+
   obs_id = sxpar(primary_header, 'OBS_ID', count=n_obs_id)
   comment = ' Name of Current Observing Seq.'
   if (n_obs_id gt 0) then begin
-    obs_id = strtrim(obs_id, 2)
-    sxaddpar, primary_header, 'OBS_ID', obs_id, $
-              strmid(comment, 0, 80 - strlen(obs_id) - 2 - 8 - 1 - 1)
+    sxaddpar, primary_header, 'OBS_ID', sprimary_header.obs_id, comment
   endif else begin
     sxaddpar, primary_header, 'OBS_ID', '', comment, after='RETARDER'
   endelse
@@ -110,9 +110,7 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   obs_plan = sxpar(primary_header, 'OBS_PLAN', count=n_obs_plan)
   comment = ' Name of Current Observing Observing program'
   if (n_obs_plan gt 0) then begin
-    obs_plan = strtrim(obs_plan, 2)
-    sxaddpar, primary_header, 'OBS_PLAN', obs_plan, $
-              strmid(comment, 0, 80 - strlen(obs_plan) - 2 - 8 - 1 - 1)
+    sxaddpar, primary_header, 'OBS_PLAN', sprimary_header.obs_plan, comment
   endif else begin
     sxaddpar, primary_header, 'OBS_PLAN', '', comment, after='OBS_ID'
   endelse

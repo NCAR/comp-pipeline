@@ -15,8 +15,11 @@ pro comp_send_notification, date, body, t0
   @comp_config_common
 
   ; add tag about pipeline and process at the end of body
+  spawn, 'hostname', hostname, exit_status=status
+  if (status ne 0) then hostname = ''
+  
   body->add, string(mg_src_root(/filename), $
-                    getenv('USER'), getenv('HOSTNAME'), $
+                    getenv('USER'), hostname, $
                     format='(%"Sent from %s (%s@%s)")')
   code_version = comp_find_code_version(revision=revision, branch=branch)
   body->add, string(code_version, revision, branch, $

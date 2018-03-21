@@ -16,47 +16,37 @@
 pro comp_plot_centering, dir, output_filename, date, wave_type
   compile_opt strictarr
 
-  image_occ_ul = read_csv(filepath(string(date, $
-                                          format='(%"%s.comp.image.occ.ul.csv")'), $
-                                   root=dir))
-  image_occ_lr = read_csv(filepath(string(date, $
-                                          format='(%"%s.comp.image.occ.lr.csv")'), $
-                                   root=dir))
-  flat_occ_ul = read_csv(filepath(string(date, $
-                                         format='(%"%s.comp.flat.occ.ul.csv")'), $
-                                  root=dir))
-  flat_occ_lr = read_csv(filepath(string(date, $
-                                         format='(%"%s.comp.flat.occ.lr.csv")'), $
-                                  root=dir))
+  centering_hash = hash()
+  foreach loc, ['ul', 'lr'] do begin
+    foreach stop, ['occ', 'field'] do begin
+      foreach im, ['image', 'flat'] do begin
+        name = string(im, stop, loc, format='(%"%s.%s.%s")')
+        filename = filepath(string(date, name, format='(%"%s.comp.%s.csv")'), root=dir)
+        if (~file_test(filename)) then begin
+          mg_log, '%s file not found, quiting', name, name='comp', /warn
+          goto, done
+        endif
 
-  image_field_ul = read_csv(filepath(string(date, $
-                                            format='(%"%s.comp.image.field.ul.csv")'), $
-                                     root=dir))
-  image_field_lr = read_csv(filepath(string(date, $
-                                            format='(%"%s.comp.image.field.lr.csv")'), $
-                                     root=dir))
-  flat_field_ul = read_csv(filepath(string(date, $
-                                           format='(%"%s.comp.flat.field.ul.csv")'), $
-                                    root=dir))
-  flat_field_lr = read_csv(filepath(string(date, $
-                                           format='(%"%s.comp.flat.field.lr.csv")'), $
-                                    root=dir))
-
+        centering_hash[name] = read_csv(filename)
+      endforeach
+    endforeach
+  endforeach
+  
   image_names = ['wave_type', 'time', 'x', 'y', 'r', 'ind']
 
-  image_occ_ul = mg_convert_structarr(image_occ_ul, field_names=image_names)
-  image_occ_lr = mg_convert_structarr(image_occ_lr, field_names=image_names)
+  image_occ_ul = mg_convert_structarr(centering_hash['image.occ.ul'], field_names=image_names)
+  image_occ_lr = mg_convert_structarr(centering_hash['image.occ.lr'], field_names=image_names)
 
-  image_field_ul = mg_convert_structarr(image_field_ul, field_names=image_names)
-  image_field_lr = mg_convert_structarr(image_field_lr, field_names=image_names)
+  image_field_ul = mg_convert_structarr(centering_hash['image.field.ul'], field_names=image_names)
+  image_field_lr = mg_convert_structarr(centering_hash['image.field.lr'], field_names=image_names)
 
   flat_names = ['wave_type', 'time', 'x', 'y', 'r']
 
-  flat_occ_ul = mg_convert_structarr(flat_occ_ul, field_names=flat_names)
-  flat_occ_lr = mg_convert_structarr(flat_occ_lr, field_names=flat_names)
+  flat_occ_ul = mg_convert_structarr(centering_hash['flat.occ.ul'], field_names=flat_names)
+  flat_occ_lr = mg_convert_structarr(centering_hash['flat.occ.lr'], field_names=flat_names)
 
-  flat_field_ul = mg_convert_structarr(flat_field_ul, field_names=flat_names)
-  flat_field_lr = mg_convert_structarr(flat_field_lr, field_names=flat_names)
+  flat_field_ul = mg_convert_structarr(centering_hash['flat.field.ul'], field_names=flat_names)
+  flat_field_lr = mg_convert_structarr(centering_hash['flat.field.lr'], field_names=flat_names)
 
   ; filter by wave_type
 
@@ -242,13 +232,19 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
           alignment=0.5, charsize=1.5, /normal, font=1
 
   mg_psend
+
+  done:
+  obj_destroy, centering_hash
+  mg_log, 'done', name='comp', /info
 end
 
 
 ; main-level example program
 
-comp_plot_centering, '/hao/mahidata1/Data/CoMP/engineering.latest/2018/01/31', $
-                     '20180131.centering-new.ps', $
-                     '20180131', '1074'
+date = '20180304'
+eng_basedir = '/hao/mahidata1/Data/CoMP/engineering.latest'
+eng_dir = filepath('', subdir=comp_decompose_date(date), root=eng_basedir)
+print, eng_dir
+comp_plot_centering, eng_dir, date + '.centering-new.ps', date, '1074'
 
 end
