@@ -26,6 +26,8 @@
 ;   error : out, optional, type=long
 ;     set to a named variable to retrieve whether there was an error in applying
 ;     flats and darks; 0 indicates no error
+;   filename : in, required, type=string
+;     filename of raw file being processed
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -33,7 +35,7 @@
 pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
                             flat_header=flat_header, $
                             uncorrected_images=uncorrected_images, $
-                            error=error
+                            error=error, filename=filename
   compile_opt strictarr
   @comp_config_common
 
@@ -111,6 +113,11 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
       comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit, $
                             coefficients=stray_coefficients
 
+      ; write stray light coefficients
+      n_coeffs = n_elements(stray_coefficients)
+      mg_log, '%s, %d, %0.2f, %s, ' + strjoin(strarr(n_coeffs) + '%0.4f', 2), $
+              file_basename(filename), i + 1, wave[i], pol[i], stray_coefficients, $
+              name='stray-light', /info
       mg_log, 'stray light coefficients: %s', $
               strjoin(strjoin(strtrim(stray_coefficients, 2), ', '), ' / '), $
               name='comp', /debug
