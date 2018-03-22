@@ -115,7 +115,7 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
 
       ; write stray light coefficients
       n_coeffs = n_elements(stray_coefficients)
-      mg_log, '%s, %d, %0.2f, %s, ' + strjoin(strarr(n_coeffs) + '%0.4f', 2), $
+      mg_log, '%s, %d, %0.2f, %s, ' + strjoin(strarr(n_coeffs) + '%0.4f', ', '), $
               file_basename(filename), i + 1, wave[i], pol[i], stray_coefficients, $
               name='stray-light', /info
       mg_log, 'stray light coefficients: %s', $
