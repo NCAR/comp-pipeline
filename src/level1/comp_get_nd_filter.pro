@@ -35,9 +35,17 @@ function comp_get_nd_filter, date, wave_type, header, error=error
 
   nd_filter = sxpar(header, 'NDFILTER', count=nd_filter_present)
 
-  ; TODO: need to determine likely NDFILTER value if not present, i.e., compare
-  ;       mean vs. 1074 mean because we know 1074 uses 8 (clear)
-  if (nd_filter_present eq 0) then nd_filter = 8
+  if (nd_filter_present eq 0 || (nd_filter_present && ~finite(nd_filter))) then begin
+      if (wave_type eq '1083') then begin
+        ; TODO: if this is a flat, need to determine likely NDFILTER value if
+        ;       not present, i.e., compare 1083 flat mean vs. 1074 flat mean
+        ;       because we know 1074 uses 8 (clear)
+        ;       if this is a science, we don't know -- use 4
+        nd_filter = 4
+      endif else begin
+        nd_filter = 8
+      endelse
+  endif
 
   ; if this conversion has a problem, default_ndfilter will be returned
   if (size(nd_filter, /type) eq 7) then nd_filter = long(nd_filter)
