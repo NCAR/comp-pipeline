@@ -70,7 +70,7 @@ pro comp_setup_loggers_eng, date_dir
     endfor
   endfor
 
-  filename = filepath(string(date_dir, format='(%"%s.straylight.csv")'), $
+  filename = filepath(string(date_dir, format='(%"%s.comp.straylight.csv")'), $
                       root=eng_dir)
   if (file_test(filename)) then begin
     mg_log, 'removing existing stray light coefficients log', name='comp', /debug
