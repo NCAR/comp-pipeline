@@ -35,9 +35,10 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   compile_opt strictarr
   @comp_constants_common
 
+  ; not masking GIFs now
   ; mask
-  comp_make_mask, date_dir, primary_header, mask
-  image *= mask
+;  comp_make_mask, date_dir, primary_header, mask
+;  image *= mask
 
   ; exponent stretch
   case wave of
@@ -157,8 +158,9 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     ; post
     r = (oradius + fradius) / 2.0
 
-    ; convert from N up is 0 degree to mathematical convention in radians
-    pa = (post_angle - 90.0 - p_angle) * !dtor
+    ; convert from position angle (0 degrees up) to mathematical convention
+    ; in radians
+    pa = (post_angle + 90.0) * !dtor
     plots, [r * cos(pa) + oxcenter], [r * sin(pa) + oycenter], $
            /device, color=ocol, psym=1
   endif

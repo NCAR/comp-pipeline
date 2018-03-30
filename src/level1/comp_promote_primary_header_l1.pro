@@ -191,11 +191,14 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'FRPIX1', fxcent, ' [pixels] X [EAST->WEST ] FIELD CENTER [PIXELS]', format='(f8.2)'
   sxaddpar, primary_header, 'FRPIX2', fycent, ' [pixels] Y [SOUTH->NORTH] FIELD CENTER [PIXELS]', format='(f8.2)'
 
-  ; post P angle
+  ; post position angle
+  averaged_post_angle = (image_geometry.post_angle1 + image_geometry.post_angle2) / 2.0
   sxaddpar, primary_header, 'POSTPANG', $
-            (image_geometry.post_angle1 + image_geometry.post_angle2) / 2.0, $
+            averaged_post_angle + 180.0 - p_angle, $
             ' [degrees] P Angle of occulter post', $
             FORMAT='(F0.2)'
+  mg_log, 'averaged_post_angle = %0.2f', averaged_post_angle, name='comp', /debug
+  mg_log, 'p_angle = %0.2f', p_angle, name='comp', /debug
 
   ; overlap angle (from the field stop)
   sxaddpar, primary_header, 'OVRLPANG', image_geometry.overlap_angle, $
