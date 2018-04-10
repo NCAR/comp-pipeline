@@ -257,8 +257,9 @@ pro comp_gbu, date_dir, wave_type, error=error
 
       ; reject file if there are more than 100 background pixels with a level of
       ; > 70.0
-      good = where(mask eq 1)
-      gt_threshold = where(dat_back[good] gt gbu_background_threshold, $
+      ;good = where(mask eq 1)   ; not using right now
+
+      gt_threshold = where(dat_back gt gbu_background_threshold, $
                            file_gt_threshold_count)
 
       gt_threshold_count[ifile] = file_gt_threshold_count
@@ -270,7 +271,7 @@ pro comp_gbu, date_dir, wave_type, error=error
       endif
 
       for b = 0L, n_elements(background_thresholds) - 1L do begin
-        gt_threshold = where(dat_back[good] gt background_thresholds[b], $
+        gt_threshold = where(dat_back gt background_thresholds[b], $
                              threshold_count)
         background_counts[b, ifile] = threshold_count
       endfor
