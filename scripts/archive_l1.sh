@@ -18,11 +18,12 @@ sleep ${DELAY_TIME}
 
 L1_FILES=$(ls | egrep ".{15}\.comp\.${WAVE}\.[iquv]{1,4}\.(3|5|11)\.fts.gz")
 L1_BKG_FILES=$(ls | egrep ".{15}\.comp\.${WAVE}\.[iquv]{1,4}\.(3|5|11)\.bkg\.fts.gz")
-OTHER_FILES="cal_files.txt dark_files.txt opal_files.txt flat.fts dark.fts"
-WAVE_FILES="${WAVE}_files.txt good_${WAVE}_files.txt good_all_${WAVE}_files.txt good_waves_${WAVE}_files.txt synoptic_${WAVE}_files.txt GBU.${WAVE}.log"
+L1_INTENSITY_FILES=$(ls | egrep ".{15}\.comp\.${WAVE}\.intensity\.fts.gz")
+OTHER_FILES="*.comp.cal.files.txt *.comp.dark.files.txt *.comp.opal.files.txt *.comp.flat.fts *.comp.dark.fts"
+WAVE_FILES="*.comp.${WAVE}.files.txt *.comp.${WAVE}.good.files.txt *.comp.${WAVE}.good.all.files.txt *.comp.${WAVE}.good.waves.files.txt *.comp.${WAVE}.synoptic.files.txt *.comp.${WAVE}.gbu.log"
 
 L1_TARNAME=${DATE}.comp.${WAVE}.l1.tgz 
-cmd="tar czf ${L1_TARNAME} ${L1_FILES} ${L1_BKG_FILES} ${OTHER_FILES} ${WAVE_FILES}"
+cmd="tar czf ${L1_TARNAME} ${L1_FILES} ${L1_BKG_FILES} ${L1_INTENSITY_FILES} ${OTHER_FILES} ${WAVE_FILES}"
 $cmd
 
 if [ -h ${HPSS_GATEWAY}/${L1_TARNAME} ]; then
