@@ -28,7 +28,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
+pro comp_fix_vxtalk, wave_type, date_dir, vimages, vheaders, filename
   compile_opt strictarr
   @comp_constants_common
 
@@ -38,7 +38,7 @@ pro comp_fix_vxtalk, date_dir, vimages, vheaders, filename
   ; find the nearest Q and U file and prepare it for crosstalk estimation
   qufile = comp_nearest_qufile(date_dir, vheaders, filename)
   comp_read_data, qufile, quimages, quheaders, quheader0
-  comp_apply_flats_darks, quimages, quheaders, quheader0, date_dir
+  comp_apply_flats_darks, wave_type, quimages, quheaders, quheader0, date_dir
   comp_demodulate, quimages, quheaders, quimages_demod, quheaders_demod
 
   ; apply the estimated crosstalk correction to vimages (both on-band and

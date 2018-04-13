@@ -34,7 +34,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   comp_read_data, filename, images, headers, header0
 
-  comp_apply_flats_darks, images, headers, header0, date_dir, error=error, $
+  comp_apply_flats_darks, wave_type, images, headers, header0, date_dir, error=error, $
                           uncorrected_images=uncorrected_images
   if (error ne 0L) then begin
     mg_log, 'skipping %s (error applying flats/darks)', $
@@ -66,7 +66,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   if (correct_crosstalk) then begin
     if (total(pol eq 'V') gt 0) then begin
       mg_log, 'fixing V crosstalk', name='comp', /debug
-      comp_fix_vxtalk, date_dir, images_demod, headers_demod, filename
+      comp_fix_vxtalk, wave_type, date_dir, images_demod, headers_demod, filename
     endif
 
     if (total(pol eq 'Q') gt 0 or total(pol eq 'U') gt 0) then begin
