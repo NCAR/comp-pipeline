@@ -5,7 +5,7 @@
 ;
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_fix_header_time,
-;   comp_occulter_id, comp_mask_constants_common, tojd, sun, sxdelpar,
+;   comp_occulter_id, comp_mask_constants_common, tojd, mlso_sun, sxdelpar,
 ;   sxaddpar, sxpar
 ;
 ; :Params:
@@ -50,8 +50,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
 
-  sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
-       pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
+  mlso_sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
+            pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
   sol_ra *= 15  ; convert from hours to degrees, 15 = 360 / 24
 
   ; get rid of all the blank comments
