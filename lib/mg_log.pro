@@ -29,33 +29,33 @@
 ; example, to log critical errors, errors, and warnings to the file
 ; `my_application.log`, do::
 ;
-;    logger->setProperty, level=3, filename='my_application.log'
+;   logger->setProperty, level=3, filename='my_application.log'
 ;
 ; Later, messages can be sent to this logger by using the name used
 ; previously::
 ;
-;    mg_log, 'A problem occurred!', /warning, name='mg_example'
+;   mg_log, 'A problem occurred!', /warning, name='mg_example'
 ;
 ; Further refinement can be done with a hierarchy of names. The following
 ; creates a new sublogger::
 ;
-;    mg_log, name='mg_example/gui', logger=gui_logger
+;   mg_log, name='mg_example/gui', logger=gui_logger
 ;
 ; This type of hierarchy is useful for applications with subsystems with
 ; independent level values. The effective log level for log messages sent to a
 ; sublogger is the least restrictive log level from all the parent loggers. For
 ; example, if the level of `gui_logger` was set to "Informational" with::
 ;
-;    gui_logger->setProperty, level=4
+;   gui_logger->setProperty, level=4
 ;
 ; Then informational log messages would be logged even though the parent
 ; logger, "mg_example", has a level of 3, i.e., "Warning".
 ;
 ; :Examples:
-;    Try the main-level program at the end of this file for a longer example.
-;    To run it, do::
+;   Try the main-level program at the end of this file for a longer example.
+;   To run it, do::
 ;
-;       IDL> .run mg_log
+;     IDL> .run mg_log
 ;-
 
 
@@ -64,60 +64,65 @@
 ; logging object which is used to configure the logging.
 ;
 ; :Params:
-;    msg : in, optional, type=string
-;       message to log, if present; is interpreted as a format string when
-;       additional parameters are present
-;    arg1 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg2 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg3 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg4 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg5 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg6 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg7 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg8 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg9 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg10 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg11 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
-;    arg12 : in, optional, type=string
-;       optional argument to be substituted into `msg` format string
+;   msg : in, optional, type=string
+;     message to log, if present; is interpreted as a format string when
+;     additional parameters are present
+;   arg1 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg2 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg3 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg4 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg5 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg6 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg7 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg8 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg9 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg10 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg11 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
+;   arg12 : in, optional, type=string
+;     optional argument to be substituted into `msg` format string
 ;
 ; :Keywords:
-;    name : in, optional, type=string
-;       path to logger to send message to
-;    critical : in, optional, type=boolean
-;       set to specify the message as critical
-;    error : in, optional, type=boolean
-;       set to specify the message as an error
-;    warning : in, optional, type=boolean
-;       set to specify the message as a warning
-;    informational : in, optional, type=boolean
-;       set to specify the message as informational
-;    debug : in, optional, type=boolean
-;       set to specify the message as debug
-;    last_error : in, optional, type=boolean
-;       set to place a stack trace for the last error in the log; placed after
-;       the logging of any normal message in this call
-;    execution_info : in, optional, type=boolean
-;       set to place a stack trace in the log; placed after the
-;       logging of any normal message in this call
-;    logger : out, optional, type=object
-;       `MGffLogger` object
-;    quit : in, optional, type=boolean
-;       set to quit logging; will log an normal message in this call before
+;   name : in, optional, type=string
+;     path to logger to send message to
+;   critical : in, optional, type=boolean
+;     set to specify the message as critical
+;   error : in, optional, type=boolean
+;     set to specify the message as an error
+;   warning : in, optional, type=boolean
+;     set to specify the message as a warning
+;   informational : in, optional, type=boolean
+;     set to specify the message as informational
+;   debug : in, optional, type=boolean
+;     set to specify the message as debug
+;   check_math : in, optional, type=boolean
+;     set to put a message about the current `CHECK_MATH` state in the log, if
+;     the current state is not 0
+;   last_error : in, optional, type=boolean
+;     set to place a stack trace for the last error in the log; placed after
+;     the logging of any normal message in this call
+;   execution_info : in, optional, type=boolean
+;     set to place a stack trace in the log; placed after the logging
+;     of any normal message in this call
+;   logger : out, optional, type=object
+;     `MGffLogger` object
+;   was_logged : out, optional, type=boolean
+;     set to a named variable to retrieve whether the message was logged
+;   quit : in, optional, type=boolean
+;     set to quit logging; will log an normal message in this call before
 ;       quitting
-;    _extra : in, optional, type=keywords
-;       keywords to `MGffLogger::setProperty` to configure the logger
+;   _extra : in, optional, type=keywords
+;     keywords to `MGffLogger::setProperty` to configure the logger
 ;-
 pro mg_log, msg, $
             arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, $
@@ -125,9 +130,10 @@ pro mg_log, msg, $
             name=name, $
             debug=debug, informational=informational, $
             warning=warning, error=error, critical=critical, $
+            check_math=check_math, $
             last_error=lastError, $
             execution_info=execution_info, $
-            logger=logger, quit=quit, _extra=e
+            logger=logger, was_logged=was_logged, quit=quit, _extra=e
   compile_opt strictarr
   on_error, 2
   on_ioerror, format_error
@@ -171,8 +177,9 @@ pro mg_log, msg, $
   if (_level eq 0L) then _level = 5L  ; default level is DEBUG
 
   ; log messages
+  was_logged = 0B
   if (n_params() gt 0L && obj_valid(logger)) then begin
-    logger->print, _msg, level=_level, back_levels=1
+    logger->print, _msg, level=_level, back_levels=1, was_logged=was_logged
   endif
 
   ; insert execution info at same level if requested
@@ -180,8 +187,9 @@ pro mg_log, msg, $
     logger->insert_execution_info, level=_level, back_levels=1
   endif
 
-  ; do after regular messages so that a regular message and the stack trace
-  ; can be logged with one call to MG_LOG
+  ; do after regular messages so that a regular message and the CHECK_MATH
+  ; status/stack trace can be logged with one call to MG_LOG
+  if (keyword_set(check_math)) then logger->insertCheckMath, back_levels=1, level=_level
   if (keyword_set(lastError)) then logger->insertLastError, back_levels=1
 
   ; do last so that a quitting message can be logged at the same time that the
@@ -198,46 +206,32 @@ end
 
 mg_log, logger=logger
 
-logger->setProperty, level=3
+print, 'Top level logger @ LEVEL=5 (DEBUG):'
+mg_log, 'Debugging message', /debug
+mg_log, 'Informational message', /informational
+mg_log, 'Warning message', /warning
+mg_log, 'Error message', /error
+mg_log, 'Critical message', /critical
 
-print, 'Top level logger @ LEVEL=3:'
+logger->setProperty, /warning
+
+print
+print, 'Top level logger @ LEVEL=3 (WARNING):'
 mg_log, 'Debugging message', /debug              ; won't show up since LEVEL=3
 mg_log, 'Informational message', /informational  ; won't show up since LEVEL=3
 mg_log, 'Warning message', /warning
 mg_log, 'Error message', /error
 mg_log, 'Critical message', /critical
 
-mg_log, name='mg_log', logger=mgLogLogger
-mgLogLogger->setProperty, level=1
+logger->setProperty, /critical
 
 print
-print, 'mg_log logger @ LEVEL=1:'
-mg_log, 'Debugging message', name='mg_log', /debug
-mg_log, 'Informational message', name='mg_log', /informational
-mg_log, 'Warning message', name='mg_log', /warning
-mg_log, 'Error message', name='mg_log', /error
-mg_log, 'Critical message', name='mg_log', /critical
-
-mg_log, name='mg_log/example', logger=mgLogExampleLogger
-mgLogExampleLogger->setProperty, level=2
-
-print
-print, 'mg_log/example logger @ LEVEL=2, mg_log logger @ LEVEL=1:'
-mg_log, 'Debugging message', name='mg_log/example', /debug
-mg_log, 'Informational message', name='mg_log/example', /informational
-mg_log, 'Warning message', name='mg_log/example', /warning
-mg_log, 'Error message', name='mg_log/example', /error
-mg_log, 'Critical message', name='mg_log/example', /critical
-
-mgLogLogger->setProperty, level=2
-
-print
-print, 'mg_log/example logger @ LEVEL=2, mg_log logger @ LEVEL=2:'
-mg_log, 'Debugging message', name='mg_log/example', /debug
-mg_log, 'Informational message', name='mg_log/example', /informational
-mg_log, 'Warning message', name='mg_log/example', /warning
-mg_log, 'Error message', name='mg_log/example', /error
-mg_log, 'Critical message', name='mg_log/example', /critical
+print, 'mg_log logger @ LEVEL=1 (CRITICAL):'
+mg_log, 'Debugging message', /debug      ; won't show up since LEVEL=1
+mg_log, 'Informational message', /info   ; won't show up since LEVEL=1
+mg_log, 'Warning message', /warning      ; won't show up since LEVEL=1
+mg_log, 'Error message', /error          ; won't show up since LEVEL=1
+mg_log, 'Critical message', /critical
 
 mg_log, /quit
 
