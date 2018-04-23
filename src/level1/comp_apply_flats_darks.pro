@@ -33,9 +33,11 @@
 pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir, $
                             flat_header=flat_header, $
                             uncorrected_images=uncorrected_images, $
+                            filename=filename, $
                             error=error
   compile_opt strictarr
   @comp_config_common
+  @comp_constants_common
 
   error = 0L
 
@@ -112,7 +114,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
               i + 1, n_bad_pixels, quality_threshold, $
               name='comp', /warn
       ; add filename to bad quality log
-      mg_log, current_l1_file, $
+      mg_log, file_basename(filename), $
               name=strjoin(['comp', 'bad.quality', wave_type], '/'), $
               /info
       error = 1
