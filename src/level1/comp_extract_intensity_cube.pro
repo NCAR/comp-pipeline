@@ -75,7 +75,7 @@ pro comp_extract_intensity_cube, filename, $
   images = images[*, *, 0:n_intensity - 1]
   headers = headers[*, 0:n_intensity - 1]
 
-  extnames = fcb.extname[1:n_intensity]
+  extnames = fcbin.extname[1:n_intensity]
 
   fits_close, fcbin
 end
