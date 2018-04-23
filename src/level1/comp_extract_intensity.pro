@@ -92,7 +92,8 @@ pro comp_extract_intensity, date_dir, wave_type, error=error, background=backgro
                                  wavelengths=wavelengths, $
                                  primary_header=primary_header, $
                                  headers=headers, $
-                                 background=background
+                                 background=background, $
+                                 extnames=extnames
 
     nd_filter = comp_get_nd_filter(date_dir, wave_type, headers[*, 0])
     if (wave_type eq '1083' && nd_filter eq 8) then begin
@@ -125,6 +126,19 @@ pro comp_extract_intensity, date_dir, wave_type, error=error, background=backgro
                    nx, $
                    keyword_set(background) ? 'Background' : 'Intensity', $
                    wave_type, background=background
+
+    ; output a line center intensity FITS file for 1083
+    if (wave_type eq '1083') then begin
+      output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
+                               format='(%"%s.comp.%s.intensity.fts")')
+      fits_open, output_filename, fcb, /write
+      fits_write, fcb, 0.0, primary_header
+      fits_write, fcb, $
+                  reform(intensity), $
+                  reform(headers[*, line_center_index]), $
+                  extname=extnames[line_center_index]
+      fits_close, fcb
+    endif
   endfor
 
   mg_log, 'done', name='comp', /info

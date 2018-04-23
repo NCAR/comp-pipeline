@@ -5,7 +5,7 @@
 ;
 ; :Uses:
 ;   comp_inventory_header, comp_extract_time, comp_fix_header_time,
-;   comp_occulter_id, comp_mask_constants_common, tojd, sun, sxdelpar,
+;   comp_occulter_id, comp_mask_constants_common, tojd, mlso_sun, sxdelpar,
 ;   sxaddpar, sxpar
 ;
 ; :Params:
@@ -50,8 +50,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   num_wave = n_elements(wave[uniq(wave, sort(wave))])
 
-  sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
-       pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
+  mlso_sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
+            pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
   sol_ra *= 15  ; convert from hours to degrees, 15 = 360 / 24
 
   ; get rid of all the blank comments
@@ -153,23 +153,23 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   ; add center of distortion corrected image in 1..620 reference frame
 
   sxaddpar, primary_header, 'IXCNTER1', image_geometry.occulter1.x + 1.0, $
-            'Occulter center X for distortion corrected sub-image1', $
+            ' Occulter center X for dist corrected sub-image1', $
             format='(F0.3)'
   sxaddpar, primary_header, 'IYCNTER1', image_geometry.occulter1.y + 1.0, $
-            'Occulter center Y for distortion corrected sub-image1', $
+            ' Occulter center Y for dist corrected sub-image1', $
             format='(F0.3)'
   sxaddpar, primary_header, 'IRADIUS1', image_geometry.occulter1.r, $
-            'Occulter radius for distortion corrected sub-image1', $
+            ' Occulter radius for dist corrected sub-image1', $
             format='(F0.3)'
 
   sxaddpar, primary_header, 'IXCNTER2', image_geometry.occulter2.x + 1.0, $
-            'Occulter center X for distortion corrected sub-image2', $
+            ' Occulter center X for dist corrected sub-image2', $
             format='(F0.3)'
   sxaddpar, primary_header, 'IYCNTER2', image_geometry.occulter2.y + 1.0, $
-            'Occulter center Y for distortion corrected sub-image2', $
+            ' Occulter center Y for dist corrected sub-image2', $
             format='(F0.3)'
   sxaddpar, primary_header, 'IRADIUS2', image_geometry.occulter2.r, $
-            'Occulter radius for distortion corrected sub-image2', $
+            ' Occulter radius for dist corrected sub-image2', $
             format='(F0.3)'
 
   ; field parameters
@@ -191,11 +191,14 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'FRPIX1', fxcent, ' [pixels] X [EAST->WEST ] FIELD CENTER [PIXELS]', format='(f8.2)'
   sxaddpar, primary_header, 'FRPIX2', fycent, ' [pixels] Y [SOUTH->NORTH] FIELD CENTER [PIXELS]', format='(f8.2)'
 
-  ; post P angle
+  ; post position angle
+  averaged_post_angle = (image_geometry.post_angle1 + image_geometry.post_angle2) / 2.0
   sxaddpar, primary_header, 'POSTPANG', $
-            (image_geometry.post_angle1 + image_geometry.post_angle2) / 2.0, $
+            averaged_post_angle + 180.0 - p_angle, $
             ' [degrees] P Angle of occulter post', $
             FORMAT='(F0.2)'
+  mg_log, 'averaged_post_angle = %0.2f', averaged_post_angle, name='comp', /debug
+  mg_log, 'p_angle = %0.2f', p_angle, name='comp', /debug
 
   ; overlap angle (from the field stop)
   sxaddpar, primary_header, 'OVRLPANG', image_geometry.overlap_angle, $

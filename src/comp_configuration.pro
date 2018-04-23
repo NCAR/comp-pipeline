@@ -195,7 +195,7 @@ pro comp_configuration, config_filename=config_filename
   ; L2 averaging
   averaging_max_n_waves_files           = config->get('max_n_waves_files', $
                                                       section='averaging', $
-                                                      default=60L, type=3)
+                                                      default=100L, type=3)
   averaging_max_n_synoptic_files           = config->get('max_n_synoptic_files', $
                                                          section='averaging', $
                                                          default=40L, type=3)
@@ -204,20 +204,28 @@ pro comp_configuration, config_filename=config_filename
                                                          default=40L, type=3)
   averaging_min_n_cluster_waves_files    = config->get('min_n_cluster_waves_files', $
                                                        section='averaging', $
-                                                       default=40L, type=3)
+                                                       /extract, $
+                                                       default=[60L, 40L, 20L], $
+                                                       type=3)
   averaging_min_n_cluster_synoptic_files    = config->get('min_n_cluster_synoptic_files', $
                                                           section='averaging', $
-                                                          default=30L, type=3)
+                                                          /extract, $
+                                                          default=[30L, 20L, 10L], $
+                                                          type=3)
   averaging_min_n_qu_waves_files         = config->get('min_n_qu_waves_files', $
                                                        section='averaging', $
                                                        default=4L, type=3)
   averaging_min_n_qu_synoptic_files         = config->get('min_n_qu_synoptic_files', $
                                                           section='averaging', $
-                                                          default=3L, type=3)
+                                                          default=5L, type=3)
+  averaging_min_n_v_synoptic_files         = config->get('min_n_v_synoptic_files', $
+                                                          section='averaging', $
+                                                          default=30L, type=3)
+
   averaging_max_cadence_interval   = config->get('max_cadence_interval', $
                                                  section='averaging', $
                                                  /extract, type=4, $
-                                                 default=[300.0, 600.0])
+                                                 default=[300.0, 600.0, 900.0])
   averaging_max_n_noncluster_files = config->get('max_n_noncluster_files', $
                                                  section='averaging', $
                                                  default=50L, type=3)

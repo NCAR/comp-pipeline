@@ -73,6 +73,29 @@ pro comp_distribute_l1, date_dir, wave_type
                                count=n_l1_files)
   if (n_l1_files gt 0L) then file_copy, l1_files, adir, /overwrite
 
+  ; zip and copy line center intensity 1083 FITS files to archive
+  if (wave_type eq '1083') then begin
+    mg_log, 'zipping L1 line center intensity %s files...', wave_type, $
+            name='comp', /info
+    file_pattern = string(wave_type, format='(%"*.comp.%s.intensity.fts")')
+    zip_cmd = string(file_pattern, format='(%"gzip -f %s")')
+    spawn, zip_cmd, result, error_result, exit_status=status
+    if (status ne 0L) then begin
+      mg_log, 'problem zipping files with command: %s', zip_cmd, $
+              name='comp', /error
+      mg_log, '%s', error_result, name='comp', /error
+    endif
+
+    mg_log, 'copying L1 line center intensity %s files to archive...', $
+            wave_type, $
+            name='comp', /info
+    fits_wildcard = '*.comp.' + wave_type + '.intensity.fits.gz'
+    lc_i_fits_files = file_search(fits_wildcard, count=n_lc_i_fits_files)
+    if (n_lc_i_fits_files gt 0L) then begin
+      file_copy, lc_i_fits_files, adir, /overwrite
+    endif
+  endif
+
   ; copy all the .gifs, not just the good ones
   mg_log, 'copying GIF files...', name='comp', /info
   gif_wildcard = '*.comp.' + wave_type + '.intensity.gif'

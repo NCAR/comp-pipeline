@@ -35,9 +35,10 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   compile_opt strictarr
   @comp_constants_common
 
+  ; not masking GIFs now
   ; mask
-  comp_make_mask, date_dir, primary_header, mask
-  image *= mask
+;  comp_make_mask, date_dir, primary_header, mask
+;  image *= mask
 
   ; exponent stretch
   case wave of
@@ -66,7 +67,8 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   image = image ^ dispexp
 
-  top = 250
+  n_annotation_colors = 3
+  top = 255 - n_annotation_colors
   image = bytscl(image, min=min, max=max, top=top)
 
   ; resize the data
@@ -77,10 +79,15 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   ; configure the device
   original_device = !d.name
-  set_plot, 'Z'
-  device, set_resolution=[size, size], z_buffering=0, decomposed=0
 
-  loadct, 3, /silent, ncolors=253
+  set_plot, 'Z'
+  device, set_resolution=[size, size], $
+          z_buffering=0, $
+          decomposed=0, $
+          set_pixel_depth=8, $
+          set_colors=256
+
+  loadct, 3, /silent, ncolors=256 - n_annotation_colors
 
   ocol = 253
   tvlct, 255, 255, 0, ocol
@@ -124,11 +131,13 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   xyouts, xstrt, ydim / 2 - 1, 'West', charsize=Dsz, /device, color=ccol, $
           alignment=0.5, orientation=90, font=font
 
-  colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max + 0.5], $
+  ; this had a range=[min, max + 0.5] originally, not sure why
+  colorbar2, position=[0.70, 0.02, 0.98, 0.06], range=[min, max], $
              divisions=5, charsize=0.6, font=font, ncolors=top + 1L, $
              format='(F0.1)'
 
-  if (keyword_set(background)) then begin
+  ; if (keyword_set(background)) then begin
+  if (1B) then begin
     oradius = sxpar(primary_header, 'ORADIUS')
     oxcenter = sxpar(primary_header, 'CRPIX1') - 1.0
     oycenter = sxpar(primary_header, 'CRPIX2') - 1.0
@@ -157,15 +166,37 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     ; post
     r = (oradius + fradius) / 2.0
 
-    ; convert from N up is 0 degree to mathematical convention in radians
-    pa = (post_angle - 90.0 - p_angle) * !dtor
+    ; convert from position angle (0 degrees up) to mathematical convention
+    ; in radians
+    pa = (post_angle + 90.0) * !dtor
     plots, [r * cos(pa) + oxcenter], [r * sin(pa) + oycenter], $
            /device, color=ocol, psym=1
   endif
 
-  im = tvrd()
+  im = tvrd(true=0)
   tvlct, r, g, b, /get
   set_plot, original_device
 
   write_gif, filename, im, r, g, b
+end
+
+
+; main-level example program
+
+date = '20180104'
+comp_initialize, date
+
+process_basedir = '/hao/mahidata1/Data/CoMP/process.latest'
+filename = filepath('20180105.022200.comp.1074.iqu.3.bkg.fts.gz', $
+                    subdir=[date, 'level1'], $
+                    root=process_basedir)
+fits_open, filename, fcb
+fits_read, fcb, data, primary_header, exten_no=0
+fits_read, fcb, intensity, header, exten_no=2
+fits_close, fcb
+
+comp_make_gif, date, intensity, primary_header, 'test.gif', $
+               620, 'Background', '1074', $
+               /background
+
 end

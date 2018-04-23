@@ -31,7 +31,8 @@ pro comp_extract_intensity_cube, filename, $
                                  wavelengths=wavelengths, $
                                  primary_header=primary_header, $
                                  headers=headers, $
-                                 background=background
+                                 background=background, $
+                                 extnames=extnames
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
@@ -67,10 +68,14 @@ pro comp_extract_intensity_cube, filename, $
     endif else break
   endfor
 
+  n_intensity = i - 1L
+
   ; trim the array to just I images
-  wavelengths = wavelengths[0:i - 2]
-  images = images[*, *, 0:i - 2]
-  headers = headers[*, 0:i - 2]
+  wavelengths = wavelengths[0:n_intensity - 1]
+  images = images[*, *, 0:n_intensity - 1]
+  headers = headers[*, 0:n_intensity - 1]
+
+  extnames = fcb.extname[1:n_intensity]
 
   fits_close, fcbin
 end

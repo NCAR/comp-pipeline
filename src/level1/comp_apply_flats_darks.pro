@@ -32,7 +32,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
+pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir, $
                             flat_header=flat_header, $
                             uncorrected_images=uncorrected_images, $
                             error=error, filename=filename
@@ -58,7 +58,7 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
   ntags++   ; for the FLATFILE tag we add below
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
-  if (remove_stray_light) then ntags += 2   ; for FITMNLIN/FITVRLIN
+  if (remove_stray_light && wave_type ne '1083') then ntags += 2   ; for FITMNLIN/FITVRLIN
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
@@ -69,7 +69,7 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
   if (total(flat_found, /integer) eq 0L) then begin
     mg_log, 'no valid flats found', name='comp', /error
     error = 1L
-    return
+    goto, done
   endif
 
   sxaddpar, primary_header, 'NORMALIZ', normalize, $
@@ -107,7 +107,21 @@ pro comp_apply_flats_darks, images, headers, primary_header, date_dir, $
     tmp_image  = comp_fixrock(temporary(tmp_image), 0.030)
     tmp_image  = comp_fix_image(temporary(tmp_image))
 
-    if (remove_stray_light) then begin
+    ; check for 3000 pixels above 10000
+    bad_pixels = where(tmp_image gt quality_threshold, n_bad_pixels)
+    if (n_bad_pixels gt quality_count) then begin
+      mg_log, 'rejecting ext %d for %d pixels > %0.1f', $
+              i + 1, n_bad_pixels, quality_threshold, $
+              name='comp', /warn
+      ; add filename to bad quality log
+      mg_log, current_l1_file, $
+              name=strjoin(['comp', 'bad.quality', wave_type], '/'), $
+              /info
+      error = 1
+      goto, done
+    endif
+
+    if (remove_stray_light && wave_type ne '1083') then begin
       ; using the flat header is probably OK here since we over-occult by so
       ; much in COMP_FIX_STRAY_LIGHT
       comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit, $

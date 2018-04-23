@@ -104,6 +104,13 @@ pro comp_initialize, date_dir
   ny = comp_initialize_readconfig('ny', date_dir, options, type=3)
 
 
+  ; quality checking
+  quality_threshold = comp_initialize_readconfig('quality_threshold', $
+                                                 date_dir, options, type=4, default=1000.0)
+  quality_count = comp_initialize_readconfig('quality_count', $
+                                             date_dir, options, $
+                                             type=3, default=3000L)
+
   ; thresholds for cutting out bad data in the L2 products
 
   ; GBU

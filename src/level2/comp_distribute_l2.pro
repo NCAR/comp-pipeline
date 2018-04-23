@@ -110,24 +110,27 @@ pro comp_distribute_l2, date_dir, wave_type
   mg_log, 'copying %d quick view images...', n_files, name='comp', /info
   if (n_files gt 0L) then file_copy, files, frdir, /overwrite  
 
-  cd, filepath('', subdir='movies', root=l2_process_dir)
+  movies_dir = filepath('', subdir='movies', root=l2_process_dir)
+  if (file_test(movies_dir, /directory)) then begin
+    cd, movies_dir
 
-  ; PNGs
-  files = file_search('*.comp.' + wave_type + '.daily*.png', count=n_files)
-  mg_log, 'copying %d PNGs...', n_files, name='comp', /info
-  if (n_files gt 0L) then file_copy, files, frdir, /overwrite
+    ; PNGs
+    files = file_search('*.comp.' + wave_type + '.daily*.png', count=n_files)
+    mg_log, 'copying %d PNGs...', n_files, name='comp', /info
+    if (n_files gt 0L) then file_copy, files, frdir, /overwrite
 
-  ; JPGs
-  files = file_search('*.comp.' + wave_type + '.daily*.jpg', count=n_files)
-  mg_log, 'copying %d JPGs...', n_files, name='comp', /info
-  if (n_files gt 0L) then file_copy, files, frdir, /overwrite
+    ; JPGs
+    files = file_search('*.comp.' + wave_type + '.daily*.jpg', count=n_files)
+    mg_log, 'copying %d JPGs...', n_files, name='comp', /info
+    if (n_files gt 0L) then file_copy, files, frdir, /overwrite
 
-  ; movies
-  files = file_search('*.comp.' + wave_type + '*.mp4', count=n_files)
-  mg_log, 'copying %d movies...', n_files, name='comp', /info
-  if (n_files gt 0L) then file_copy, files, frdir, /overwrite
+    ; movies
+    files = file_search('*.comp.' + wave_type + '*.mp4', count=n_files)
+    mg_log, 'copying %d movies...', n_files, name='comp', /info
+    if (n_files gt 0L) then file_copy, files, frdir, /overwrite
 
-  cd, '..'
+    cd, '..'
+  endif
 
   ; tar and send to HPSS
 

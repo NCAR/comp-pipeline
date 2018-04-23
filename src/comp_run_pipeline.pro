@@ -105,7 +105,6 @@ pro comp_run_pipeline, config_filename=config_filename
       endelse
     endif
 
-    if (~dry_run) then comp_setup_loggers_eng, date_dir
     if (~dry_run && reprocess && rotate_logs) then begin
       comp_setup_loggers_date, date_dir, /rotate
     endif
@@ -117,6 +116,8 @@ pro comp_run_pipeline, config_filename=config_filename
             name='comp', /info
     mg_log, 'using IDL %s on %s', !version.release, !version.os_name, $
             name='comp', /info
+
+    if (~dry_run) then comp_setup_loggers_eng, date_dir
 
     ;---------------  Prep  ----------------------------------------
 
