@@ -13,6 +13,8 @@ common comp_constants, nx, ny, $
                        dispmin1074bkg, dispmax1074bkg, dispexp1074bkg, $
                        stokes, n_stokes, $
                        debug, $
+                       quality_threshold, $
+                       quality_count, $
                        gbu_max_background, $
                        gbu_min_background, $
                        gbu_med_background, $

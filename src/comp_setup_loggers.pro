@@ -40,16 +40,19 @@ pro comp_setup_loggers_eng, date_dir
   eng_dir = filepath('', subdir=comp_decompose_date(date_dir), root=engineering_dir)
   if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
 
-  for w = 0L, n_elements(process_wavelengths) - 1L do begin
-    wl = process_wavelengths[w]
-    mg_log, name='comp/crosstalk/' + wl, logger=logger
-    basename = string(date_dir + '.comp.' + wl + '.crosstalk.txt', $
-                      format='(%"%s.comp.%s.crosstalk.txt")')
-    filename = filepath(basename, root=eng_dir)
-    if (file_test(filename)) then file_delete, filename
-    logger->setProperty, format='%(message)s', $
-                         level=5, $
-                         filename=filename
+  types = ['crosstalk', 'bad.quality']
+  for t = 0L, n_elements(types) - 1L do begin
+    for w = 0L, n_elements(process_wavelengths) - 1L do begin
+      wl = process_wavelengths[w]
+      mg_log, name=strjoin(['comp', types[t], wl], '/'), logger=logger
+      basename = string(date_dir, wl, types[t], $
+                        format='(%"%s.comp.%s.%s.txt")')
+      filename = filepath(basename, root=eng_dir)
+      if (file_test(filename)) then file_delete, filename
+      logger->setProperty, format='%(message)s', $
+                           level=5, $
+                           filename=filename
+    endfor
   endfor
 
   types = ['image', 'flat']
