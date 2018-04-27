@@ -107,7 +107,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     tmp_image  = comp_fixrock(temporary(tmp_image), 0.030)
     tmp_image  = comp_fix_image(temporary(tmp_image))
 
-    ; check for 3000 pixels above 10000
+    ; check for 3,000 pixels above 10,000
     bad_pixels = where(tmp_image gt quality_threshold, n_bad_pixels)
     if (n_bad_pixels gt quality_count) then begin
       mg_log, 'rejecting ext %d for %d pixels > %0.1f', $
