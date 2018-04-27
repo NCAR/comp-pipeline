@@ -27,6 +27,11 @@ pro comp_distribute_l2, date_dir, wave_type
   
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
+  if (~file_test(l2_process_dir, /directory)) then begin
+    mg_log, 'level2 directory does not exist', name='comp', /warn
+    goto, done
+  endif
+
   cd, l2_process_dir
   
   ; for the directory name
@@ -156,5 +161,6 @@ pro comp_distribute_l2, date_dir, wave_type
     mg_log, 'skipping linking to L2 tarball from HPSS dir...', name='comp', /info
   endelse
 
+  done:
   mg_log, 'done', name='comp', /info
 end
