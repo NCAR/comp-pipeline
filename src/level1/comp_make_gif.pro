@@ -136,26 +136,25 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
              divisions=5, charsize=0.6, font=font, ncolors=top + 1L, $
              format='(F0.1)'
 
-  ; if (keyword_set(background)) then begin
-  if (1B) then begin
-    oradius = sxpar(primary_header, 'ORADIUS')
-    oxcenter = sxpar(primary_header, 'CRPIX1') - 1.0
-    oycenter = sxpar(primary_header, 'CRPIX2') - 1.0
+  oradius = sxpar(primary_header, 'ORADIUS')
+  oxcenter = sxpar(primary_header, 'CRPIX1') - 1.0
+  oycenter = sxpar(primary_header, 'CRPIX2') - 1.0
 
+  theta = findgen(360) * !dtor
+
+  ; occulter center and outline
+  x = oradius * cos(theta) + oxcenter
+  y = oradius * sin(theta) + oycenter
+  plots, x, y, /device, color=ocol
+  plots, [oxcenter], [oycenter], /device, color=ocol, psym=1
+
+  if (keyword_set(background)) then begin
     fradius = sxpar(primary_header, 'FRADIUS')
     fxcenter = sxpar(primary_header, 'FRPIX1') - 1.0
     fycenter = sxpar(primary_header, 'FRPIX2') - 1.0
 
     post_angle = sxpar(primary_header, 'POSTPANG')
     p_angle = sxpar(primary_header, 'SOLAR_P0')
-
-    theta = findgen(360) * !dtor
-
-    ; occulter center and outline
-    x = oradius * cos(theta) + oxcenter
-    y = oradius * sin(theta) + oycenter
-    plots, x, y, /device, color=ocol
-    plots, [oxcenter], [oycenter], /device, color=ocol, psym=1
 
     ; field center and outline
     x = fradius * cos(theta) + fxcenter

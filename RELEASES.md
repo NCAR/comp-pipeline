@@ -73,3 +73,8 @@
 1.3.18 [Mar 5, 2018]
   bug fix
 1.3.19
+  quality check
+  fix for bad colors/colorbar in GIF
+  better ephemeris calculation
+  new averaging
+  not combining beams for 1083

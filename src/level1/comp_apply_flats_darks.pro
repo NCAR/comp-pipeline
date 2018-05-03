@@ -35,9 +35,11 @@
 pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir, $
                             flat_header=flat_header, $
                             uncorrected_images=uncorrected_images, $
-                            error=error, filename=filename
+                            filename=filename, $
+                            error=error
   compile_opt strictarr
   @comp_config_common
+  @comp_constants_common
 
   error = 0L
 
@@ -107,14 +109,14 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     tmp_image  = comp_fixrock(temporary(tmp_image), 0.030)
     tmp_image  = comp_fix_image(temporary(tmp_image))
 
-    ; check for 3000 pixels above 10000
+    ; check for 3,000 pixels above 10,000
     bad_pixels = where(tmp_image gt quality_threshold, n_bad_pixels)
     if (n_bad_pixels gt quality_count) then begin
       mg_log, 'rejecting ext %d for %d pixels > %0.1f', $
               i + 1, n_bad_pixels, quality_threshold, $
               name='comp', /warn
       ; add filename to bad quality log
-      mg_log, current_l1_file, $
+      mg_log, file_basename(filename), $
               name=strjoin(['comp', 'bad.quality', wave_type], '/'), $
               /info
       error = 1
