@@ -181,7 +181,7 @@ pro comp_average, date_dir, wave_type, $
   fits_open, sigma_filename, fcbsig, /write
 
   ; use test file to get sample headers
-  test_filename = comp_find_l1_file(date_dir, wave_type, datetime=filenames[0])
+  test_filename = comp_find_l1_file(date_dir, wave_type, datetime=i_files[0])
   fits_open, test_filename, fcb
 
   ; read the primary header to use for the output
@@ -271,8 +271,8 @@ pro comp_average, date_dir, wave_type, $
 
       header = !null
       for f = 0L, n_s_files - 1L do begin
-        name = s_files[f]
-        filename = comp_find_l1_file(date_dir, wave_type, datetime=name)
+        filename = s_files[f]
+        name = strmid(filename, 0, 15)
         mg_log, 'file %d/%d for %s @ %s: %s', $
                 f + 1, $
                 n_s_files, $
