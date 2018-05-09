@@ -54,8 +54,6 @@
 ; :Keywords:
 ;   synoptic : in, optional, type=boolean
 ;     set to use synoptic file instead of waves file
-;   combined : in, optional, type=boolean
-;     set to use iqu file instead of waves file
 ;   found_files : out, optional, type=long
 ;     set to a named variable to return whether files were found to produce an
 ;     average
@@ -75,7 +73,6 @@
 ;-
 pro comp_average, date_dir, wave_type, $
                   synoptic=synoptic, $
-                  combined=combined, $
                   found_files=found_files, $
                   error=error
   compile_opt idl2
@@ -83,9 +80,7 @@ pro comp_average, date_dir, wave_type, $
   @comp_constants_common
 
   mg_log, 'wave type: %s, files: %s', wave_type, $
-          keyword_set(synoptic) $
-            ? 'synoptic' $
-            : (keyword_set(combined) ? 'combined' : 'waves'), $
+          keyword_set(synoptic) ? 'synoptic' : 'waves', $
           name='comp', /info
 
   found_files = 0B
@@ -104,59 +99,46 @@ pro comp_average, date_dir, wave_type, $
   calibration = average_background_by_polarization
 
   ; find the files to average
-  files = comp_find_average_files(date_dir, wave_type, $
-                                  stokes_present=stokes_present, $
-                                  count=n_files, $
-                                  calibration=calibration, $
-                                  synoptic=synoptic, $
-                                  combined=combined)
+  i_files = comp_find_average_files(date_dir, wave_type, $
+                                    stokes_present=stokes_present, $
+                                    count=n_files, $
+                                    calibration=calibration, $
+                                    synoptic=synoptic, $
+                                    qu_files=qu_files, $
+                                    v_files=v_files)
 
   found_files = n_files gt 0L
   if (~found_files) then begin
     mg_log, 'no good %s files for %s, exiting', $
             wave_type, $
-            keyword_set(synoptic) $
-              ? 'synoptic' $
-              : (keyword_set(combined) ? 'combined' : 'waves'), $
+            keyword_set(synoptic) ? 'synoptic' : 'waves', $
             name='comp', /warn
     return
   endif
 
-  mg_log, 'averaging %d files', n_files, name='comp', /info
-  mg_log, 'files to average: %s', strjoin(files, ', '), $
-          name='comp', /debug
+  n_i_files  = n_elements(i_files)
+  n_qu_files = n_elements(qu_files)
+  n_v_files  = n_elements(v_files)
 
-  ; loop over filenames and determine number of each images for each Stokes
-  ; parameter
-  numof_stokes = intarr(n_stokes)
-  which_file = intarr(n_files, n_stokes)
-  filenames = strarr(n_files)
-
-  for j = 0L, n_files - 1L do begin
-    filenames[j] = strmid(files[j], 0, 15)
-    for i = 0L, n_stokes - 1L do begin
-      if (strpos(stokes_present[j], stokes[i]) gt -1) then begin
-        which_file[numof_stokes[i], i] = j
-        ++numof_stokes[i]
-      endif
-    endfor
-  endfor
+  mg_log, 'averaging %d files: %d I, %d QU, %d V', $
+          n_files, n_i_files, n_qu_files, n_v_files, $
+          name='comp', /info
 
   ; time period for this averaging
-  year     = long(strmid(filenames[0], 0, 4))
-  month    = long(strmid(filenames[0], 4, 2))
-  day      = long(strmid(filenames[0], 6, 2))
-  hour     = long(strmid(filenames[0], 9, 2))
-  minute   = long(strmid(filenames[0], 11, 2))
-  second   = long(strmid(filenames[0], 13, 2))
+  year     = long(strmid(i_files[0], 0, 4))
+  month    = long(strmid(i_files[0], 4, 2))
+  day      = long(strmid(i_files[0], 6, 2))
+  hour     = long(strmid(i_files[0], 9, 2))
+  minute   = long(strmid(i_files[0], 11, 2))
+  second   = long(strmid(i_files[0], 13, 2))
   start_jd = julday(month, day, year, hour, minute, second)
 
-  year    = long(strmid(filenames[n_files - 1], 0, 4))
-  month   = long(strmid(filenames[n_files - 1], 4, 2))
-  day     = long(strmid(filenames[n_files - 1], 6, 2))
-  hour    = long(strmid(filenames[n_files - 1], 9, 2))
-  minute  = long(strmid(filenames[n_files - 1], 11, 2))
-  second  = long(strmid(filenames[n_files - 1], 13, 2))
+  year    = long(strmid(i_files[n_i_files - 1], 0, 4))
+  month   = long(strmid(i_files[n_i_files - 1], 4, 2))
+  day     = long(strmid(i_files[n_i_files - 1], 6, 2))
+  hour    = long(strmid(i_files[n_i_files - 1], 9, 2))
+  minute  = long(strmid(i_files[n_i_files - 1], 11, 2))
+  second  = long(strmid(i_files[n_i_files - 1], 13, 2))
   end_jd = julday(month, day, year, hour, minute, second)
 
   duration = end_jd - start_jd
@@ -174,14 +156,16 @@ pro comp_average, date_dir, wave_type, $
   date_str = utyear + '-' + utmonth + '-' + utday
   time_str = uthour + ':' + utminute + ':' + utsecond
 
-  for i = 0L, n_stokes - 1L do begin
-    mg_log, '%d image files for Stokes %s', numof_stokes[i], stokes[i], $
-            name='comp', /info
-  endfor
+  mg_log, '%d image files for Stokes I', n_i_files, $
+          name='comp', /info
+  mg_log, '%d image files for Stokes Q', n_qu_files, $
+          name='comp', /info
+  mg_log, '%d image files for Stokes U', n_qu_files, $
+          name='comp', /info
+  mg_log, '%d image files for Stokes V', n_v_files, $
+          name='comp', /info
 
-  type = keyword_set(synoptic) $
-           ? 'synoptic' $
-           : (keyword_set(combined) ? 'combined' : 'waves')
+  type = keyword_set(synoptic) ? 'synoptic' : 'waves'
 
   if (compute_mean) then begin
     mean_filename = date_dir + '.comp.' + wave_type + '.mean.' + type + '.fts'
@@ -263,27 +247,37 @@ pro comp_average, date_dir, wave_type, $
 
   average_times = strarr(2, n_stokes, n_waves)
 
-  for ist = 0L, n_stokes - 1L do begin
-    if (numof_stokes[ist] eq 0) then continue
-    for iw = 0L, n_waves - 1L do begin
+  for s = 0L, n_stokes - 1L do begin
+    case strlowcase(stokes[s]) of
+      'i': s_files = i_files
+      'q': s_files = qu_files
+      'u': s_files = qu_files
+      'v': s_files = v_files
+    endcase
+    n_s_files = n_elements(s_files)
+
+    ; quit if no files for this Stokes parameter
+    if (n_s_files eq 0) then continue
+
+    for w = 0L, n_waves - 1L do begin
       mg_log, 'Stokes %s wave %s', $
-              strjoin(strtrim(stokes[ist], 2), ', '), $
-              strjoin(strtrim(waves[iw], 2), ', '), $
+              strjoin(strtrim(stokes[s], 2), ', '), $
+              strjoin(strtrim(waves[w], 2), ', '), $
               name='comp', /debug
 
       ; REFORM to make sure IDL doesn't drop a dimension of size 1
-      data = reform(fltarr(nx, ny, numof_stokes[ist], /nozero), $
-                    nx, ny, numof_stokes[ist])
+      data = reform(fltarr(nx, ny, n_s_files, /nozero), $
+                    nx, ny, n_s_files)
 
       header = !null
-      for ifile = 0L, numof_stokes[ist] - 1L do begin
-        name = filenames[which_file[ifile, ist]]
+      for f = 0L, n_s_files - 1L do begin
+        name = s_files[f]
         filename = comp_find_l1_file(date_dir, wave_type, datetime=name)
         mg_log, 'file %d/%d for %s @ %s: %s', $
-                ifile + 1, $
-                numof_stokes[ist], $
-                strtrim(stokes[ist], 2), $
-                strtrim(waves[iw], 2), $
+                f + 1, $
+                n_s_files, $
+                strtrim(stokes[s], 2), $
+                strtrim(waves[w], 2), $
                 name, $
                 name='comp', /debug
 
@@ -295,31 +289,25 @@ pro comp_average, date_dir, wave_type, $
 
         comp_inventory_l1, fcb, wave, pol
 
-        good = where(pol eq stokes[ist] and wave eq waves[iw], count)
+        good = where(pol eq stokes[s] and wave eq waves[w], count)
         if (count eq 0) then begin
-          ; this probably shouldn't be a warning now that we have raw
-          ; data with various numbers of wavelengths and might be missing
-          ; wavelengths in any given file
-          ;mg_log, 'no correct pol and wave: %s and %0.2f', $
-          ;        stokes[ist], waves[iw], $
-          ;        name='comp', /warn
           fits_close, fcb
           continue
         endif
         fits_read, fcb, dat, header, exten_no=good[0] + 1, $
                    /no_abort, message=msg
         if (msg ne '') then message, msg
-        naverage[ist, iw] += sxpar(header, 'NAVERAGE')
+        naverage[s, w] += sxpar(header, 'NAVERAGE')
 
         ; put NaNs for masked out pixels, so averaging doesn't include a
         ; bunch of 0's
         bad_ind = where(mask eq 0.0, n_bad)
         if (n_bad gt 0L) then mask[bad_ind] = !values.f_nan
 
-        data[*, *, ifile] = dat * mask
-        if (num_averaged[ist, iw] eq 0) then average_times[0, ist, iw] = strmid(name, 9, 6)
-        num_averaged[ist, iw] += 1
-        average_times[1, ist, iw] = strmid(name, 9, 6)
+        data[*, *, f] = dat * mask
+        if (num_averaged[s, w] eq 0) then average_times[0, s, w] = strmid(name, 9, 6)
+        num_averaged[s, w] += 1
+        average_times[1, s, w] = strmid(name, 9, 6)
 
         ; sum background images first time through
         if (keyword_set(average_background_by_polarization)) then begin
@@ -328,25 +316,25 @@ pro comp_average, date_dir, wave_type, $
                                                   /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
-                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")'), $
+                     extname=string(stokes[s], waves[w], format='(%"BKG%s, %0.2f")'), $
                      /no_abort, message=msg
           if (msg ne '') then message, msg
-          back[*, *, ist, iw] += dat * mask
-          back_naverage[ist, iw] += sxpar(bkg_header, 'NAVERAGE')
-          num_back_averaged[ist, iw] += 1
+          back[*, *, s, w] += dat * mask
+          back_naverage[s, w] += sxpar(bkg_header, 'NAVERAGE')
+          num_back_averaged[s, w] += 1
           fits_close, bkg_fcb
-        endif else if (ist eq 0) then begin
+        endif else if (s eq 0) then begin
           background_filename = comp_find_l1_file(date_dir, wave_type, $
                                                   datetime=name, $
                                                   /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
-                     extname=string(stokes[ist], waves[iw], format='(%"BKG%s, %0.2f")'), $
+                     extname=string(stokes[s], waves[w], format='(%"BKG%s, %0.2f")'), $
                      /no_abort, message=msg
           if (msg ne '') then message, msg
-          back[*, *, iw] += dat * mask
-          back_naverage[iw] += sxpar(bkg_header, 'NAVERAGE')
-          num_back_averaged[iw] += 1
+          back[*, *, w] += dat * mask
+          back_naverage[w] += sxpar(bkg_header, 'NAVERAGE')
+          num_back_averaged[w] += 1
           fits_close, bkg_fcb
         endif
 
@@ -361,27 +349,26 @@ pro comp_average, date_dir, wave_type, $
       ; TODO: comp_update_polarimetric_correction, primary_header, back, back_headers
 
       sxaddpar, header, 'LEVEL   ', 'L2'
-      ename = stokes[ist] + ', ' + string(format='(f7.2)', waves[iw])
+      ename = stokes[s] + ', ' + string(format='(f7.2)', waves[w])
 
       ; calculate noise sigma
 
       ; format times
-      hrs  = strmid(average_times[*, ist, iw], 0, 2)
-      mins = strmid(average_times[*, ist, iw], 2, 2)
-      secs = strmid(average_times[*, ist, iw], 4, 2)
-      average_times[*, ist, iw] = hrs + ':' + mins + ':' + secs
+      hrs  = strmid(average_times[*, s, w], 0, 2)
+      mins = strmid(average_times[*, s, w], 2, 2)
+      secs = strmid(average_times[*, s, w], 4, 2)
+      average_times[*, s, w] = hrs + ':' + mins + ':' + secs
 
-      m = numof_stokes[ist]
-      sm = sqrt(m)
+      sm = sqrt(n_s_files)
 
-      sxaddpar, header, 'POLSTATE', stokes[ist]
-      sxaddpar, header, 'WAVELENG', waves[iw]
-      sxaddpar, header, 'NAVERAGE', m
-      sxaddpar, header, 'NFILES', num_averaged[ist, iw], ' Number of files used', $
+      sxaddpar, header, 'POLSTATE', stokes[s]
+      sxaddpar, header, 'WAVELENG', waves[w]
+      sxaddpar, header, 'NAVERAGE', n_s_files
+      sxaddpar, header, 'NFILES', num_averaged[s, w], ' Number of files used', $
                 after='NAVERAGE'
 
-      start_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[0, ist, iw]
-      end_time = num_averaged[ist, iw] eq 0L ? 0L : average_times[1, ist, iw]
+      start_time = num_averaged[s, w] eq 0L ? 0L : average_times[0, s, w]
+      end_time   = num_averaged[s, w] eq 0L ? 0L : average_times[1, s, w]
 
       sxaddpar, header, 'AVESTART', start_time, $
                 ' [UTC] Start of averaging HH:MM:SS', after='NAVERAGE'
@@ -389,16 +376,18 @@ pro comp_average, date_dir, wave_type, $
                 ' [UTC] End of averaging HH:MM:SS', after='AVESTART'
 
       sigma = fltarr(nx, nx)
-      for ia = 0L, nx - 1L do begin
-        for ib = 0L, nx - 1L do begin
+      for x = 0L, nx - 1L do begin
+        for y = 0L, ny - 1L do begin
           ; use /NAN keyword to not count masked pixels
-          sumx = total(data[ia, ib, *], /nan)
-          sumx2 = total(data[ia, ib, *]^2, /nan)
-          xbar = sumx / m
-          var = (sumx2 - 2.0 * xbar * sumx + m * xbar^2) / (m - 1.0)
-          ; TODO
-          ;sigma[ia, ib] = sqrt(var) / sm
-          sigma[ia, ib] = sqrt(var)
+          sumx = total(data[x, y, *], /nan)
+          sumx2 = total(data[x, y, *]^2, /nan)
+
+          xbar = sumx / n_s_files
+          var = (sumx2 - 2.0 * xbar * sumx + n_s_files * xbar^2) / (n_s_files - 1.0)
+
+          ; TODO: ?
+          ;sigma[x, y] = sqrt(var) / sm
+          sigma[x, y] = sqrt(var)
         endfor
       endfor
 
@@ -406,7 +395,7 @@ pro comp_average, date_dir, wave_type, $
       fits_write, fcbsig, sigma, header, extname=ename
 
       ; find median and mean across image
-      sxaddpar, header, 'NAVERAGE', naverage[ist, iw]
+      sxaddpar, header, 'NAVERAGE', naverage[s, w]
 
       med = median(data, dimension=3)
       aver = mean(data, dimension=3, /nan)   ; use /NAN to not use masked pixels
@@ -430,43 +419,43 @@ pro comp_average, date_dir, wave_type, $
 
   ; write mean background image to output files
   if (keyword_set(average_background_by_polarization)) then begin
-    for ist = 0L, n_stokes - 1L do begin
-      if (numof_stokes[ist] eq 0) then continue
+    for s = 0L, n_stokes - 1L do begin
+      if (numof_stokes[s] eq 0) then continue
 
-      for iw = 0L, n_waves - 1L do begin
-        back[*, *, ist, iw] /= float(num_back_averaged[ist, iw])
+      for w = 0L, n_waves - 1L do begin
+        back[*, *, s, w] /= float(num_back_averaged[s, w])
         sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
-        sxaddpar, header, 'NAVERAGE', back_naverage[ist, iw]
-        sxaddpar, header, 'NFILES', num_back_averaged[ist, iw], ' Number of files used', $
+        sxaddpar, header, 'NAVERAGE', back_naverage[s, w]
+        sxaddpar, header, 'NFILES', num_back_averaged[s, w], ' Number of files used', $
                   after='NAVERAGE'
-        sxaddpar, header, 'DATAMIN', min(back[*, *, ist, iw]), ' MINIMUM DATA VALUE'
-        sxaddpar, header, 'DATAMAX', max(back[*, *, ist, iw]), ' MAXIMUM DATA VALUE'
-        sxaddpar, header, 'POLSTATE', string(stokes[ist], format='(%"BKG%s")')
-        ename = string(stokes[ist], waves[iw], format='(%"B%s, %7.2f")')
+        sxaddpar, header, 'DATAMIN', min(back[*, *, s, w]), ' MINIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMAX', max(back[*, *, s, w]), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, 'POLSTATE', string(stokes[s], format='(%"BKG%s")')
+        ename = string(stokes[s], waves[w], format='(%"B%s, %7.2f")')
         if (compute_median) then begin
-          fits_write, fcbmed, back[*, *, ist, iw], header, extname=ename
+          fits_write, fcbmed, back[*, *, s, w], header, extname=ename
         endif
         if (compute_mean) then begin
-          fits_write, fcbavg, back[*, *, ist, iw], header, extname=ename
+          fits_write, fcbavg, back[*, *, s, w], header, extname=ename
         endif
       endfor
     endfor
   endif else begin
-    for iw = 0L, n_waves - 1L do begin
-      back[*, *, iw] /= float(num_back_averaged[iw])
-      sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
-      sxaddpar, header, 'NAVERAGE', back_naverage[iw]
-      sxaddpar, header, 'NFILES', num_back_averaged[iw], ' Number of files used', $
+    for w = 0L, n_waves - 1L do begin
+      back[*, *, w] /= float(num_back_averaged[w])
+      sxaddpar, header, 'WAVELENG', waves[w], ' [NM] WAVELENGTH OF OBS'
+      sxaddpar, header, 'NAVERAGE', back_naverage[w]
+      sxaddpar, header, 'NFILES', num_back_averaged[w], ' Number of files used', $
                 after='NAVERAGE'
-      sxaddpar, header, 'DATAMIN', min(back[*, *, iw]), ' MINIMUM DATA VALUE'
-      sxaddpar, header, 'DATAMAX', max(back[*, *, iw]), ' MAXIMUM DATA VALUE'
+      sxaddpar, header, 'DATAMIN', min(back[*, *, w]), ' MINIMUM DATA VALUE'
+      sxaddpar, header, 'DATAMAX', max(back[*, *, w]), ' MAXIMUM DATA VALUE'
       sxaddpar, header, 'POLSTATE', 'BKG'
-      ename = 'B, ' + string(format='(f7.2)', waves[iw])
+      ename = 'B, ' + string(format='(f7.2)', waves[w])
       if (compute_median) then begin
-        fits_write, fcbmed, back[*, *, iw], header, extname=ename
+        fits_write, fcbmed, back[*, *, w], header, extname=ename
       endif
       if (compute_mean) then begin
-        fits_write, fcbavg, back[*, *, iw], header, extname=ename
+        fits_write, fcbavg, back[*, *, w], header, extname=ename
       endif
     endfor
   endelse

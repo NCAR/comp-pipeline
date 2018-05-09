@@ -385,17 +385,6 @@ pro comp_run_pipeline, config_filename=config_filename
                       name='comp', /error
               goto, done_with_day
             endif
-
-            if (~waves_files_found && ~synoptic_files_found) then begin
-              comp_average, date_dir, process_wavelengths[w], /combined, $
-                            error=error, $
-                            found_files=combined_files_found
-              if (error ne 0) then begin
-                mg_log, 'error with creating combined averages, stopping day', $
-                        name='comp', /error
-                goto, done_with_day
-              endif
-            endif
           endif
         endif
       endfor
@@ -412,16 +401,32 @@ pro comp_run_pipeline, config_filename=config_filename
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
-            comp_quick_invert, date_dir, process_wavelengths[w], method='median', error=error
-            comp_quick_invert, date_dir, process_wavelengths[w], method='mean', error=error
+            comp_quick_invert, date_dir, process_wavelengths[w], $
+                               method='median', error=error
             if (error ne 0) then begin
               mg_log, 'error with creating wave quick invert, stopping day', $
                       name='comp', /error
               goto, done_with_day
             endif
 
-            comp_quick_invert, date_dir, process_wavelengths[w], /synoptic, method='median', error=error
-            comp_quick_invert, date_dir, process_wavelengths[w], /synoptic, method='mean', error=error
+            comp_quick_invert, date_dir, process_wavelengths[w], $
+                               method='mean', error=error
+            if (error ne 0) then begin
+              mg_log, 'error with creating wave quick invert, stopping day', $
+                      name='comp', /error
+              goto, done_with_day
+            endif
+
+            comp_quick_invert, date_dir, process_wavelengths[w], $
+                               /synoptic, method='median', error=error
+            if (error ne 0) then begin
+              mg_log, 'error with creating synoptic quick invert, stopping day', $
+                      name='comp', /error
+              goto, done_with_day
+            endif
+
+            comp_quick_invert, date_dir, process_wavelengths[w], $
+                               /synoptic, method='mean', error=error
             if (error ne 0) then begin
               mg_log, 'error with creating synoptic quick invert, stopping day', $
                       name='comp', /error
