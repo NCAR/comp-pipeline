@@ -199,9 +199,6 @@ pro comp_configuration, config_filename=config_filename
   averaging_max_n_synoptic_files           = config->get('max_n_synoptic_files', $
                                                          section='averaging', $
                                                          default=40L, type=3)
-  averaging_max_n_combined_files           = config->get('max_n_combined_files', $
-                                                         section='averaging', $
-                                                         default=40L, type=3)
   averaging_min_n_cluster_waves_files    = config->get('min_n_cluster_waves_files', $
                                                        section='averaging', $
                                                        /extract, $

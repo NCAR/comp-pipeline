@@ -1,9 +1,33 @@
 ; docformat = 'rst'
 
+;+
+; Filter a array of stokes parameters for a particular stokes parameter.
+;
+; :Returns:
+;   `lonarr`, indices into `stokes_present`, `!null` if no instances of the
+;   given parameter
+;
+; :Params:
+;   stokes_present : in, required, type=strarr
+;     string array of the stokes parameters present in corresponding files,
+;     i.e., ['iquv', 'iqu', 'iqu', 'iv']
+;   stokes_parameter : in, required, type=string
+;     stokes parameter to check for
+;
+; :Keywords:
+;   count : out, optional, type=long
+;     set to named variable to retrieve the number of indices returned
+;-
 function comp_find_average_files_filterbystokes, stokes_present, $
                                                  stokes_parameter, $
                                                  count=count
   compile_opt strictarr
+
+  ; handle if stokes_present is null
+  if (n_elements(stokes_present) eq 0L) then begin
+    count = 0L
+    return, !null
+  endif
 
   mask = strpos(stokes_present, stokes_parameter) ge 0L
   return, where(mask, count, /null)
@@ -11,19 +35,19 @@ end
 
 
 ;+
-; Return times of the files in `list_filename` in Julian date.
+; Return array of files in `list_filename`.
 ;
 ; :Returns:
-;   `dblarr`
+;   `strarr`
 ;
 ; :Params:
 ;   list_filename : in, required, type=string
 ;     filename of candidate files
 ;
 ; :Keywords:
-;   files : out, optional, type=strarr
-;     set to a named variable to retrieve the filenames of the files listed in
-;     `list_filename`
+;   times : out, optional, type=dblarr
+;     set to a named variable to retrieve the observation time of the files
+;     listed in `list_filename`
 ;   stokes_present : out, optional, type=strarr
 ;     set to a named variable to retrieve the Stokes variables present in each
 ;     corresponding file
@@ -43,17 +67,22 @@ function comp_find_average_files_inventory, list_filename, $
     return, !null
   endif
 
+  ; determine number of files listed in inventory file...
   count = file_lines(list_filename)
 
+  ; ...and exit if 0 files listed
   if (count eq 0L) then begin
     mg_log, 'no files in %s', file_basename(list_filename), name='comp', /warn
     return, !null
   endif
 
-  times = dblarr(count)
+  ; otherwise, setup return variables
+  files          = strarr(count)
+  times          = dblarr(count)
   stokes_present = strarr(count)
-  files = strarr(count)
 
+  ; read the inventory file line by line to get L1 filename, Julian date, and
+  ; Stokes parameters for each listed file
   openr, lun, list_filename, /get_lun
   line = ''
   for f = 0L, count - 1L do begin
@@ -72,7 +101,9 @@ function comp_find_average_files_inventory, list_filename, $
     times[f] = julday(month, day, year, hour, minute, second)
 
     for s = 0L, n_stokes - 1L do begin
-      if (strpos(line, stokes[s]) gt -1) then begin
+      ; the letters I, Q, U, and V only appear in an inventory line if the
+      ; corresponding Stokes parameter is listed
+      if (strpos(line, stokes[s]) ge 0) then begin
         stokes_present[f] += strlowcase(stokes[s])
       endif
     endfor
@@ -105,39 +136,173 @@ function comp_find_average_files_allgood, list_filename, $
   compile_opt strictarr
   @comp_constants_common
 
+  ; do a basic inventory of the given files
   candidate_files = comp_find_average_files_inventory(list_filename, $
                                                       times=times, $
                                                       stokes_present=stokes_present, $
                                                       count=n_candidate_files)
 
+  ; filter by stokes parameter
   stokes_mask = strpos(stokes_present, stokes_parameter) ge 0L
   stokes_indices = where(stokes_mask, n_stokes_files)
+
+  ; exit if no files with the given stokes parameter...
   if (n_stokes_files eq 0L) then begin
     count = 0L
     return, !null
   endif
 
+  ; ...otherwise use only files with the given stokes parameter
   stokes_files = candidate_files[stokes_indices]
   stokes_times = times[stokes_indices]
 
-  time_bins = value_locate(flat_times, stokes_times)
-  end_indices   = uniq(time_bins)
-  start_indices = [0L, end_indices[0:-2] + 1L]
-  files_per_flat = end_indices[1:-1] - end_indices[0:-2]
+  ; find files between each set of flats
+  flat_bins = value_locate(flat_times, stokes_times)
+  flat_end_indices   = uniq(flat_bins)
+  flat_start_indices = [0L, flat_end_indices[0:-2] + 1L]
+  files_per_flat = flat_end_indices[1:-1] - flat_end_indices[0:-2]
 
+  ; return the largest set of files for a given flat
   count = max(files_per_flat, flat_index)
-  return, stokes_files[start_indices[flat_index]:end_indices[flat_index]]
+  files = stokes_files[flat_start_indices[flat_index]:flat_end_indices[flat_index]]
+
+  return, files
 end
 
 
-function comp_find_average_files_nogap, list_filename, stokes_parameter, flat_times, $
-                                        stokes_present=stokes_present
+;+
+; Determines if the given `times` satisfy the cadence interval for a minimal
+; number of files in a cluster. If so, cuts off the files at a given maximum
+; number of files and returns the indices of the good files.
+;
+; :Returns:
+;   1 for yes, 0 for no
+;
+; :Params:
+;   times : in, required, type=dblarr
+;     times in Julian day
+;-
+function comp_find_average_files_checkgap, times, $
+                                           min_n_cluster_files=min_n_cluster_files, $
+                                           max_n_files=max_n_files, $
+                                           cadence_interval=cadence_interval, $
+                                           indices=indices
   compile_opt strictarr
 
-  stokes_present = !null
+  gaps = times[1:-1] - times[0:-2]
+  ok_gaps = [0, gaps lt cadence_interval]
+  labels = label_region(ok_gaps)
+  for r = 1L, max(labels) do begin
+    ind = where(labels eq r, count)
+    if (count + 1L gt min_n_cluster_files) then begin
+      indices = [ind - 1, max(ind)]
+      return, 1B
+    endif
+  endfor
 
-  ; TODO: implement
+  ; didn't find a good cluster
+  indices = !null
+  return, 0B
+end
+
+
+;+
+; Find all the good files in the `list_filename` with the same flat.
+;
+; :Params:
+;   list_filename : in, required, type=string
+;     filename of candidate files
+;   stokes_parameter : in, required, type=string
+;     stokes parameter to find in files: 'i', 'q', 'u', or 'v'
+;   flat_times : in, required, type=fltarr
+;     times of the flats in Julian dates
+;
+; :Keywords:
+;   count : out, optional, type=long
+;     set to a named variable to retrieve the number of files found
+;-
+function comp_find_average_files_nogap, list_filename, $
+                                        stokes_parameter, $
+                                        flat_times, $
+                                        min_n_cluster_files=min_n_cluster_files, $
+                                        min_n_files=min_n_files, $
+                                        max_n_files=max_n_files, $
+                                        cadence_interval=cadence_interval, $
+                                        stokes_present=stokes_present, $
+                                        count=count
+  compile_opt strictarr
+  @comp_constants_common
+
+  ; do a basic inventory of the given files
+  candidate_files = comp_find_average_files_inventory(list_filename, $
+                                                      times=times, $
+                                                      stokes_present=stokes_present, $
+                                                      count=n_candidate_files)
+
+  ; filter by stokes parameter
+  stokes_mask = strpos(stokes_present, stokes_parameter) ge 0L
+  stokes_indices = where(stokes_mask, n_stokes_files)
+
+  ; exit if no files with the given stokes parameter...
+  if (n_stokes_files eq 0L) then begin
+    count = 0L
+    return, !null
+  endif
+
+  ; ...otherwise use only files with the given stokes parameter
+  stokes_files = candidate_files[stokes_indices]
+  stokes_times = times[stokes_indices]
+  stokes_stokes_present = stokes_present[stokes_indices]
+
+  ; find files between each set of flats
+  flat_bins = value_locate(flat_times, stokes_times)
+  flat_end_indices   = uniq(flat_bins)
+  flat_start_indices = [0L, flat_end_indices[0:-2] + 1L]
+  files_per_flat = flat_end_indices[1:-1] - flat_end_indices[0:-2]
+
+  ; loop through the flats
+  for flat_index = 0L, n_elements(files_per_flat) - 1L do begin
+    s = flat_start_indices[flat_index]
+    e = flat_end_indices[flat_index]
+    perflat_files = stokes_files[s:e]
+    perflat_times = stokes_times[s:e]
+    perflat_stokes_present = stokes_stokes_present[s:e]
+
+    cluster_found = comp_find_average_files_checkcluster(perflat_times, $
+                                                         min_n_cluster_files=min_n_cluster_files, $
+                                                         max_n_files=max_n_files, $
+                                                         cadence_interval=cadence_interval, $
+                                                         indices=cluster_indices)
+    if (cluster_found) then begin
+      files = perflat_files[cluster_indices]
+      count = n_elements(files)
+      stokes_present = perflat_stokes_present[cluster_indices]
+
+      goto, found
+    endif
+  endfor
+
+  ; didn't find a cluster: are there min_n_files?
+  for flat_index = 0L, n_elements(files_per_flat) - 1L do begin
+    s = flat_start_indices[flat_index]
+    e = flat_end_indices[flat_index]
+    if (e - s + 1 ge min_n_files) then begin
+      files = stokes_files[s:e]
+      count = n_elements(files)
+      stokes_present = stokes_stokes_present[s:e]
+
+      goto, found
+    endif
+  endfor
+
+  ; didn't find the minimum number of files
+  count = 0L
+  stokes_present = !null
   return, !null
+
+  found:
+
+  return, files
 end
 
 
@@ -446,14 +611,53 @@ function comp_find_average_files, date_dir, wave_type, $
 
   if (keyword_set(synoptic)) then begin
     qu_files = comp_find_average_files_allgood(list_filename, 'q', flat_times)
-    v_files = comp_find_average_files_allgood(list_filename, 'v', flat_times)
-    i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times)
+    v_files  = comp_find_average_files_allgood(list_filename, 'v', flat_times)
 
+    max_n_files = averaging_max_n_synoptic_files
+    min_n_files = averaging_min_n_qu_synoptic_files
+
+    for min_c = 0L, n_elements(averaging_min_n_cluster_synoptic_files) - 1L do begin
+      min_n_cluster_files = averaging_min_n_cluster_synoptic_files[min_c]
+      for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
+        cadence_interval = averaging_max_cadence_interval[mci]
+        cadence_interval /= 60.0D * 60.0D * 24.0D
+
+        i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times, $
+                                                min_n_cluster_files=min_n_cluster_files, $
+                                                min_n_files=min_n_files, $
+                                                max_n_files=max_n_files, $
+                                                cadence_interval=cadence_interval, $
+                                                count=n_i_files)
+        if (n_i_files gt 0L) then goto, synoptic_found
+      endfor
+    endfor
+
+    synoptic_found:
     count = n_elements(i_files) + n_elements(qu_files) + n_elements(v_files)
+
     return, i_files
   endif else begin
-    i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times, $
-                                            stokes_present=stokes_present)
+    max_n_files = averaging_max_n_waves_files
+    min_n_files = averaging_min_n_qu_waves_files
+
+    for min_c = 0L, n_elements(averaging_min_n_cluster_synoptic_files) - 1L do begin
+      min_n_cluster_files = averaging_min_n_cluster_waves_files[min_c]
+      for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
+        cadence_interval = averaging_max_cadence_interval[mci]
+        cadence_interval /= 60.0D * 60.0D * 24.0D
+
+        i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times, $
+                                                min_n_cluster_files=min_n_cluster_files, $
+                                                min_n_files=min_n_files, $
+                                                max_n_files=max_n_files, $
+                                                cadence_interval=cadence_interval, $
+                                                stokes_present=stokes_present)
+                                                count=n_i_files)
+        if (n_i_files gt 0L) then goto, waves_found
+      endfor
+    endfor
+
+    waves_found:
 
     ; filter I files for QU and V
 
@@ -463,7 +667,7 @@ function comp_find_average_files, date_dir, wave_type, $
     qu_files = i_files[qu_indices]
     v_files  = i_files[v_indices]
 
-    count = n_elements(i_files)
+    count = n_i_files
 
     return, i_files
   endelse
