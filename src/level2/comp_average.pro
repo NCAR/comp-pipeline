@@ -181,13 +181,16 @@ pro comp_average, date_dir, wave_type, $
   fits_open, sigma_filename, fcbsig, /write
 
   ; use test file to get sample headers
-  test_filename = comp_find_l1_file(date_dir, wave_type, datetime=i_files[0])
+  test_filename = filepath(i_files[0], root=l1_process_dir)
   fits_open, test_filename, fcb
 
   ; read the primary header to use for the output
   fits_read, fcb, d, primary_header, /header_only, exten_no=0, $
              /no_abort, message=msg
-  if (msg ne '') then message, msg
+  if (msg ne '') then begin
+    mg_log, 'problem reading from %s', test_filename, name='comp', /error
+    message, msg
+  endif
   sxdelpar, primary_header, 'DATE_HST'
   sxdelpar, primary_header, 'TIME_HST'
   sxdelpar, primary_header, 'METHOD'
@@ -248,21 +251,26 @@ pro comp_average, date_dir, wave_type, $
   average_times = strarr(2, n_stokes, n_waves)
 
   for s = 0L, n_stokes - 1L do begin
+    mg_log, 'starting averaging for %s', stokes[s], name='comp', /debug
     case strlowcase(stokes[s]) of
       'i': s_files = i_files
       'q': s_files = qu_files
       'u': s_files = qu_files
       'v': s_files = v_files
     endcase
+
     n_s_files = n_elements(s_files)
 
     ; quit if no files for this Stokes parameter
-    if (n_s_files eq 0) then continue
+    if (n_s_files eq 0) then begin
+      mg_log, 'no files, skipping %s', stokes[s], name='comp', /debug
+      continue
+    endif else begin
+      mg_log, '%d %s files', n_s_files, stokes[s], name='comp', /debug
+    endelse
 
     for w = 0L, n_waves - 1L do begin
-      mg_log, 'Stokes %s wave %s', $
-              strjoin(strtrim(stokes[s], 2), ', '), $
-              strjoin(strtrim(waves[w], 2), ', '), $
+      mg_log, 'Stokes %s wave %0.2f', stokes[s], waves[w], $
               name='comp', /debug
 
       ; REFORM to make sure IDL doesn't drop a dimension of size 1
@@ -281,10 +289,13 @@ pro comp_average, date_dir, wave_type, $
                 name, $
                 name='comp', /debug
 
-        fits_open, filename, fcb
+        fits_open, filepath(filename, root=l1_process_dir), fcb
         fits_read, fcb, d, theader, /header_only, exten_no=0, $
                    /no_abort, message=msg
-        if (msg ne '') then message, msg
+        if (msg ne '') then begin
+          mg_log, 'problem reading from %s', filename, name='comp', /error
+          message, msg
+        endif
         comp_make_mask, date_dir, theader, mask
 
         comp_inventory_l1, fcb, wave, pol
@@ -296,7 +307,10 @@ pro comp_average, date_dir, wave_type, $
         endif
         fits_read, fcb, dat, header, exten_no=good[0] + 1, $
                    /no_abort, message=msg
-        if (msg ne '') then message, msg
+        if (msg ne '') then begin
+          mg_log, 'problem reading from %s', filename, name='comp', /error
+          message, msg
+        endif
         naverage[s, w] += sxpar(header, 'NAVERAGE')
 
         ; put NaNs for masked out pixels, so averaging doesn't include a
@@ -310,28 +324,31 @@ pro comp_average, date_dir, wave_type, $
         average_times[1, s, w] = strmid(name, 9, 6)
 
         ; sum background images first time through
+        background_filename = comp_find_l1_file(date_dir, wave_type, $
+                                                datetime=name, $
+                                                /background)
         if (keyword_set(average_background_by_polarization)) then begin
-          background_filename = comp_find_l1_file(date_dir, wave_type, $
-                                                  datetime=name, $
-                                                  /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
                      extname=string(stokes[s], waves[w], format='(%"BKG%s, %0.2f")'), $
                      /no_abort, message=msg
-          if (msg ne '') then message, msg
+          if (msg ne '') then begin
+            mg_log, 'problem reading from %s', filename, name='comp', /error
+            message, msg
+          endif
           back[*, *, s, w] += dat * mask
           back_naverage[s, w] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[s, w] += 1
           fits_close, bkg_fcb
         endif else if (s eq 0) then begin
-          background_filename = comp_find_l1_file(date_dir, wave_type, $
-                                                  datetime=name, $
-                                                  /background)
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
                      extname=string(stokes[s], waves[w], format='(%"BKG%s, %0.2f")'), $
                      /no_abort, message=msg
-          if (msg ne '') then message, msg
+          if (msg ne '') then begin
+            mg_log, 'problem reading from %s', filename, name='comp', /error
+            message, msg
+          endif
           back[*, *, w] += dat * mask
           back_naverage[w] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[w] += 1
@@ -375,7 +392,7 @@ pro comp_average, date_dir, wave_type, $
       sxaddpar, header, 'AVEEND', end_time, $
                 ' [UTC] End of averaging HH:MM:SS', after='AVESTART'
 
-      sigma = fltarr(nx, nx)
+      sigma = fltarr(nx, ny)
       for x = 0L, nx - 1L do begin
         for y = 0L, ny - 1L do begin
           ; use /NAN keyword to not count masked pixels
@@ -400,36 +417,53 @@ pro comp_average, date_dir, wave_type, $
       med = median(data, dimension=3)
       aver = mean(data, dimension=3, /nan)   ; use /NAN to not use masked pixels
 
+      mg_log, 'writing median...', name='comp', /debug
       ; write Stokes parameters to output files
       if (compute_median) then begin
-        sxaddpar, header, 'DATAMIN', min(med), ' MINIMUM DATA VALUE'
-        sxaddpar, header, 'DATAMAX', max(med), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, ' DATAMIN', min(med, /nan), ' MINIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMAX', max(med, /nan), ' MAXIMUM DATA VALUE'
 
         fits_write, fcbmed, med, header, extname=ename
       endif
 
+      mg_log, 'writing mean...', name='comp', /debug
       if (compute_mean) then begin
-        sxaddpar, header, 'DATAMIN', min(aver), ' MINIMUM DATA VALUE'
-        sxaddpar, header, 'DATAMAX', max(aver), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMIN', min(aver, /nan), ' MINIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMAX', max(aver, /nan), ' MAXIMUM DATA VALUE'
 
         fits_write, fcbavg, aver, header, extname=ename
       endif
+
+      mg_log, 'finished averaging %0.2f for %s', waves[w], stokes[s], $
+              name='comp', /debug
     endfor
+    mg_log, 'finished averaging %s', stokes[s], name='comp', /debug
   endfor
 
   ; write mean background image to output files
+  mg_log, 'writing background averages...', name='comp', /debug
   if (keyword_set(average_background_by_polarization)) then begin
     for s = 0L, n_stokes - 1L do begin
       if (numof_stokes[s] eq 0) then continue
 
       for w = 0L, n_waves - 1L do begin
-        back[*, *, s, w] /= float(num_back_averaged[s, w])
-        sxaddpar, header, 'WAVELENG', waves[iw], ' [NM] WAVELENGTH OF OBS'
+        if (num_back_averaged[s, w] eq 0) then begin
+          mg_log, 'no background images to average for %s %0.2f', $
+                  stokes[s], waves[w], $
+                  name='comp', /warn
+        endif else begin
+          back[*, *, s, w] /= float(num_back_averaged[s, w])
+        endelse
+
+        sxaddpar, header, 'WAVELENG', waves[w], ' [nm] Wavelength of obs'
         sxaddpar, header, 'NAVERAGE', back_naverage[s, w]
-        sxaddpar, header, 'NFILES', num_back_averaged[s, w], ' Number of files used', $
+        sxaddpar, header, 'NFILES', num_back_averaged[s, w], $
+                  ' Number of files used', $
                   after='NAVERAGE'
-        sxaddpar, header, 'DATAMIN', min(back[*, *, s, w]), ' MINIMUM DATA VALUE'
-        sxaddpar, header, 'DATAMAX', max(back[*, *, s, w]), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMIN', min(back[*, *, s, w], /nan), $
+                  ' Minimum data value'
+        sxaddpar, header, 'DATAMAX', max(back[*, *, s, w], /nan), $
+                  ' Maximum data value'
         sxaddpar, header, 'POLSTATE', string(stokes[s], format='(%"BKG%s")')
         ename = string(stokes[s], waves[w], format='(%"B%s, %7.2f")')
         if (compute_median) then begin
@@ -442,18 +476,29 @@ pro comp_average, date_dir, wave_type, $
     endfor
   endif else begin
     for w = 0L, n_waves - 1L do begin
-      back[*, *, w] /= float(num_back_averaged[w])
-      sxaddpar, header, 'WAVELENG', waves[w], ' [NM] WAVELENGTH OF OBS'
+      if (num_back_averaged[w] eq 0) then begin
+        mg_log, 'no background images to average for %0.2f', waves[w], $
+                name='comp', /warn
+      endif else begin
+        back[*, *, w] /= float(num_back_averaged[w])
+      endelse
+
+      sxaddpar, header, 'WAVELENG', waves[w], ' [nm] Wavelength of obs'
       sxaddpar, header, 'NAVERAGE', back_naverage[w]
-      sxaddpar, header, 'NFILES', num_back_averaged[w], ' Number of files used', $
+      sxaddpar, header, 'NFILES', num_back_averaged[w], $
+                ' Number of files used', $
                 after='NAVERAGE'
-      sxaddpar, header, 'DATAMIN', min(back[*, *, w]), ' MINIMUM DATA VALUE'
-      sxaddpar, header, 'DATAMAX', max(back[*, *, w]), ' MAXIMUM DATA VALUE'
+      sxaddpar, header, 'DATAMIN', min(back[*, *, w], /nan), $
+                ' Minimum data value'
+      sxaddpar, header, 'DATAMAX', max(back[*, *, w], /nan), $
+                ' Maximum data value'
       sxaddpar, header, 'POLSTATE', 'BKG'
-      ename = 'B, ' + string(format='(f7.2)', waves[w])
+      ename = 'B, ' + string(waves[w], format='(f7.2)')
+
       if (compute_median) then begin
         fits_write, fcbmed, back[*, *, w], header, extname=ename
       endif
+
       if (compute_mean) then begin
         fits_write, fcbavg, back[*, *, w], header, extname=ename
       endif
@@ -496,4 +541,37 @@ pro comp_average, date_dir, wave_type, $
   endif
 
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+date = '20180104'
+wave_types = ['1074', '1079', '1083']
+
+config_basename = 'comp.mgalloy.mahi.latest.cfg'
+config_filename = filepath(config_basename, $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+comp_configuration, config_filename=config_filename
+comp_initialize, date
+
+comp_setup_loggers
+comp_setup_loggers_date, date
+comp_setup_loggers_date, date, /rotate
+comp_setup_loggers_eng, date
+
+for w = 0L, n_elements(wave_types) - 1L do begin
+  comp_average, date, wave_types[w], $
+                error=error, found_files=waves_files_found
+  print, wave_types[w], waves_files_found ? '' : 'not ', $
+         format='(%"%s nm waves files %sfound")'
+
+  comp_average, date, wave_types[w], /synoptic, $
+                error=error, found_files=synoptic_files_found
+  print, wave_types[w], synoptic_files_found ? '' : 'not ', $
+         format='(%"%d %s nm synoptic %sfiles found")'
+endfor
+
 end
