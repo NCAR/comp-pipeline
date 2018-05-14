@@ -571,7 +571,7 @@ for w = 0L, n_elements(wave_types) - 1L do begin
   comp_average, date, wave_types[w], /synoptic, $
                 error=error, found_files=synoptic_files_found
   print, wave_types[w], synoptic_files_found ? '' : 'not ', $
-         format='(%"%d %s nm synoptic %sfiles found")'
+         format='(%"%s nm synoptic %sfiles found")'
 endfor
 
 end
