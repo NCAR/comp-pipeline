@@ -237,7 +237,7 @@ function comp_find_average_files_nogap, list_filename, $
   candidate_files = comp_find_average_files_inventory(list_filename, $
                                                       times=times, $
                                                       stokes_present=stokes_present, $
-                                                      count=n_candidate_files)
+                                                      count=count)
   if (count eq 0L) then return, !null
 
   ; filter by stokes parameter
