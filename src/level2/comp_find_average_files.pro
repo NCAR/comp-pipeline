@@ -140,7 +140,8 @@ function comp_find_average_files_allgood, list_filename, $
   candidate_files = comp_find_average_files_inventory(list_filename, $
                                                       times=times, $
                                                       stokes_present=stokes_present, $
-                                                      count=n_candidate_files)
+                                                      count=count)
+  if (count eq 0L) then return, !null
 
   ; filter by stokes parameter
   stokes_mask = strpos(stokes_present, stokes_parameter) ge 0L
@@ -189,9 +190,15 @@ function comp_find_average_files_checkgaps, times, $
                                             indices=indices
   compile_opt strictarr
 
+  case n_elements(times) of
+    0: return, 0B
+    1: return, 1 ge min_n_cluster_files
+    else:
+  endcase
+
   gaps = times[1:-1] - times[0:-2]
-  ok_gaps = [0, gaps lt cadence_interval]
-  labels = label_region(ok_gaps)
+  ok_gaps = [1B, gaps le cadence_interval]
+  labels = comp_label_series(ok_gaps)
   for r = 1L, max(labels) do begin
     ind = where(labels eq r, count)
     if (count + 1L gt min_n_cluster_files) then begin
@@ -256,15 +263,23 @@ function comp_find_average_files_nogap, list_filename, $
   stokes_stokes_present = stokes_present[stokes_indices]
 
   ; find files between each set of flats
-  flat_bins = value_locate(flat_times, stokes_times)
-  flat_end_indices   = uniq(flat_bins)
-  flat_start_indices = [0L, flat_end_indices[0:-2] + 1L]
-  files_per_flat = flat_end_indices[1:-1] - flat_end_indices[0:-2]
+  stokes_bins = value_locate(stokes_times, flat_times)
+  
+  stokes_start_indices   = stokes_bins[uniq(stokes_bins)] + 1L
+  before_ind = where(stokes_start_indices lt n_elements(stokes_times) - 1L, $
+                     ncomplement=n_after)
+  if (n_after gt 0L) then stokes_start_indices = stokes_start_indices[before_ind]
+  if (n_elements(stokes_start_indices) eq 1L) then begin
+    stokes_end_indices   = n_elements(stokes_times) - 1L
+  endif else begin
+    stokes_end_indices   = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
+  endelse
+  files_per_flat       = stokes_end_indices - stokes_start_indices + 1L
 
   ; loop through the flats
   for flat_index = 0L, n_elements(files_per_flat) - 1L do begin
-    s = flat_start_indices[flat_index]
-    e = flat_end_indices[flat_index]
+    s = stokes_start_indices[flat_index]
+    e = stokes_end_indices[flat_index]
     perflat_files = stokes_files[s:e]
     perflat_times = stokes_times[s:e]
     perflat_stokes_present = stokes_stokes_present[s:e]
@@ -285,8 +300,8 @@ function comp_find_average_files_nogap, list_filename, $
 
   ; didn't find a cluster: are there min_n_files?
   for flat_index = 0L, n_elements(files_per_flat) - 1L do begin
-    s = flat_start_indices[flat_index]
-    e = flat_end_indices[flat_index]
+    s = stokes_start_indices[flat_index]
+    e = stokes_end_indices[flat_index]
     if (e - s + 1 ge min_n_files) then begin
       files = stokes_files[s:e]
       count = n_elements(files)
@@ -487,26 +502,37 @@ end
 ;dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
 ;         '20171006', '20171007', '20171008', '20171009', '20171010', $
 ;         '20171011', '20171012', '20171013', '20171014']
-dates = ['20160819']
+dates = ['20130115']
+wave_type = '1083'
 
-config_filename = '../../config/comp.mgalloy.mahi.fix.cfg'
+config_filename = '../../config/comp.mgalloy.mahi.latest.cfg'
 comp_configuration, config_filename=config_filename
 
 for d = 0L, n_elements(dates) - 1L do begin
   comp_initialize, dates[d]
 
-  synoptic_i_files = comp_find_average_files(dates[d], '1074', $
+  synoptic_i_files = comp_find_average_files(dates[d], wave_type, $
                                              qu_files=synoptic_qu_files, $
                                              v_files=synoptic_v_files, $
                                              count=n_synoptic_files, $
                                              /synoptic)
-  print, synoptic_qu_files
 
-;  waves_files = comp_find_average_files(dates[d], '1074', $
-;                                        count=n_waves_files)
-;  combined_files = comp_find_average_files(dates[d], '1074', $
-;                                           count=n_combined_files, $
-;                                           /combined)
+  if (n_synoptic_files gt 0L) then begin
+    print, n_elements(synoptic_i_files), format='(%"%d synoptic I files")'
+    print, n_elements(synoptic_qu_files), format='(%"%d synoptic QU files")'
+    print, n_elements(synoptic_v_files), format='(%"%d synoptic V files")'
+  endif else print, 'no synoptic I files'
+
+  waves_i_files = comp_find_average_files(dates[d], wave_type, $
+                                          qu_files=waves_qu_files, $
+                                          v_files=waves_v_files, $
+                                          count=n_waves_files)
+
+  if (n_waves_files gt 0L) then begin
+    print, n_elements(waves_i_files), format='(%"%d waves I files")'
+    print, n_elements(waves_qu_files), format='(%"%d waves QU files")'
+    print, n_elements(waves_v_files), format='(%"%d waves V files")'
+  endif else print, 'no waves I files'
 
 ;  print, dates[d], n_synoptic_files, n_waves_files, n_combined_files, $
 ;         format='(%"---> %s: %d synoptic, %d waves, %d combined")'
