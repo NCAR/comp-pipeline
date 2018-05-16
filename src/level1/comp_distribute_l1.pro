@@ -78,13 +78,18 @@ pro comp_distribute_l1, date_dir, wave_type
     mg_log, 'zipping L1 line center intensity %s files...', wave_type, $
             name='comp', /info
     file_pattern = string(wave_type, format='(%"*.comp.%s.intensity.fts")')
-    zip_cmd = string(file_pattern, format='(%"gzip -f %s")')
-    spawn, zip_cmd, result, error_result, exit_status=status
-    if (status ne 0L) then begin
-      mg_log, 'problem zipping files with command: %s', zip_cmd, $
-              name='comp', /error
-      mg_log, '%s', error_result, name='comp', /error
-    endif
+    intensity_files = file_search(file_pattern, count=n_intensity_files)
+    if (n_intensity_files gt 0L) then begin
+      zip_cmd = string(file_pattern, format='(%"gzip -f %s")')
+      spawn, zip_cmd, result, error_result, exit_status=status
+      if (status ne 0L) then begin
+        mg_log, 'problem zipping files with command: %s', zip_cmd, $
+                name='comp', /error
+        mg_log, '%s', error_result, name='comp', /error
+      endif
+    endif else begin
+      mg_log, 'no intensity files to zip', name='comp', /debug
+    endelse
 
     mg_log, 'copying L1 line center intensity %s files to archive...', $
             wave_type, $
