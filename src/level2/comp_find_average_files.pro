@@ -157,15 +157,24 @@ function comp_find_average_files_allgood, list_filename, $
   stokes_files = candidate_files[stokes_indices]
   stokes_times = times[stokes_indices]
 
+
   ; find files between each set of flats
-  flat_bins = value_locate(flat_times, stokes_times)
-  flat_end_indices   = uniq(flat_bins)
-  flat_start_indices = [0L, flat_end_indices[0:-2] + 1L]
-  files_per_flat = flat_end_indices[1:-1] - flat_end_indices[0:-2]
+  stokes_bins = value_locate(stokes_times, flat_times)
+  
+  stokes_start_indices   = stokes_bins[uniq(stokes_bins)] + 1L
+  before_ind = where(stokes_start_indices lt n_elements(stokes_times) - 1L, $
+                     ncomplement=n_after)
+  if (n_after gt 0L) then stokes_start_indices = stokes_start_indices[before_ind]
+  if (n_elements(stokes_start_indices) eq 1L) then begin
+    stokes_end_indices   = n_elements(stokes_times) - 1L
+  endif else begin
+    stokes_end_indices   = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
+  endelse
+  files_per_flat       = stokes_end_indices - stokes_start_indices + 1L
 
   ; return the largest set of files for a given flat
   count = max(files_per_flat, flat_index)
-  files = stokes_files[flat_start_indices[flat_index]:flat_end_indices[flat_index]]
+  files = stokes_files[stokes_start_indices[flat_index]:stokes_end_indices[flat_index]]
 
   return, files
 end
@@ -502,7 +511,7 @@ end
 ;dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
 ;         '20171006', '20171007', '20171008', '20171009', '20171010', $
 ;         '20171011', '20171012', '20171013', '20171014']
-dates = ['20130115']
+dates = ['20130115', '20160611']
 wave_type = '1083'
 
 config_filename = '../../config/comp.mgalloy.mahi.latest.cfg'
