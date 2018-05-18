@@ -238,7 +238,7 @@ pro comp_make_flat, date_dir, error=error
        mask_full_fill = comp_mask_1024(uncorrected_occulter1, uncorrected_occulter2, $
                                         uncorrected_field1, uncorrected_field2, $
                                         uncorrected_post_angle1, uncorrected_post_angle2, $
-                                        o_offset=1.0, f_offset=-1.0 )         
+                                        o_offset=1.0, f_offset=-3.0 )
     endif
 
     ; Process by wavelength
@@ -309,7 +309,7 @@ pro comp_make_flat, date_dir, error=error
         mask_full_fill = comp_mask_1024(uncorrected_occulter1, uncorrected_occulter2, $
                                         uncorrected_field1, uncorrected_field2, $
                                         uncorrected_post_angle1, uncorrected_post_angle2, $
-                                        o_offset=+1.0, f_offset=-1.0, $
+                                        o_offset=+1.0, f_offset=-3.0, $
                                         bc1=background_correction_1, $
                                         bc2=background_correction_2 )
       endif
