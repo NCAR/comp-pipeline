@@ -77,7 +77,8 @@ pro comp_write_epochs, date_dir
           format='(%"%-30s : %0.2f")'
 
   printf, lun, 'background_limit', background_limit, format='(%"%-30s : %0.2f")'
-  printf, lun, 'min_flat_median', min_flat_median, format='(%"%-30s : %0.2f")'
+  printf, lun, 'min_flat_median_offset', min_flat_median_offset, $
+          format='(%"%-30s : %0.2f")'
 
 
   printf, lun, 'check_lcvr6_temp', check_lcvr6_temp ? 'YES' : 'NO', $

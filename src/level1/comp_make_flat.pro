@@ -326,7 +326,7 @@ pro comp_make_flat, date_dir, error=error
       ; the flat can be blocked by the dome or the sky conditions could limit
       ; the lights, which lowers the value of the flat
       transmission_correction = comp_correct_nd(nd_filter, 8, uniq_waves[i])
-      threshold = min_flat_median * expose / 250.0 / transmission_correction
+      threshold = (norm - min_flat_median_offset) * expose / 250.0 / transmission_correction
 
       if (medflat lt threshold) then begin
         mg_log, 'low flat median for %s (%0.2f):', $

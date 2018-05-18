@@ -32,7 +32,7 @@ common comp_constants, nx, ny, $
                        filt_temp_tolerance, $
                        nominal_filt_temp, $
                        background_limit, $
-                       min_flat_median, $
+                       min_flat_median_offset, $
                        int_min_thresh, int_max_thresh, $
                        diff_thresh, $
                        i_to_q_xtalk, $
