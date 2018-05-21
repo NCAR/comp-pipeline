@@ -136,6 +136,8 @@ function comp_find_average_files_allgood, list_filename, $
   compile_opt strictarr
   @comp_constants_common
 
+  comp_log, 'finding all good files for %s', stokes_parameter, name='comp', /debug
+
   ; do a basic inventory of the given files
   candidate_files = comp_find_average_files_inventory(list_filename, $
                                                       times=times, $
@@ -143,17 +145,18 @@ function comp_find_average_files_allgood, list_filename, $
                                                       count=count)
   if (count eq 0L) then return, !null
 
-  ; filter by stokes parameter
+  ; filter by Stokes parameter
   stokes_mask = strpos(stokes_present, stokes_parameter) ge 0L
   stokes_indices = where(stokes_mask, n_stokes_files)
 
-  ; exit if no files with the given stokes parameter...
+  ; exit if no files with the given Stokes parameter...
   if (n_stokes_files eq 0L) then begin
+    comp_log, 'found 0 all good files for %s', stokes_parameter, name='comp', /debug
     count = 0L
     return, !null
   endif
 
-  ; ...otherwise use only files with the given stokes parameter
+  ; ...otherwise use only files with the given Stokes parameter
   stokes_files = candidate_files[stokes_indices]
   stokes_times = times[stokes_indices]
 
@@ -161,20 +164,24 @@ function comp_find_average_files_allgood, list_filename, $
   ; find files between each set of flats
   stokes_bins = value_locate(stokes_times, flat_times)
   
-  stokes_start_indices   = stokes_bins[uniq(stokes_bins)] + 1L
+  stokes_start_indices = stokes_bins[uniq(stokes_bins)] + 1L
   before_ind = where(stokes_start_indices lt n_elements(stokes_times) - 1L, $
                      ncomplement=n_after)
   if (n_after gt 0L) then stokes_start_indices = stokes_start_indices[before_ind]
   if (n_elements(stokes_start_indices) eq 1L) then begin
-    stokes_end_indices   = n_elements(stokes_times) - 1L
+    stokes_end_indices = n_elements(stokes_times) - 1L
   endif else begin
-    stokes_end_indices   = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
+    stokes_end_indices = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
   endelse
-  files_per_flat       = stokes_end_indices - stokes_start_indices + 1L
+  files_per_flat = stokes_end_indices - stokes_start_indices + 1L
 
   ; return the largest set of files for a given flat
   count = max(files_per_flat, flat_index)
   files = stokes_files[stokes_start_indices[flat_index]:stokes_end_indices[flat_index]]
+
+  comp_log, 'found %d all good files for %s', $
+            n_elements(files), stokes_parameter, $
+            name='comp', /debug
 
   return, files
 end
@@ -208,15 +215,32 @@ function comp_find_average_files_checkgaps, times, $
   gaps = times[1:-1] - times[0:-2]
   ok_gaps = [1B, gaps le cadence_interval]
   labels = comp_label_series(ok_gaps)
+
   for r = 1L, max(labels) do begin
     ind = where(labels eq r, count)
     if (count + 1L gt min_n_cluster_files) then begin
       indices = [ind - 1, max(ind)]
+
+      ; make sure to only return at most MAX_N_FILES elements
+      if (n_elements(indices) gt max_n_files) then begin
+        mg_log, 'found %d files, cutting down to %d files', $
+                n_elements(indices), max_n_files, $
+                name='comp', /debug
+        indices = indices[0:max_n_files - 1L]
+      endif
+
+      mg_log, 'found %d files with cadence of %0.1f sec', $
+              n_elements(indices), cadence_interval, $
+              name='comp', /debug
+
       return, 1B
     endif
   endfor
 
   ; didn't find a good cluster
+  mg_log, 'found 0 files with cadence of %0.1f sec', $
+          cadence_interval, $
+          name='comp', /debug
   indices = !null
   return, 0B
 end
@@ -262,6 +286,7 @@ function comp_find_average_files_nogap, list_filename, $
 
   ; exit if no files with the given stokes parameter...
   if (n_stokes_files eq 0L) then begin
+    mg_log, 'no files for %s', stokes_parameter, name='comp', /debug
     count = 0L
     return, !null
   endif
@@ -293,12 +318,18 @@ function comp_find_average_files_nogap, list_filename, $
     perflat_times = stokes_times[s:e]
     perflat_stokes_present = stokes_stokes_present[s:e]
 
+    mg_log, 'checking images with flat index %d', flat_index, $
+            name='comp', /debug
     cluster_found = comp_find_average_files_checkgaps(perflat_times, $
                                                       min_n_cluster_files=min_n_cluster_files, $
                                                       max_n_files=max_n_files, $
                                                       cadence_interval=cadence_interval, $
                                                       indices=cluster_indices)
     if (cluster_found) then begin
+      mg_log, 'found a cluster with cadence interval %0.1f sec', $
+              cadence_interval, $
+              name='comp', /debug
+
       files = perflat_files[cluster_indices]
       count = n_elements(files)
       stokes_present = perflat_stokes_present[cluster_indices]
@@ -306,6 +337,10 @@ function comp_find_average_files_nogap, list_filename, $
       goto, found
     endif
   endfor
+
+  mg_log, 'did''t find a cluster', name='comp', /debug
+  mg_log, 'looking for at least %d files', min_n_files, $
+          name='comp', /debug
 
   ; didn't find a cluster: are there min_n_files?
   for flat_index = 0L, n_elements(files_per_flat) - 1L do begin
@@ -316,11 +351,15 @@ function comp_find_average_files_nogap, list_filename, $
       count = n_elements(files)
       stokes_present = stokes_stokes_present[s:e]
 
+      mg_log, 'found %d non-clustered files', count, name='comp', /debug
+
       goto, found
     endif
   endfor
 
   ; didn't find the minimum number of files
+  mg_log, 'didn''t find at least %d files', min_n_files, name='comp', /debug
+
   count = 0L
   stokes_present = !null
   return, !null
@@ -439,6 +478,10 @@ function comp_find_average_files, date_dir, wave_type, $
     qu_files = comp_find_average_files_allgood(list_filename, 'q', flat_times)
     v_files  = comp_find_average_files_allgood(list_filename, 'v', flat_times)
 
+    mg_log, 'found %d QU good files and %d V good files with the same flat', $
+            n_qu_files, n_v_files, $
+            name='comp', /debug
+
     max_n_files = averaging_max_n_synoptic_files
     min_n_files = averaging_min_n_qu_synoptic_files
 
@@ -448,13 +491,21 @@ function comp_find_average_files, date_dir, wave_type, $
         cadence_interval = averaging_max_cadence_interval[mci]
         cadence_interval /= 60.0D * 60.0D * 24.0D
 
+        mg_log, 'searching for at least %d I files with cadence interval %0.1f sec', $
+                min_n_cluster_files, cadence_interval, $
+                name='comp', /debug
+
         i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times, $
                                                 min_n_cluster_files=min_n_cluster_files, $
                                                 min_n_files=min_n_files, $
                                                 max_n_files=max_n_files, $
                                                 cadence_interval=cadence_interval, $
                                                 count=n_i_files)
-        if (n_i_files gt 0L) then goto, synoptic_found
+        if (n_i_files gt 0L) then begin
+          mg_log, 'found %d I files', n_i_files, name='comp', /debug
+
+          goto, synoptic_found
+        endif
       endfor
     endfor
 
@@ -475,6 +526,10 @@ function comp_find_average_files, date_dir, wave_type, $
         cadence_interval = averaging_max_cadence_interval[mci]
         cadence_interval /= 60.0D * 60.0D * 24.0D
 
+        mg_log, 'searching for at least %d I files with cadence interval %0.1f sec', $
+                min_n_cluster_files, cadence_interval, $
+                name='comp', /debug
+
         i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times, $
                                                 min_n_cluster_files=min_n_cluster_files, $
                                                 min_n_files=min_n_files, $
@@ -482,7 +537,11 @@ function comp_find_average_files, date_dir, wave_type, $
                                                 cadence_interval=cadence_interval, $
                                                 stokes_present=stokes_present, $
                                                 count=n_i_files)
-        if (n_i_files gt 0L) then goto, waves_found
+        if (n_i_files gt 0L) then begin
+          mg_log, 'found %d I files', n_i_files, name='comp', /debug
+
+          goto, waves_found
+        endif
       endfor
     endfor
 
@@ -495,6 +554,13 @@ function comp_find_average_files, date_dir, wave_type, $
 
     qu_indices = comp_find_average_files_filterbystokes(stokes_present, 'q')
     v_indices  = comp_find_average_files_filterbystokes(stokes_present, 'v')
+
+    mg_log, 'filtered %d I files down to %d QU files', $
+            n_i_files, n_elements(qu_indices), $
+            name='comp', /debug
+    mg_log, 'filtered %d I files down to %d V files', $
+            n_i_files, n_elements(v_indices), $
+            name='comp', /debug
 
     qu_files = i_files[qu_indices]
     v_files  = i_files[v_indices]
