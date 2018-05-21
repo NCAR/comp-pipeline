@@ -191,7 +191,8 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
                      format='(%" Extension in %s.comp.flat.fts used")'), $
               after='FLATFILE'
     sxaddpar, header, 'FLATMED', medflat, $
-              ' median of dark and exposure corrected flat', format='(F0.2)', after='FLATEXT'
+              ' median of dark and exposure corrected flat', $
+              format='(F0.2)', after='FLATEXT'
 
     nonblank_ind = where(header ne blank_line, n_nonblank)
     header = header[nonblank_ind]
