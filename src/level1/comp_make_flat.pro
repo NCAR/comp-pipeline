@@ -295,8 +295,8 @@ pro comp_make_flat, date_dir, error=error
 
       ; background correction for the solar spectrum
       if (make_flat_spectral_correction) then begin
-        mg_log, 'background correction for the solar spectrum', $
-                name='comp', /info
+        mg_log, 'correcting for the solar spectrum', $
+                name='comp', /debug
         comp_flat_norm, abs(uniq_waves[i]), t_on, t_off
         if (uniq_waves[i] lt 0) then begin
           background_correction_1 = t_on
