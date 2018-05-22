@@ -32,10 +32,14 @@ function comp_read_atlas, wave, range
 
   lw = 4 * fix(fix(wave / 10.0) / 4.0)
 
-  filename = string(format='("lm",i4.4)', lw)
-  mg_log, filename, /debug, name='comp'
+  basename = string(lw, format='("lm",i4.4)')
+  mg_log, basename, /debug, name='comp'
 
-  openr, lun, binary_dir + filename, /get_lun
+  filename = filepath(basename, $
+                      subdir=['..', 'resource', 'atlas'], $
+                      root=binary_dir)
+
+  openr, lun, filename, /get_lun
   stat = fstat(lun)
   nwave = stat.size / 38
 
