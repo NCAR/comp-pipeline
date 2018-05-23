@@ -156,15 +156,6 @@ pro comp_average, date_dir, wave_type, $
   date_str = utyear + '-' + utmonth + '-' + utday
   time_str = uthour + ':' + utminute + ':' + utsecond
 
-  mg_log, '%d image files for Stokes I', n_i_files, $
-          name='comp', /info
-  mg_log, '%d image files for Stokes Q', n_qu_files, $
-          name='comp', /info
-  mg_log, '%d image files for Stokes U', n_qu_files, $
-          name='comp', /info
-  mg_log, '%d image files for Stokes V', n_v_files, $
-          name='comp', /info
-
   type = keyword_set(synoptic) ? 'synoptic' : 'waves'
 
   if (compute_mean) then begin
