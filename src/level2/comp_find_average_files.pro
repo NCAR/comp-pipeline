@@ -136,7 +136,7 @@ function comp_find_average_files_allgood, list_filename, $
   compile_opt strictarr
   @comp_constants_common
 
-  comp_log, 'finding all good files for %s', stokes_parameter, name='comp', /debug
+  mg_log, 'finding all good files for %s', stokes_parameter, name='comp', /debug
 
   ; do a basic inventory of the given files
   candidate_files = comp_find_average_files_inventory(list_filename, $
@@ -151,7 +151,7 @@ function comp_find_average_files_allgood, list_filename, $
 
   ; exit if no files with the given Stokes parameter...
   if (n_stokes_files eq 0L) then begin
-    comp_log, 'found 0 all good files for %s', stokes_parameter, name='comp', /debug
+    mg_log, 'found 0 all good files for %s', stokes_parameter, name='comp', /debug
     count = 0L
     return, !null
   endif
@@ -179,9 +179,9 @@ function comp_find_average_files_allgood, list_filename, $
   count = max(files_per_flat, flat_index)
   files = stokes_files[stokes_start_indices[flat_index]:stokes_end_indices[flat_index]]
 
-  comp_log, 'found %d all good files for %s', $
-            n_elements(files), stokes_parameter, $
-            name='comp', /debug
+  mg_log, 'found %d all good files for %s', $
+          n_elements(files), stokes_parameter, $
+          name='comp', /debug
 
   return, files
 end
