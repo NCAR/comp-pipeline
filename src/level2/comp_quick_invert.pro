@@ -122,7 +122,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   if (nstokes lt 3L) then begin
     mg_log, 'only %d Stokes parameters in average file, quitting', $
-            ntokes, $
+            nstokes, $
             name='comp', /info
   endif
 
