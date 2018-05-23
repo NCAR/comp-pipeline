@@ -120,6 +120,12 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   nstokes = n / ntune - 1L   ; don't count BKG
 
+  if (nstokes lt 3L) then begin
+    mg_log, 'only %d Stokes parameters in average file, quitting', $
+            ntokes, $
+            name='comp', /info
+  endif
+
   ; find standard 3 pt wavelength indices
   wave_indices = comp_3pt_indices(wave_type, wavelengths, error=error)
   if (error ne 0L) then begin
