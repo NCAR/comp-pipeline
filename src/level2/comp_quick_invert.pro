@@ -124,6 +124,7 @@ pro comp_quick_invert, date_dir, wave_type, $
     mg_log, 'only %d Stokes parameters in average file, quitting', $
             nstokes, $
             name='comp', /info
+    goto, done
   endif
 
   ; find standard 3 pt wavelength indices
