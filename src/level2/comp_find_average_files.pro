@@ -479,7 +479,7 @@ function comp_find_average_files, date_dir, wave_type, $
     v_files  = comp_find_average_files_allgood(list_filename, 'v', flat_times)
 
     mg_log, 'found %d QU good files and %d V good files with the same flat', $
-            n_qu_files, n_v_files, $
+            n_elements(qu_files), n_elements(v_files), $
             name='comp', /debug
 
     max_n_files = averaging_max_n_synoptic_files
