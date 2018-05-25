@@ -98,7 +98,7 @@ pro comp_configuration, config_filename=config_filename
   perform_gbu         = config->get('perform_gbu', section='actions', $
                                     /boolean, default=create_l1)
   check_l1            = config->get('check_l1', section='actions', $
-                                    /boolean, default=create_l1)
+                                    /boolean, default=1B)
   create_flatsdarks   = config->get('create_flatsdarks', section='actions', $
                                     /boolean, default=create_l1)
   distribute_l1       = config->get('distribute_l1', section='actions', $
