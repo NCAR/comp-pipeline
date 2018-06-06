@@ -64,6 +64,7 @@ pro comp_combine_beams, images, headers, date_dir, $
   if (sxpar(headers[*, 0], 'BEAM') ne 0) then ntags--
 
   ntags += 6   ; for geometry keywords for flats
+  ntags += 2   ; expand FLAT_EXT/FLAT_MED to versions 1 and 2
 
   ; output image and header array
   images_combine = dblarr(nx, ny, 2 * np * nw)
@@ -160,6 +161,20 @@ pro comp_combine_beams, images, headers, date_dir, $
       sxaddpar, hplus, 'ORADIUS2', image_geometry.flat_occulter2.r, $
                 ' Occulter radius for dist corrected sub-flat2', $
                 format='(F0.3)'
+
+      ; keep both FLATEXT/FLATMED values
+
+      flatext1 = sxpar(hplus, 'FLATEXT', comment=comment1)
+      flatext2 = sxpar(hminus, 'FLATEXT', comment=comment2)
+      sxdelpar, hplus, 'FLATEXT'
+      sxaddpar, hplus, 'FLATEXT1', comment1, after='FLATFILE'
+      sxaddpar, hplus, 'FLATEXT2', comment2, after='FLATEXT1'
+
+      flatmed1 = sxpar(hplus, 'FLATMED', comment=comment1)
+      flatmed2 = sxpar(hminus, 'FLATMED', comment=comment2)
+      sxdelpar, hplus, 'FLATMED'
+      sxaddpar, hplus, 'FLATMED1', comment1, format='(F0.2)', after='FLATEXT2'
+      sxaddpar, hplus, 'FLATMED2', comment2, format='(F0.2)', after='FLATMED1'
 
       headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
       sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
