@@ -167,14 +167,14 @@ pro comp_combine_beams, images, headers, date_dir, $
       flatext1 = sxpar(hplus, 'FLATEXT', comment=comment1)
       flatext2 = sxpar(hminus, 'FLATEXT', comment=comment2)
       sxdelpar, hplus, 'FLATEXT'
-      sxaddpar, hplus, 'FLATEXT1', comment1, after='FLATFILE'
-      sxaddpar, hplus, 'FLATEXT2', comment2, after='FLATEXT1'
+      sxaddpar, hplus, 'FLATEXT1', flatext1, comment1, after='FLATFILE'
+      sxaddpar, hplus, 'FLATEXT2', flatext2, comment2, after='FLATEXT1'
 
       flatmed1 = sxpar(hplus, 'FLATMED', comment=comment1)
       flatmed2 = sxpar(hminus, 'FLATMED', comment=comment2)
       sxdelpar, hplus, 'FLATMED'
-      sxaddpar, hplus, 'FLATMED1', comment1, format='(F0.2)', after='FLATEXT2'
-      sxaddpar, hplus, 'FLATMED2', comment2, format='(F0.2)', after='FLATMED1'
+      sxaddpar, hplus, 'FLATMED1', flatmed1, comment1, format='(F0.2)', after='FLATEXT2'
+      sxaddpar, hplus, 'FLATMED2', flatmed2, comment2, format='(F0.2)', after='FLATMED1'
 
       headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
       sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
