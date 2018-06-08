@@ -112,7 +112,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   date = sxpar(primary_header, 'DATE-OBS')
   time = sxpar(primary_header, 'TIME-OBS')
 
-  xyouts, 5, 25, 'Scaling:' + string(min, max, format='(F4.1, " to ", F4.1)'), $
+  xyouts, 5, 25, 'Scaling:' + string(min, max, format='(F0.1, " to ", F0.1)'), $
           charsize=Lsz, /device, color=ccol, font=font
   xyouts, 5, 5, string(wave, dispexp, label, format='(%"%s -- im^%0.1f %s")'), $
           charsize=Lsz, /device, $
