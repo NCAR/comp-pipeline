@@ -90,7 +90,10 @@ pro comp_make_mask, date_dir, fits_header, mask
   
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
-      pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
+    ; pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
+    
+    ; now the image header has the right post angle 
+      pmask = comp_post_mask(post_angle, post_width)
 
     ; overlap mask
     omask = comp_overlap_mask(field.r, overlap_angle + p_angle, $
@@ -98,5 +101,6 @@ pro comp_make_mask, date_dir, fits_header, mask
                               dy=(occulter.y - field.y))
 
     mask = dmask * field_mask * pmask * omask
+    ;mask = dmask * field_mask * omask
   endelse
 end
