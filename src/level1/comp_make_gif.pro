@@ -90,7 +90,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   loadct, 3, /silent, ncolors=256 - n_annotation_colors
 
   ocol = 253
-  tvlct, 255, 255, 0, ocol
+  tvlct, 0, 200, 255, ocol
   fcol = 254
   tvlct, 0, 255, 0, fcol
   ccol = 255
@@ -112,7 +112,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   date = sxpar(primary_header, 'DATE-OBS')
   time = sxpar(primary_header, 'TIME-OBS')
 
-  xyouts, 5, 25, 'Scaling:' + string(min, max, format='(F4.1, " to ", F4.1)'), $
+  xyouts, 5, 25, 'Scaling:' + string(min, max, format='(F0.1, " to ", F0.1)'), $
           charsize=Lsz, /device, color=ccol, font=font
   xyouts, 5, 5, string(wave, dispexp, label, format='(%"%s -- im^%0.1f %s")'), $
           charsize=Lsz, /device, $
@@ -145,7 +145,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   ; occulter center and outline
   x = oradius * cos(theta) + oxcenter
   y = oradius * sin(theta) + oycenter
-  plots, x, y, /device, color=ocol
+  plots, x, y, /device, color=ocol, linestyle=2, thick=2
   plots, [oxcenter], [oycenter], /device, color=ocol, psym=1
 
   if (keyword_set(background)) then begin
@@ -159,7 +159,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     ; field center and outline
     x = fradius * cos(theta) + fxcenter
     y = fradius * sin(theta) + fycenter
-    plots, x, y, /device, color=fcol
+    plots, x, y, /device, color=fcol, linestyle=2, thick=1
     plots, [fxcenter], [fycenter], /device, color=fcol, psym=1
 
     ; post
@@ -182,11 +182,11 @@ end
 
 ; main-level example program
 
-date = '20180104'
+date = '20180103'
 comp_initialize, date
 
-process_basedir = '/hao/mahidata1/Data/CoMP/process.latest'
-filename = filepath('20180105.022200.comp.1074.iqu.3.bkg.fts.gz', $
+process_basedir = '/hao/mahidata1/Data/CoMP/process.new-olddist-strayplain'
+filename = filepath('20180104.023830.comp.1074.iv.5.bkg.fts.gz', $
                     subdir=[date, 'level1'], $
                     root=process_basedir)
 fits_open, filename, fcb
