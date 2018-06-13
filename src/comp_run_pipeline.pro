@@ -50,7 +50,12 @@ pro comp_run_pipeline, config_filename=config_filename
 
   start_memory = memory(/current)
 
-  comp_configuration, config_filename=_config_filename
+  comp_configuration, config_filename=_config_filename, error=error
+  if (error) then begin
+    mg_log, 'error in configuration, exiting', name='comp', /critical
+    goto, done
+  endif
+
   comp_setup_loggers
 
   candidate_dirs = file_search(filepath(date_pattern, root=raw_basedir), $

@@ -128,6 +128,24 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   sxaddpar, primary_header, 'CTYPE2', 'Y', ' AXIS 2 TYPE: Y [SOUTH->NORTH] HELIOCENTRIC'
   sxaddpar, primary_header, 'POLFRAME', 'heliocentric', ' Polarization reference frame'
 
+  sxaddpar, primary_header, 'DISTMETH', distortion_method, $
+            ' method used for distortion correction'
+  case distortion_method of
+    'coeffs': begin
+        sxaddpar, primary_header, 'DISTC1', distortion_coeffs[0], $
+                  ' distortion coefficient 1', $
+                  format='(F0.5)'
+        sxaddpar, primary_header, 'DISTC2', distortion_coeffs[1], $
+                  ' distortion coefficient 2', $
+                  format='(F0.5)'
+      end
+    'file': begin
+        sxaddpar, primary_header, 'DISTFILE', distortion_coeffs_file, $
+                  ' file containing distortion coefficients'
+      end
+    else:
+  endcase
+
   ; occulter (Sun center) parameters
   sxaddpar, primary_header, 'CRPIX1', nx / 2 + 0.5, $
             ' X [EAST->WEST ] SUN CENTER [PIXELS]', format='(F0.2)'

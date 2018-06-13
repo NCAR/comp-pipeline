@@ -14,9 +14,11 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_configuration, config_filename=config_filename
+pro comp_configuration, config_filename=config_filename, error=error
   compile_opt strictarr
   @comp_config_common
+
+  error = 0B
 
   ; return if paths have already been defined
   if (n_elements(raw_basedir) gt 0L) then return
@@ -168,6 +170,15 @@ pro comp_configuration, config_filename=config_filename
                                                section='options', $
                                                /boolean, $
                                                default=~empirical_crosstalk_calculation_mode)
+  distortion_method = strlowcase(config->get('distortion_method', $
+                                             section='options', $
+                                             default='coeffs'))
+  if (distortion_method ne 'coeffs' && distortion_method ne 'file' $
+        && distortion_method ne 'none') then begin
+    mg_log, 'unknown distortion method %s', distortion_method, $
+            name='comp', /critical
+    error = 1B
+  endif
 
 
   ; flats

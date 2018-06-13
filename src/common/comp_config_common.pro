@@ -42,6 +42,7 @@ common comp_config, doi_1074,$
                     empirical_crosstalk_calculation_mode, $
                     correct_crosstalk, $
                     perform_polarimetric_transform, $
+                    distortion_method, $
                     distribute_l1, $
                     create_l2, $
                     create_average, $

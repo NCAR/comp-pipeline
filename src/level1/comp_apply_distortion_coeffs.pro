@@ -13,7 +13,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_apply_distortion, sub_image, k
+function comp_apply_distortion_coeffs, sub_image, k
   compile_opt strictarr
 
   dims = size(sub_image, /dimensions)

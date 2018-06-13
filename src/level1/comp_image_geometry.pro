@@ -97,8 +97,17 @@ function comp_image_geometry, images, headers, date_dir, $
                            }
   endif
 
-  k1 = 0.99353
-  k2 = 1.00973
+  case distortion_method of
+    'coeffs': begin
+        k1 = distortion_coeffs[0]
+        k2 = distortion_coeffs[1]
+      end
+    'file': begin
+        ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+        restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
+      end
+    else:
+  endcase
 
   ; beam -1: corona in UL (comp_extract1), beam 1: corona in LR (comp_extract2)
 
@@ -126,7 +135,15 @@ function comp_image_geometry, images, headers, date_dir, $
     endif
 
     ; remove distortion
-    sub1 = comp_apply_distortion(sub1, k1)
+    case distortion_method of
+      'coeffs': begin
+          sub1 = comp_apply_distortion_coeffs(sub1, k1)
+        end
+      'file': begin
+          sub1 = comp_apply_distortion_file(sub1, dx1_c, dy1_c)
+        end
+      else:
+    endcase
 
     comp_find_annulus, sub1, calc_occulter1, calc_field1, $
                        occulter_guess=[occulter1.x, $
@@ -180,7 +197,15 @@ function comp_image_geometry, images, headers, date_dir, $
     endif
 
     ; remove distortion
-    sub2 = comp_apply_distortion(sub2, k2)
+    case distortion_method of
+      'coeffs': begin
+          sub2 = comp_apply_distortion_coeffs(sub2, k2)
+        end
+      'file': begin
+          sub2 = comp_apply_distortion_file(sub1, dx2_c, dy2_c)
+        end
+      else:
+    endcase
 
     comp_find_annulus, sub2, calc_occulter2, calc_field2, $
                        occulter_guess=[occulter2.x, $

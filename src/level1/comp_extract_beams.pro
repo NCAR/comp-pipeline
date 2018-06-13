@@ -104,8 +104,17 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     n_images_off_detector += 1
   endif
 
-  k1 = 0.99353
-  k2 = 1.00973
+  case distortion_method of
+    'coeffs': begin
+        k1 = distortion_coeffs[0]
+        k2 = distortion_coeffs[1]
+      end
+    'file': begin
+        ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+        restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
+      end
+    else:
+  endcase
 
   n_images = n_elements(images[0, 0, *])
   d1 = fltarr(nx, ny, n_images)
@@ -116,8 +125,17 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     sub2 = comp_extract2(images[*, *, i])
 
     ; remove distortion
-    sub1 = comp_apply_distortion(sub1, k1)
-    sub2 = comp_apply_distortion(sub2, k2)
+    case distortion_method of
+      'coeffs': begin
+          sub1 = comp_apply_distortion_coeffs(sub1, k1)
+          sub2 = comp_apply_distortion_coeffs(sub2, k2)
+        end
+      'file': begin
+          sub1 = comp_apply_distortion_file(sub1, dx1_c, dy1_c)
+          sub2 = comp_apply_distortion_file(sub2, dx2_c, dy2_c)
+        end
+      else:
+    endcase
 
     ; if background is in UL and it is off detector, then use mean of UL annulus
     if (beam[i] gt 0.0 && off1) then begin

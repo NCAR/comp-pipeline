@@ -189,6 +189,9 @@ pro comp_initialize, date_dir
   n_stokes = n_elements(stokes)
 
   ; distortion coefficients
+  distortion_coeffs = comp_initialize_readconfig('distortion_coeffs', $
+                                                 date_dir, options, $
+                                                 type=4, /extract)
   distortion_coeffs_file = comp_initialize_readconfig('distortion_coeffs_file', $
                                                       date_dir, options)
 

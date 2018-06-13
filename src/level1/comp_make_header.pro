@@ -70,12 +70,30 @@ pro comp_make_header, image, header, date_dir, $
   uncorrected_flat1 = flat1
   uncorrected_flat2 = flat2
 
-  k1 = 0.99353
-  k2 = 1.00973
+  case distortion_method of
+    'coeffs': begin
+        k1 = distortion_coeffs[0]
+        k2 = distortion_coeffs[1]
+      end
+    'file': begin
+        ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+        restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
+      end
+    else:
+  endcase
 
   ; remove distortion (NOTE: these images will not be saved!)
-  flat1 = comp_apply_distortion(flat1, k1)
-  flat2 = comp_apply_distortion(flat2, k2)
+  case distortion_method of
+    'coeffs': begin
+        flat1 = comp_apply_distortion_coeffs(flat1, k1)
+        flat2 = comp_apply_distortion_coeffs(flat2, k2)
+      end
+    'file': begin
+        flat1 = comp_apply_distortion_file(flat1, dx1_c, dy1_c)
+        flat2 = comp_apply_distortion_file(flat2, dx2_c, dy2_c)
+      end
+    else:
+  endcase
 
   ; TODO: should check that exposure is 250.0 ms, might not work if not
   uncorrected_occulter_guess1 = comp_find_flat_initial_guess(uncorrected_flat1)
