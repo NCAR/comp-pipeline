@@ -96,13 +96,8 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
 
   blank_line = string(bytarr(80) + (byte(' '))[0])
 
+  ; dark and other image corrections (not flat correction)
   for i = 0L, n_ext - 1L do begin   ; loop over the images...
-    header = headers[*, i]
-
-    ; select the correct flat for this image
-    iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
-    iflat = iflat[0]
-
     ; subtract darks, fix sensor quirks, and divide by the flats
     tmp_image  = images[*, *, i]
     tmp_image -= dark
@@ -122,6 +117,20 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
       error = 1
       goto, done
     endif
+
+    images[*, *, i] = temporary(tmp_image)
+  endfor
+
+  ; TODO: combine like images (with same pol, beam, and wavelength)
+  ; TODO: make sure to adjust beam, wave as well as images and headers
+
+  for i = 0L, n_ext - 1L do begin
+    header = headers[*, i]
+    tmp_image = images[*, *, i]
+
+    ; select the correct flat for this image
+    iflat = where(abs(flat_waves) eq wave[i] and sgn(flat_waves) eq beam[i])
+    iflat = iflat[0]
 
     if (remove_stray_light && wave_type ne '1083') then begin
       ; using the flat header is probably OK here since we over-occult by so
