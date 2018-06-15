@@ -164,22 +164,24 @@ pro comp_combine_beams, images, headers, date_dir, $
 
       ; keep both FLATEXT/FLATMED values
 
+      hcombined = comp_combine_headers([[hplus], [hminus]], [0, 1])
+
       flatext1 = sxpar(hplus, 'FLATEXT', comment=comment1)
       flatext2 = sxpar(hminus, 'FLATEXT', comment=comment2)
-      sxdelpar, hplus, 'FLATEXT'
-      sxaddpar, hplus, 'FLATEXT1', flatext1, comment1, after='FLATFILE'
-      sxaddpar, hplus, 'FLATEXT2', flatext2, comment2, after='FLATEXT1'
+      sxdelpar, hcombined, 'FLATEXT'
+      sxaddpar, hcombined, 'FLATEXT1', flatext1, comment1, after='FLATFILE'
+      sxaddpar, hcombined, 'FLATEXT2', flatext2, comment2, after='FLATEXT1'
 
       flatmed1 = sxpar(hplus, 'FLATMED', comment=comment1)
       flatmed2 = sxpar(hminus, 'FLATMED', comment=comment2)
-      sxdelpar, hplus, 'FLATMED'
-      sxaddpar, hplus, 'FLATMED1', flatmed1, comment1, format='(F0.2)', after='FLATEXT2'
-      sxaddpar, hplus, 'FLATMED2', flatmed2, comment2, format='(F0.2)', after='FLATMED1'
+      sxdelpar, hcombined, 'FLATMED'
+      sxaddpar, hcombined, 'FLATMED1', flatmed1, comment1, format='(F0.2)', after='FLATEXT2'
+      sxaddpar, hcombined, 'FLATMED2', flatmed2, comment2, format='(F0.2)', after='FLATMED1'
 
-      headers_combine[0, i * nw + j] = reform(hplus, n_elements(hplus), 1)
-      sxaddpar, hplus, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
+      headers_combine[0, i * nw + j] = reform(hcombined, n_elements(hcombined), 1)
+      sxaddpar, hcombined, 'POLSTATE', 'BKG' + upol[i], ' Polarization state'
 
-      headers_combine[0, np * nw + i * nw + j] = reform(hplus, n_elements(hplus), 1)
+      headers_combine[0, np * nw + i * nw + j] = reform(hcombined, n_elements(hcombined), 1)
     endfor
   endfor
 end
