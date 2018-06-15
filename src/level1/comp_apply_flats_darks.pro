@@ -53,14 +53,18 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
   time = comp_extract_time(headers)
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
+
   optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER']
   hastags = mg_fits_hastag(headers[*, 0], optional_tags, count=n_hastags)
+
   ntags += n_elements(optional_tags) - n_hastags
+  ntags++   ; for RAWEXT tag we add below
   ntags++   ; for the ND-TRANS tag we add below
   ntags++   ; for the FLATFILE tag we add below
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
   if (remove_stray_light && wave_type ne '1083') then ntags += 2   ; for FITMNLIN/FITVRLIN
+
   headersout = strarr(ntags, n_ext)
 
   ; get the flats and darks
@@ -119,12 +123,22 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     endif
 
     images[*, *, i] = temporary(tmp_image)
+
+    ; add RAWEXT keyword that is trivial to begin with
+    tmp_header = headers[*, i]
+    sxaddpar, tmp_header, 'RAWEXT', strtrim(i + 1, 2), ' exts from raw file used'
+    headers[*, i] = tmp_header
   endfor
 
-  ; TODO: combine like images (with same pol, beam, and wavelength)
-  ; TODO: make sure to adjust beam, wave as well as images and headers
+  ; combine like extensions (with same pol, beam, and wavelength)
+  comp_combine_extensions, images, headers, pol, beam, wave, error=combine_error
+  if (combine_error ne 0L) then begin
+    mg_log, 'problem combining like extensions', name='comp', /error
+    error = 2
+    goto, done
+  endif
 
-  for i = 0L, n_ext - 1L do begin
+  for i = 0L, n_images - 1L do begin
     header = headers[*, i]
     tmp_image = images[*, *, i]
 
