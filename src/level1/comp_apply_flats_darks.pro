@@ -53,7 +53,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
   time = comp_extract_time(headers)
   n_ext = n_elements(headers[0, *])
   ntags = n_elements(headers[*, 0])
-  original_ntags = n_tags
+  original_ntags = ntags
 
   optional_tags = ['OBS_ID', 'OBS_PLAN', 'O1FOCUS', 'ND-FILTER']
   hastags = mg_fits_hastag(headers[*, 0], optional_tags, count=n_hastags)
@@ -127,14 +127,15 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
   endfor
 
   ; add a spot for RAWEXT
-  _headers = strarr(orignal_ntags, n_exts)
+  _headers = strarr(n_elements(headers[*, 0]) + 1L, n_ext)
   _headers[0, 0] = headers
   headers = _headers
 
   for i = 0L, n_ext - 1L do begin
     ; add RAWEXT keyword that is trivial to begin with
-    tmp_header = headers[*, i]
-    sxaddpar, tmp_header, 'RAWEXT', strtrim(i + 1, 2), ' exts from raw file used'
+    tmp_header = headers[0:-2, i]   ; last row is empty, we just added it
+    sxaddpar, tmp_header, 'RAWEXT', strtrim(i + 1, 2), ' exts from raw file used', $
+              after='BEAM'
     headers[*, i] = tmp_header
   endfor
 
@@ -146,6 +147,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     goto, done
   endif
 
+  n_images = n_elements(images[0, 0, *])
   for i = 0L, n_images - 1L do begin
     header = headers[*, i]
     tmp_image = images[*, *, i]

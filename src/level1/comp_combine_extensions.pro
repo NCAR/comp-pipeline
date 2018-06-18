@@ -29,17 +29,20 @@ pro comp_combine_extensions, images, headers, pol, beam, wave, error=error
 
   error = 0L
 
+  dims = size(images, /dimensions)
+
   u_pol  = pol[uniq(pol, sort(pol))]
   u_beam = beam[uniq(beam, sort(beam))]
-  u_wave = beam[uniq(wave, sort(wave))]
+  u_wave = wave[uniq(wave, sort(wave))]
 
   n_u_pol  = n_elements(u_pol)
   n_u_beam = n_elements(u_beam)
   n_u_wave = n_elements(u_wave)
 
-  n_images = n_u_pol * n_u_beam * n_u_beam - 1L]
+  n_images = n_u_pol * n_u_beam * n_u_wave
 
   new_images  = 0.0 * images[*, *, 0:n_images - 1L]
+
   new_headers = headers[*, 0:n_images - 1L]
 
   new_pol     = strarr(n_images)
@@ -56,15 +59,21 @@ pro comp_combine_extensions, images, headers, pol, beam, wave, error=error
 
         ; if a pol-beam-wave combination is not found, exit with error
         if (count eq 0L) then begin
+          mg_log, 'missing %s %d %0.2f nm', u_pol[p], u_beam[b], u_wave[w], $
+                  name='comp', /warn
           error = 1L
           goto, done
         endif
 
         ; combine images by averaging images together
-        new_images[i]  = mean(images[*, *, ind], dimension=3)
+        new_images[*, *, i] = mean(reform(images[*, *, ind], $
+                                          dims[0], $
+                                          dims[1], $
+                                          n_elements(ind)), $
+                                   dimension=3)
 
         ; combine headers, e.g., concatenating tags such as RAWEXT
-        new_headers[i] = comp_combine_headers(headers, ind)
+        new_headers[*, i] = comp_combine_headers(headers, ind)
 
         new_pol[i]  = u_pol[p]
         new_beam[i] = u_beam[b]
