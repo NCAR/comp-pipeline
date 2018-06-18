@@ -29,3 +29,13 @@ function comp_transmission, date
 
   return, slope * (jd - date2) + value2
 end
+
+
+; main-level example program
+
+dates = ['20130118', '20131026', '20140115', '20140119', '20140202', '20140209', '20141024', '20141027', '20141029', '20141116']
+for d = 0L, n_elements(dates) - 1L do begin
+  print, dates[d], comp_transmission(dates[d]), format='(%"%s: %0.2f")'
+endfor
+
+end
