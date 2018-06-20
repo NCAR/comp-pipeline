@@ -8,10 +8,23 @@
 ;     filename of flat medians CSV file
 ;   dark_filename : in, required, type=string
 ;     filename of dark medians CSV file
+;
+; :Keywords:
+;   start_date : in, optional, type=string
+;     start date in the form "YYYYMMDD"
 ;-
-pro comp_plot_flatmedians, flat_filename, dark_filename
+pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
   compile_opt strictarr
 
+  if (n_elements(start_date) eq 0L) then begin
+    jd_start_date = 0.0D
+  endif else begin
+    jd_start_date = julday(long(strmid(start_date, 4, 2)), $
+                           long(strmid(start_date, 6, 2)), $
+                           long(strmid(start_date, 0, 4)))
+  endelse
+
+  ; read flats
   n_lines = file_lines(flat_filename)
   s = replicate({time: 0.0D, $
                  time_of_day: 0.0, $
@@ -40,6 +53,12 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   endfor
   free_lun, lun
 
+  ; filter flats by dates
+  valid_date_indices = where(s.time ge jd_start_date, n_valid_dates)
+  if (n_valid_dates eq 0L) then message, 'no valid dates'
+  s = s[valid_date_indices]
+
+  ; read darks
   n_lines = file_lines(dark_filename)
   d = replicate({time: 0.0D, $
                  time_of_day: 0.0, $
@@ -64,6 +83,11 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   endfor
   free_lun, lun
 
+  ; filter darks by dates
+  valid_date_indices = where(d.time ge jd_start_date, n_valid_dates)
+  if (n_valid_dates eq 0L) then message, 'no valid dates for darks'
+  d = d[valid_date_indices]
+
   eps = 0.01
   ind_1074 = where(abs(s.wavelength - 1074.62) lt eps, n_1074)
   ind_1083 = where(abs(s.wavelength - 1083.00) lt eps, n_1083)
@@ -79,13 +103,6 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
     print, s[ind_1074[bad_1074[b]]].time, s[ind_1074[bad_1074[b]]].median, $
            format='(C(), %" median: %0.1f")'
   endfor
-
-  cleanings = [julday(8, 11, 2014, 12), $
-               julday(11, 21, 2014, 12), $
-               julday(1, 23, 2015, 12), $
-               julday(5, 22, 2015, 12), $
-               julday(9, 16, 2015, 12), $
-               julday(5, 4, 2016, 12)]
 
   ;y_range = [0.0, 1.05 * max(s.median)]
   ;y_range = [0.0, 66.0]
@@ -117,6 +134,14 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
   annotation_charsize = 0.5
 
   ; cleanings
+  cleanings = [julday(8, 11, 2014, 12), $
+               julday(11, 21, 2014, 12), $
+               julday(1, 23, 2015, 12), $
+               julday(5, 22, 2015, 12), $
+               julday(9, 16, 2015, 12), $
+               julday(5, 4, 2016, 12)]
+  valid_cleaning_indices = where(cleanings ge jd_start_date, /null)
+  cleanings = cleanings[valid_cleaning_indices]
   for c = 0L, n_elements(cleanings) - 1L do begin
     oplot, fltarr(2) + cleanings[c], y_range, color='a0a0a0'x, thick=1.0
     xyouts, cleanings[c] + 10.0, y_range[1], $
@@ -132,12 +157,14 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
                       julday(4, 29, 2014, 12), $
                       julday(10, 19, 2014, 12), $
                       julday(12, 17, 2014, 12)]
+  valid_annotation_indices = where(annotation_dates ge jd_start_date, /null)
+  annotation_dates = annotation_dates[valid_annotation_indices]
   annotations = ['CoMP!Crestarted after!CMK4/CHIP removed', $
                  'CoMP warmed', $
                  'turned off!Ccamerato conserve LN2', $
                  'turned off!Ccamera to conserve LN2', $
                  'camera!Cwarmed/re-cooled']
-
+  annotations = annotations[valid_annotation_indices]
   for c = 0L, n_elements(annotations) - 1L do begin
     oplot, fltarr(2) + annotation_dates[c], y_range, color='a0a0a0'x, thick=1.0
     xyouts, annotation_dates[c] + 10.0, y_range[1], $
@@ -153,6 +180,9 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
                  julday(12, 17, 2014, 12), $
                  julday(3, 15, 2015, 12)]
   marks_heights = [53.0, 47.0, 40.0, 38.0]
+  valid_mark_indices = where(marks_dates ge jd_start_date, /null)
+  marks_dates = marks_dates[valid_mark_indices]
+  marks_heights = marks_heights[valid_mark_indices]
   for a = 0L, n_elements(marks_dates) - 1L do begin
     oplot, fltarr(2) + marks_dates[a], [-1.5, -0.5] + marks_heights[a], $
            color='a0a0a0'x, thick=1.0
@@ -292,6 +322,6 @@ pro comp_plot_flatmedians, flat_filename, dark_filename
 end
 
 
-comp_plot_flatmedians, 'flat-medians-new.csv', 'dark-medians-new.csv'
+comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv';, start_date='20130901'
 
 end

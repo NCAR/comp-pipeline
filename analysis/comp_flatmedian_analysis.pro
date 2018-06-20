@@ -99,12 +99,20 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
     if (~file_test(flat_filename)) then begin
       flat_filename = filepath('flat.fts', subdir='level1', root=dirs[d])
     endif
+    if (~file_test(flat_filename)) then begin
+      flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), $
+                               subdir='level1', root=dirs[d])
+    endif
     if (~file_test(flat_filename)) then continue
 
     ; find the dark.fts file
     dark_filename = filepath('dark.fts', root=dirs[d])
     if (~file_test(dark_filename)) then begin
       dark_filename = filepath('dark.fts', subdir='level1', root=dirs[d])
+    endif
+    if (~file_test(dark_filename)) then begin
+      dark_filename = filepath(string(date, format='(%"%s.comp.dark.fts")'), $
+                               subdir='level1', root=dirs[d])
     endif
     if (~file_test(dark_filename)) then continue
 
@@ -149,13 +157,12 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
   free_lun, dark_lun
 end
 
-process_dir = '/hao/mahidata1/Data/CoMP/process.flats'
-;process_dir = '/hao/mahidata1/Data/CoMP/process'
+;process_dir = '/hao/mahidata1/Data/CoMP/process.flats'
+process_dir = '/hao/mahidata1/Data/CoMP/process'
 comp_flatmedian_analysis, process_dir, $
-                          'flat-medians-new3.csv', $
-                          'dark-medians-new3.csv', $
-                          start_date='20121201', $
-;                          start_date='20161127', $
-                          end_date='20151111'
+                          'flat-medians-2.csv', $
+                          'dark-medians-2.csv', $
+                          start_date='20170918', $
+                          end_date='20180620'
 
 end
