@@ -66,8 +66,6 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
   ntags++   ; for the FLATMED tag we add below
   if (remove_stray_light && wave_type ne '1083') then ntags += 2   ; for FITMNLIN/FITVRLIN
 
-  headersout = strarr(ntags, n_ext)
-
   ; get the flats and darks
   dark = comp_dark_interp(date_dir, time, expose)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
@@ -128,6 +126,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
 
   ; add a spot for RAWEXT
   _headers = strarr(n_elements(headers[*, 0]) + 1L, n_ext)
+
   _headers[0, 0] = headers
   headers = _headers
 
@@ -148,6 +147,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
   endif
 
   n_images = n_elements(images[0, 0, *])
+  headersout = strarr(ntags, n_images)
   for i = 0L, n_images - 1L do begin
     header = headers[*, i]
     tmp_image = images[*, *, i]

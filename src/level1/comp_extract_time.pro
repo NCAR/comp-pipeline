@@ -35,6 +35,9 @@ function comp_extract_time, headers, day, month, year, hours, mins, secs
   date_str = sxpar(headers[*, 0], 'DATE_OBS')
   time_str = sxpar(headers[*, 0], 'TIME_OBS')
 
+  mg_log, 'date_str: %s', date_str, name='comp', /debug
+  mg_log, 'time_str: %s', time_str, name='comp', /debug
+
   mdy = strsplit(date_str, '/', /extract)
   month = fix(mdy[0])
   day = fix(mdy[1])

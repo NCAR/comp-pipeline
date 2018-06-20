@@ -108,9 +108,9 @@ end
 
 ; main-level example program
 
-date = '20150925'
+date = '20180104'
 
-config_filename = filepath('comp.mgalloy.mahi.destray.cfg', $
+config_filename = filepath('comp.mgalloy.mahi.test.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
@@ -118,7 +118,7 @@ comp_initialize, date
 
 @comp_config_common
 
-filename = filepath('20150925.112236.FTS', subdir=date, root=raw_basedir)
+filename = filepath('20180104.075947.FTS', subdir=date, root=raw_basedir)
 comp_l1_process_file, filename, date, '1074'
 
 end

@@ -137,34 +137,34 @@ pro comp_combine_beams, images, headers, date_dir, $
       ; background part
       images_combine[*, *, np * nw + i * nw + j] = 0.5 * (bgminus + bgplus)
 
+      hcombined = comp_combine_headers([[hplus], [hminus]], [0, 1])
+
       ; update the headers
-      sxdelpar, hplus, 'BEAM'
-      sxaddpar, hplus, 'NAVERAGE', $
+      sxdelpar, hcombined, 'BEAM'
+      sxaddpar, hcombined, 'NAVERAGE', $
                 sxpar(hplus, 'NAVERAGE') + sxpar(hminus, 'NAVERAGE')
 
-      sxaddpar, hplus, 'OXCNTER1', image_geometry.flat_occulter1.x + 1.0, $
+      sxaddpar, hcombined, 'OXCNTER1', image_geometry.flat_occulter1.x + 1.0, $
                 ' Occulter center X for dist corrected sub-flat1', $
                 format='(F0.3)'
-      sxaddpar, hplus, 'OYCNTER1', image_geometry.flat_occulter1.y + 1.0, $
+      sxaddpar, hcombined, 'OYCNTER1', image_geometry.flat_occulter1.y + 1.0, $
                 ' Occulter center Y for dist corrected sub-flat1', $
                 format='(F0.3)'
-      sxaddpar, hplus, 'ORADIUS1', image_geometry.flat_occulter1.r, $
+      sxaddpar, hcombined, 'ORADIUS1', image_geometry.flat_occulter1.r, $
                 ' Occulter radius for dist corrected sub-flat1', $
                 format='(F0.3)'
 
-      sxaddpar, hplus, 'OXCNTER2', image_geometry.flat_occulter2.x + 1.0, $
+      sxaddpar, hcombined, 'OXCNTER2', image_geometry.flat_occulter2.x + 1.0, $
                 ' Occulter center X for dist corrected sub-flat2', $
                 format='(F0.3)'
-      sxaddpar, hplus, 'OYCNTER2', image_geometry.flat_occulter2.y + 1.0, $
+      sxaddpar, hcombined, 'OYCNTER2', image_geometry.flat_occulter2.y + 1.0, $
                 ' Occulter center Y for dist corrected sub-flat2', $
                 format='(F0.3)'
-      sxaddpar, hplus, 'ORADIUS2', image_geometry.flat_occulter2.r, $
+      sxaddpar, hcombined, 'ORADIUS2', image_geometry.flat_occulter2.r, $
                 ' Occulter radius for dist corrected sub-flat2', $
                 format='(F0.3)'
 
       ; keep both FLATEXT/FLATMED values
-
-      hcombined = comp_combine_headers([[hplus], [hminus]], [0, 1])
 
       flatext1 = sxpar(hplus, 'FLATEXT', comment=comment1)
       flatext2 = sxpar(hminus, 'FLATEXT', comment=comment2)

@@ -20,7 +20,7 @@ function comp_combine_headers, headers, indices
   compile_opt strictarr
 
   n = n_elements(indices)
-  combined_header = reform(headers[*, 0])
+  combined_header = reform(headers[*, indices[0]])
 
   ; concatenate RAWEXT keyword values
   rawext = strarr(n)

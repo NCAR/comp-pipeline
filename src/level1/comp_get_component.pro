@@ -55,7 +55,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   compile_opt strictarr
   on_error, 2
 
-  ; figure out what's in this image array:
+  ; figure out what's in this image array
   comp_inventory_header, headers, beams, waves, polstates, type, $
                          expose, cover, cal_pol, cal_ret
 
@@ -72,7 +72,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   check1 = polstates eq polstate and beams eq beam
 
   ; skip very first image, which is bad due to instrument issue...
-  if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then check1[0] = 0
+  ;if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then check1[0] = 0
 
   count = lonarr(nw)
   imgout = images[*, *, 0L:nw - 1L]
