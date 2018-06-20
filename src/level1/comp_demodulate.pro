@@ -64,7 +64,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
         ; TODO: this code assumes NAVERAGE is the same for ipheads and impheads
         naverage = sxpar(ipheads[*, k], 'NAVERAGE') + sxpar(imheads[*, k], 'NAVERAGE')
 
-        headertemp = ipheads[*, k]
+        headertemp = comp_combine_headers([[ipheads[*, k]], [imheads[*, h]]], [0, 1])
 
         ; set Stokes Q/U/V headers and images
         sxaddpar, headertemp, 'POLSTATE', pols[wpc[i]]
