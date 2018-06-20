@@ -25,7 +25,7 @@ function comp_combine_headers, headers, indices
   ; concatenate RAWEXT keyword values
   rawext = strarr(n)
   for i = 0L, n - 1L do rawext[i] = sxpar(headers[*, indices[i]], 'RAWEXT')
-  sxaddpar, combined_header, 'RAWEXT', strjoin(rawext, ',')
+  sxaddpar, combined_header, 'RAWEXT', strjoin(strtrim(rawext, 2), ',')
 
   return, combined_header
 end
