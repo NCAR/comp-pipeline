@@ -13,8 +13,11 @@
 ;   start_date : in, optional, type=string
 ;     start date in the form "YYYYMMDD"
 ;-
-pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
+pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, $
+                           constant_normalization=constant_normalization
   compile_opt strictarr
+
+  normalization_factor = 84.0
 
   if (n_elements(start_date) eq 0L) then begin
     jd_start_date = 0.0D
@@ -50,6 +53,10 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
     s[i].time_of_day = float(tokens[1])
     s[i].wavelength = float(tokens[2])
     s[i].median = float(tokens[3]) * solar_distance^2
+
+    if (keyword_set(constant_normalization)) then begin
+      s[i].median *= comp_transmission(tokens[0]) / normalization_factor
+    endif
   endfor
   free_lun, lun
 
@@ -106,7 +113,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
 
   ;y_range = [0.0, 1.05 * max(s.median)]
   ;y_range = [0.0, 66.0]
-  y_range = [0.0, 140.0]
+  y_range = keyword_set(constant_normalization) ? [0.0, 70.0] : [0.0, 140.0]
   print, y_range, format='(%"flat range: %0.1f - %0.1f")'
 
   !null = label_date(date_format=['%M %D', '%Y'])
@@ -123,7 +130,10 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
         xminor=12, $
         xticks=12, $
         charsize=0.8, font=1, $
-        title='Median flat values!C!5Medians normalized for solar distance (1 AU) and exposure time (250.0 ms)!X', $
+        title=string(keyword_set(constant_normalization) $
+                       ? string(normalization_factor, format='(%"%0.1f")') $
+                       : 'linear regression of flat tests', $
+                     format='(%"Median flat values (normalized by %s)!C!5Medians normalized for solar distance (1 AU) and exposure time (250.0 ms)!X")'), $
         xtitle='Date', ytitle='Median values in both annuli', $
         position=[0.05, 0.55, 0.975, 0.95]
   axis, s[-1].time, 0.0, /yaxis, $
@@ -266,11 +276,11 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
   start = julday(1, 1, 1904, 0)
   temp_times = start + temp_times / (24.0 * 60.0 * 60.0)
 
-  temp_threshold = -170.0
-  bad_temps = where(temps lt temp_threshold, n_bad_temps)
-  if (n_bad_temps gt 0L) then begin
-    temps[bad_temps] = !values.f_nan
-  endif
+  ;temp_threshold = -170.0
+  ;bad_temps = where(temps lt temp_threshold, n_bad_temps)
+  ;if (n_bad_temps gt 0L) then begin
+  ;  temps[bad_temps] = !values.f_nan
+  ;endif
 
   zero_temps = where(temps eq 0.0, n_zero_temps)
   if (n_zero_temps gt 0L) then begin
@@ -285,7 +295,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
 
   dark_coeffs = poly_fit(d.time, d.median, 1)
   ;dark_range = [min(d.median, max=max_dark), max_dark]
-  dark_range = [1750.0, 2100.0]
+  dark_range = [1800.0, 2050.0]
   print, dark_range, format='(%"dark range: %0.1f -- %0.1f")'
   plot, [s[0].time, s[-1].time], dark_range, /nodata, /noerase, $
         xstyle=9, ystyle=9, $
@@ -303,10 +313,13 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
   xyouts, (d.time)[-1], 2100.0, string(dark_coeffs[1], format='(%"slope %0.6f")'), $
           /data, alignment=1.0, charsize=0.65, font=1
 
-  temp_range = [min(temps, max=max_temp), max_temp]
+  ;temp_range = [min(temps, max=max_temp), max_temp]
+  temp_range = [-190.0, -170.0]
   print, temp_range, format='(%"temp range: %0.1f -- %0.1f")'
+  temp_coeffs = poly_fit(temp_times, temps, 1)
   plot, [s[0].time, s[-1].time], temp_range, /nodata, /noerase, $
         xstyle=9, ystyle=9, $
+        yticks=4, $
         yticklen=-0.01, $
         xtickformat=['LABEL_DATE', 'LABEL_DATE'], $
         xtickunits=['Time', 'Time'], $
@@ -317,11 +330,15 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date
         xtitle='Date', ytitle='Temperature (deg C)', $
         position=[0.05, 0.125, 0.975, 0.2]
   oplot, temp_times, temps, psym=3, color='a0a0a0'x
+  oplot, temp_times, temp_coeffs[0] + temp_coeffs[1] * temp_times, color='000000'x
+  xyouts, s[-1].time, -180.0, string(temp_coeffs[1], format='(%"slope %0.6f")'), $
+          /data, alignment=1.0, charsize=0.65, font=1
 
   mg_psend
 end
 
 
-comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv';, start_date='20130901'
+comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
+                       /constant_normalization;, start_date='20130901'
 
 end
