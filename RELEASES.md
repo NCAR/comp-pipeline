@@ -78,3 +78,5 @@
   better ephemeris calculation
   new averaging
   not combining beams for 1083
+  add RAWEXT FITS keyword
+  combine matching extensions early in the pipeline
