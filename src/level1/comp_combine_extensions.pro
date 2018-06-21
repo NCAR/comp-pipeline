@@ -27,6 +27,7 @@
 pro comp_combine_extensions, images, headers, pol, beam, wave, error=error
   compile_opt strictarr
 
+  skip_first = 1B   ; skip first extension
   error = 0L
 
   dims = size(images, /dimensions)
@@ -39,7 +40,7 @@ pro comp_combine_extensions, images, headers, pol, beam, wave, error=error
   n_u_beam = n_elements(u_beam)
   n_u_wave = n_elements(u_wave)
 
-  n_images = n_u_pol * n_u_beam * n_u_wave
+  n_images = n_u_pol * n_u_beam * n_u_wave + skip_first
 
   new_images  = 0.0 * images[*, *, 0:n_images - 1L]
 
@@ -51,11 +52,28 @@ pro comp_combine_extensions, images, headers, pol, beam, wave, error=error
 
   i = 0L
 
+  ; skip_first indicates to not use the first extension
+  if (skip_first) then begin
+    new_images[*, *, i] = images[*, *, 0]
+
+    ; combine headers, e.g., concatenating tags such as RAWEXT
+    new_headers[*, i] = headers[*, 0]
+
+    new_pol[i]  = pol[0]
+    new_beam[i] = beam[0]
+    new_wave[i] = wave[0]
+
+    i += 1
+  endif
+
   for p = 0L, n_u_pol - 1L do begin 
     for w = 0L, n_u_wave - 1L do begin
       for b = 0L, n_u_beam - 1L do begin
         ind = where(pol eq u_pol[p] and beam eq u_beam[b] and wave eq u_wave[w], $
                     count)
+
+        ; if skip_first flag is set, remove first extension (index=0)
+        if (skip_first) then ind = mg_setdifference(ind, [0], count=count)
 
         ; if a pol-beam-wave combination is not found, exit with error
         if (count eq 0L) then begin
