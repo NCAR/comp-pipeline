@@ -106,10 +106,13 @@ pro comp_initialize, date_dir
 
   ; quality checking
   quality_threshold = comp_initialize_readconfig('quality_threshold', $
-                                                 date_dir, options, type=4, default=1000.0)
+                                                 date_dir, options, type=4, default=10000.0)
+  quality_offset_count = comp_initialize_readconfig('quality_offset_count', $
+                                                    date_dir, options, $
+                                                    type=3, default=3000L)
   quality_count = comp_initialize_readconfig('quality_count', $
                                              date_dir, options, $
-                                             type=3, default=3000L)
+                                             type=3, default=5000L)
 
   ; thresholds for cutting out bad data in the L2 products
 

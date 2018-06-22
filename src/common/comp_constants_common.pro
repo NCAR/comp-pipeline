@@ -15,6 +15,7 @@ common comp_constants, nx, ny, $
                        stokes, n_stokes, $
                        debug, $
                        quality_threshold, $
+                       quality_offset_count, $
                        quality_count, $
                        gbu_max_background, $
                        gbu_min_background, $

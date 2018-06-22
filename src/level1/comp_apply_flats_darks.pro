@@ -60,6 +60,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
 
   ntags += n_elements(optional_tags) - n_hastags
   ntags++   ; for RAWEXT tag we add below
+  ntags++   ; for OCC-PNTG tag we add below
   ntags++   ; for the ND-TRANS tag we add below
   ntags++   ; for the FLATFILE tag we add below
   ntags++   ; for the FLATEXT tag we add below
@@ -124,17 +125,30 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     images[*, *, i] = temporary(tmp_image)
   endfor
 
-  ; add a spot for RAWEXT
-  _headers = strarr(n_elements(headers[*, 0]) + 1L, n_ext)
+  ; add a spot for RAWEXT and OCC-PNTG
+  _headers = strarr(n_elements(headers[*, 0]) + 2L, n_ext)
 
   _headers[0, 0] = headers
   headers = _headers
 
   for i = 0L, n_ext - 1L do begin
     ; add RAWEXT keyword that is trivial to begin with
-    tmp_header = headers[0:-2, i]   ; last row is empty, we just added it
+    tmp_header = headers[0:-3, i]   ; last 2 rows are empty, we just added them
     sxaddpar, tmp_header, 'RAWEXT', strtrim(i + 1, 2), ' exts from raw file used', $
               after='BEAM'
+
+    tmp_image  = images[*, *, i]
+    bad_pixels = where(tmp_image gt quality_threshold, n_bad_pixels)
+    occulter_pointing = 'OK'
+    if (n_bad_pixels gt quality_offset_count) then begin
+      occulter_pointing = 'OFFSET'
+      mg_log, 'marking ext %d OFFSET for %d pixels > %0.1f', $
+              i + 1, n_bad_pixels, quality_threshold, $
+              name='comp', /warn
+    endif
+    sxaddpar, tmp_header, 'OCC-PNTG', occulter_pointing, $
+              ' pointing: OK or OFFSET', $
+              after='RAWEXT'
     headers[*, i] = tmp_header
   endfor
 

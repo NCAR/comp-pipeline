@@ -129,6 +129,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   data = fltarr(nx, nx, n_files, /nozero)   ; array for images
 
   ; arrays for header data
+  offset = bytarr(n_files)
   back = fltarr(n_files)
   time = fltarr(n_files)
   img_sigma = fltarr(n_files)
@@ -180,11 +181,11 @@ pro comp_gbu, date_dir, wave_type, error=error
       fits_open, back_name, back_fcb
     endif
 
-
     ; read primary header
     fits_read, fcb, d, header, /header_only, exten_no=0, /no_abort, message=msg
     if (msg ne '') then message, msg
 
+    offset[ifile] = strtrim(sxpar(header, 'OCC-PNTG'), 2) eq 'OFFSET'
     file_background = sxpar(header, 'BACKGRND')
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
@@ -445,7 +446,7 @@ pro comp_gbu, date_dir, wave_type, error=error
             filenames[i], $
             good_files[i] ne 0 $
               ? 'Bad' $
-              : (gt_threshold_count[i] ge gbu_offset_count ? 'Offset' : 'Good'), $
+              : (((gt_threshold_count[i] ge gbu_offset_count) || offset[i]) ? 'Offset' : 'Good'), $
             back[i], $
             img_sigma[i], $
             gt_threshold_count[i], $
