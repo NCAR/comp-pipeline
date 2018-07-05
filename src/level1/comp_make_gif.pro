@@ -145,7 +145,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   ; occulter center and outline
   x = oradius * cos(theta) + oxcenter
   y = oradius * sin(theta) + oycenter
-  plots, x, y, /device, color=ocol, linestyle=2, thick=2
+  plots, x, y, /device, color=ocol, thick=2
   plots, [oxcenter], [oycenter], /device, color=ocol, psym=1
 
   if (keyword_set(background)) then begin
@@ -159,7 +159,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     ; field center and outline
     x = fradius * cos(theta) + fxcenter
     y = fradius * sin(theta) + fycenter
-    plots, x, y, /device, color=fcol, linestyle=2, thick=1
+    plots, x, y, /device, color=fcol, thick=1
     plots, [fxcenter], [fycenter], /device, color=fcol, psym=1
 
     ; post
