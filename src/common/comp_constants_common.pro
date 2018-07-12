@@ -46,4 +46,5 @@ common comp_constants, nx, ny, $
                        u_to_v_xtalk, $
                        transmissions, $
                        use_fe_ndfilter, $
-                       default_ndfilter
+                       default_ndfilter, $
+                       raw_data_repair_routine

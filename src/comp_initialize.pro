@@ -258,6 +258,9 @@ pro comp_initialize, date_dir
   use_fe_ndfilter = comp_initialize_readconfig('use_fe_ndfilter', date_dir, options, /boolean)
   default_ndfilter = comp_initialize_readconfig('default', date_dir, options, type=3, default=8)
 
+  raw_data_repair_routine = comp_initialize_readconfig('raw_data_repair_routine', $
+                                                       date_dir, options)
+
   obj_destroy, options
 
   ; initialize L1 check values

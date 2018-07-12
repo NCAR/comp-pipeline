@@ -59,4 +59,8 @@ pro comp_read_data, filename, images, headers, header0
   endfor
 
   fits_close, fcb
+
+  ; repair issues in raw data
+  mg_log, 'repair raw data with %s', raw_data_repair_routine, name='comp', /debug
+  call_procedure, raw_data_repair_routine, images, headers, header0
 end
