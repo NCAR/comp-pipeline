@@ -76,7 +76,8 @@
   quality check
   fix for bad colors/colorbar in GIF
   better ephemeris calculation
-  new averaging
+  new averaging scheme
   not combining beams for 1083
   add RAWEXT FITS keyword
   combine matching extensions early in the pipeline
+  add epoch value to specify a routine to repair raw data
