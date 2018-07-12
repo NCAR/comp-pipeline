@@ -48,7 +48,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
   skip_first = flat_avg_skip_first
 
   nwaves = n_elements(uniq_waves)
-  wave_type = comp_find_wavelength(wave, /name)
+  wave_type = comp_find_wave_type(wave, /name)
 
   ; do not use first image at each wavelength
   wave[0] = -1   ; do not use first image

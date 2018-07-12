@@ -27,11 +27,8 @@ function comp_nearest_qufile, date_dir, headers, filename
   @comp_config_common
   @comp_mask_constants_common
 
-  wave_regions = [center1074, center1079, center1083]
-  wave_types = ['1074', '1079', '1083']
   wl = sxpar(reform(headers[*, 0]), 'WAVELENG')
-  !null = min(abs(wave_regions - wl), region_index)
-  line = wave_types[region_index]
+  line = comp_find_wave_type(wl, /name)
 
   ; find the inventory file and read it
   invenfile = filepath(string(date_dir, line, $

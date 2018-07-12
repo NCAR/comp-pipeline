@@ -50,7 +50,7 @@ function comp_image_geometry, images, headers, date_dir, $
                          cover, cal_pol, cal_ret
   mg_log, 'beams: %s', strjoin(strtrim(beam, 2), ','), name='comp', /debug
 
-  wave_type = comp_find_wavelength(wave, /name)
+  wave_type = comp_find_wave_type(wave, /name)
 
   ; get the time in the format preferred by read_flats
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
