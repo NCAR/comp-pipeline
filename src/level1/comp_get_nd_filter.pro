@@ -29,10 +29,6 @@ function comp_get_nd_filter, date, wave_type, header, error=error
 
   error = 0L
 
-  if (wave_type eq '1074' || wave_type eq '1079') then begin
-    if (~use_fe_ndfilter) then return, default_ndfilter
-  endif
-
   nd_filter = sxpar(header, 'NDFILTER', count=nd_filter_present)
 
   if (nd_filter_present eq 0 || (nd_filter_present && ~finite(nd_filter))) then begin
