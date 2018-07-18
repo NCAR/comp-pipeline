@@ -1,4 +1,4 @@
-project(kcor-pipeline)
+project(comp-pipeline)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
 set(VERSION_PATCH "19")
