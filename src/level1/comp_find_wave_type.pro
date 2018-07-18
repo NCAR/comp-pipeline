@@ -18,10 +18,11 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-function comp_find_wavelength, wavelengths, name=name
+function comp_find_wave_type, wavelengths, name=name
   compile_opt strictarr
+  @comp_constants_common
 
-  regions = [1074.7, 1079.8, 1083.0]
+  regions = [center1074, center1079, center1083]
 
   m = min(abs(mean(wavelengths) - regions), region_index)
   central_wavelength = regions[region_index]

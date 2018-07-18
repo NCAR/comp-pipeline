@@ -92,7 +92,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     endelse
   endfor
 
-  wave_type = comp_find_wavelength(wave[0], /name)
+  wave_type = comp_find_wave_type(wave[0], /name)
   flat_nd = comp_get_nd_filter(date_dir, wave_type, reform(flat_header[*, 0]))
 
   ; defines hot and adjacent variables
