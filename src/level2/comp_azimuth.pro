@@ -21,11 +21,13 @@
 ;-
 function comp_azimuth, u, q, radial_azimuth=radial_azimuth
   compile_opt strictarr
+  @comp_config_common
   @comp_constants_common
 
   ; compute azimuth, correct azimuth for quadrants
-  ; TODO: removing add 45.0 now that Q and U are now properly transformed
   azimuth = 0.5 * atan(u, q) * !radeg
+  if (~perform_polarimetric_transform) then azimuth += 45.0
+
   azimuth mod= 180.0
   bad = where(azimuth lt 0., count)
   if (count gt 0) then azimuth[bad] += 180.0
