@@ -26,6 +26,7 @@
 pro comp_read_data, filename, images, headers, header0
   compile_opt strictarr
   on_error, 2
+  @comp_constants_common
 
   fits_open, filename, fcb
   nxt = fcb.nextend
