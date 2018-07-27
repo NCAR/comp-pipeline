@@ -159,7 +159,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
 
     if (make_flat_fill) then begin
       mask_full_fill = comp_annulus_1024(flat_header, $
-                                         o_offset=0.0, f_offset=0.0, $
+                                         o_offset=1.0, f_offset=-1.0, $
                                          /uncorrected)
   
       good_pixels = where(mask_full_fill eq 1.0, n_good_pixels, $
