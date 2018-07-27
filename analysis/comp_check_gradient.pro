@@ -15,9 +15,13 @@ pro comp_check_gradient, filename, l1_dir
   comp_inventory_header, headers, $
                          file_beam, file_wave, file_pol, file_type, file_expose
 
+  ; skip first extension
   file_beam = file_beam[1:*]
   file_wave = file_wave[1:*]
   file_pol = file_pol[1:*]
+
+  images = images[*, *, 1:*]
+  headers = headers[*, 1:*]
 
   ubeam = file_beam[uniq(file_beam, sort(file_beam))]
   uwave = file_wave[uniq(file_wave, sort(file_wave))]
