@@ -91,13 +91,14 @@ end
 
 ; main-level example
 
-server = 'mahidata1'
-date = '20180130'
-time = '123540'
+raw_server = 'mahidata1'
+proc_server = 'mahidata1'
+date = '20180114'
+time = '084422'
 
-filename = string(server, date, date, time, $
+filename = string(raw_server, date, date, time, $
                   format='(%"/hao/%s/Data/CoMP/raw/%s/%s.%s.FTS")')
-l1_dir = string(server, date, $
+l1_dir = string(proc_server, date, $
                 format='(%"/hao/%s/Data/CoMP/process/%s/level1")')
 
 comp_initialize, date
