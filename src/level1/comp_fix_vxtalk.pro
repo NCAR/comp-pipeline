@@ -37,6 +37,7 @@ pro comp_fix_vxtalk, wave_type, date_dir, vimages, vheaders, filename
 
   ; find the nearest Q and U file and prepare it for crosstalk estimation
   qufile = comp_nearest_qufile(date_dir, vheaders, filename)
+  mg_log, 'nearest QU file: %s', file_basename(qufile), name='comp', /debug
   comp_read_data, qufile, quimages, quheaders, quheader0
   comp_apply_flats_darks, wave_type, quimages, quheaders, quheader0, date_dir, $
                           filename=filename

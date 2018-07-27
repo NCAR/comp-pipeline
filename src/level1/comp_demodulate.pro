@@ -69,6 +69,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
         ; set Stokes Q/U/V headers and images
         sxaddpar, headertemp, 'POLSTATE', pols[wpc[i]]
         sxaddpar, headertemp, 'NAVERAGE', naverage
+
         headers[*, (i + 1) * nb * nw + j * nw + k] = headertemp
         images[*, *, (i + 1) * nb * nw + j * nw + k] = 0.5 * (ipstokes[*, *, k] - imstokes[*, *, k])
 
