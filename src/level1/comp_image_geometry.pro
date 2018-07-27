@@ -51,6 +51,11 @@ function comp_image_geometry, images, headers, date_dir, $
   mg_log, 'beams: %s', strjoin(strtrim(beam, 2), ','), name='comp', /debug
 
   wave_type = comp_find_wave_type(wave, /name)
+  case wave_type of
+    '1074': center_wavelength = center1074
+    '1079': center_wavelength = center1079
+    '1083': center_wavelength = center1083
+  endcase
 
   ; get the time in the format preferred by read_flats
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
@@ -113,7 +118,7 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; use background for 1074 and 1079, but corona for 1083
   test1 = wave_type eq '1083' ? beam lt 0 : beam gt 0
-  ind1 = where(test1, n_plus_beam)
+  ind1 = where(test1 and wave eq center_wavelength, n_plus_beam)
 
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
@@ -176,7 +181,7 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; use background for 1074 and 1079, but corona for 1083
   test2 = wave_type eq '1083' ? beam gt 0 : beam lt 0
-  ind2 = where(test2, n_minus_beam)
+  ind2 = where(test2 and wave eq center_wavelength, n_minus_beam)
 
   if (n_minus_beam gt 0) then begin
     sub2 = comp_extract2(reform(images[*, *, ind2[0]]))
