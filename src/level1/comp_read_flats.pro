@@ -90,7 +90,7 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
     num = fcb.nextend
 
     ; get normalize
-    fits_read, fcb, dummy, header, exten_no=1, /no_abort, message=msg
+    fits_read, fcb, dummy, header, exten_no=0, /no_abort, message=msg
     if (msg ne '') then message, msg
     normalize = sxpar(header, 'NORMALIZ')
 
