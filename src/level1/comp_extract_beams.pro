@@ -86,6 +86,7 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   off2 = off_right || off_bottom
 
   if (off1) then begin
+    ; TODO: check COMP_DISK_MASK for images not centered?
     annulus_mask1 = comp_disk_mask(uncorrected_geometry.occulter1.r, $
                                    xcen=uncorrected_geometry.occulter1.x, $
                                    ycen=uncorrected_geometry.occulter1.y) $

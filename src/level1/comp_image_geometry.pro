@@ -68,9 +68,6 @@ function comp_image_geometry, images, headers, date_dir, $
   ; flat_header is now an array of flats - extract first one
   flat_header = reform(flat_header[*, 0])
   
-  ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
-  restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
- 
   ; read occulter center in 620x620 frames to use as center guess
   occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - 1.0, $
                y:sxpar(flat_header, 'OYCNTER1') - 1.0 - 1024 + ny, $
@@ -144,12 +141,8 @@ function comp_image_geometry, images, headers, date_dir, $
 
     ; remove distortion
     case distortion_method of
-      'coeffs': begin
-          sub1 = comp_apply_distortion_coeffs(sub1, k1)
-        end
-      'file': begin
-          sub1 = comp_apply_distortion_file(sub1, dx1_c, dy1_c)
-        end
+      'coeffs': sub1 = comp_apply_distortion_coeffs(sub1, k1)
+      'file': sub1 = comp_apply_distortion_file(sub1, dx1_c, dy1_c)
       else:
     endcase
 
@@ -206,12 +199,8 @@ function comp_image_geometry, images, headers, date_dir, $
 
     ; remove distortion
     case distortion_method of
-      'coeffs': begin
-          sub2 = comp_apply_distortion_coeffs(sub2, k2)
-        end
-      'file': begin
-          sub2 = comp_apply_distortion_file(sub2, dx2_c, dy2_c)
-        end
+      'coeffs': sub2 = comp_apply_distortion_coeffs(sub2, k2)
+      'file': sub2 = comp_apply_distortion_file(sub2, dx2_c, dy2_c)
       else:
     endcase
 

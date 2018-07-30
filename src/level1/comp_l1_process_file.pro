@@ -50,7 +50,11 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; TODO: do uncorrected_images need to be demodulated and corrected for
   ; crosstalk?
 
+  mg_log, 'n images: %d', n_elements(images[0, 0, *]), name='comp', /debug
+
   comp_demodulate, images, headers, images_demod, headers_demod
+
+  mg_log, 'n images: %d', n_elements(images[0, 0, *]), name='comp', /debug
 
   if (demodulated_output) then begin
     comp_write_intermediate, header0, images_demod, headers_demod, $

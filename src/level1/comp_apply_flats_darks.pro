@@ -153,6 +153,8 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     headers[*, i] = tmp_header
   endfor
 
+  mg_log, 'n images: %d', n_elements(images[0, 0, *]), name='comp', /debug
+
   ; combine like extensions (with same pol, beam, and wavelength)
   comp_combine_extensions, images, headers, pol, beam, wave, error=combine_error
   if (combine_error ne 0L) then begin
@@ -160,6 +162,8 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
     error = 2
     goto, done
   endif
+
+  mg_log, 'n images: %d', n_elements(images[0, 0, *]), name='comp', /debug
 
   n_images = n_elements(images[0, 0, *])
   headersout = strarr(ntags, n_images)
