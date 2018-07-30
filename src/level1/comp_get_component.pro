@@ -27,8 +27,6 @@
 ;     wavelengths on return
 ;
 ; :Keywords:
-;   skipall : in, optional, type=boolean
-;     skip the first image at every wavelength
 ;   count : out, optional, type=long
 ;     the number of images averaged at each wavelength
 ;   headersout : out, optional, type="strarr(varies, nimg)"
@@ -46,7 +44,6 @@
 ;   MLSO Software Team
 ;-
 function comp_get_component, images, headers, polstate, beam, wave, $
-                             skipall=skipall, $
                              count=count, $
                              headersout=headersout, $
                              average_wavelengths=average_wavelengths, $
@@ -72,7 +69,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   check1 = polstates eq polstate and beams eq beam
 
   ; skip very first image, which is bad due to instrument issue...
-  ;if (keyword_set(skipall) eq 0 and keyword_set(noskip) eq 0) then check1[0] = 0
+  if (~keyword_set(noskip)) then check1[0] = 0
 
   count = lonarr(nw)
   imgout = images[*, *, 0L:nw - 1L]
@@ -87,11 +84,6 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     endif
 
     imagei = images[*, *, checki]
-
-    if (keyword_set(skipall)) then begin
-      imagei = imagei[*, *, 1:counti - 1]   ; skip first image at all wavelengths...
-      --counti
-    endif
 
     ; average over images with same wavelengths, polstate, and beam:
     if (counti gt 1) then imagei = mean(imagei, dimension=3)
@@ -130,4 +122,17 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   endif
 
   return, imgout
+end
+
+
+; main-level example program
+
+comp_initialize, '20180101'
+basename = '20180101.163930.FTS'
+filename = filepath(basename, root='/hao/mahidata1/Data/CoMP/raw/20180101')
+comp_read_data, filename, images, headers, primary_header
+
+im = comp_get_component(images, headers, 'I+U', -1)
+help, im
+
 end
