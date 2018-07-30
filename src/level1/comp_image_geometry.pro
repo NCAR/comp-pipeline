@@ -57,6 +57,9 @@ function comp_image_geometry, images, headers, date_dir, $
     '1083': center_wavelength = center1083
   endcase
 
+  ; TODO: use FLATEXT in header to give the appropriate flat/header for this
+  ; image
+
   ; get the time in the format preferred by read_flats
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $
@@ -207,7 +210,7 @@ function comp_image_geometry, images, headers, date_dir, $
           sub2 = comp_apply_distortion_coeffs(sub2, k2)
         end
       'file': begin
-          sub2 = comp_apply_distortion_file(sub1, dx2_c, dy2_c)
+          sub2 = comp_apply_distortion_file(sub2, dx2_c, dy2_c)
         end
       else:
     endcase
