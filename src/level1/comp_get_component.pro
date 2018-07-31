@@ -79,6 +79,7 @@ function comp_get_component, images, headers, polstate, beam, wave, $
   for i = 0L, nw - 1L do begin
     ; find which indices have matching wavelength, polstate, and beam...
     checki = where(check1 and waves eq wave[i], counti)
+
     if (counti lt 1) then begin
       message, 'no image at specified polarization/beam/wave'
     endif
@@ -127,9 +128,9 @@ end
 
 ; main-level example program
 
-comp_initialize, '20180101'
-basename = '20180101.163930.FTS'
-filename = filepath(basename, root='/hao/mahidata1/Data/CoMP/raw/20180101')
+comp_initialize, '20150224'
+basename = '20150224.075849.FTS'
+filename = filepath(basename, root='/hao/compdata1/Data/CoMP/raw/20150224')
 comp_read_data, filename, images, headers, primary_header
 
 im = comp_get_component(images, headers, 'I+U', -1)

@@ -178,7 +178,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
         background = comp_get_component(images, headers, $
                                         'BKG' + polarizations[i], $
                                         0, $
-                                        wavelengths[i])
+                                        wavelengths[i], /noskip)
         extension_background = median(background[where(mask eq 1.0)])
       endelse
 
