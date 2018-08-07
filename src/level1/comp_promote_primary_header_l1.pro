@@ -31,6 +31,7 @@
 ;-
 pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type, $
                                     image_geometry=image_geometry, $
+                                    uncorrected_geometry=uncorrected_geometry, $
                                     headers_combine=headers_combine
   compile_opt strictarr
 
@@ -190,10 +191,33 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Occulter radius for dist corrected sub-image2', $
             format='(F0.3)'
 
+  ; add center of distortion uncorrected image in 1..620 reference frame
+
+  sxaddpar, primary_header, 'OXCNTRU1', uncorrected_geometry.occulter1.x + 1.0, $
+            ' Occulter center X for dist uncorrected sub-image1', $
+            format='(F0.3)'
+  sxaddpar, primary_header, 'OYCNTRU1', uncorrected_geometry.occulter1.y + 1.0, $
+            ' Occulter center Y for dist uncorrected sub-image1', $
+            format='(F0.3)'
+  sxaddpar, primary_header, 'ORADU1', uncorrected_geometry.occulter1.r, $
+            ' Occulter radius for dist corrected sub-image1', $
+            format='(F0.3)'
+
+  sxaddpar, primary_header, 'OXCNTRU2', uncorrected_geometry.occulter2.x + 1.0, $
+            ' Occulter center X for dist uncorrected sub-image2', $
+            format='(F0.3)'
+  sxaddpar, primary_header, 'OYCNTRU2', uncorrected_geometry.occulter2.y + 1.0, $
+            ' Occulter center Y for dist uncorrected sub-image2', $
+            format='(F0.3)'
+  sxaddpar, primary_header, 'ORADUS2', uncorrected_geometry.occulter2.r, $
+            ' Occulter radius for dist uncorrected sub-image2', $
+            format='(F0.3)'
+
   ; field parameters
   sxaddpar, primary_header, 'FRADIUS', $
             (image_geometry.field1.r + image_geometry.field1.r) / 2., $
             ' [pixels] Field Radius', format='(f8.2)'
+
   ; Center of field, offset from center of occulter and rotated by angle
   xoffset = (image_geometry.occulter1.x + image_geometry.occulter2.x) / 2.0 $
               - (image_geometry.field1.x + image_geometry.field2.x) / 2.0

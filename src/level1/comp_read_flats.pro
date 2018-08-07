@@ -151,12 +151,8 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
               name='comp', /warn
     endif
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; TODO
-; this should use a better masking for the flat
-; does not properly account for post and overlap
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+    ; TODO: this should use a better masking for the flat does not properly
+    ; account for post and overlap
     if (make_flat_fill) then begin
       mask_full_fill = comp_annulus_1024(flat_header, $
                                          o_offset=1.0, f_offset=-1.0, $
@@ -168,8 +164,6 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
       image[bad_pixels] = medflat
       mg_log, 'filling flat values with %0.2f outside annulus', medflat, $
               name='comp', /debug
-
-
     endif
 
     flat[*, *, iw] = float(image)

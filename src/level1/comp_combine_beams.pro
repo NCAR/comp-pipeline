@@ -44,6 +44,7 @@ pro comp_combine_beams, images, headers, date_dir, $
                         images_combine, headers_combine, primary_header, $
                         n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                         image_geometry=image_geometry, $
+                        uncorrected_geometry=uncorrected_geometry, $
                         wave_type=wave_type, $
                         uncorrected_images=uncorrected_images, $
                         error=error

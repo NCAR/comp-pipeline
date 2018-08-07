@@ -86,6 +86,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       images_combine, headers_combine, header0, $
                       n_uniq_polstates=np, n_uniq_wavelengths=nw, $
                       image_geometry=image_geometry, $
+                      uncorrected_geometry=uncorrected_geometry, $
                       wave_type=wave_type, $
                       uncorrected_images=uncorrected_images
 
@@ -95,6 +96,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
   ; update the primary header and write the processed data to the output file
   comp_promote_primary_header_l1, headers, header0, date_dir, wave_type, $
                                   image_geometry=image_geometry, $
+                                  uncorrected_geometry=uncorrected_geometry, $
                                   headers_combine=headers_combine
 
   ; perform heliographic coordinate transformation
