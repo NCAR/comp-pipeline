@@ -62,14 +62,12 @@ pro comp_check_gradient, filename, l1_dir
                       and ubeam[b] eq file_beam $
                       and upol[p] eq file_pol, $
                     count)
-        if (count ne 2) then begin
-          message, string(count, format='(%"found %d matching extensions")')
-        endif
+        message, string(count, format='(%"found %d matching extensions")'), /info
 
         ;print, ubeam[b], uwave[w], upol[p], ind + 1, $
         ;format='(%"for beam %d, wave %0.2f, and pol %s, found exts: %d and %d")'
         raw1 = images[*, *, ind[0]]
-        raw2 = images[*, *, ind[1]]
+        raw2 = images[*, *, ind[-1]]
 
         im1 = raw1 - dark
         im2 = raw2 - dark
@@ -93,8 +91,30 @@ end
 
 raw_server = 'mahidata1'
 proc_server = 'mahidata1'
-date = '20180114'
-time = '084422'
+
+;date = '20180114'
+;time = '084422'
+
+;date = '20160702'
+;time = '100806'
+
+;date = '20170402'
+;time = '101019'
+
+date = '20170621'
+time = '094654'
+
+date = '20170621'
+time = '084058'
+
+date = '20170621'
+time = '080922'
+
+date = '20161221'
+time = '090919'
+
+date = '20170621'
+time = '071505'
 
 filename = string(raw_server, date, date, time, $
                   format='(%"/hao/%s/Data/CoMP/raw/%s/%s.%s.FTS")')
