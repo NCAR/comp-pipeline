@@ -11,7 +11,7 @@
 ;   times : in, required, type=strarr
 ;     date/time in the form 'YYYY-MM-DD HH:MM:SS' in UT
 ;-
-function comp_gbu_plot_convert_times, times
+function comp_plot_gbu_convert_times, times
   compile_opt strictarr
 
   hrs  = long(strmid(times, 11, 2))
@@ -31,6 +31,8 @@ end
 ; Make a histogram plot of the raw files from the day, color coded by quality
 ; type.
 ;
+; Note: files that are not "OK" could be counted multiple times in the histogram.
+;
 ; :Params:
 ;   date : in, required, type=string
 ;     observing date in the form "YYYYMMDD"
@@ -45,7 +47,7 @@ end
 ;   _extra : in, optional, type=keywords
 ;     keywords to COMP_READ_GBU
 ;-
-pro comp_gbu_plot, date, output_filename, gbu_filename, _extra=e
+pro comp_plot_gbu, date, output_filename, gbu_filename, _extra=e
   compile_opt strictarr
 
   mg_log, 'producing end-of-day GBU plot...', name='comp', /info
@@ -74,7 +76,7 @@ pro comp_gbu_plot, date, output_filename, gbu_filename, _extra=e
         ind = where(gbu.reason and type_bitmask[t], n_type)
       endelse
       if (n_type gt 0L) then begin
-        histograms[t, *] = histogram(comp_gbu_plot_convert_times((gbu.time_obs)[ind]), $
+        histograms[t, *] = histogram(comp_plot_gbu_convert_times((gbu.time_obs)[ind]), $
                                      min=start_time, $
                                      max=end_time - increment / 60.0, $
                                      nbins=n_bins, $
@@ -146,7 +148,7 @@ for day = 1, 31 do begin
   output_filename = filepath(string(date, wave_type, $
                                     format='(%"%s.comp.%s.gbu.png")'), $
                              root='.')
-  comp_gbu_plot, date, output_filename, gbu_filename, n_header_lines=1
+  comp_plot_gbu, date, output_filename, gbu_filename, n_header_lines=1
 endfor
 
 end
