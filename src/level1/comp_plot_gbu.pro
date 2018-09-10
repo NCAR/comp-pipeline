@@ -137,7 +137,7 @@ end
 
 year = '2018'
 month = '01'
-wave_type = '1074'
+wave_type = '1083'
 
 for day = 1, 31 do begin
   date = string(year, month, day, format='(%"%s%s%02d")')

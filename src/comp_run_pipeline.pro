@@ -310,6 +310,16 @@ pro comp_run_pipeline, config_filename=config_filename
           mg_log, 'error with determing GBU, stopping day', name='comp', /error
           goto, done_with_day
         endif
+
+        gbu_plot_filename = filepath(string(date, process_wavelengths[w], $
+                                            format='(%"%s.comp.%s.gbu.png")'), $
+                                     subdir=comp_decompose_date(date), $
+                                     root=engineering_dir)
+        gbu_filename = filepath(string(date, process_wavelengths[w], $
+                                       format='(%"%s.comp.%s.gbu.log")'), $
+                                subdir=[date, 'level1'], $
+                                root=process_basedir)
+        comp_plot_gbu, date, gbu_plot_filename, gbu_filename
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
