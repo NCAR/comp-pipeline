@@ -74,6 +74,7 @@
   bug fix
 1.3.19
   quality check
+  produce GBU plot for the day
   fix for bad colors/colorbar in GIF
   better ephemeris calculation
   new averaging scheme
