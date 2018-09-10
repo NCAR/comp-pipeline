@@ -39,11 +39,13 @@
 ;   removed gzip    Oct 1 2014  GdT
 ;   see git log for recent changes
 ;-
-function comp_read_gbu, gbu_file, count=count
+function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
   compile_opt strictarr
 
+  _n_header_lines = n_elements(n_header_lines) eq 0L ? 2L : n_header_lines
+
   nlines = file_lines(gbu_file)
-  count = nlines - 2L
+  count = nlines - _n_header_lines
   sarr = strarr(nlines)
   openr, unit, gbu_file, /get_lun
   readf, unit, sarr
@@ -55,8 +57,8 @@ function comp_read_gbu, gbu_file, count=count
 
   if (count eq 0) then return, !null
 
-  ; skip 2 lines of header
-  for ii = 2L, n_elements(sarr) - 1L do begin
+  ; skip header lines
+  for ii = _n_header_lines, n_elements(sarr) - 1L do begin
     str = {l1file: '', $
            time_obs: '', $
            quality: '', $
@@ -90,6 +92,16 @@ function comp_read_gbu, gbu_file, count=count
       str.background = 0.
       str.variance = float(x[2])
       str.wavelengths = fix(x[3])
+    endif else if (n_elements(x) eq 6) then begin
+      str.quality = x[1]
+      str.background = float(x[2])
+      if (strmid(x[3], 0, 1) eq '*') then begin
+        str.variance = !values.f_nan
+      endif else begin
+        str.variance = float(x[3])
+      endelse
+      str.wavelengths = fix(x[4])
+      str.reason = long(x[5])
     endif else begin
       str.quality = x[1]
       str.background = float(x[2])
