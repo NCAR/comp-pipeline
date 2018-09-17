@@ -90,7 +90,12 @@ pro comp_configuration, config_filename=config_filename, error=error
   eng_flat_gifs               = config->get('flat_gifs', $
                                             section='engineering', $
                                             /boolean, default=0B)
-
+  save_stray_light_fit        = config->get('save_stray_light_fit', $
+                                            section='engineering', $
+                                            /boolean, default=0B)
+  stray_light_max_degree      = config->get('stray_light_max_degree', $
+                                            section='engineering', $
+                                            /boolean, default=0B)
 
   ; actions
   dry_run             = config->get('dry_run', section='actions', $

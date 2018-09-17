@@ -179,7 +179,18 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
       ; using the flat header is probably OK here since we over-occult by so
       ; much in COMP_FIX_STRAY_LIGHT
       comp_fix_stray_light, tmp_image, flat_header[*, iflat], fit, $
-                            coefficients=stray_coefficients
+                            coefficients=stray_coefficients, $
+                            max_degree=stray_light_max_degree
+
+      if (save_stray_light_fit) then begin
+        dt = strmid(file_basename(filename), 0, 15)
+        stray_light_fit_basename = string(dt, i + 1, $
+                                          format='(%"%s.%d.stray_light_fit.sav")')
+        stray_light_fit_filename = filepath(stray_light_fit_basename, $
+                                            subdir=comp_decompose_date(date), $
+                                            root=engineering_dir)
+        save, fit, stray_light_fit_filename
+      endif
 
       ; write stray light coefficients
       n_coeffs = n_elements(stray_coefficients)

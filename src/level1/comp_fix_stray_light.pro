@@ -34,7 +34,7 @@
 ;   10/8/14 - POLYWARP was replaced by COMP_SFIT to increase speed
 ;   see git log for recent changes
 ;-
-pro comp_fix_stray_light, image, flat_header, fit, coefficients=kx
+pro comp_fix_stray_light, image, flat_header, fit, coefficients=kx, max_degree=max_degree
   compile_opt strictarr
 
   dims = size(image, /dimensions)   ; get image size
@@ -66,7 +66,7 @@ pro comp_fix_stray_light, image, flat_header, fit, coefficients=kx
   data[2, *] = image[good]
 
   ndeg = 2L   ; degree of polynomial fit
-  kx = comp_sfit(data, ndeg, /irregular)
+  kx = comp_sfit(data, ndeg, /irregular, max_degree=max_degree)
 
   ; compute fit from coefficients and subtract it from input image
   fit = comp_eval_surf(transpose(kx), reform(x[*, 0]), reform(y[0, *]))

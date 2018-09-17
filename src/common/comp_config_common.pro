@@ -24,6 +24,8 @@ common comp_config, doi_1074,$
                     flat_corrected_output, $
                     demodulated_output, $
                     eng_flat_gifs, $
+                    save_stray_light_fit, $
+                    stray_light_max_degree, $
                     ffmpeg_dir, $
                     hsi_dir, $
                     l1_process_log_level, $
