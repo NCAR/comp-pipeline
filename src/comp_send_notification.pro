@@ -10,8 +10,10 @@
 ;     list of strings for the body of the message
 ;   t0 : in, required, type=double
 ;     epoch time of the start of the pipeline for this date
+;   gbu_plot_filename : in, optional, type=string
+;     filename of GBU plot file
 ;-
-pro comp_send_notification, date, body, t0
+pro comp_send_notification, date, body, t0, gbu_plot_filename
   @comp_config_common
 
   ; add tag about pipeline and process at the end of body
@@ -33,7 +35,8 @@ pro comp_send_notification, date, body, t0
             name='comp', /info
     subject = string(date, format='(%"CoMP results for %s")')
     body_text = body->toArray()
-    comp_send_mail, notification_email, subject, body_text
+    comp_send_mail, notification_email, subject, body_text, $
+                    attachments=gbu_plot_filename
   endif else begin
     mg_log, 'not sending notification because no email', name='comp', /info
   endelse

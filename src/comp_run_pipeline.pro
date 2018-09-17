@@ -607,7 +607,7 @@ pro comp_run_pipeline, config_filename=config_filename
         endif
       endfor
 
-      comp_send_notification, date_dir, body, t0
+      comp_send_notification, date_dir, body, t0, gbu_plot_filename
 
       check_l1_t1 = systime(/seconds)
       mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $
