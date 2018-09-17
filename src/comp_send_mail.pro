@@ -15,11 +15,15 @@
 ; :Keywords:
 ;   error : out, optional, type=long
 ;     error status, 0 if no error
+;   attachments : in, optional, type=strarr
+;     filenames of attachments
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_send_mail, address, subject, body, error=error
+pro comp_send_mail, address, subject, body, $
+                    attachments=attachments, $
+                    error=error
   compile_opt strictarr
 
   if (n_elements(body) eq 0L) then begin
@@ -35,8 +39,12 @@ pro comp_send_mail, address, subject, body, error=error
     free_lun, lun
   endelse
 
-  cmd = string(subject, address, body_filename, $
-               format='(%"mail -s ''%s'' -r $(whoami)@ucar.edu %s < %s")')
+  _attachments = n_elements(attachments) eq 0L $
+                   ? '' $
+                   : (strjoin('-a ' + attachments, ' '))
+
+  cmd = string(subject, _attachments, address, body_filename, $
+               format='(%"mail -s ''%s'' %s -r $(whoami)@ucar.edu %s < %s")')
   spawn, cmd, result, error_result, exit_status=error
   if (error ne 0L) then begin
     mg_log, 'problem with mail command: %s', cmd, name='comp', /error
