@@ -311,15 +311,15 @@ pro comp_run_pipeline, config_filename=config_filename
           goto, done_with_day
         endif
 
-        gbu_plot_filename = filepath(string(date, process_wavelengths[w], $
+        gbu_plot_filename = filepath(string(date_dir, process_wavelengths[w], $
                                             format='(%"%s.comp.%s.gbu.png")'), $
-                                     subdir=comp_decompose_date(date), $
+                                     subdir=comp_decompose_date(date_dir), $
                                      root=engineering_dir)
-        gbu_filename = filepath(string(date, process_wavelengths[w], $
+        gbu_filename = filepath(string(date_dir, process_wavelengths[w], $
                                        format='(%"%s.comp.%s.gbu.log")'), $
-                                subdir=[date, 'level1'], $
+                                subdir=[date_dir, 'level1'], $
                                 root=process_basedir)
-        comp_plot_gbu, date, gbu_plot_filename, gbu_filename
+        comp_plot_gbu, date_dir, gbu_plot_filename, gbu_filename
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
