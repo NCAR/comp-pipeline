@@ -185,11 +185,11 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
       if (save_stray_light_fit) then begin
         dt = strmid(file_basename(filename), 0, 15)
         stray_light_fit_basename = string(dt, i + 1, $
-                                          format='(%"%s.%d.stray_light_fit.sav")')
+                                          format='(%"%s.ext-%02d.stray_light_fit.sav")')
         stray_light_fit_filename = filepath(stray_light_fit_basename, $
                                             subdir=comp_decompose_date(date_dir), $
                                             root=engineering_dir)
-        save, fit, stray_light_fit_filename
+        save, fit, filename=stray_light_fit_filename
       endif
 
       ; write stray light coefficients
