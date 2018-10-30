@@ -94,3 +94,23 @@ pro comp_get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
   ;  telluric_spec=( 1.0 - (1.0-telluric_spec)*h2o_factor ) > 0.
   ;endif
 end
+
+
+; main-level example program
+
+config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+
+lam0 = 1074.7
+
+comp_get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
+
+window, xsize=800, ysize=300, title=string(lam0, format='(%"%0.2f nm")')
+plot, lambda, solar_spec, xstyle=9, ystyle=9, yrange=[0.0, 1.0], /nodata, $
+      xtitle='wavelength [nm]'
+oplot, lambda, solar_spec, color='00ffff'x
+oplot, lambda, telluric_spec, color='ffff00'x
+
+end
