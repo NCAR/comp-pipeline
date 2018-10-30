@@ -24,7 +24,7 @@ function comp_powfunc, x
                              missing=1.0, /double)
   endelse
 
-  ;  apply h2o factor to telluric spectrum
+  ; apply h2o factor to telluric spectrum
   x[1] = abs(x[1])
   shift_tell = (1.0 - (1.0 - shift_tell) * x[1]) > 0.0
 
@@ -40,8 +40,6 @@ function comp_powfunc, x
     plot, lambda, shift_tell, charsize=2
     plot, wav, spec_on, psym=4, charsize=2
     oplot, wav, obs
-    ans  = ' '
-    read, 'enter return', ans
   endif
 
   chisq = total((spec_on - obs)^2 + (spec_off - back)^2)
@@ -66,38 +64,24 @@ end
 ;     time flat was taken
 ;-
 pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
-                                      offset, h2o, flat_time, off_tell, $
-                                      dev=dev
+                                      offset, h2o, flat_time, off_tell
   compile_opt strictarr
   common fit, wav, lambda, solar_spec, telluric_spec, $
               filter_trans_on, filter_trans_off, obs, back
 
+  @comp_config_common
   @comp_constants_common
   @comp_mask_constants_common
 
-  ; configure
-  comp_initialize, date_dir
-  comp_paths, date_dir
-
-  if keyword_set(dev) eq 0 then dev = 'p'   ; if device not set, then output to ps
-
-  debug = 'no'     ; debug mode, 'yes' or 'no'
-  ans = ' '
-
-  dir = 'C:\Users\tomczyk\Documents\Comp\idl\Systematics\'
-  cd, dir
-
-  if (dev ne 'p') then begin
-    window, 0, xsize=900, ysize=1000
-  endif
+  debug = 1B     ; debug mode, 'yes' or 'no'
 
   ; open flat file for this day
-  file = 'V:\CoMP\process\'+date_dir+'\flat.fts'
-  r = file_search(file)
-  if (r eq '') then file = 'V:\CoMP\process\' + date_dir + '\level1\flat.fts'
+  flat_filename = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
+                           subdir=[date_dir, 'level1'], $
+                           root=process_basedir)
 
-  fits_open, file, fcb       ; open input file
-  num = fcb.nextend          ; get number of extensions
+  fits_open, flat_filename, fcb       ; open input file
+  num = fcb.nextend                 ; get number of extensions
 
   ; define masks for each beam
   fits_read, fcb, d, flat_header, exten_no=1, /header_only   ; get header information
@@ -114,12 +98,13 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
   fits_read, fcb, times, header, exten_no=num - 2   ; read times for flats
 
   u_time = times[uniq(times, sort(times))]   ; identify unique observation times
-  if (debug eq 'yes') then print, u_time
+
+  mg_log, '%s', strjoin(string(u_time, format='(F0.3)'), ', ' ), name='comp', /debug
 
   nflat = 0
   f_index = intarr(10)   ; array to hold extension index of first flat in sequence
   for i = 0L, n_elements(u_time) - 1L do begin
-    use=where(times eq u_time[i],count)
+    use = where(times eq u_time[i],count)
     ; just look for 11 wavelength flats near target wavelength
     if ((count eq 22) and (abs(lam0 - mean(abs(waves[use]))) lt 2.0)) then begin
       f_index[nflat] = use[0] + 1
@@ -127,11 +112,11 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
     endif
   endfor
   f_index = f_index[0:nflat - 1]
-  if (debug eq 'yes') then print, 'f_index:', f_index
-  print, nflat, ' 11 wavelength flats at:', lam0 
+  mg_log, 'f_index: %s', strjoin(strtrim(f_index, 2), ', '), name='comp', /debug
+  mg_log, '%d 11 wavelengths flats at %0.2f nm', nflat, lam0, name='comp', /debug
 
   if (nflat gt 0) then begin
-    ;  get solar and telluric spectra in this region from atlas
+    ; get solar and telluric spectra in this region from atlas
     comp_get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
     nlambda = n_elements(lambda)
     dlam = lambda[1] - lambda[0]   ; wavelength spacing of spectra
@@ -218,37 +203,39 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
       bfit2 = poly(w, c)
 
       ; plot data and fit to continuum
-      if (dev ne 'p') then wset, 0
-      !p.multi = [0, 2, 3, 0, 0]
-  
-      plot, wav, obs1, $
-            psym=2, $
-            title='Observations and Continuum Fit', $
-            xtitle='CoMP Wavelength (nm)', $
-            ytitle='Intensity (ppm)', $
-            yrange=[0.0, 1.1 * (max(obs1) > max(obs2))], $
-            charsize=1.5
-      oplot, wav, ofit1
-      oplot, wav, obs2, psym=4
-      oplot, wav, ofit2, linesty=1
-      oplot, wav[to_fit_obs], obs1[to_fit_obs], psym=5
-      oplot, wav[to_fit_obs], obs2[to_fit_obs], psym=5
+      if (keyword_set(debug)) then begin
+        window, xsize=900, ysize=1000, /free, $
+                title=string(f_index[iflat], format='(%"ext: %d")')
+        !p.multi = [0, 2, 3, 0, 0]
 
-      plot, wav, back1, $
-            psym=2, $
-            title='Background and Continuum Fit', $
-            xtitle='CoMP Wavelength (nm)', $
-            ytitle='Intensity (ppm)',$
-            yrange=[0.0, 1.1*(max(obs1) > max(obs2))], $
-            charsize=1.5
-      oplot, wav, bfit1
-      oplot, wav, back2, psym=4
-      oplot, wav, bfit2, linesty=1
-      oplot, wav[to_fit_back], back1[to_fit_back], psym=5
-      oplot, wav[to_fit_back], back2[to_fit_back], psym=5
+        plot, wav, obs1, $
+              psym=2, $
+              title='Observations and Continuum Fit', $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Intensity (ppm)', $
+              yrange=[0.0, 1.1 * (max(obs1) > max(obs2))], $
+              charsize=1.75
+        oplot, wav, ofit1
+        oplot, wav, obs2, psym=4
+        oplot, wav, ofit2, linesty=1
+        oplot, wav[to_fit_obs], obs1[to_fit_obs], psym=5
+        oplot, wav[to_fit_obs], obs2[to_fit_obs], psym=5
 
-      xyouts, 0.1, 0.72, datetime, /normal, charsize=1.0
-      if (debug eq 'yes') then read, 'enter return', ans
+        plot, wav, back1, $
+              psym=2, $
+              title='Background and Continuum Fit', $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Intensity (ppm)',$
+              yrange=[0.0, 1.1*(max(obs1) > max(obs2))], $
+              charsize=1.75
+        oplot, wav, bfit1
+        oplot, wav, back2, psym=4
+        oplot, wav, bfit2, linesty=1
+        oplot, wav[to_fit_back], back1[to_fit_back], psym=5
+        oplot, wav[to_fit_back], back2[to_fit_back], psym=5
+
+        xyouts, 0.1, 0.72, datetime, /normal, charsize=1.25
+      endif
   
       ; divide data by fit
       obs1 /= ofit1
@@ -298,7 +285,8 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
   
       powell, p1, xi, ftol, fmin, 'comp_powfunc', /double
       p1[1] = abs(p1[1])
-      print, p1, fmin
+      mg_log, '%s %0.5f', strjoin(string(p1, format='(F0.4)'), ', '), fmin, $
+              name='comp', /debug
 
       xi = dblarr(nparam, nparam)
       for i = 0, nparam - 1 do xi[i, i] = 1.d0
@@ -306,7 +294,8 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
       back = back2
       powell, p2, xi, ftol, fmin, 'comp_powfunc', /double
       p2[1] = abs(p2[1])
-      print, p2, fmin
+      mg_log, '%s %0.5f', strjoin(string(p2, format='(F0.4)'), ', '), fmin, $
+              name='comp', /debug
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p1[0] / dlam, $
@@ -322,7 +311,7 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
                                  dindgen(nlambda) + p1[4] / dlam, $
                                  missing=1.0, $
                                  /double)
-      endif
+      endelse
   
       ; apply h2o factor to telluric spectrum
       shift_tell = (1.0 - (1.0 - shift_tell) * p1[1]) > 0.0
@@ -334,29 +323,29 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
         spec_off[i] = p1[3] * total(filter_trans_off[*, i] * shift_sol * shift_tell)
       endfor
 
-      plot, wav, obs1, $
-            yrange=[0.0, 1.2], $
-            psym=2, $
-            xtitle='CoMP Wavelength (nm)', $
-            ytitle='Normalized Intensity', $
-            title='Observations and Fit', $
-            charsize=1.5
-      oplot, wav, spec_on
-      xyouts, 0.1, 0.42, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
-              /normal, charsize=1.0
-      xyouts, 0.1, 0.39, string(p1[1], format='("H2O:",f7.3)'), $
-              /normal, charsize=1.0
+      if (keyword_set(debug)) then begin
+        plot, wav, obs1, $
+              yrange=[0.0, 1.2], $
+              psym=2, $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Normalized Intensity', $
+              title='Observations and Fit', $
+              charsize=1.75
+        oplot, wav, spec_on
+        xyouts, 0.1, 0.42, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
+                /normal, charsize=1.25
+        xyouts, 0.1, 0.39, string(p1[1], format='("H2O:",f7.3)'), $
+                /normal, charsize=1.25
 
-      plot, wav, back1, $
-            yrange=[0.0, 1.2], $
-            psym=2, $
-            xtitle='CoMP Wavelength (nm)', $
-            ytitle='Normalized Intensity', $
-            title='Observations and Fit', $
-            charsize=1.5
-      oplot, wav, spec_off
-  
-      if ((debug eq 'yes') and (dev ne 'p')) then read, 'enter return', ans
+        plot, wav, back1, $
+              yrange=[0.0, 1.2], $
+              psym=2, $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Normalized Intensity', $
+              title='Observations and Fit', $
+              charsize=1.75
+        oplot, wav, spec_off
+      endif
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p2[0] / dlam, $
@@ -384,34 +373,34 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
         spec_off[i] = p2[3] * total(filter_trans_off[*, i] * shift_sol * shift_tell)
       endfor
 
-      plot, wav, obs2, $
-            yrange=[0.0, 1.2], $
-            psym=4, $
-            xtitle='CoMP Wavelength (nm)', $
-            ytitle='Normalized Intensity', $
-            title='Observations and Fit', $
-            charsize=1.5
-      oplot, wav, spec_on
-      xyouts, 0.1, 0.13, string(p2[0], format='("Offset:",f9.5," (nm)")'), $
-             /normal, $
-             charsize=1.0
-      xyouts, 0.1, 0.1, string(p2[1], format='("H2O:",f7.3)'), $
-              /normal, $
-              chars=1.0
-      xyouts, 0.1, 0.05, 'True Wavelength = CoMP Wavelength + Offset',$
-              /normal, $
-              charsize=1.0
+      if (keyword_set(debug)) then begin
+        plot, wav, obs2, $
+              yrange=[0.0, 1.2], $
+              psym=4, $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Normalized Intensity', $
+              title='Observations and Fit', $
+              charsize=1.75
+        oplot, wav, spec_on
+        xyouts, 0.1, 0.13, string(p2[0], format='("Offset:",f9.5," (nm)")'), $
+                /normal, $
+                charsize=1.25
+        xyouts, 0.1, 0.1, string(p2[1], format='("H2O:",f7.3)'), $
+                /normal, $
+                charsize=1.25
+        xyouts, 0.1, 0.05, 'True Wavelength = CoMP Wavelength + Offset',$
+                /normal, $
+                charsize=1.25
 
-      plot, wav, back2, $
-            yrange=[0.0, 1.2],$
-            psym=2, $
-            xtitle='CoMP Wavelength (nm)', $
-            ytitle='Normalized Intensity', $
-            title='Observations and Fit', $
-            charsize=1.5
-      oplot, wav, spec_off
-
-      if ((debug eq 'yes') and (dev ne 'p')) then read, 'enter return', ans
+        plot, wav, back2, $
+              yrange=[0.0, 1.2],$
+              psym=2, $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Normalized Intensity', $
+              title='Observations and Fit', $
+              charsize=1.75
+        oplot, wav, spec_off
+      endif
 
       ; store results in arrays
       offset[iflat, 0] = p1[0]
@@ -434,5 +423,24 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
 
   fits_close,fcb
 
-  print, 'done'
+  mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+; configure
+date = '20130115'
+comp_initialize, date
+
+config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+
+lam0 = 1074.7
+
+comp_calibrate_comp_wavelength_2, date, lam0, $
+                                  offset, h2o, flat_time, off_tell
+
 end
