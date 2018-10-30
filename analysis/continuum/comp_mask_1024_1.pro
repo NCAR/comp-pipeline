@@ -19,6 +19,8 @@ function comp_mask_1024_1, flat_header
   common comp_constants
   common comp_mask_constants
 
+  field_overlap = 0
+
   ; get parameters from FITS header
   
   ; occulter position
