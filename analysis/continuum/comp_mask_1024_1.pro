@@ -1,70 +1,87 @@
+; docformat = 'rst'
+
 ;+
-; :Description:
-;    Create a mask for CoMP images in the 1024x1024 spatial resolution masking only the upper left beam.
+; Create a mask for CoMP images in the 1024x1024 spatial resolution masking only
+; the upper left beam.
 ;
-; :Author: sitongia
+; :Returns:
+;   `bytarr`
+;
+; :Params:
+;   flat_header : in, required, type=strarr
+;     header from flat
+;
+; :Author:
+;   sitongia
 ;-
 function comp_mask_1024_1, flat_header
-
+  compile_opt strictarr
   common comp_constants
-  common mask_constants
+  common comp_mask_constants
 
-  ; Get parameters from FITS header
+  ; get parameters from FITS header
   
-  ;  Occulter position
-  occulter1 = {x:sxpar(flat_header,'OXCNTER1') - nx/2, y:sxpar(flat_header,'OYCNTER1') - 1024 + ny/2, r:sxpar(flat_header,'ORADIUS1')}
-  occulter2 = {x:sxpar(flat_header,'OXCNTER2') - 1024 + nx/2, y:sxpar(flat_header,'OYCNTER2') - ny/2, r:sxpar(flat_header,'ORADIUS2')}
+  ; occulter position
+  occulter1 = {x:sxpar(flat_header, 'OXCNTER1') - nx / 2, $
+               y:sxpar(flat_header, 'OYCNTER1') - 1024 + ny / 2, $
+               r:sxpar(flat_header, 'ORADIUS1')}
+  occulter2 = {x:sxpar(flat_header, 'OXCNTER2') - 1024 + nx / 2, $
+               y:sxpar(flat_header, 'OYCNTER2') - ny / 2, $
+               r:sxpar(flat_header, 'ORADIUS2')}
   
-  ; Field position
-  field1 = {x:sxpar(flat_header,'FXCNTER1') - nx/2, y:sxpar(flat_header,'FYCNTER1') - 1024 + ny/2, r:sxpar(flat_header,'FRADIUS1')}
-  field2 = {x:sxpar(flat_header,'FXCNTER2') - 1024 + nx/2, y:sxpar(flat_header,'FYCNTER2') - ny/2, r:sxpar(flat_header,'FRADIUS2')}
+  ; field position
+  field1 = {x:sxpar(flat_header, 'FXCNTER1') - nx / 2, $
+            y:sxpar(flat_header, 'FYCNTER1') - 1024 + ny / 2, $
+            r:sxpar(flat_header, 'FRADIUS1')}
+  field2 = {x:sxpar(flat_header, 'FXCNTER2') - 1024 + nx / 2, $
+            y:sxpar(flat_header, 'FYCNTER2') - ny / 2, $
+            r:sxpar(flat_header, 'FRADIUS2')}
   
   ; P angles of post
-  post_angle1 = sxpar(flat_header,'POSTANG1')
-  post_angle2 = sxpar(flat_header,'POSTANG2')
+  post_angle1 = sxpar(flat_header, 'POSTANG1')
+  post_angle2 = sxpar(flat_header, 'POSTANG2')
 
-
-  ; Occulter mask
+  ; occulter mask
   radius = (occulter1.r + occulter2.r) / 2.0
-  dmask1=comp_disk_mask(radius, dx=occulter1.x, dy=occulter1.y)
-  dmask2=comp_disk_mask(radius, dx=occulter2.x, dy=occulter2.y)
+  dmask1 = comp_disk_mask(radius, dx=occulter1.x, dy=occulter1.y)
+  dmask2 = comp_disk_mask(radius, dx=occulter2.x, dy=occulter2.y)
   
-  ; Field mask
+  ; field mask
   fradius = (field1.r + field2.r) / 2.0
   field_mask_1 = comp_field_mask(fradius, dx=field1.x, dy=field1.y)
   field_mask_2 = comp_field_mask(fradius, dx=field2.x, dy=field2.y)
   
-  ; Post mask
+  ; post mask
   pmask1 = comp_post_mask(post_angle1, 90.0)
   pmask2 = comp_post_mask(post_angle2, 90.0)
     
   mask1 = dmask1 * field_mask_1 * pmask1
   mask2 = dmask2 * field_mask_2 * pmask2
     
-  ; Construct large mask
-  mask_image = fltarr(1024,1024)
-  mask_image[0:nx-1,1024-nx:1024-1] = mask_image[0:nx-1,1024-nx:1024-1] + mask1
-;  mask_image[1024-nx:1024-1,0:nx-1] = mask_image[1024-nx:1024-1,0:nx-1] + mask2 / local_bc2
+  ; construct large mask
+  mask_image = fltarr(1024, 1024)
+  mask_image[0:nx - 1, 1024 - nx:1024 - 1] += mask1
   
-  ; Mask out overlap
-    ; New field masks, slightly larger, to create larger overlap to mask
-    overlap_mask_1 = comp_field_mask(field1.r + field_overlap, dx=field1.x, dy=field1.y)
-    overlap_mask_2 = comp_field_mask(field2.r + field_overlap, dx=field2.x, dy=field2.y)
+  ; mask out overlap
+  ; new field masks, slightly larger, to create larger overlap to mask
+  overlap_mask_1 = comp_field_mask(field1.r + field_overlap, dx=field1.x, dy=field1.y)
+  overlap_mask_2 = comp_field_mask(field2.r + field_overlap, dx=field2.x, dy=field2.y)
     
-    ; Identify the overlap of images, from the field positions
-    tmp_img=fltarr(1024,1024)
-    tmp_img[0:nx-1,1024-nx:1024-1]=tmp_img[0:nx-1,1024-nx:1024-1] + overlap_mask_1
-    tmp_img[1024-nx:1024-1,0:nx-1]=tmp_img[1024-nx:1024-1,0:nx-1] + overlap_mask_2
-    overlap = where(tmp_img gt 1.0, count)
-    if count eq 0 then begin
-      print, 'WARNING! comp_mask_1024: no overlap'
-    endif
-
-  ; Set first four columns to 1 so that they will not be used
-  if n_elements(nullcolumns) eq 1 then begin  
-    mask_image[0:3,*] = 1.0
+  ; identify the overlap of images, from the field positions
+  tmp_img = fltarr(1024, 1024)
+  tmp_img[0:nx - 1, 1024 - nx:1024 - 1] += overlap_mask_1
+  tmp_img[1024 - nx:1024 - 1, 0:nx - 1] += overlap_mask_2
+  overlap = where(tmp_img gt 1.0, count)
+  if (count eq 0) then begin
+    print, 'WARNING! comp_mask_1024: no overlap'
   endif
-  mask_image[overlap] = 0.0
+
+  ; set first four columns to 1 so that they will not be used
+  if (keyword_set(nullcolumns)) then begin  
+    mask_image[0:3, *] = 1.0
+  endif
+
+  if (count gt 0L) then mask_image[overlap] = 0.0
 
   return, mask_image
 end
