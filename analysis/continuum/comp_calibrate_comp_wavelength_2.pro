@@ -65,9 +65,9 @@ end
 ;   flat_time : out
 ;     time flat was taken
 ;-
-pro calibrate_comp_wavelength_2, date_dir, lam0, $
-                                 offset, h2o, flat_time, off_tell, $
-                                 dev=dev
+pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
+                                      offset, h2o, flat_time, off_tell, $
+                                      dev=dev
   compile_opt strictarr
   common fit, wav, lambda, solar_spec, telluric_spec, $
               filter_trans_on, filter_trans_off, obs, back
@@ -84,7 +84,7 @@ pro calibrate_comp_wavelength_2, date_dir, lam0, $
   debug = 'no'     ; debug mode, 'yes' or 'no'
   ans = ' '
 
-  dir='C:\Users\tomczyk\Documents\Comp\idl\Systematics\'
+  dir = 'C:\Users\tomczyk\Documents\Comp\idl\Systematics\'
   cd, dir
 
   if (dev ne 'p') then begin
@@ -132,7 +132,7 @@ pro calibrate_comp_wavelength_2, date_dir, lam0, $
 
   if (nflat gt 0) then begin
     ;  get solar and telluric spectra in this region from atlas
-    get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
+    comp_get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
     nlambda = n_elements(lambda)
     dlam = lambda[1] - lambda[0]   ; wavelength spacing of spectra
 

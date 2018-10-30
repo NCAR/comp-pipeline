@@ -3,7 +3,7 @@
 ;+
 ; Procedure to run calibrate_comp_wavelength on all available flat data.
 ;-
-pro run_calibrate_comp_wavelength
+pro comp_run_calibrate_comp_wavelength
   compile_opt strictarr
 
   dir = 'C:\Users\tomczyk\Documents\Comp\idl\Systematics\'
@@ -39,9 +39,9 @@ pro run_calibrate_comp_wavelength
   
     ; if flat exists, then process it
     if (r ne '' && info.size gt 3072) then begin
-      calibrate_comp_wavelength_2, date_dir, lam0, $
-                                   offset, h2o, flat_time, off_tell, $
-                                   dev=dev
+      comp_calibrate_comp_wavelength_2, date_dir, lam0, $
+                                        offset, h2o, flat_time, off_tell, $
+                                        dev=dev
   
       if (flat_time[0] ne 0.0) then begin
         nflat = n_elements(flat_time)
