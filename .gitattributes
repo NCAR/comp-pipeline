@@ -1,1 +1,6 @@
 ssw/* linguist-vendored
+
+* text=auto
+
+*.pro text
+*.sav binary
