@@ -63,8 +63,8 @@ end
 ;   flat_time : out
 ;     time flat was taken
 ;-
-pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
-                                      offset, h2o, flat_time, off_tell
+pro comp_calibrate_wavelength_2, date_dir, lam0, $
+                                 offset, h2o, flat_time, off_tell
   compile_opt strictarr
   common fit, wav, lambda, solar_spec, telluric_spec, $
               filter_trans_on, filter_trans_off, obs, back
@@ -442,8 +442,8 @@ comp_configuration, config_filename=config_filename
 lam0 = 1074.7
 ;lam0 = 1079.8
 
-comp_calibrate_comp_wavelength_2, date, lam0, $
-                                  offset, h2o, flat_time, off_tell
+comp_calibrate_wavelength_2, date, lam0, $
+                             offset, h2o, flat_time, off_tell
 
 help, offset
 print, offset
