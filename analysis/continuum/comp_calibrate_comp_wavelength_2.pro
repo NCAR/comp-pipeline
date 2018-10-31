@@ -205,7 +205,8 @@ pro comp_calibrate_comp_wavelength_2, date_dir, lam0, $
       ; plot data and fit to continuum
       if (keyword_set(debug)) then begin
         window, xsize=900, ysize=1000, /free, $
-                title=string(f_index[iflat], format='(%"ext: %d")')
+                title=string(f_index[iflat], file_basename(datetime, '.FTS'), $
+                             format='(%"ext: %d, datetime: %s")')
         !p.multi = [0, 2, 3, 0, 0]
 
         plot, wav, obs1, $
@@ -439,8 +440,18 @@ config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
 comp_configuration, config_filename=config_filename
 
 lam0 = 1074.7
+;lam0 = 1079.8
 
 comp_calibrate_comp_wavelength_2, date, lam0, $
                                   offset, h2o, flat_time, off_tell
+
+help, offset
+print, offset
+help, h2o
+print, h2o
+help, flat_time
+print, flat_time
+help, off_tell
+print, off_tell
 
 end
