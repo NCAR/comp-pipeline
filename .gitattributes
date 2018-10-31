@@ -2,5 +2,12 @@ ssw/* linguist-vendored
 
 * text=auto
 
-*.pro text
-*.sav binary
+*.pro     text
+*.in      text
+*.txt     text
+*.md      text
+*.sh      text
+*.py      text
+*.cmake   text
+
+*.sav     binary
