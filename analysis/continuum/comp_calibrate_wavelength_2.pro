@@ -1,6 +1,16 @@
 ; docformat = 'rst'
 
 
+;+
+; Fitting function for `POWELL`.
+;
+; :Returns:
+;   chi-squared
+;
+; :Params:
+;   x : in, required, type=fltarr
+;     parameters of fit, either 4 or 5 elements
+;-
 function comp_powfunc, x
   compile_opt strictarr
   common fit, wav, lambda, solar_spec, telluric_spec, $
