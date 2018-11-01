@@ -102,7 +102,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
   @comp_constants_common
   @comp_mask_constants_common
 
-  debug = 1B     ; debug mode, 'yes' or 'no'
+  debug = 0B     ; debug mode, 'yes' or 'no'
 
   ; open flat file for this day
   flat_filename = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
@@ -128,7 +128,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
 
   u_time = times[uniq(times, sort(times))]   ; identify unique observation times
 
-  mg_log, 'times: %s', strjoin(string(u_time, format='(F0.3)'), ', ' ), name='comp', /debug
+  ;mg_log, 'times: %s', strjoin(string(u_time, format='(F0.3)'), ', ' ), name='comp', /debug
 
   n_flats = 0
   f_index = intarr(10)   ; array to hold extension index of first flat in sequence
@@ -141,8 +141,8 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
     endif
   endfor
   f_index = f_index[0:n_flats - 1]
-  mg_log, 'f_index: %s', strjoin(strtrim(f_index, 2), ', '), name='comp', /debug
-  mg_log, '%d 11 wavelengths flats at %0.2f nm', n_flats, lam0, name='comp', /debug
+  ;mg_log, 'f_index: %s', strjoin(strtrim(f_index, 2), ', '), name='comp', /debug
+  ;mg_log, '%d 11 wavelengths flats at %0.2f nm', n_flats, lam0, name='comp', /debug
 
   if (n_flats gt 0) then begin
     ; get solar and telluric spectra in this region from atlas
@@ -318,10 +318,10 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       powell, p1, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p1[1] = abs(p1[1])
       powell_chisq[iflat, 0] = fmin
-      mg_log, '%d iterations', n_iterations, name='comp', /debug
-      mg_log, 'p1: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
-              name='comp', /debug
-      mg_log, 'min: %0.5f', fmin, name='comp', /debug
+      ;mg_log, '%d iterations', n_iterations, name='comp', /debug
+      ;mg_log, 'p1: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
+      ;        name='comp', /debug
+      ;mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
       xi = dblarr(nparam, nparam)
       for i = 0, nparam - 1 do xi[i, i] = 1.d0
@@ -330,10 +330,10 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       powell, p2, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p2[1] = abs(p2[1])
       powell_chisq[iflat, 1] = fmin
-      mg_log, '%d iterations', n_iterations, name='comp', /debug
-      mg_log, 'p2: %s', strjoin(string(p2, format='(F0.4)'), ', '), $
-              name='comp', /debug
-      mg_log, 'min: %0.5f', fmin, name='comp', /debug
+      ;mg_log, '%d iterations', n_iterations, name='comp', /debug
+      ;mg_log, 'p2: %s', strjoin(string(p2, format='(F0.4)'), ', '), $
+      ;        name='comp', /debug
+      ;mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p1[0] / dlam, $
@@ -463,7 +463,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
 
   fits_close, fcb
 
-  mg_log, 'done', name='comp', /info
+  ;mg_log, 'done', name='comp', /info
 end
 
 

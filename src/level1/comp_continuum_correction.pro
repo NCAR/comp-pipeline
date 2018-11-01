@@ -12,6 +12,8 @@ pro comp_continuum_correction, date
   on_error, 2
   @comp_config_common
 
+  mg_log, 'starting', name='comp', /info
+
   ; read flat file
   flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), $
                            subdir=[date, 'level1'], $
@@ -19,8 +21,6 @@ pro comp_continuum_correction, date
 
   fits_open, flat_filename, fcb
   n_flats = fcb.nextend - 3
-  wave = fltarr(n_flats)
-  beam = lonarr(n_flats)
   fits_read, fcb, primary_data, primary_header, exten_no=0
 
   images = list()
@@ -32,8 +32,6 @@ pro comp_continuum_correction, date
 
     images->add, data
     headers->add, header
-    wave[e - 1] = sxpar(header, 'WAVELENG')
-    beam[e - 1] = sxpar(header, 'BEAM')
   endfor
 
   fits_read, fcb, flat_time, time_header, exten_no=fcb.nextend - 2
@@ -42,8 +40,12 @@ pro comp_continuum_correction, date
 
   fits_close, fcb
 
+  chisq_limit = 0.01
+
   center_wavelengths = [1074.7, 1079.8]
-  for w = 0L, n_elements(wavelengths) - 1L do begin
+  for w = 0L, n_elements(center_wavelengths) - 1L do begin
+    mg_log, '%0.1f nm flats', center_wavelengths[w], $
+            name='comp', /info
     comp_calibrate_wavelength_2, date, center_wavelengths[w], $
                                  offset=offset, $
                                  n_flats=n_11pt_flats, $
@@ -51,7 +53,23 @@ pro comp_continuum_correction, date
                                  wavelengths=wavelengths, $
                                  correction_factors=correction_factors, $
                                  chisq=chisq
-    ; TODO: correct matching extensions if chisq/offset are OK
+
+    ; correct matching extensions if chisq/offset are OK
+    for f = 0L, n_11pt_flats - 1L do begin
+      if (max(chisq[f, *]) lt chisq_limit) then begin
+        mg_log, '%0.1f nm flats %d/%d: OK', $
+                center_wavelengths[w], f + 1, n_11pt_flats, $
+                name='comp', /info
+        ; TODO: correct
+      endif else begin
+        mg_log, '%0.1f nm flats %d/%d: bad', $
+                center_wavelengths[w], f + 1, n_11pt_flats, $
+                name='comp', /warn
+        mg_log, 'chi-sq %0.3f > %0.3f', $
+                max(chisq[f, *]), chisq_limit, $
+                name='comp', /warn
+      endelse
+    endfor
   endfor
 
   ; write flat file
@@ -63,7 +81,7 @@ pro comp_continuum_correction, date
   fits_open, flat_filename, fcb, /write
   fits_write, fcb, primary_data, primary_header
   for e = 1, n_flats do begin
-    extname = string(beam[e - 1] * wave[e - 1], format='(f8.2)')
+    extname = string(flat_wavelength[e - 1], format='(f8.2)')
     fits_write, fcb, images[e - 1], headers[e - 1], extname=extname
   endfor
 
