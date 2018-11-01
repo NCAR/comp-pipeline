@@ -72,7 +72,7 @@ end
 ;     wavelength offset (nm) True Wavelength = CoMP Wavelength + Offset
 ;   h2o : out, optional, type="fltarr(n_flats, n_beams)"
 ;     h2o factor
-;   fmins : out, optional, type="fltarr(n_flats, n_beams)"
+;   chisq : out, optional, type="fltarr(n_flats, n_beams)"
 ;     set to a named variable to retrieve the minimums of the function minimized
 ;     by `POWELL`
 ;   n_flats : out, optional, type=long
@@ -87,7 +87,7 @@ end
 pro comp_calibrate_wavelength_2, date_dir, lam0, $
                                  offset=offset, $
                                  h2o=h2o, $
-                                 fmins=fmins, $
+                                 chisq=powell_chisq, $
                                  n_flats=nflat, $
                                  flat_times=flat_times, $
                                  correction_factors=correction_factors
@@ -155,7 +155,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
     h2o                = fltarr(nflat, 2)
     off_tell           = fltarr(nflat, 2)
     correction_factors = fltarr(nflat, 11)
-    fmins              = fltarr(nflat, 2)
+    powell_chisq       = fltarr(nflat, 2)
 
     flat_times         = times[f_index]
 
@@ -311,7 +311,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
   
       powell, p1, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p1[1] = abs(p1[1])
-      fmins[iflat, 0] = fmin
+      powell_chisq[iflat, 0] = fmin
       mg_log, '%d iterations', n_iterations, name='comp', /debug
       mg_log, 'p1: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
               name='comp', /debug
@@ -323,7 +323,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       back = back2
       powell, p2, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p2[1] = abs(p2[1])
-      fmins[iflat, 1] = fmin
+      powell_chisq[iflat, 1] = fmin
       mg_log, '%d iterations', n_iterations, name='comp', /debug
       mg_log, 'p2: %s', strjoin(string(p2, format='(F0.4)'), ', '), $
               name='comp', /debug
@@ -481,7 +481,7 @@ comp_calibrate_wavelength_2, date, lam0, $
                              n_flats=n_flats, $
                              flat_times=flat_times, $
                              correction_factors=correction_factors, $
-                             fmins=fmins
+                             chisq=chisq
 
 help, offset
 print, offset
@@ -492,7 +492,7 @@ help, flat_times
 print, flat_times
 help, correction_factors
 print, correction_factors
-help, fmins
-print, fmins
+help, chisq
+print, chisq
 
 end
