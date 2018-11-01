@@ -80,6 +80,8 @@ end
 ;     given central wavelength
 ;   flat_times : out, optional, type=fltarr(n_flats)
 ;     times flats were taken
+;   wavelengths : out, optional, type="fltarr(n_flats, n_wavelengths)"
+;     set to a named variable to retrieve the wavelengths for each 11 pt flat
 ;   correction_factors : out, optional, type="fltarr(n_flats, n_wavelengths)"
 ;     set to a named variable to retrieve the correction factors determined from
 ;     each 11 pt flat for each of the 11 wavelengths
@@ -88,8 +90,9 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
                                  offset=offset, $
                                  h2o=h2o, $
                                  chisq=powell_chisq, $
-                                 n_flats=nflat, $
+                                 n_flats=n_flats, $
                                  flat_times=flat_times, $
+                                 wavelengths=wavelengths, $
                                  correction_factors=correction_factors
   compile_opt strictarr
   common fit, wav, lambda, solar_spec, telluric_spec, $
@@ -127,21 +130,21 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
 
   mg_log, 'times: %s', strjoin(string(u_time, format='(F0.3)'), ', ' ), name='comp', /debug
 
-  nflat = 0
+  n_flats = 0
   f_index = intarr(10)   ; array to hold extension index of first flat in sequence
   for i = 0L, n_elements(u_time) - 1L do begin
     use = where(times eq u_time[i],count)
     ; just look for 11 wavelength flats near target wavelength
     if ((count eq 22) and (abs(lam0 - mean(abs(waves[use]))) lt 2.0)) then begin
-      f_index[nflat] = use[0] + 1
-      nflat += 1
+      f_index[n_flats] = use[0] + 1
+      n_flats += 1
     endif
   endfor
-  f_index = f_index[0:nflat - 1]
+  f_index = f_index[0:n_flats - 1]
   mg_log, 'f_index: %s', strjoin(strtrim(f_index, 2), ', '), name='comp', /debug
-  mg_log, '%d 11 wavelengths flats at %0.2f nm', nflat, lam0, name='comp', /debug
+  mg_log, '%d 11 wavelengths flats at %0.2f nm', n_flats, lam0, name='comp', /debug
 
-  if (nflat gt 0) then begin
+  if (n_flats gt 0) then begin
     ; get solar and telluric spectra in this region from atlas
     comp_get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
     nlambda = n_elements(lambda)
@@ -151,16 +154,17 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
     telluric_spec = telluric_spec / max(telluric_spec)
 
     ; create arrays to hold results
-    offset             = fltarr(nflat, 2)
-    h2o                = fltarr(nflat, 2)
-    off_tell           = fltarr(nflat, 2)
-    correction_factors = fltarr(nflat, 11)
-    powell_chisq       = fltarr(nflat, 2)
+    offset             = fltarr(n_flats, 2)
+    h2o                = fltarr(n_flats, 2)
+    off_tell           = fltarr(n_flats, 2)
+    wavelengths        = fltarr(n_flats, 11)
+    correction_factors = fltarr(n_flats, 11)
+    powell_chisq       = fltarr(n_flats, 2)
 
     flat_times         = times[f_index]
 
     ; loop over nflats flats
-    for iflat = 0, nflat - 1 do begin
+    for iflat = 0, n_flats - 1 do begin
       wav   = dblarr(nwave)
       pol   = strarr(nwave)
       obs1  = dblarr(nwave)
@@ -173,6 +177,8 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
         ; beam 1
         fits_read, fcb, d1, header, exten_no=i + f_index[iflat]
         wav[i]   = double(sxpar(header, 'WAVELENG'))
+        wavelengths[iflat, i] = wav[i]
+
         pol[i]   = double(sxpar(header, 'POLSTATE'))
         datetime = sxpar(header, 'FILENAME')
 
@@ -473,13 +479,14 @@ config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
 comp_configuration, config_filename=config_filename
 
 lam0 = 1074.7
-lam0 = 1079.8
+;lam0 = 1079.8
 
 comp_calibrate_wavelength_2, date, lam0, $
                              offset=offset, $
                              h2o=h2o, $
                              n_flats=n_flats, $
                              flat_times=flat_times, $
+                             wavelengths=wavelengths, $
                              correction_factors=correction_factors, $
                              chisq=chisq
 
@@ -490,6 +497,8 @@ print, h2o
 help, n_flats
 help, flat_times
 print, flat_times
+help, wavelengths
+print, wavelengths
 help, correction_factors
 print, correction_factors
 help, chisq
