@@ -210,7 +210,10 @@ pro comp_run_pipeline, config_filename=config_filename
       make_flat_t0 = systime(/seconds)
       ; reduce opal images for this day
       error = 0L
-      if (~dry_run) then comp_make_flat, date_dir, error=error
+      if (~dry_run) then begin
+        comp_make_flat, date_dir, error=error
+        comp_continuum_correction, date_dir
+      endif
       make_flat_t1 = systime(/seconds)
       mg_log, 'total time for COMP_MAKE_FLAT: %0.1f seconds', $
               make_flat_t1 - make_flat_t0, $
