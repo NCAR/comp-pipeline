@@ -66,15 +66,31 @@ end
 ;   date_dir : in
 ;   lam0 : in
 ;     central wavelength of region to fit (1074.7 or 1079.8 nm)
-;   offset : out
+;
+; :Keywords:
+;   offset : out, optional, type="fltarr(n_flats, n_beams)"
 ;     wavelength offset (nm) True Wavelength = CoMP Wavelength + Offset
-;   h2o : out
+;   h2o : out, optional, type="fltarr(n_flats, n_beams)"
 ;     h2o factor
-;   flat_time : out
-;     time flat was taken
+;   fmins : out, optional, type="fltarr(n_flats, n_beams)"
+;     set to a named variable to retrieve the minimums of the function minimized
+;     by `POWELL`
+;   n_flats : out, optional, type=long
+;     set to a named variable to retrieve the number of 11 pt flats for the
+;     given central wavelength
+;   flat_times : out, optional, type=fltarr(n_flats)
+;     times flats were taken
+;   correction_factors : out, optional, type="fltarr(n_flats, n_wavelengths)"
+;     set to a named variable to retrieve the correction factors determined from
+;     each 11 pt flat for each of the 11 wavelengths
 ;-
 pro comp_calibrate_wavelength_2, date_dir, lam0, $
-                                 offset, h2o, flat_time, off_tell
+                                 offset=offset, $
+                                 h2o=h2o, $
+                                 fmins=fmins, $
+                                 n_flats=nflat, $
+                                 flat_times=flat_times, $
+                                 correction_factors=correction_factors
   compile_opt strictarr
   common fit, wav, lambda, solar_spec, telluric_spec, $
               filter_trans_on, filter_trans_off, obs, back
@@ -109,7 +125,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
 
   u_time = times[uniq(times, sort(times))]   ; identify unique observation times
 
-  mg_log, '%s', strjoin(string(u_time, format='(F0.3)'), ', ' ), name='comp', /debug
+  mg_log, 'times: %s', strjoin(string(u_time, format='(F0.3)'), ', ' ), name='comp', /debug
 
   nflat = 0
   f_index = intarr(10)   ; array to hold extension index of first flat in sequence
@@ -135,11 +151,13 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
     telluric_spec = telluric_spec / max(telluric_spec)
 
     ; create arrays to hold results
-    offset    = fltarr(nflat, 2)
-    h2o       = fltarr(nflat, 2)
-    off_tell  = fltarr(nflat, 2)
+    offset             = fltarr(nflat, 2)
+    h2o                = fltarr(nflat, 2)
+    off_tell           = fltarr(nflat, 2)
+    correction_factors = fltarr(nflat, 11)
+    fmins              = fltarr(nflat, 2)
 
-    flat_time = times[f_index]
+    flat_times         = times[f_index]
 
     ; loop over nflats flats
     for iflat = 0, nflat - 1 do begin
@@ -179,9 +197,6 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       ; fit continuum in order to detrend spectrum
       w = wav - lam0
   
-      ;  if lam0 eq 1074.7 then to_fit_obs=[0,1,6,10] else
-      ;  to_fit_obs=[1,2,4,8,10]      ;define continuum wavelength points
-
       ; define continuum wavelength points
       if (lam0 eq 1074.7) then begin
         to_fit_obs = [0, 1, 6, 10]
@@ -294,19 +309,25 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       obs  = obs1
       back = back1
   
-      powell, p1, xi, ftol, fmin, 'comp_powfunc', /double
+      powell, p1, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p1[1] = abs(p1[1])
-      mg_log, '%s %0.5f', strjoin(string(p1, format='(F0.4)'), ', '), fmin, $
+      fmins[iflat, 0] = fmin
+      mg_log, '%d iterations', n_iterations, name='comp', /debug
+      mg_log, 'p1: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
               name='comp', /debug
+      mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
       xi = dblarr(nparam, nparam)
       for i = 0, nparam - 1 do xi[i, i] = 1.d0
       obs  = obs2
       back = back2
-      powell, p2, xi, ftol, fmin, 'comp_powfunc', /double
+      powell, p2, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p2[1] = abs(p2[1])
-      mg_log, '%s %0.5f', strjoin(string(p2, format='(F0.4)'), ', '), fmin, $
+      fmins[iflat, 1] = fmin
+      mg_log, '%d iterations', n_iterations, name='comp', /debug
+      mg_log, 'p2: %s', strjoin(string(p2, format='(F0.4)'), ', '), $
               name='comp', /debug
+      mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p1[0] / dlam, $
@@ -333,6 +354,8 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
         spec_on[i]  = p1[2] * total(filter_trans_on[*, i] * shift_sol * shift_tell)
         spec_off[i] = p1[3] * total(filter_trans_off[*, i] * shift_sol * shift_tell)
       endfor
+
+      correction_factors[iflat, *] = spec_on
 
       if (keyword_set(debug)) then begin
         plot, wav, obs1, $
@@ -426,13 +449,13 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       endif
     endfor
   endif else begin
-    offset    = 0.0
-    h2o       = 0.0
-    flat_time = 0.0
-    off_tell  = 0.0
+    offset     = 0.0
+    h2o        = 0.0
+    flat_times = 0.0
+    off_tell   = 0.0
   endelse
 
-  fits_close,fcb
+  fits_close, fcb
 
   mg_log, 'done', name='comp', /info
 end
@@ -450,18 +473,26 @@ config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
 comp_configuration, config_filename=config_filename
 
 lam0 = 1074.7
-;lam0 = 1079.8
+lam0 = 1079.8
 
 comp_calibrate_wavelength_2, date, lam0, $
-                             offset, h2o, flat_time, off_tell
+                             offset=offset, $
+                             h2o=h2o, $
+                             n_flats=n_flats, $
+                             flat_times=flat_times, $
+                             correction_factors=correction_factors, $
+                             fmins=fmins
 
 help, offset
 print, offset
 help, h2o
 print, h2o
-help, flat_time
-print, flat_time
-help, off_tell
-print, off_tell
+help, n_flats
+help, flat_times
+print, flat_times
+help, correction_factors
+print, correction_factors
+help, fmins
+print, fmins
 
 end
