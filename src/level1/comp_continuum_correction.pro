@@ -76,7 +76,8 @@ pro comp_continuum_correction, date
 
   ; TODO: for now, write a new file instead of overwriting the existing file
   flat_filename = filepath(file_basename(flat_filename, '.fts') + '.corrected.fts', $
-                           root='.')
+                           subdir=[date, 'level1'], $
+                           root=process_basedir)
 
   fits_open, flat_filename, fcb, /write
   fits_write, fcb, primary_data, primary_header
@@ -103,7 +104,7 @@ end
 
 date = '20130115'
 comp_initialize, date
-config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+config_filename = filepath('comp.mgalloy.twilight.latest.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
@@ -115,7 +116,9 @@ original_flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), 
                                   subdir=[date, 'level1'], $
                                   root=process_basedir)
 corrected_flat_filename = filepath(string(date, format='(%"%s.comp.flat.corrected.fts")'), $
-                                   root='.')
+                                  subdir=[date, 'level1'], $
+                                  root=process_basedir)
+
 
 diff = mg_fits_diff(original_flat_filename, corrected_flat_filename, $
                     differences=differences, $

@@ -102,7 +102,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
   @comp_constants_common
   @comp_mask_constants_common
 
-  debug = 0B     ; debug mode, 'yes' or 'no'
+  debug = 1B     ; debug mode, 'yes' or 'no'
 
   ; open flat file for this day
   flat_filename = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
@@ -235,9 +235,15 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
 
       ; plot data and fit to continuum
       if (keyword_set(debug)) then begin
-        window, xsize=900, ysize=1000, /free, $
-                title=string(f_index[iflat], file_basename(datetime, '.FTS'), $
-                             format='(%"ext: %d, datetime: %s")')
+        format = '(%"%s.comp.%d.continuum.ps")'
+        output_filename = filepath(string(file_basename(datetime, '.FTS'), $
+                                          long(lam0), $
+                                          format=format), $
+                                   subdir=comp_decompose_date(date_dir), $
+                                   root=engineering_dir)
+        mg_psbegin, filename=output_filename, $
+                    xsize=10.0, ysize=11.0, /inches, $
+                    /color, xoffset=0.0, yoffset=0.0
         !p.multi = [0, 2, 3, 0, 0]
 
         plot, wav, obs1, $
@@ -246,12 +252,12 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Intensity (ppm)', $
               yrange=[0.0, 1.1 * (max(obs1) > max(obs2))], $
-              charsize=1.75
+              charsize=1.75, symsize=0.75
         oplot, wav, ofit1
-        oplot, wav, obs2, psym=4
-        oplot, wav, ofit2, linesty=1
-        oplot, wav[to_fit_obs], obs1[to_fit_obs], psym=5
-        oplot, wav[to_fit_obs], obs2[to_fit_obs], psym=5
+        oplot, wav, obs2, psym=4, symsize=0.75
+        oplot, wav, ofit2, linestyle=1
+        oplot, wav[to_fit_obs], obs1[to_fit_obs], psym=5, symsize=0.75
+        oplot, wav[to_fit_obs], obs2[to_fit_obs], psym=5, symsize=0.75
 
         plot, wav, back1, $
               psym=2, $
@@ -259,14 +265,14 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Intensity (ppm)',$
               yrange=[0.0, 1.1*(max(obs1) > max(obs2))], $
-              charsize=1.75
+              charsize=1.75, symsize=0.75
         oplot, wav, bfit1
-        oplot, wav, back2, psym=4
-        oplot, wav, bfit2, linesty=1
-        oplot, wav[to_fit_back], back1[to_fit_back], psym=5
-        oplot, wav[to_fit_back], back2[to_fit_back], psym=5
+        oplot, wav, back2, psym=4, symsize=0.75
+        oplot, wav, bfit2, linestyle=1
+        oplot, wav[to_fit_back], back1[to_fit_back], psym=5, symsize=0.75
+        oplot, wav[to_fit_back], back2[to_fit_back], psym=5, symsize=0.75
 
-        xyouts, 0.1, 0.72, datetime, /normal, charsize=1.25
+        xyouts, 0.1, 0.736666, datetime, /normal, charsize=1.0
       endif
   
       ; divide data by fit
@@ -370,12 +376,12 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Normalized Intensity', $
               title='Observations and Fit', $
-              charsize=1.75
+              charsize=1.75, symsize=0.75
         oplot, wav, spec_on
-        xyouts, 0.1, 0.42, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
-                /normal, charsize=1.25
-        xyouts, 0.1, 0.39, string(p1[1], format='("H2O:",f7.3)'), $
-                /normal, charsize=1.25
+        xyouts, 0.1, 0.423333, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
+                /normal, charsize=1.0
+        xyouts, 0.1, 0.403333, string(p1[1], format='("H2O:",f7.3)'), $
+                /normal, charsize=1.0
 
         plot, wav, back1, $
               yrange=[0.0, 1.2], $
@@ -383,7 +389,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Normalized Intensity', $
               title='Observations and Fit', $
-              charsize=1.75
+              charsize=1.75, symsize=0.75
         oplot, wav, spec_off
       endif
 
@@ -422,15 +428,15 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
               title='Observations and Fit', $
               charsize=1.75
         oplot, wav, spec_on
-        xyouts, 0.1, 0.13, string(p2[0], format='("Offset:",f9.5," (nm)")'), $
+        xyouts, 0.1, 0.12, string(p2[0], format='("Offset:",f9.5," (nm)")'), $
                 /normal, $
-                charsize=1.25
-        xyouts, 0.1, 0.1, string(p2[1], format='("H2O:",f7.3)'), $
+                charsize=1.0
+        xyouts, 0.1, 0.10, string(p2[1], format='("H2O:",f7.3)'), $
                 /normal, $
-                charsize=1.25
-        xyouts, 0.1, 0.05, 'True Wavelength = CoMP Wavelength + Offset',$
+                charsize=1.0
+        xyouts, 0.1, 0.08, 'True Wavelength = CoMP Wavelength + Offset',$
                 /normal, $
-                charsize=1.25
+                charsize=1.0
 
         plot, wav, back2, $
               yrange=[0.0, 1.2],$
@@ -440,6 +446,8 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
               title='Observations and Fit', $
               charsize=1.75
         oplot, wav, spec_off
+
+        mg_psend
       endif
 
       ; store results in arrays
