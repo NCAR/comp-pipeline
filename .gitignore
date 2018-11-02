@@ -1,6 +1,6 @@
 /build
 /api-docs
 /api-userdocs
-/config/comp.mgalloy.*.cfg
+/config/comp.*.cfg
 /ROUTINES
 /analysis/flat-medians.ps
