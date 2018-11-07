@@ -93,7 +93,8 @@ pro comp_continuum_correction, date
         images[f] /= correction
         ; TODO: get keyword name and comment
         h = headers[f]
-        sxaddpar, h, 'CNTMCORR', correction, ' continuum correction applied', $
+        sxaddpar, h, 'CONTCORR', correction, $
+                  ' continuum emission corr. to flat, eg, H2O vapor', $
                   format='(F0.4)'
         headers[f] = h
       endif else begin
@@ -111,7 +112,7 @@ pro comp_continuum_correction, date
   ind_1083 = where(flat_type eq '1083', n_1083)
   for f = 0L, n_1083 - 1L do begin
     h = headers[f]
-    sxaddpar, h, 'CNTMCORR', 1.0, ' continuum correction applied', $
+    sxaddpar, h, 'CONTCORR', 1.0, ' continuum emission corr. to flat, eg, H2O vapor', $
               format='(F0.3)'
     headers[f] = h
   endfor
