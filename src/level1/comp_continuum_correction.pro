@@ -38,46 +38,90 @@ pro comp_continuum_correction, date
   fits_read, fcb, flat_wavelength, wavelength_header, exten_no=fcb.nextend - 1
   fits_read, fcb, flat_exposure, exposure_header, exten_no=fcb.nextend
 
+  flat_wavelength = abs(flat_wavelength)
+
   fits_close, fcb
+
+  flat_type = strarr(n_flats)
+  for f = 0L, n_flats - 1L do begin
+    flat_type[f] = comp_find_wave_type(flat_wavelength[f], /name)
+  endfor
 
   chisq_limit = 0.01
 
+  wave_types = ['1074', '1079']
   center_wavelengths = [1074.7, 1079.8]
-  for w = 0L, n_elements(center_wavelengths) - 1L do begin
-    mg_log, '%0.1f nm flats', center_wavelengths[w], $
+  for cw = 0L, n_elements(center_wavelengths) - 1L do begin
+    mg_log, '%0.1f nm flats', center_wavelengths[cw], $
             name='comp', /info
-    comp_calibrate_wavelength_2, date, center_wavelengths[w], $
+    comp_calibrate_wavelength_2, date, center_wavelengths[cw], $
                                  offset=offset, $
                                  n_flats=n_11pt_flats, $
-                                 flat_times=flat_times, $
+                                 flat_times=flat_times_11pt, $
                                  wavelengths=wavelengths, $
                                  correction_factors=correction_factors, $
                                  chisq=chisq
 
+    ; use 11 pt flats to correct other flats
+    n_wavelengths = 11L
+
+    ; which 11 pt flat indices to use for a given flat
+    cor_ind = value_locate(flat_times_11pt, flat_time)
+
     ; correct matching extensions if chisq/offset are OK
-    for f = 0L, n_11pt_flats - 1L do begin
-      if (max(chisq[f, *]) lt chisq_limit) then begin
-        mg_log, '%0.1f nm flats %d/%d: OK', $
-                center_wavelengths[w], f + 1, n_11pt_flats, $
+    for f = 0L, n_flats - 1L do begin
+      mg_log, '%0.2f nm type: %s flat_type: %s', $
+              flat_wavelength[f], wave_types[cw], flat_type[f], $
+              name='comp', /debug
+      if (wave_types[cw] ne flat_type[f]) then continue
+
+      if (max(chisq[cor_ind[f], *]) lt chisq_limit) then begin
+        mg_log, '%0.1f nm [flat ext %d/%d]: OK', $
+                flat_wavelength[f], f + 1, n_flats, $
                 name='comp', /info
-        ; TODO: correct
+
+
+        ind = where(abs(wavelengths[cor_ind[f], *] - flat_wavelength[f]) lt 0.001, count)
+        if (count eq 0) then begin
+          correction = 1.0
+          mg_log, 'default correction: %0.4f', correction, name='comp', /debug
+        endif else begin
+          correction = correction_factors[cor_ind[f], ind[0]]
+          mg_log, 'correction: %0.4f', correction, name='comp', /debug
+        endelse
+
+        images[f] /= correction
+        ; TODO: get keyword name and comment
+        h = headers[f]
+        sxaddpar, h, 'CNTMCORR', correction, ' continuum correction applied', $
+                  format='(F0.4)'
+        headers[f] = h
       endif else begin
         mg_log, '%0.1f nm flats %d/%d: bad', $
-                center_wavelengths[w], f + 1, n_11pt_flats, $
+                center_wavelengths[cw], f + 1, n_flats, $
                 name='comp', /warn
         mg_log, 'chi-sq %0.3f > %0.3f', $
-                max(chisq[f, *]), chisq_limit, $
+                max(chisq[cor_ind[f], *]), chisq_limit, $
                 name='comp', /warn
       endelse
     endfor
   endfor
 
+  ; put a default 1.0 in the 1083 flat headers
+  ind_1083 = where(flat_type eq '1083', n_1083)
+  for f = 0L, n_1083 - 1L do begin
+    h = headers[f]
+    sxaddpar, h, 'CNTMCORR', 1.0, ' continuum correction applied', $
+              format='(F0.3)'
+    headers[f] = h
+  endfor
+
   ; write flat file
 
-  ; TODO: for now, write a new file instead of overwriting the existing file
-  flat_filename = filepath(file_basename(flat_filename, '.fts') + '.corrected.fts', $
-                           subdir=[date, 'level1'], $
-                           root=process_basedir)
+  file_copy, flat_filename, $
+             filepath(file_basename(flat_filename, '.fts') + '.original.fts', $
+                      root=file_dirname(flat_filename)), $
+             /overwrite
 
   fits_open, flat_filename, fcb, /write
   fits_write, fcb, primary_data, primary_header

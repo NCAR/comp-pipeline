@@ -212,8 +212,7 @@ pro comp_run_pipeline, config_filename=config_filename
       error = 0L
       if (~dry_run) then begin
         comp_make_flat, date_dir, error=error
-        ; TODO: uncomment this when ready
-        ;comp_continuum_correction, date_dir
+        comp_continuum_correction, date_dir
       endif
       make_flat_t1 = systime(/seconds)
       mg_log, 'total time for COMP_MAKE_FLAT: %0.1f seconds', $
