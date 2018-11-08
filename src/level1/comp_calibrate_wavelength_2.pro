@@ -13,8 +13,8 @@
 ;-
 function comp_powfunc, x
   compile_opt strictarr
-  common fit, wav, lambda, solar_spec, telluric_spec, $
-              filter_trans_on, filter_trans_off, obs, back
+  common continuum_fit, wav, lambda, solar_spec, telluric_spec, $
+      filter_trans_on, filter_trans_off, obs, back
 
   debug = 0B
 
@@ -95,8 +95,8 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
                                  wavelengths=wavelengths, $
                                  correction_factors=correction_factors
   compile_opt strictarr
-  common fit, wav, lambda, solar_spec, telluric_spec, $
-              filter_trans_on, filter_trans_off, obs, back
+  common continuum_fit, wav, lambda, solar_spec, telluric_spec, $
+      filter_trans_on, filter_trans_off, obs, back
 
   @comp_config_common
   @comp_constants_common
