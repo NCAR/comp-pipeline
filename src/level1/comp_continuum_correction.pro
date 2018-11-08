@@ -48,6 +48,7 @@ pro comp_continuum_correction, date
   endfor
 
   chisq_limit = 0.01
+  offset_limit = 0.05
 
   wave_types = ['1074', '1079']
   center_wavelengths = [1074.7, 1079.8]
@@ -75,7 +76,8 @@ pro comp_continuum_correction, date
               name='comp', /debug
       if (wave_types[cw] ne flat_type[f]) then continue
 
-      if (max(chisq[cor_ind[f], *]) lt chisq_limit) then begin
+      if ((max(chisq[cor_ind[f], *]) lt chisq_limit) $
+             && (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) lt offset_limit)) then begin
         mg_log, '%0.1f nm [flat ext %d/%d]: OK', $
                 flat_wavelength[f], f + 1, n_flats, $
                 name='comp', /info
@@ -85,26 +87,52 @@ pro comp_continuum_correction, date
         if (count eq 0) then begin
           correction = 1.0
           mg_log, 'default correction: %0.4f', correction, name='comp', /debug
+
+          offset1 = 0.0
+          offset2 = 0.0
         endif else begin
           correction = correction_factors[cor_ind[f], ind[0]]
           mg_log, 'correction: %0.4f', correction, name='comp', /debug
-        endelse
 
-        images[f] /= correction
-        ; TODO: get keyword name and comment
-        h = headers[f]
-        sxaddpar, h, 'CONTCORR', correction, $
-                  ' continuum emission corr. to flat, eg, H2O vapor', $
-                  format='(F0.4)'
-        headers[f] = h
+          offset1 = offset[cor_ind[f], 0]
+          offset2 = offset[cor_ind[f], 1]
+        endelse
       endif else begin
+        ; use default correction and offsets
+        correction = 1.0
+        offset1    = 0.0
+        offset2    = 0.0
+
         mg_log, '%0.1f nm flats %d/%d: bad', $
                 center_wavelengths[cw], f + 1, n_flats, $
                 name='comp', /warn
-        mg_log, 'chi-sq %0.3f > %0.3f', $
-                max(chisq[cor_ind[f], *]), chisq_limit, $
-                name='comp', /warn
+
+        if (max(chisq[cor_ind[f], *]) gt chisq_limit) then begin
+          mg_log, 'chi-sq %0.3f > %0.3f', $
+                  max(chisq[cor_ind[f], *]), chisq_limit, $
+                  name='comp', /warn
+        endif
+
+        if (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) lt offset_limit) then begin
+          mg_log, 'abs(offsets) %0.3f > %0.3f', $
+              abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]), offset_limit, $
+              name='comp', /warn
+        endif
       endelse
+
+      images[f] /= correction
+      ; TODO: get final keyword names and comments
+      h = headers[f]
+      sxaddpar, h, 'CONTCORR', correction, $
+                ' continuum emission corr. to flat, eg, H2O vapor', $
+                format='(F0.4)'
+      sxaddpar, h, 'CONTOFF1', offset1, $
+                ' wavelength offset for beam 1', $
+                format='(F0.4)'
+      sxaddpar, h, 'CONTOFF2', offset2, $
+                ' wavelength offset for beam 2', $
+                format='(F0.4)'
+      headers[f] = h
     endfor
   endfor
 
