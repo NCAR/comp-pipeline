@@ -61,7 +61,7 @@ pro comp_plot_gbu, date, output_filename, gbu_filename, _extra=e
   start_time = 06   ; 24-hour time
   end_time   = 19   ; 24-hour time
   increment  = 15   ; minutes
-  max_images = 4 * increment
+  max_images = 2 * increment   ; fastest cadence is 2 images/min
   n_bins = long((end_time  - start_time) / (increment / 60.0))
 
   histograms = lonarr(n_types, n_bins)

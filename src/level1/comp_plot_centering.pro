@@ -72,7 +72,6 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
               /color, xoffset=0.0, yoffset=0.0
 
   device, decomposed=1
-  !p.font = 1
 
   !p.multi = [0, 2, 6, 0, 0]
 
@@ -123,108 +122,119 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL x-coord', $
-        yrange=occ_ul_x_range
-  oplot, image_occ_ul.time, image_occ_ul.x, color=image_color, /noclip
-  oplot, flat_occ_ul.time, flat_occ_ul.x, color=flat_color, /noclip
+        yrange=occ_ul_x_range, $
+        font=1
+  oplot, image_occ_ul.time, image_occ_ul.x, color=image_color, /noclip, font=1
+  oplot, flat_occ_ul.time, flat_occ_ul.x, color=flat_color, /noclip, font=1
 
   ; field UL x
   plot, image_field_ul.time, image_field_ul.x, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field UL x-coord', $
-        yrange=field_ul_x_range
-  oplot, image_field_ul.time, image_field_ul.x, color=image_color, /noclip
-  oplot, flat_field_ul.time, flat_field_ul.x, color=flat_color, /noclip
+        yrange=field_ul_x_range, $
+        font=1
+  oplot, image_field_ul.time, image_field_ul.x, color=image_color, /noclip, font=1
+  oplot, flat_field_ul.time, flat_field_ul.x, color=flat_color, /noclip, font=1
 
   ; occ UL y
   plot, image_occ_ul.time, image_occ_ul.y, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL y-coord', $
-        yrange=occ_ul_y_range
-  oplot, image_occ_ul.time, image_occ_ul.y, color=image_color, /noclip
-  oplot, flat_occ_ul.time, flat_occ_ul.y, color=flat_color, /noclip
+        yrange=occ_ul_y_range, font=1
+  oplot, image_occ_ul.time, image_occ_ul.y, color=image_color, /noclip, font=1
+  oplot, flat_occ_ul.time, flat_occ_ul.y, color=flat_color, /noclip, font=1
 
   ; field UL y
   plot, image_field_ul.time, image_field_ul.y, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field UL y-coord', $
-        yrange=field_ul_y_range
-  oplot, image_field_ul.time, image_field_ul.y, color=image_color, /noclip
-  oplot, flat_field_ul.time, flat_field_ul.y, color=flat_color, /noclip
+        yrange=field_ul_y_range, $
+        font=1
+  oplot, image_field_ul.time, image_field_ul.y, color=image_color, /noclip, font=1
+  oplot, flat_field_ul.time, flat_field_ul.y, color=flat_color, /noclip, font=1
 
   ; occ UL r
   plot, image_occ_ul.time, image_occ_ul.r, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL radius', $
-        yrange=occ_ul_radius_range
-  oplot, image_occ_ul.time, image_occ_ul.r, color=image_color, /noclip
-  oplot, flat_occ_ul.time, flat_occ_ul.r, color=flat_color, /noclip
+        yrange=occ_ul_radius_range, $
+        font=1
+  oplot, image_occ_ul.time, image_occ_ul.r, color=image_color, /noclip, font=1
+  oplot, flat_occ_ul.time, flat_occ_ul.r, color=flat_color, /noclip, font=1
 
   ; field UL r
   plot, image_field_ul.time, image_field_ul.r, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field UL radius', $
-        yrange=field_ul_radius_range
-  oplot, image_field_ul.time, image_field_ul.r, color=image_color, /noclip
-  oplot, flat_field_ul.time, flat_field_ul.r, color=flat_color, /noclip
+        yrange=field_ul_radius_range, $
+        font=1
+  oplot, image_field_ul.time, image_field_ul.r, color=image_color, /noclip, font=1
+  oplot, flat_field_ul.time, flat_field_ul.r, color=flat_color, /noclip, font=1
 
   ; occ LR x
   plot, image_occ_lr.time, image_occ_lr.x, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR x-coord', $
-        yrange=occ_lr_x_range
-  oplot, image_occ_lr.time, image_occ_lr.x, color=image_color, /noclip
-  oplot, flat_occ_lr.time, flat_occ_lr.x, color=flat_color, /noclip
+        yrange=occ_lr_x_range, $
+        font=1
+  oplot, image_occ_lr.time, image_occ_lr.x, color=image_color, /noclip, font=1
+  oplot, flat_occ_lr.time, flat_occ_lr.x, color=flat_color, /noclip, font=1
 
   ; field LR x
   plot, image_field_lr.time, image_field_lr.x, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field LR x-coord', $
-        yrange=field_lr_x_range
-  oplot, image_field_lr.time, image_field_lr.x, color=image_color, /noclip
-  oplot, flat_field_lr.time, flat_field_lr.x, color=flat_color, /noclip
+        yrange=field_lr_x_range, $
+        font=1
+  oplot, image_field_lr.time, image_field_lr.x, color=image_color, /noclip, font=1
+  oplot, flat_field_lr.time, flat_field_lr.x, color=flat_color, /noclip, font=1
 
   ; occ LR y
   plot, image_occ_lr.time, image_occ_lr.y, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR y-coord', $
-        yrange=occ_lr_y_range
-  oplot, image_occ_lr.time, image_occ_lr.y, color=image_color, /noclip
-  oplot, flat_occ_lr.time, flat_occ_lr.y, color=flat_color, /noclip
+        yrange=occ_lr_y_range, $
+        font=1
+  oplot, image_occ_lr.time, image_occ_lr.y, color=image_color, /noclip, font=1
+  oplot, flat_occ_lr.time, flat_occ_lr.y, color=flat_color, /noclip, font=1
 
   ; field LR y
   plot, image_field_lr.time, image_field_lr.y, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field LR y-coord', $
-        yrange=field_lr_y_range
-  oplot, image_field_lr.time, image_field_lr.y, color=image_color, /noclip
-  oplot, flat_field_lr.time, flat_field_lr.y, color=flat_color, /noclip
+        yrange=field_lr_y_range, $
+        font=1
+  oplot, image_field_lr.time, image_field_lr.y, color=image_color, /noclip, font=1
+  oplot, flat_field_lr.time, flat_field_lr.y, color=flat_color, /noclip, font=1
 
   ; occ LR r
   plot, image_occ_lr.time, image_occ_lr.r, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter LR radius', $
-        yrange=occ_lr_radius_range
-  oplot, image_occ_lr.time, image_occ_lr.r, color=image_color, /noclip
-  oplot, flat_occ_lr.time, flat_occ_lr.r, color=flat_color, /noclip
+        yrange=occ_lr_radius_range, $
+        font=1
+  oplot, image_occ_lr.time, image_occ_lr.r, color=image_color, /noclip, font=1
+  oplot, flat_occ_lr.time, flat_occ_lr.r, color=flat_color, /noclip, font=1
 
   ; field LR r
   plot, image_field_lr.time, image_field_lr.r, /nodata, $
         xstyle=9, ystyle=9, charsize=charsize, $
         xtitle='time (hours)', ytitle='pixels', $
         title='Field LR radius', $
-        yrange=field_lr_radius_range
-  oplot, image_field_lr.time, image_field_lr.r, color=image_color, /noclip
-  oplot, flat_field_lr.time, flat_field_lr.r, color=flat_color, /noclip
+        yrange=field_lr_radius_range, $
+        font=1
+  oplot, image_field_lr.time, image_field_lr.r, color=image_color, /noclip, font=1
+  oplot, flat_field_lr.time, flat_field_lr.r, color=flat_color, /noclip, font=1
 
   !p.multi = 0
   xyouts, 0.5, 0.98, $

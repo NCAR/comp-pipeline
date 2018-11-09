@@ -148,7 +148,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     endif
 
     set_plot, 'Z'
-    !p.font = 1
+
     device, set_pixel_depth=24
     device, set_resolution=[620, 620]
     device, decomposed=0
@@ -174,13 +174,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       tv, qoi
       colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
                  range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.3)'
-      xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=6, /device, color=255
-      !p.font = -1
+      xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=6, /device, color=255, font=1
+
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
               charsize=1, /device, color=255
-      !p.font = 1
 
       ; display HAO logo
       tvlct, rtemp, gtemp, btemp, /get
@@ -204,7 +203,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; plot U/I in b/w
     loadct, 0, /silent
     if (qu_files[ii] eq 1) then begin
-      uoi = stks_u/intensity
+      uoi = stks_u / intensity
       uoi[unmasked] = 0.
       display_min_u = -0.2
       display_max_u = 0.2
@@ -214,12 +213,11 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
                  range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.3)'
       xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255
-      !p.font = -1
+
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
               charsize=1, /device, color=255
-      !p.font = 1
 
       ; display HAO logo
       tvlct, rtemp, gtemp, btemp, /get
@@ -252,13 +250,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       tv, poi
       colorbar2, position=colbarpos, charsize=1.25, title='log(L!Itot !N/I)', $
                  range=[-2.3, -0.3], font=-1, divisions=4, format='(F5.1)'
-      xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255
-      !p.font = -1
+      xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
+
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
               charsize=1, /device, color=255
-      !p.font = 1
 
       ; display HAO logo
       tvlct, rtemp, gtemp, btemp, /get
@@ -289,14 +286,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $
                range=[-10, 10], font=-1, divisions=10, color=255, ncolors=253
     loadct, 0, /silent
-    xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255
-    xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255
-    !p.font = -1
+    xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255, font=1
+    xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255, font=1
+
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
             charsize=1, /device, color=255
-    !p.font = 1
 
     ; display HAO logo
     tvlct, rtemp, gtemp, btemp, /get
@@ -331,14 +327,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
                range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
     loadct, 0, /silent
-    xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
-    !p.font = -1
+    xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255, font=1
+
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, $
             charsize=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
             charsize=1, /device, color=255
-    !p.font = 1
 
     ; display HAO logo
     tvlct, rtemp, gtemp, btemp, /get
@@ -349,7 +344,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; display NSF/NCAR logo
     backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
     nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-    tv, nsflogo, TRUE=3, 619-134, 0
+    tv, nsflogo, true=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -362,15 +357,14 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_aia_lct, wave=193, /load
     tv, int_enh
     loadct, 0, /silent
-    xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255
-    xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255
-    !p.font = -1
+    xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255, font=1
+    xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255, font=1
+
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, $
             charsize=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
             charsize=1, /device, color=255
-    !p.font = 1
 
     ; display HAO logo
     tvlct, rtemp, gtemp, btemp, /get
@@ -406,13 +400,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     colorbar2, position=colbarpos, chars=1.25, title='line width [km/s]', $
                range=[25,55], font=-1, divisions=3, color=255, ncolors=254
     loadct, 0, /silent
-    xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255
-    !p.font = -1
+    xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255, font=1
+
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
             index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
             charsize=1, /device, color=255
-    !p.font = 1
 
     ; display HAO logo
     tvlct, rtemp, gtemp, btemp, /get
@@ -460,13 +453,12 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                  range=[-90, 90], font=-1, divisions=6, color=255, ncolors=253
       loadct, 0, /silent
       xyouts, 620.0 / 2.0, 4 * 78, 'Radial Azimuth', $
-              charsize=6, /device, color=255, alignment=0.5
-      !p.font = -1
+              charsize=6, /device, color=255, alignment=0.5, font=1
+
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
               index[ii].date_d$obs + ' ' + index[ii].time_d$obs + ' UT', $
               charsize=1, /device, color=255
-      !p.font = 1
 
       ; display HAO logo
       tvlct, rtemp, gtemp, btemp, /get

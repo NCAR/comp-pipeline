@@ -172,7 +172,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   ; now plot everything
   set_plot, 'Z'
-  !p.font = 1
+
   erase, 255
   device, set_pixel_depth=24
   device, set_resolution=[4 * 485, 4 * 325]
@@ -223,26 +223,35 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   ; print image info
   loadct, 0, /silent
-  xyouts, 4 * 53, 4 * 238, 'Intensity', charsize=6, /device, color=255
-  xyouts, 4 * 46 + 4 * 160, 4 * 245, 'Enhanced', charsize=6, /device, color=255
-  xyouts, 4 * 53 + 4 * 160, 4 * 228, 'Intensity', charsize=6, /device, color=255
-  xyouts, 4 * 66, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255
-  xyouts, 4 * 53 + 4 * 160., 4 * 97, 'Doppler', charsize=6, /device, color=255
-  xyouts, 4 * 53.5 + 4 * 160, 4 * 78, 'Velocity', charsize=6, /device, color=255
-  xyouts, 4 * 43.5 + 8 * 160, 4 * 78, 'Line Width', charsize=6, /device, color=255
+  xyouts, 4 * 53, 4 * 238, 'Intensity', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 46 + 4 * 160, 4 * 245, 'Enhanced', charsize=6, /device, $
+          color=255, font=1
+  xyouts, 4 * 53 + 4 * 160, 4 * 228, 'Intensity', charsize=6, /device, $
+          color=255, font=1
+  xyouts, 4 * 66, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 53 + 4 * 160., 4 * 97, 'Doppler', charsize=6, /device, $
+          color=255, font=1
+  xyouts, 4 * 53.5 + 4 * 160, 4 * 78, 'Velocity', charsize=6, /device, $
+          color=255, font=1
+  xyouts, 4 * 43.5 + 8 * 160, 4 * 78, 'Line Width', charsize=6, /device, $
+          color=255, font=1
 
   ; print info panel
-  xyouts, 4 * 355, 4 * 140 + 4 * 160, 'MLSO/CoMP', charsize=6, /device, color=0
+  xyouts, 4 * 355, 4 * 140 + 4 * 160, 'MLSO/CoMP', charsize=6, /device, color=0, font=1
   xyouts, 4 * 349, 4 * 120 + 4 * 160, $
           'Date: ' + strmid(date_dir, 0, 4) + '/' + strmid(date_dir, 4, 2) $
             + '/' + strmid(date_dir, 6, 2),$
-          charsize=5, /device, color=0
-  xyouts, 4 * 326, 4 * 100 + 4 * 160, 'First image:', charsize=5, /device, color=0
-  xyouts, 4 * 403, 4 * 100 + 4 * 160, first_file_time, charsize=5, /device, color=0
-  xyouts, 4 * 326, 4 * 80 + 4 * 160, 'Last image:', charsize=5, /device, color=0
-  xyouts, 4 * 403, 4 * 80 + 4 * 160, last_file_time, charsize=5, /device, color=0
+          charsize=5, /device, color=0, font=1
+  xyouts, 4 * 326, 4 * 100 + 4 * 160, 'First image:', charsize=5, /device, color=0, $
+          font=1
+  xyouts, 4 * 403, 4 * 100 + 4 * 160, first_file_time, charsize=5, /device, color=0, $
+          font=1
+  xyouts, 4 * 326, 4 * 80 + 4 * 160, 'Last image:', charsize=5, /device, color=0, $
+          font=1
+  xyouts, 4 * 403, 4 * 80 + 4 * 160, last_file_time, charsize=5, /device, $
+          color=0, font=1
   xyouts, 4 * 326, 4 * 60 + 4 * 160, 'Total # of images:  ' + strtrim(n_l1_files, 2), $
-          charsize=5, /device, color=0
+          charsize=5, /device, color=0, font=1
 
   tvlct, rtemp, gtemp, btemp, /get
 
@@ -322,13 +331,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   tv, poi
   colorbar2, position=colbarpos, charsize=1.25, title='log(L!Itot !N/I)', $
              range=[-2.3, -0.3], font=-1, divisions=4, format='(F5.1)'
-  xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir,6,2), chars=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -359,14 +367,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   tv, qoi
   colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
              range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.2)'
-  xyouts, 4 * 66, 4 * 78, 'Q/I', chars=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 66, 4 * 78, 'Q/I', chars=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -397,14 +404,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   tv, uoi
   colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
              range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.2)'
-  xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -431,15 +437,14 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $
              range=[-10, 10], font=-1, divisions=10, color=255, ncolors=253
   loadct, 0, /silent
-  xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255
-  xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -465,14 +470,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
              range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
   loadct, 0, /silent
-  xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -496,15 +500,14 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   comp_aia_lct, wave=193, /load
   tv, enhanced_intensity
   loadct, 0, /silent
-  xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255
-  xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir,6 , 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -535,14 +538,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   colorbar2, position=colbarpos, charsize=1.25, title='line width [km/s]',$
              range=[25, 55], font=-1, divisions=3, color=255, ncolors=254
   loadct, 0, /silent
-  xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -572,14 +574,13 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   colorbar2, position=colbarpos, charsize=1.25, title='Azimuth [degrees]',$
              range=[0, 180], font=-1, divisions=6, color=255, ncolors=254
   loadct, 0, /silent
-  xyouts, 4 * 48, 4 * 78, 'Azimuth', charsize=6, /device, color=255
-  !p.font = -1
+  xyouts, 4 * 48, 4 * 78, 'Azimuth', charsize=6, /device, color=255, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -618,14 +619,14 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   colorbar2, position=colbarpos, charsize=1.25, title='Radial Azimuth [degrees]',$
              range=[-90, 90], font=-1, divisions=6, color=255, ncolors=ncolors
   loadct, 0, /silent
-  xyouts, 620 / 2, 4 * 78, 'Radial Azimuth', charsize=6, /device, color=255, alignment=0.5
-  !p.font = -1
+  xyouts, 620 / 2, 4 * 78, 'Radial Azimuth', charsize=6, /device, color=255, $
+          alignment=0.5, font=1
+
   xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 4 * 131, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
           charsize=1, /device, color=255
-  !p.font = 1
 
   ; display HAO logo
   tvlct, rtemp, gtemp, btemp, /get
@@ -657,7 +658,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   write_png, obasefilename + '.daily_q.png', qoveri
   write_png, obasefilename + '.daily_u.png', uoveri
 
-  ;=== end of plotting daily images ===
+  ; end of plotting daily images
 
   skip:
   mg_log, 'done', name='comp', /info
