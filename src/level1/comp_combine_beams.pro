@@ -114,10 +114,14 @@ pro comp_combine_beams, images, headers, date_dir, $
       ; extract the foreground and background subimages from both
       comp_extract_beams, imgplus, hplus, date_dir, bgplus, fgplus, $
                           image_geometry=image_geometry, $
-                          uncorrected_geometry=uncorrected_geometry
+                          uncorrected_geometry=uncorrected_geometry, $
+                          offsensor_mask=offsensor_mask_plus
       comp_extract_beams, imgminus, hminus, date_dir, fgminus, bgminus, $
                           image_geometry=image_geometry, $
-                          uncorrected_geometry=uncorrected_geometry
+                          uncorrected_geometry=uncorrected_geometry, $
+                          offsensor_mask=offsensor_mask_minus
+
+; TODO: use or pass along the offsensor masks
 
       ; foreground part (with background subtracted)
       nonzero = (fgplus ne 0.0) + (fgminus ne 0.0)  ; 0.0's are missing (off detector)

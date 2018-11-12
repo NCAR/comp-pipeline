@@ -24,13 +24,16 @@
 ;     image geometry specifications from distortion corrected images
 ;   uncorrected_geometry : in, required, type=structure
 ;     image geometry specifications from distortion uncorrected images
+;   offsensor_mask : out, optional, type="bytarr(620, 620)"
+;     set to a named variable to retrieve the mask for pixels on/off the sensor
 ;
 ; :Author:
 ;   MLSO Software Team
 ;-
 pro comp_extract_beams, images, headers, date_dir, d1, d2, $
                         image_geometry=image_geometry, $
-                        uncorrected_geometry=uncorrected_geometry
+                        uncorrected_geometry=uncorrected_geometry, $
+                        offsensor_mask=offsensor_mask
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -50,8 +53,8 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
 
   ; set up matrix for image rotation
 
-  x = findgen(nx,ny)mod(nx) -  nx*0.5 + 0.5
-  y = transpose(findgen(ny,nx)mod(ny) ) - ny*0.5 + 0.5
+  x = findgen(nx, ny) mod nx - nx * 0.5 + 0.5
+  y = transpose(findgen(ny, nx) mod ny) - ny * 0.5 + 0.5
  
   angle = p_angle + 180.0   ; raw image oriented south up
   xp = x * cos(angle * !dtor) - y * sin(angle * !dtor)
@@ -120,6 +123,9 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   n_images = n_elements(images[0, 0, *])
   d1 = fltarr(nx, ny, n_images)
   d2 = fltarr(nx, ny, n_images)
+  offsensor_mask1 = fltarr(nx, ny) + 1B
+  offsensor_mask2 = fltarr(nx, ny) + 1B
+
   for i = 0L, n_images - 1L do begin
     ; extract sub-arrays
     sub1 = comp_extract1(images[*, *, i])
@@ -130,10 +136,20 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
       'coeffs': begin
           sub1 = comp_apply_distortion_coeffs(sub1, k1)
           sub2 = comp_apply_distortion_coeffs(sub2, k2)
+
+          if (i eq 0) then begin
+            offsensor_mask1 = comp_apply_distortion_coeffs(offsensor_mask1, k1)
+            offsensor_mask2 = comp_apply_distortion_coeffs(offsensor_mask2, k2)
+          endif
         end
       'file': begin
           sub1 = comp_apply_distortion_file(sub1, dx1_c, dy1_c)
           sub2 = comp_apply_distortion_file(sub2, dx2_c, dy2_c)
+
+          if (i eq 0) then begin
+            offsensor_mask1 = comp_apply_distortion_file(offsensor_mask1, dx1_c, dy1_c)
+            offsensor_mask2 = comp_apply_distortion_file(offsensor_mask2, dx2_c, dy2_c)
+          endif
         end
       else:
     endcase
@@ -151,5 +167,14 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     ; translate and rotate images
     d1[*, *, i] = interpolate(sub1, xpp1, ypp1, missing=missing1, cubic=-0.5)
     d2[*, *, i] = interpolate(sub2, xpp2, ypp2, missing=missing2, cubic=-0.5)
+
+    if (i eq 0) then begin
+      offsensor_mask1 = interpolate(offsensor_mask1, xpp1, ypp1, $
+                                    missing=0.0, cubic=-0.5)
+      offsensor_mask2 = interpolate(offsensor_mask2, xpp2, ypp2, $
+                                    missing=0.0, cubic=-0.5)
+    endif
   endfor
+
+  offsensor_mask = (offsensor_mask1 gt 0.5) and (offsensor_mask2 gt 0.5)
 end
