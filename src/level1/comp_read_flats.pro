@@ -94,11 +94,20 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
     if (msg ne '') then message, msg
     normalize = sxpar(header, 'NORMALIZ')
 
+    beams = lonarr(num - 3L)
+    for e = 1L, num - 3L do begin
+      fits_read, fcb, empty, ext_header, /header_only, exten_no=e
+      beams[e - 1] = sxpar(ext_header, 'BEAM')
+    endfor
+
     ; read arrays with times, wavelengths and polarizations
     fits_read, fcb, flat_times, exten_no=num - 2, /no_abort, message=msg
     if (msg ne '') then message, msg
+
     fits_read, fcb, flat_wavelengths, exten_no=num - 1, /no_abort, message=msg
     if (msg ne '') then message, msg
+    flat_wavelengths *= beams
+
     fits_read, fcb, flat_exposures, exten_no=num, /no_abort, message=msg
     if (msg ne '') then message, msg
   endif else normalize = flat_normalize
