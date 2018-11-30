@@ -71,10 +71,11 @@ pro comp_continuum_correction, date
 
     ; correct matching extensions if chisq/offset are OK
     for f = 0L, n_flats - 1L do begin
+      if (wave_types[cw] ne flat_type[f]) then continue
+
       mg_log, '%0.2f nm type: %s flat_type: %s', $
               flat_wavelength[f], wave_types[cw], flat_type[f], $
               name='comp', /debug
-      if (wave_types[cw] ne flat_type[f]) then continue
 
       if ((max(chisq[cor_ind[f], *]) lt chisq_limit) $
              && (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) lt offset_limit)) then begin
@@ -175,27 +176,28 @@ end
 
 ; main-level example program
 
-date = '20130115'
+date = '20170105'
 comp_initialize, date
-config_filename = filepath('comp.mgalloy.twilight.latest.cfg', $
+config_filename = filepath('comp.mgalloy.compdata.continuum.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
 
 comp_continuum_correction, date
 
-@comp_config_common
-original_flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), $
-                                  subdir=[date, 'level1'], $
-                                  root=process_basedir)
-corrected_flat_filename = filepath(string(date, format='(%"%s.comp.flat.corrected.fts")'), $
-                                  subdir=[date, 'level1'], $
-                                  root=process_basedir)
+;@comp_config_common
+;original_flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), $
+;                                  subdir=[date, 'level1'], $
+;                                  root=process_basedir)
+;corrected_flat_filename = filepath(string(date, format='(%"%s.comp.flat.corrected.fts")'), $
+;                                  subdir=[date, 'level1'], $
+;                                  root=process_basedir)
 
 
-diff = mg_fits_diff(original_flat_filename, corrected_flat_filename, $
-                    differences=differences, $
-                    error_msg=msg)
-help, diff, msg, differences
+;diff = mg_fits_diff(original_flat_filename, corrected_flat_filename, $
+;                    differences=differences, $
+;                    error_msg=msg)
+;help, diff, differences
+;print, msg
 
 end
