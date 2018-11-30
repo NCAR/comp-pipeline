@@ -124,8 +124,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Occulter UL x-coord', $
         yrange=occ_ul_x_range, $
         font=1
-  oplot, image_occ_ul.time, image_occ_ul.x, color=image_color, /noclip, font=1
-  oplot, flat_occ_ul.time, flat_occ_ul.x, color=flat_color, /noclip, font=1
+  oplot, image_occ_ul.time, image_occ_ul.x, color=image_color, /noclip
+  oplot, flat_occ_ul.time, flat_occ_ul.x, color=flat_color, /noclip
 
   ; field UL x
   plot, image_field_ul.time, image_field_ul.x, /nodata, $
@@ -134,8 +134,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Field UL x-coord', $
         yrange=field_ul_x_range, $
         font=1
-  oplot, image_field_ul.time, image_field_ul.x, color=image_color, /noclip, font=1
-  oplot, flat_field_ul.time, flat_field_ul.x, color=flat_color, /noclip, font=1
+  oplot, image_field_ul.time, image_field_ul.x, color=image_color, /noclip
+  oplot, flat_field_ul.time, flat_field_ul.x, color=flat_color, /noclip
 
   ; occ UL y
   plot, image_occ_ul.time, image_occ_ul.y, /nodata, $
@@ -143,8 +143,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         xtitle='time (hours)', ytitle='pixels', $
         title='Occulter UL y-coord', $
         yrange=occ_ul_y_range, font=1
-  oplot, image_occ_ul.time, image_occ_ul.y, color=image_color, /noclip, font=1
-  oplot, flat_occ_ul.time, flat_occ_ul.y, color=flat_color, /noclip, font=1
+  oplot, image_occ_ul.time, image_occ_ul.y, color=image_color, /noclip
+  oplot, flat_occ_ul.time, flat_occ_ul.y, color=flat_color, /noclip
 
   ; field UL y
   plot, image_field_ul.time, image_field_ul.y, /nodata, $
@@ -153,8 +153,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Field UL y-coord', $
         yrange=field_ul_y_range, $
         font=1
-  oplot, image_field_ul.time, image_field_ul.y, color=image_color, /noclip, font=1
-  oplot, flat_field_ul.time, flat_field_ul.y, color=flat_color, /noclip, font=1
+  oplot, image_field_ul.time, image_field_ul.y, color=image_color, /noclip
+  oplot, flat_field_ul.time, flat_field_ul.y, color=flat_color, /noclip
 
   ; occ UL r
   plot, image_occ_ul.time, image_occ_ul.r, /nodata, $
@@ -163,8 +163,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Occulter UL radius', $
         yrange=occ_ul_radius_range, $
         font=1
-  oplot, image_occ_ul.time, image_occ_ul.r, color=image_color, /noclip, font=1
-  oplot, flat_occ_ul.time, flat_occ_ul.r, color=flat_color, /noclip, font=1
+  oplot, image_occ_ul.time, image_occ_ul.r, color=image_color, /noclip
+  oplot, flat_occ_ul.time, flat_occ_ul.r, color=flat_color, /noclip
 
   ; field UL r
   plot, image_field_ul.time, image_field_ul.r, /nodata, $
@@ -173,8 +173,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Field UL radius', $
         yrange=field_ul_radius_range, $
         font=1
-  oplot, image_field_ul.time, image_field_ul.r, color=image_color, /noclip, font=1
-  oplot, flat_field_ul.time, flat_field_ul.r, color=flat_color, /noclip, font=1
+  oplot, image_field_ul.time, image_field_ul.r, color=image_color, /noclip
+  oplot, flat_field_ul.time, flat_field_ul.r, color=flat_color, /noclip
 
   ; occ LR x
   plot, image_occ_lr.time, image_occ_lr.x, /nodata, $
@@ -183,8 +183,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Occulter LR x-coord', $
         yrange=occ_lr_x_range, $
         font=1
-  oplot, image_occ_lr.time, image_occ_lr.x, color=image_color, /noclip, font=1
-  oplot, flat_occ_lr.time, flat_occ_lr.x, color=flat_color, /noclip, font=1
+  oplot, image_occ_lr.time, image_occ_lr.x, color=image_color, /noclip
+  oplot, flat_occ_lr.time, flat_occ_lr.x, color=flat_color, /noclip
 
   ; field LR x
   plot, image_field_lr.time, image_field_lr.x, /nodata, $
@@ -193,8 +193,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Field LR x-coord', $
         yrange=field_lr_x_range, $
         font=1
-  oplot, image_field_lr.time, image_field_lr.x, color=image_color, /noclip, font=1
-  oplot, flat_field_lr.time, flat_field_lr.x, color=flat_color, /noclip, font=1
+  oplot, image_field_lr.time, image_field_lr.x, color=image_color, /noclip
+  oplot, flat_field_lr.time, flat_field_lr.x, color=flat_color, /noclip
 
   ; occ LR y
   plot, image_occ_lr.time, image_occ_lr.y, /nodata, $
@@ -203,8 +203,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Occulter LR y-coord', $
         yrange=occ_lr_y_range, $
         font=1
-  oplot, image_occ_lr.time, image_occ_lr.y, color=image_color, /noclip, font=1
-  oplot, flat_occ_lr.time, flat_occ_lr.y, color=flat_color, /noclip, font=1
+  oplot, image_occ_lr.time, image_occ_lr.y, color=image_color, /noclip
+  oplot, flat_occ_lr.time, flat_occ_lr.y, color=flat_color, /noclip
 
   ; field LR y
   plot, image_field_lr.time, image_field_lr.y, /nodata, $
@@ -213,8 +213,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Field LR y-coord', $
         yrange=field_lr_y_range, $
         font=1
-  oplot, image_field_lr.time, image_field_lr.y, color=image_color, /noclip, font=1
-  oplot, flat_field_lr.time, flat_field_lr.y, color=flat_color, /noclip, font=1
+  oplot, image_field_lr.time, image_field_lr.y, color=image_color, /noclip
+  oplot, flat_field_lr.time, flat_field_lr.y, color=flat_color, /noclip
 
   ; occ LR r
   plot, image_occ_lr.time, image_occ_lr.r, /nodata, $
@@ -223,8 +223,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Occulter LR radius', $
         yrange=occ_lr_radius_range, $
         font=1
-  oplot, image_occ_lr.time, image_occ_lr.r, color=image_color, /noclip, font=1
-  oplot, flat_occ_lr.time, flat_occ_lr.r, color=flat_color, /noclip, font=1
+  oplot, image_occ_lr.time, image_occ_lr.r, color=image_color, /noclip
+  oplot, flat_occ_lr.time, flat_occ_lr.r, color=flat_color, /noclip
 
   ; field LR r
   plot, image_field_lr.time, image_field_lr.r, /nodata, $
@@ -233,8 +233,8 @@ pro comp_plot_centering, dir, output_filename, date, wave_type
         title='Field LR radius', $
         yrange=field_lr_radius_range, $
         font=1
-  oplot, image_field_lr.time, image_field_lr.r, color=image_color, /noclip, font=1
-  oplot, flat_field_lr.time, flat_field_lr.r, color=flat_color, /noclip, font=1
+  oplot, image_field_lr.time, image_field_lr.r, color=image_color, /noclip
+  oplot, flat_field_lr.time, flat_field_lr.r, color=flat_color, /noclip
 
   !p.multi = 0
   xyouts, 0.5, 0.98, $
