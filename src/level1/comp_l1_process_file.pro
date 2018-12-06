@@ -88,7 +88,10 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       image_geometry=image_geometry, $
                       uncorrected_geometry=uncorrected_geometry, $
                       wave_type=wave_type, $
-                      uncorrected_images=uncorrected_images
+                      uncorrected_images=uncorrected_images, $
+                      offsensor_mask=offsensor_mask
+
+  comp_apply_offsensor_mask, images_combine, offsensor_mask, filename
 
   ; double precision not required in output
   images_combine = float(images_combine)
@@ -114,9 +117,9 @@ end
 
 ; main-level example program
 
-date = '20180104'
+date = '20170105'
 
-config_filename = filepath('comp.mgalloy.mahi.test.cfg', $
+config_filename = filepath('comp.mgalloy.twilight.testing.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
@@ -124,7 +127,7 @@ comp_initialize, date
 
 @comp_config_common
 
-filename = filepath('20180104.075947.FTS', subdir=date, root=raw_basedir)
+filename = filepath('20170105.075527.FTS', subdir=date, root=raw_basedir)
 comp_l1_process_file, filename, date, '1074'
 
 end

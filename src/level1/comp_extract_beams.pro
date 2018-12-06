@@ -123,8 +123,8 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
   n_images = n_elements(images[0, 0, *])
   d1 = fltarr(nx, ny, n_images)
   d2 = fltarr(nx, ny, n_images)
-  offsensor_mask1 = fltarr(nx, ny) + 1B
-  offsensor_mask2 = fltarr(nx, ny) + 1B
+  offsensor_mask1 = fltarr(nx, ny) + 1.0
+  offsensor_mask2 = fltarr(nx, ny) + 1.0
 
   for i = 0L, n_images - 1L do begin
     ; extract sub-arrays
@@ -176,5 +176,5 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
     endif
   endfor
 
-  offsensor_mask = (offsensor_mask1 gt 0.5) and (offsensor_mask2 gt 0.5)
+  offsensor_mask = (offsensor_mask1 eq 1.0) and (offsensor_mask2 eq 1.0)
 end

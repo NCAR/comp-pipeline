@@ -36,6 +36,9 @@
 ;     wavelength to process, '1074', '1079', etc.
 ;   uncorrected_images : in, optional, type="fltarr(nx, ny, n_images)"
 ;     the array of CoMP images, not flat corrected, but corrected in other ways
+;   offsensor_mask : out, optional, type="bytarr(nx, ny)"
+;     set to a named variable to retrieve the mask of off-sensor pixels; 1 is
+;     on-sensor, 1 if off-sensor
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -47,6 +50,7 @@ pro comp_combine_beams, images, headers, date_dir, $
                         uncorrected_geometry=uncorrected_geometry, $
                         wave_type=wave_type, $
                         uncorrected_images=uncorrected_images, $
+                        offsensor_mask=offsensor_mask, $
                         error=error
   compile_opt strictarr
   @comp_constants_common
@@ -103,6 +107,8 @@ pro comp_combine_beams, images, headers, date_dir, $
     '1083': n_1083_files_post_angle_diff += n_bad_post_angle
   endcase
 
+  offsensor_mask = bytarr(nx, ny) + 1B
+
   for i = 0L, np - 1L do begin   ; loop over unique polarizations
     for j = 0L, nw - 1L do begin   ; loop over unique wavelengths
       ; get the two beam states for this wavelength and polarization
@@ -121,11 +127,11 @@ pro comp_combine_beams, images, headers, date_dir, $
                           uncorrected_geometry=uncorrected_geometry, $
                           offsensor_mask=offsensor_mask_minus
 
-; TODO: use or pass along the offsensor masks
+      offsensor_mask and= offsensor_mask_plus and offsensor_mask_minus
 
       ; foreground part (with background subtracted)
       nonzero = (fgplus ne 0.0) + (fgminus ne 0.0)  ; 0.0's are missing (off detector)
-      ; TODO: create mask for off detector from zeros of `nonzero`
+      ; create mask for off detector from zeros of `nonzero`
       nonzero >= 1.0                                ; don't divide by 0
 
       if (wave_type eq '1083') then begin
