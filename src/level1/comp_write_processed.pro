@@ -190,7 +190,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
       if (n_nans gt 0L) then begin
         mg_log, '%d NaNs in %s ext %s', $
                 n_nans, file_basename(output_filename), i + 1, $
-                name='comp', /warn
+                name='comp', /debug
       endif
 
       fits_write, fcb_out, images[*, *, i], header, extname=ename
