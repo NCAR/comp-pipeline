@@ -114,11 +114,15 @@ pro comp_continuum_correction, date
                   name='comp', /warn
         endif
 
-        if (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) lt offset_limit) then begin
-          mg_log, 'abs(offsets) %0.3f > %0.3f', $
-              abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]), offset_limit, $
-              name='comp', /warn
-        endif
+        if (n_11pt_flats eq 0L) then begin
+          mg_log, 'no 11 pt flats', name='comp', /warn
+        endif else begin
+          if (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) lt offset_limit) then begin
+            mg_log, 'abs(offsets) %0.3f > %0.3f', $
+                    abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]), offset_limit, $
+                    name='comp', /warn
+          endif
+        endelse
       endelse
 
       images[f] /= correction
