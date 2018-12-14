@@ -118,7 +118,7 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; use background for 1074 and 1079, but corona for 1083
   test1 = wave_type eq '1083' ? beam lt 0 : beam gt 0
-  ind1 = where(test1 and wave eq center_wavelength, n_plus_beam)
+  ind1 = where(test1 and abs(wave - center_wavelength) lt 0.03, n_plus_beam)
 
   if (n_plus_beam gt 0) then begin
     sub1 = comp_extract1(reform(images[*, *, ind1[0]]))
@@ -177,7 +177,7 @@ function comp_image_geometry, images, headers, date_dir, $
 
   ; use background for 1074 and 1079, but corona for 1083
   test2 = wave_type eq '1083' ? beam gt 0 : beam lt 0
-  ind2 = where(test2 and wave eq center_wavelength, n_minus_beam)
+  ind2 = where(test2 and abs(wave - center_wavelength) lt 0.03, n_minus_beam)
 
   if (n_minus_beam gt 0) then begin
     sub2 = comp_extract2(reform(images[*, *, ind2[0]]))
