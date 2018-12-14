@@ -35,6 +35,7 @@ pro comp_find_annulus, im, occulter, field, $
                        occulter_points=occulter_points, field_points=field_points
   compile_opt idl2
 
+  error = 0L
   if (n_elements(occulter_guess) eq 0L) then begin
     occulter_radius_guess = 226.0
   endif else begin
@@ -48,6 +49,7 @@ pro comp_find_annulus, im, occulter, field, $
                                       error=error, points=occulter_points)
   if (error ne 0L) then begin
     mg_log, 'error finding occulter center', name='comp', /warn
+    error = 1L
     return
   endif
 
@@ -72,6 +74,7 @@ pro comp_find_annulus, im, occulter, field, $
                                      error=error, points=field_points)
     if (error ne 0L) then begin
       mg_log, 'error finding field center', name='comp', /warn
+      error = 1L
       return
     endif
 
