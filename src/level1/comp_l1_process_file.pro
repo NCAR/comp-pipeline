@@ -91,7 +91,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                       uncorrected_images=uncorrected_images, $
                       offsensor_mask=offsensor_mask
 
-  comp_apply_offsensor_mask, images_combine, offsensor_mask, filename
+  comp_apply_offsensor_mask, images_combine, offsensor_mask, filename=filename
 
   ; double precision not required in output
   images_combine = float(images_combine)
