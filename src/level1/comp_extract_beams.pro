@@ -3,7 +3,7 @@
 ; (raw or close to raw) image set.
 ;
 ; :Uses:
-;   comp_inventory_header, comp_extract_time, comp_extract1, comp_extract2, mlso_sun,
+;   comp_inventory_header, comp_extract_time, comp_extract1, comp_extract2, sun,
 ;   comp_apply_distortion
 ;
 ; :Params:
@@ -45,8 +45,8 @@ pro comp_extract_beams, images, headers, date_dir, d1, d2, $
 
   ; compute solar ephemeris quantities from date and time (add 10 hours to
   ; convert from Hawaii time to UTC)
-  mlso_sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
-            pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
+  sun, year, month, day, 10.0 + hours + mins / 60. + secs / 3600., $
+       pa=p_angle, sd=semi_diam, true_ra=sol_ra, true_dec=sol_dec, lat0=b0
 
   ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
