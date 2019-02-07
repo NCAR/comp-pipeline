@@ -67,7 +67,7 @@ common comp_config, doi_1074,$
                     code_branch, $
                     subtract_background, $
                     remove_stray_light, $
-                    correct_continuum,
+                    correct_continuum, $
                     flat_avg_skip_first, $
                     read_flats_beam_multiplies_wave, $
                     make_flat_beam_multiplies_wave, $
