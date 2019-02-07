@@ -187,6 +187,10 @@ pro comp_configuration, config_filename=config_filename, error=error
 
 
   ; flats
+  correct_continuum              = config->get('correct_continuum', $
+                                               section='flats', $
+                                               /boolean, $
+                                               default=1B)
   flat_avg_skip_first             = config->get('skip_first', section='flats', $
                                                 /boolean, default=0B)
   read_flats_beam_multiplies_wave = config->get('beam_multiplies_wave_on_read', $
