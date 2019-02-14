@@ -14,9 +14,15 @@
 function comp_powfunc, x
   compile_opt strictarr
   common continuum_fit, wav, lambda, solar_spec, telluric_spec, $
-      filter_trans_on, filter_trans_off, obs, back
+      filter_trans_on, filter_trans_off, obs, back, $
+      date, datetime, continuum_wave_type, $
+      continuum_debug, beam_configuration, powell_iteration
+  @comp_config_common
 
-  debug = 0B
+  mg_log, 'iteration: %d, x: %s', $
+          powell_iteration, $
+          strjoin(string(x, format='(F0.4)'), ', '), $
+          name='comp', /debug
 
   nwave   = n_elements(wav)
   nlambda = n_elements(lambda)
@@ -24,6 +30,7 @@ function comp_powfunc, x
 
   ; shift solar and telluric spectra
   dlam = lambda[1] - lambda[0]   ; wavelength spacing of spectra
+
   shift_sol = interpolate(solar_spec, dindgen(nlambda) + x[0] / dlam, $
                           missing=1.0, /double)
   if (nparam eq 4) then begin
@@ -45,15 +52,46 @@ function comp_powfunc, x
     spec_off[i] = x[3] * total(filter_trans_off[*, i] * shift_sol * shift_tell)
   endfor
 
-  if (keyword_set(debug)) then begin
-    plot, lambda, shift_sol, charsize=2
-    plot, lambda, shift_tell, charsize=2
-    plot, wav, spec_on, psym=4, charsize=2
+  if (keyword_set(continuum_debug)) then begin
+    debug_filename_fmt = '(%"%s.comp.%s.powell-%d.iter-%04d.ps")'
+    output_filename = filepath(string(file_basename(datetime, '.FTS'), $
+                                      continuum_wave_type, $
+                                      beam_configuration, $
+                                      powell_iteration, $
+                                      format=debug_filename_fmt), $
+                               subdir=comp_decompose_date(date), $
+                               root=engineering_dir)
+    mg_psbegin, filename=output_filename, $
+                xsize=8.5, ysize=11.0, /inches, $
+                /color, xoffset=0.0, yoffset=0.0
+    old_p_multi = !p.multi
+    !p.multi = [0, 1, 3, 0, 0]
+
+    xrange = continuum_wave_type eq '1074' ? [1074.0, 1075.4] : [1079.0, 1080.4]
+    yrange = [0, 1.2]
+    plot, lambda, shift_sol, charsize=2, $
+          title='shift_sol', xtitle='Wavelength [nm]', ytitle='Normalized intensity', $
+          xrange=xrange, yrange=yrange, xstyle=1, ystyle=1
+    plot, lambda, shift_tell, charsize=2, $
+          title='shift_tell', xtitle='Wavelength [nm]', ytitle='Normalized intensity', $
+          xrange=xrange, yrange=yrange, xstyle=1, ystyle=1
+    plot, wav, spec_on, psym=4, charsize=2, $
+          title='spec_on (diamond) vs obs (solid line)', $
+          xtitle='Wavelength [nm]', ytitle='Normalized intensity', $
+          xrange=xrange, yrange=yrange, xstyle=1, ystyle=1
     oplot, wav, obs
+
+    mg_psend
+    !p.multi = old_p_multi
   endif
 
   chisq = total((spec_on - obs)^2 + (spec_off - back)^2)
   ;chisq = total((spec_on - obs)^2)
+  mg_log, 'iteration: %d, chi sq: %0.6f', powell_iteration, chisq, $
+          name='comp', /debug
+
+  powell_iteration += 1L
+
   return, chisq
 end
 
@@ -86,7 +124,7 @@ end
 ;     set to a named variable to retrieve the correction factors determined from
 ;     each 11 pt flat for each of the 11 wavelengths
 ;-
-pro comp_calibrate_wavelength_2, date_dir, lam0, $
+pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
                                  offset=offset, $
                                  h2o=h2o, $
                                  chisq=powell_chisq, $
@@ -96,13 +134,17 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
                                  correction_factors=correction_factors
   compile_opt strictarr
   common continuum_fit, wav, lambda, solar_spec, telluric_spec, $
-      filter_trans_on, filter_trans_off, obs, back
+      filter_trans_on, filter_trans_off, obs, back, $
+      date, datetime, continuum_wave_type, $
+      continuum_debug, beam_configuration, powell_iteration
 
   @comp_config_common
   @comp_constants_common
   @comp_mask_constants_common
 
-  debug = 1B     ; debug mode, 'yes' or 'no'
+  continuum_wave_type = wave_type
+  date = date_dir
+  continuum_debug = 1B     ; debug mode, 'yes' or 'no'
 
   ; open flat file for this day
   flat_filename = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
@@ -133,7 +175,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
   n_flats = 0
   f_index = intarr(10)   ; array to hold extension index of first flat in sequence
   for i = 0L, n_elements(u_time) - 1L do begin
-    use = where(times eq u_time[i],count)
+    use = where(times eq u_time[i], count)
     ; just look for 11 wavelength flats near target wavelength
     if ((count eq 22) and (abs(lam0 - mean(abs(waves[use]))) lt 2.0)) then begin
       f_index[n_flats] = use[0] + 1
@@ -177,6 +219,9 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
         ; beam 1
         fits_read, fcb, d1, header, exten_no=i + f_index[iflat]
         wav[i]   = double(sxpar(header, 'WAVELENG'))
+        mg_log, 'reading ext: %d [%0.2f nm]', i + f_index[iflat], wav[i], $
+                name='comp', /debug
+
         wavelengths[iflat, i] = wav[i]
 
         pol[i]   = double(sxpar(header, 'POLSTATE'))
@@ -205,77 +250,52 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
   
       ; define continuum wavelength points
       if (lam0 eq 1074.7) then begin
-        to_fit_obs = [0, 1, 6, 10]
+        ;to_fit_obs = [0, 1, 6, 10]
+        to_fit_obs = [0, 1, 4, 10]
       endif else begin
         to_fit_obs = [0, 2, 4, 8, 10]
       endelse
+      mg_log, 'to_fit_obs: %s', strjoin(strtrim(to_fit_obs, 2), ', '), $
+              name='comp', /debug
   
       ; fit observations with a 2nd order polynomial
-      c = poly_fit(w[to_fit_obs], obs1[to_fit_obs], 2, chisq=chisq)
+      c = poly_fit(w[to_fit_obs], obs1[to_fit_obs], 2, chisq=chisq1)
       ofit1 = poly(w, c)
-  
+      mg_log, 'chisq1: %f', chisq1, name='comp', /debug
+
       ; fit observations with a 2nd order polynomial
-      c = poly_fit(w[to_fit_obs], obs2[to_fit_obs], 2, chisq=chisq)
+      c = poly_fit(w[to_fit_obs], obs2[to_fit_obs], 2, chisq=chisq2)
       ofit2 = poly(w, c)
-  
+      mg_log, 'chisq2: %f', chisq2, name='comp', /debug
+
       ; fit background continuum
       if (lam0 eq 1074.7) then begin
-        to_fit_back = [0, 5, 7, 10]
+        ;to_fit_back = [0, 5, 7, 10]
+        to_fit_back = [0, 4, 5, 7, 10]
       endif else begin
         to_fit_back = [0, 3, 6, 9]
       endelse
+      mg_log, 'to_fit_back: %s', strjoin(strtrim(to_fit_back, 2), ', '), $
+              name='comp', /debug
 
       ; fit observations with a 2nd order polynomial
-      c = poly_fit(w[to_fit_back], back1[to_fit_back], 2, chisq=chisq)
+      c = poly_fit(w[to_fit_back], back1[to_fit_back], 2, chisq=chisq_back1)
       bfit1 = poly(w, c)
-  
+      mg_log, 'chisq_back1: %f', chisq_back1, name='comp', /debug
+
       ; fit observations with a 2nd order polynomial
-      c = poly_fit(w[to_fit_back], back2[to_fit_back], 2, chisq=chisq)
+      c = poly_fit(w[to_fit_back], back2[to_fit_back], 2, chisq=chisq_back2)
       bfit2 = poly(w, c)
+      mg_log, 'chisq back2: %f', chisq_back2, name='comp', /debug
 
-      ; plot data and fit to continuum
-      if (keyword_set(debug)) then begin
-        format = '(%"%s.comp.%d.continuum.ps")'
-        output_filename = filepath(string(file_basename(datetime, '.FTS'), $
-                                          long(lam0), $
-                                          format=format), $
-                                   subdir=comp_decompose_date(date_dir), $
-                                   root=engineering_dir)
-        mg_psbegin, filename=output_filename, $
-                    xsize=10.0, ysize=11.0, /inches, $
-                    /color, xoffset=0.0, yoffset=0.0
-        !p.multi = [0, 2, 3, 0, 0]
-
-        plot, wav, obs1, $
-              psym=2, $
-              title='Observations and Continuum Fit', $
-              xtitle='CoMP Wavelength (nm)', $
-              ytitle='Intensity (ppm)', $
-              yrange=[0.0, 1.1 * (max(obs1) > max(obs2))], $
-              charsize=1.75, symsize=0.75
-        oplot, wav, ofit1
-        oplot, wav, obs2, psym=4, symsize=0.75
-        oplot, wav, ofit2, linestyle=1
-        oplot, wav[to_fit_obs], obs1[to_fit_obs], psym=5, symsize=0.75
-        oplot, wav[to_fit_obs], obs2[to_fit_obs], psym=5, symsize=0.75
-
-        plot, wav, back1, $
-              psym=2, $
-              title='Background and Continuum Fit', $
-              xtitle='CoMP Wavelength (nm)', $
-              ytitle='Intensity (ppm)',$
-              yrange=[0.0, 1.1*(max(obs1) > max(obs2))], $
-              charsize=1.75, symsize=0.75
-        oplot, wav, bfit1
-        oplot, wav, back2, psym=4, symsize=0.75
-        oplot, wav, bfit2, linestyle=1
-        oplot, wav[to_fit_back], back1[to_fit_back], psym=5, symsize=0.75
-        oplot, wav[to_fit_back], back2[to_fit_back], psym=5, symsize=0.75
-
-        xyouts, 0.1, 0.736666, datetime, /normal, charsize=1.0
-      endif
+      ; TODO: plot data and fit to continuum was originally here
   
       ; divide data by fit
+      original_obs1 = obs1
+      original_obs2 = obs2
+      original_back1 = back1
+      original_back2 = back2
+
       obs1 /= ofit1
       obs2 /= ofit2
       back1 /= bfit1
@@ -296,23 +316,29 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
         filter_trans_off[*, ii] = trans_off
       endfor
   
-      ; fit wavelength offset ,continuum factor and h2o strength with powell minimization
+      ; fit wavelength offset, continuum factor, and h2o strength with powell
+      ; minimization
       ; h2o strength is in units of nominal strength (1 = nominal, 0 = continuum)  
       ftol = 1.0d-8
 
       nparam = 4      ; either 4 or 5
       if ((nparam eq 4) and (lam0 eq 1074.7)) then begin
-        p1 = [0.036d0, 0.84d0, 1.0d0, 1.0d0]
+        ;p1 = [0.036d0, 0.84d0, 1.0d0, 1.0d0]
+        ; maybe also change p1[2:3] to 1.05
+        p1 = [0.036d0, 0.4d0, 1.0d0, 1.0d0]
       endif
       if ((nparam eq 5) and (lam0 eq 1074.7)) then begin
         p1 = [0.036d0, 0.84d0, 1.0d0, 1.0d0, 0.036d0]
       endif
+
       if ((nparam eq 4) and (lam0 eq 1079.8)) then begin
         p1 = [0.036d0, 0.4d0, 1.0d0, 1.0d0]
       endif
       if ((nparam eq 5) and (lam0 eq 1079.8)) then begin
         p1 = [0.036d0, 0.4d0, 1.0d0, 1.0d0, 0.1d0]
       endif
+      mg_log, 'original p: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
+              name='comp', /debug
 
       p2 = p1
     
@@ -320,26 +346,29 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
       for i = 0, nparam - 1 do xi[i, i] = 1.d0
       obs  = obs1
       back = back1
-  
+      beam_configuration = 1
+      powell_iteration = 0L
       powell, p1, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p1[1] = abs(p1[1])
       powell_chisq[iflat, 0] = fmin
-      ;mg_log, '%d iterations', n_iterations, name='comp', /debug
-      ;mg_log, 'p1: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
-      ;        name='comp', /debug
-      ;mg_log, 'min: %0.5f', fmin, name='comp', /debug
+      mg_log, '%d iterations', n_iterations, name='comp', /debug
+      mg_log, 'p1: %s', strjoin(string(p1, format='(F0.4)'), ', '), $
+              name='comp', /debug
+      mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
       xi = dblarr(nparam, nparam)
       for i = 0, nparam - 1 do xi[i, i] = 1.d0
       obs  = obs2
       back = back2
+      beam_configuration = 2
+      powell_iteration = 0L
       powell, p2, xi, ftol, fmin, 'comp_powfunc', /double, iter=n_iterations
       p2[1] = abs(p2[1])
       powell_chisq[iflat, 1] = fmin
-      ;mg_log, '%d iterations', n_iterations, name='comp', /debug
-      ;mg_log, 'p2: %s', strjoin(string(p2, format='(F0.4)'), ', '), $
-      ;        name='comp', /debug
-      ;mg_log, 'min: %0.5f', fmin, name='comp', /debug
+      mg_log, '%d iterations', n_iterations, name='comp', /debug
+      mg_log, 'p2: %s', strjoin(string(p2, format='(F0.4)'), ', '), $
+              name='comp', /debug
+      mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p1[0] / dlam, $
@@ -369,29 +398,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
 
       correction_factors[iflat, *] = spec_on
 
-      if (keyword_set(debug)) then begin
-        plot, wav, obs1, $
-              yrange=[0.0, 1.2], $
-              psym=2, $
-              xtitle='CoMP Wavelength (nm)', $
-              ytitle='Normalized Intensity', $
-              title='Observations and Fit', $
-              charsize=1.75, symsize=0.75
-        oplot, wav, spec_on
-        xyouts, 0.1, 0.423333, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
-                /normal, charsize=1.0
-        xyouts, 0.1, 0.403333, string(p1[1], format='("H2O:",f7.3)'), $
-                /normal, charsize=1.0
-
-        plot, wav, back1, $
-              yrange=[0.0, 1.2], $
-              psym=2, $
-              xtitle='CoMP Wavelength (nm)', $
-              ytitle='Normalized Intensity', $
-              title='Observations and Fit', $
-              charsize=1.75, symsize=0.75
-        oplot, wav, spec_off
-      endif
+      ; TODO: next round of plots was originally here
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p2[0] / dlam, $
@@ -419,7 +426,68 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
         spec_off[i] = p2[3] * total(filter_trans_off[*, i] * shift_sol * shift_tell)
       endfor
 
-      if (keyword_set(debug)) then begin
+      if (keyword_set(continuum_debug)) then begin
+        format = '(%"%s.comp.%s.continuum.ps")'
+        output_filename = filepath(string(file_basename(datetime, '.FTS'), $
+                                          wave_type, $
+                                          format=format), $
+                                   subdir=comp_decompose_date(date_dir), $
+                                   root=engineering_dir)
+        mg_psbegin, filename=output_filename, $
+                    xsize=10.0, ysize=11.0, /inches, $
+                    /color, xoffset=0.0, yoffset=0.0
+        !p.multi = [0, 2, 3, 0, 0]
+
+        plot, wav, original_obs1, $
+              psym=2, $
+              title='Observations and Continuum Fit', $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Intensity (ppm)', $
+              yrange=[0.0, 1.1 * (max(original_obs1) > max(original_obs2))], $
+              charsize=1.75, symsize=0.75
+        oplot, wav, ofit1
+        oplot, wav, original_obs2, psym=4, symsize=0.75
+        oplot, wav, ofit2, linestyle=1
+        oplot, wav[to_fit_obs], original_obs1[to_fit_obs], psym=5, symsize=0.75
+        oplot, wav[to_fit_obs], original_obs2[to_fit_obs], psym=5, symsize=0.75
+
+        plot, wav, original_back1, $
+              psym=2, $
+              title='Background and Continuum Fit', $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Intensity (ppm)',$
+              yrange=[0.0, 1.1*(max(original_obs1) > max(original_obs2))], $
+              charsize=1.75, symsize=0.75
+        oplot, wav, bfit1
+        oplot, wav, original_back2, psym=4, symsize=0.75
+        oplot, wav, bfit2, linestyle=1
+        oplot, wav[to_fit_back], original_back1[to_fit_back], psym=5, symsize=0.75
+        oplot, wav[to_fit_back], original_back2[to_fit_back], psym=5, symsize=0.75
+
+        xyouts, 0.1, 0.736666, datetime, /normal, charsize=1.0
+
+        plot, wav, obs1, $
+              yrange=[0.0, 1.2], $
+              psym=2, $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Normalized Intensity', $
+              title='Observations and Fit', $
+              charsize=1.75, symsize=0.75
+        oplot, wav, spec_on
+        xyouts, 0.1, 0.423333, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
+                /normal, charsize=1.0
+        xyouts, 0.1, 0.403333, string(p1[1], format='("H2O:",f7.3)'), $
+                /normal, charsize=1.0
+
+        plot, wav, back1, $
+              yrange=[0.0, 1.2], $
+              psym=2, $
+              xtitle='CoMP Wavelength (nm)', $
+              ytitle='Normalized Intensity', $
+              title='Observations and Fit', $
+              charsize=1.75, symsize=0.75
+        oplot, wav, spec_off
+
         plot, wav, obs2, $
               yrange=[0.0, 1.2], $
               psym=4, $
@@ -448,6 +516,7 @@ pro comp_calibrate_wavelength_2, date_dir, lam0, $
         oplot, wav, spec_off
 
         mg_psend
+        !p.multi = 0
       endif
 
       ; store results in arrays

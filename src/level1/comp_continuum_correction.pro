@@ -55,13 +55,31 @@ pro comp_continuum_correction, date
   for cw = 0L, n_elements(center_wavelengths) - 1L do begin
     mg_log, '%0.1f nm flats', center_wavelengths[cw], $
             name='comp', /info
-    comp_calibrate_wavelength_2, date, center_wavelengths[cw], $
-                                 offset=offset, $
-                                 n_flats=n_11pt_flats, $
-                                 flat_times=flat_times_11pt, $
-                                 wavelengths=wavelengths, $
-                                 correction_factors=correction_factors, $
-                                 chisq=chisq
+
+    compute_continuum_correction = 1B
+    if (compute_continuum_correction) then begin
+      mg_log, 'computing continuum correction', $
+              name='comp', /info
+      comp_calibrate_wavelength_2, date, $
+                                   wave_types[cw], $
+                                   center_wavelengths[cw], $
+                                   offset=offset, $
+                                   n_flats=n_11pt_flats, $
+                                   flat_times=flat_times_11pt, $
+                                   wavelengths=wavelengths, $
+                                   correction_factors=correction_factors, $
+                                   chisq=chisq
+    endif else begin
+      mg_log, 'looking up continuum correction', $
+              name='comp', /info
+      comp_lookup_continuum_correction, date, wave_types[cw], $
+                                        offset=offset, $
+                                        n_flats=n_11pt_flats, $
+                                        flat_times=flat_times_11pt, $
+                                        wavelengths=wavelengths, $
+                                        correction_factors=correction_factors, $
+                                        chisq=chisq
+    endelse
 
     ; use 11 pt flats to correct other flats
     n_wavelengths = 11L
@@ -83,7 +101,6 @@ pro comp_continuum_correction, date
                 flat_wavelength[f], f + 1, n_flats, $
                 name='comp', /info
 
-
         ind = where(abs(wavelengths[cor_ind[f], *] - flat_wavelength[f]) lt 0.001, count)
         if (count eq 0) then begin
           correction = 1.0
@@ -104,7 +121,7 @@ pro comp_continuum_correction, date
         offset1    = 0.0
         offset2    = 0.0
 
-        mg_log, '%0.1f nm flats %d/%d: bad', $
+        mg_log, '%0.1f nm [flat ext %d/%d]: bad', $
                 center_wavelengths[cw], f + 1, n_flats, $
                 name='comp', /warn
 

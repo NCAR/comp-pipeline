@@ -8,8 +8,8 @@
 ; :Examples:
 ;    For example::
 ;
-;      data = read_atlas(5890.,5.)
-;      plot, data[0, *], data[1, *] ; will plot 5A around the Na D2 line
+;      data = comp_read_atlas(5890.0, 5.0)
+;      plot, data[0, *], data[1, *]   ; will plot 5A around the Na D2 line
 ;
 ; :Returns:
 ;    `fltarr(3, n)`. Returns a two dimensional array with the first

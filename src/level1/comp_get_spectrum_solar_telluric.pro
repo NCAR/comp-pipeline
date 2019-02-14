@@ -52,6 +52,13 @@ pro comp_get_spectrum_solar_telluric, lam0, lambda, solar_spec, telluric_spec
           'solar', 'h2o', 'h2o']
     width = [0.04, 0.04, 0.08, 0.10, 0.04, 0.24, 0.08, 0.14, 0.10]
   endelse
+  mg_log, 'wavelengths: %s', $
+          strjoin(string(line_wave, format='(F0.3)'), ', '), $
+          name='comp', /debug
+  mg_log, 'ids: %s', strjoin(id, ', '), name='comp', /debug
+  mg_log, 'widths: %s', $
+          strjoin(string(width, format='(F0.2)'), ', '), $
+          name='comp', /debug
 
   ; snip out solar and telluric features. There are two ways to fill the snipped
   ; region. Either fill with a constant value or interpolate over region using
