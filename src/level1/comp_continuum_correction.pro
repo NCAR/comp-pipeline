@@ -81,17 +81,28 @@ pro comp_continuum_correction, date
                                         chisq=chisq
     endelse
 
+    if (n_11pt_flats eq 0L) then begin
+      mg_log, 'no 11 pt flats fit, skipping', name='comp', /debug
+      continue
+    endif else begin
+      mg_log, '%d sets of 11 pt flats fit', n_11pt_flats, $
+              name='comp', /debug
+    endelse
+
     ; use 11 pt flats to correct other flats
     n_wavelengths = 11L
 
     ; which 11 pt flat indices to use for a given flat
     cor_ind = value_locate(flat_times_11pt, flat_time)
 
+    mg_log, 'apply continuum correction to %d flats', n_flats, $
+            name='comp', /debug
+
     ; correct matching extensions if chisq/offset are OK
     for f = 0L, n_flats - 1L do begin
       if (wave_types[cw] ne flat_type[f]) then continue
 
-      mg_log, '%0.2f nm type: %s flat_type: %s', $
+      mg_log, '%0.2f nm, type: %s, flat_type: %s', $
               flat_wavelength[f], wave_types[cw], flat_type[f], $
               name='comp', /debug
 
