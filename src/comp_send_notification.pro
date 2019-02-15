@@ -14,6 +14,7 @@
 ;     filename of GBU plot file
 ;-
 pro comp_send_notification, date, body, t0, gbu_plot_filename
+  compile_opt strictarr
   @comp_config_common
 
   ; add tag about pipeline and process at the end of body

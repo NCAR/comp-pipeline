@@ -42,6 +42,8 @@ pro comp_run_pipeline, config_filename=config_filename
       endif
     endif
 
+    comp_crash_notification, date_dir
+
     mg_log, /quit
     return
   endif
