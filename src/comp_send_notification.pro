@@ -36,8 +36,17 @@ pro comp_send_notification, date, body, t0, gbu_plot_filename
             name='comp', /info
     subject = string(date, format='(%"CoMP results for %s")')
     body_text = body->toArray()
+
+    gbu_plot_filenames = strarr(n_elements(process_wavelengths))
+    for w = 0L, n_elements(process_wavelengths) - 1L do begin
+      gbu_plot_filename[w] = filepath(string(date_dir, process_wavelengths[w], $
+                                             format='(%"%s.comp.%s.gbu.png")'), $
+                                      subdir=comp_decompose_date(date), $
+                                      root=engineering_dir)
+    endfor
+
     comp_send_mail, notification_email, subject, body_text, $
-                    attachments=gbu_plot_filename
+                    attachments=gbu_plot_filenames
   endif else begin
     mg_log, 'not sending notification because no email', name='comp', /info
   endelse
