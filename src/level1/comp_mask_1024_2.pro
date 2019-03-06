@@ -11,13 +11,19 @@
 ;   flat_header : in, required, type=strarr
 ;     header from flat
 ;
+; :Keywords:
+;   margin : in, required, type=float
+;     margin to exclude around edge of occulter and field
+;
 ; :Author:
 ;   sitongia
 ;-
-function comp_mask_1024_2, flat_header
+function comp_mask_1024_2, flat_header, margin=margin
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
+
+  _margin = n_elements(margin) eq 0L ? 0.0 : margin
 
   field_overlap = 0
 
@@ -44,14 +50,22 @@ function comp_mask_1024_2, flat_header
   post_angle2 = sxpar(flat_header, 'POSTANG2')
 
   ; occulter mask
-  radius = (occulter1.r + occulter2.r) / 2.0
-  dmask1 = comp_disk_mask(radius, xcen=occulter1.x, ycen=occulter1.y)
-  dmask2 = comp_disk_mask(radius, xcen=occulter2.x, ycen=occulter2.y)
+  radius = (occulter1.r + occulter2.r) / 2.0 + _margin
+  dmask1 = comp_disk_mask(radius, $
+                          xcen=occulter1.x + (nx - 1.0) / 2.0, $
+                          ycen=occulter1.y + (ny - 1.0) / 2.0)
+  dmask2 = comp_disk_mask(radius, $
+                          xcen=occulter2.x + (nx - 1.0) / 2.0, $
+                          ycen=occulter2.y + (ny - 1.0) / 2.0)
   
   ; field mask
-  fradius = (field1.r + field2.r) / 2.0
-  field_mask_1 = comp_field_mask(fradius, xcen=field1.x, ycen=field1.y)
-  field_mask_2 = comp_field_mask(fradius, xcen=field2.x, ycen=field2.y)
+  fradius = (field1.r + field2.r) / 2.0 - _margin
+  field_mask_1 = comp_field_mask(fradius, $
+                                 xcen=field1.x + (nx - 1.0) / 2.0, $
+                                 ycen=field1.y + (ny - 1.0) / 2.0)
+  field_mask_2 = comp_field_mask(fradius, $
+                                 xcen=field2.x + (nx - 1.0) / 2.0, $
+                                 ycen=field2.y + (ny - 1.0) / 2.0)
   
   ; post mask
   pmask1 = comp_post_mask(post_angle1, 90.0)
@@ -61,29 +75,31 @@ function comp_mask_1024_2, flat_header
   mask2 = dmask2 * field_mask_2 * pmask2
     
   ; construct large mask
-  mask_image = fltarr(1024, 1024)
+  mask_image = bytarr(1024, 1024)
   mask_image[1024 - nx:1024 - 1, 0:nx - 1] += mask2 
   
   ; mask out overlap
   ; new field masks, slightly larger, to create larger overlap to mask
-  overlap_mask_1 = comp_field_mask(field1.r + field_overlap, xcen=field1.x, ycen=field1.y)
-  overlap_mask_2 = comp_field_mask(field2.r + field_overlap, xcen=field2.x, ycen=field2.y)
+  overlap_mask_1 = comp_field_mask(field1.r + field_overlap, $
+                                   xcen=field1.x + (nx - 1.0) / 2.0, $
+                                   ycen=field1.y + (ny - 1.0) / 2.0)
+  overlap_mask_2 = comp_field_mask(field2.r + field_overlap, $
+                                   xcen=field2.x + (nx - 1.0) / 2.0, $
+                                   ycen=field2.y + (ny - 1.0) / 2.0)
     
   ; identify the overlap of images, from the field positions
-  tmp_img = fltarr(1024, 1024)
+  tmp_img = bytarr(1024, 1024)
   tmp_img[0:nx - 1, 1024 - nx:1024 - 1] += overlap_mask_1
   tmp_img[1024 - nx:1024 - 1, 0:nx - 1] += overlap_mask_2
-  overlap = where(tmp_img gt 1.0, count)
-  if (count eq 0) then begin
-    mg_log, 'no overlap', name='comp', /warn
-  endif
+  overlap = where(tmp_img gt 1B, count)
+  if (count eq 0) then mg_log, 'no overlap', name='comp', /warn
 
   ; set first four columns to 1 so that they will not be used
   if (keyword_set(nullcolumns)) then begin  
-    mask_image[0:3, *] = 1.0
+    mask_image[0:3, *] = 1B
   endif
 
-  if (count gt 0L) then mask_image[overlap] = 0.0
+  if (count gt 0L) then mask_image[overlap] = 0B
 
   return, mask_image
 end

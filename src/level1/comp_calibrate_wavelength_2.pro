@@ -157,10 +157,10 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
   ; define masks for each beam
   fits_read, fcb, d, flat_header, exten_no=1, /header_only   ; get header information
 
-  mask1 = comp_mask_1024_1(flat_header)
-  mask2 = comp_mask_1024_2(flat_header)
-  good1 = where(mask1 eq 1.0)
-  good2 = where(mask2 eq 1.0)
+  mask1 = comp_mask_1024_1(flat_header, margin=2.0)
+  mask2 = comp_mask_1024_2(flat_header, margin=2.0)
+  good1 = where(mask1 eq 1)
+  good2 = where(mask2 eq 1)
 
   ; find 11 wavelength flats in flat file
   nwave = 11        ; use only 11 wavelength data
@@ -342,8 +342,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
       p2 = p1
     
-      xi = dblarr(nparam, nparam)
-      for i = 0, nparam - 1 do xi[i, i] = 1.d0
+      xi = diag_matrix([0.25D, 1.0D, 1.0D, 1.0D])
       obs  = obs1
       back = back1
       beam_configuration = 1
@@ -356,8 +355,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
               name='comp', /debug
       mg_log, 'min: %0.5f', fmin, name='comp', /debug
 
-      xi = dblarr(nparam, nparam)
-      for i = 0, nparam - 1 do xi[i, i] = 1.d0
+      xi = diag_matrix([0.25D, 1.0D, 1.0D, 1.0D])
       obs  = obs2
       back = back2
       beam_configuration = 2
