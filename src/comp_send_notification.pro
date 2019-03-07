@@ -39,7 +39,7 @@ pro comp_send_notification, date, body, t0, gbu_plot_filename
 
     gbu_plot_filenames = strarr(n_elements(process_wavelengths))
     for w = 0L, n_elements(process_wavelengths) - 1L do begin
-      gbu_plot_filename[w] = filepath(string(date_dir, process_wavelengths[w], $
+      gbu_plot_filename[w] = filepath(string(date, process_wavelengths[w], $
                                              format='(%"%s.comp.%s.gbu.png")'), $
                                       subdir=comp_decompose_date(date), $
                                       root=engineering_dir)
