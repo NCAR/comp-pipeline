@@ -47,7 +47,7 @@ end
 ;   _extra : in, optional, type=keywords
 ;     keywords to COMP_READ_GBU
 ;-
-pro comp_plot_gbu, date, output_filename, gbu_filename, _extra=e
+pro comp_plot_gbu, date, wave_type, output_filename, gbu_filename, _extra=e
   compile_opt strictarr
 
   mg_log, 'producing end-of-day GBU plot...', name='comp', /info
@@ -109,6 +109,7 @@ pro comp_plot_gbu, date, output_filename, gbu_filename, _extra=e
                        xstyle=9, xticks=end_time - start_time, xminor=4, $
                        ystyle=9, yrange=[0, max_images], yticks=4, $
                        charsize=0.85, $
+                       title=string(date, wave_type, format='(%"%s (%s nm)")'), $
                        xtitle='Time (HST)', ytitle='# of images', $
                        position=[0.075, 0.25, 0.85, 0.95]
 

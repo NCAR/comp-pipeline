@@ -328,7 +328,8 @@ pro comp_run_pipeline, config_filename=config_filename
                                        format='(%"%s.comp.%s.gbu.log")'), $
                                 subdir=[date_dir, 'level1'], $
                                 root=process_basedir)
-        comp_plot_gbu, date_dir, gbu_plot_filename, gbu_filename
+        comp_plot_gbu, date_dir, process_wavelengths[w], $
+                       gbu_plot_filename, gbu_filename
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
