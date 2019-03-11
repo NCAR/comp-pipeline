@@ -111,7 +111,7 @@ pro comp_plot_gbu, date, wave_type, output_filename, gbu_filename, _extra=e
                        charsize=0.85, $
                        title=string(date, wave_type, format='(%"%s (%s nm)")'), $
                        xtitle='Time (HST)', ytitle='# of images', $
-                       position=[0.075, 0.25, 0.85, 0.95]
+                       position=[0.075, 0.25, 0.85, 0.9]
 
   square = mg_usersym(/square, /fill)
   mg_legend, item_name=type_names + ' ' + strtrim(sums, 2), $
@@ -120,7 +120,7 @@ pro comp_plot_gbu, date, wave_type, output_filename, gbu_filename, _extra=e
              item_symsize=1.5, $
              color='000000'x, $
              charsize=0.85, $
-             position=[0.875, 0.15, 0.95, 0.95]
+             position=[0.875, 0.15, 0.95, 0.90]
 
   im = tvrd(true=1)
   tvlct, original_rgb
