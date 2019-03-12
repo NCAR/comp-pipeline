@@ -1,6 +1,5 @@
 ; docformat = 'rst'
 
-
 ;+
 ; Convert string date/time in UT to decimal hours in HST.
 ;
@@ -111,7 +110,7 @@ pro comp_plot_gbu, date, wave_type, output_filename, gbu_filename, _extra=e
                        charsize=0.85, $
                        title=string(date, wave_type, format='(%"%s (%s nm)")'), $
                        xtitle='Time (HST)', ytitle='# of images', $
-                       position=[0.075, 0.25, 0.85, 0.9]
+                       position=[0.075, 0.25, 0.85, 0.80]
 
   square = mg_usersym(/square, /fill)
   mg_legend, item_name=type_names + ' ' + strtrim(sums, 2), $
@@ -120,7 +119,7 @@ pro comp_plot_gbu, date, wave_type, output_filename, gbu_filename, _extra=e
              item_symsize=1.5, $
              color='000000'x, $
              charsize=0.85, $
-             position=[0.875, 0.15, 0.95, 0.90]
+             position=[0.875, 0.10, 0.95, 0.95]
 
   im = tvrd(true=1)
   tvlct, original_rgb
@@ -138,9 +137,9 @@ end
 
 year = '2018'
 month = '01'
-wave_type = '1083'
+wave_type = '1074'
 
-for day = 1, 31 do begin
+for day = 1, 1 do begin
   date = string(year, month, day, format='(%"%s%s%02d")')
   l1_dir = string(date, format='(%"/hao/mahidata1/Data/CoMP/process/%s/level1")')
   gbu_filename = filepath(string(wave_type, format='(%"GBU.%s.log")'), root=l1_dir)
@@ -149,7 +148,7 @@ for day = 1, 31 do begin
   output_filename = filepath(string(date, wave_type, $
                                     format='(%"%s.comp.%s.gbu.png")'), $
                              root='.')
-  comp_plot_gbu, date, output_filename, gbu_filename, n_header_lines=1
+  comp_plot_gbu, date, wave_type, output_filename, gbu_filename, n_header_lines=1
 endfor
 
 end
