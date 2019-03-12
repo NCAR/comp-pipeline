@@ -20,7 +20,7 @@ L1_FILES=$(ls | egrep ".{15}\.comp\.${WAVE}\.[iquv]{1,4}\.(3|5|11)\.fts.gz")
 L1_BKG_FILES=$(ls | egrep ".{15}\.comp\.${WAVE}\.[iquv]{1,4}\.(3|5|11)\.bkg\.fts.gz")
 L1_INTENSITY_FILES=$(ls | egrep ".{15}\.comp\.${WAVE}\.intensity\.fts.gz")
 OTHER_FILES="*.comp.cal.files.txt *.comp.dark.files.txt *.comp.opal.files.txt *.comp.flat.fts *.comp.dark.fts"
-WAVE_FILES="*.comp.${WAVE}.files.txt *.comp.${WAVE}.good.files.txt *.comp.${WAVE}.good.all.files.txt *.comp.${WAVE}.good.waves.files.txt *.comp.${WAVE}.synoptic.files.txt *.comp.${WAVE}.gbu.log"
+WAVE_FILES="*.comp.${WAVE}.files.txt *.comp.${WAVE}.good.iqu.files.txt *.comp.${WAVE}.good.all.files.txt *.comp.${WAVE}.good.waves.files.txt *.comp.${WAVE}.good.synoptic.files.txt *.comp.${WAVE}.gbu.log"
 
 L1_TARNAME=${DATE}.comp.${WAVE}.l1.tgz 
 cmd="tar czf ${L1_TARNAME} ${L1_FILES} ${L1_BKG_FILES} ${L1_INTENSITY_FILES} ${OTHER_FILES} ${WAVE_FILES}"
