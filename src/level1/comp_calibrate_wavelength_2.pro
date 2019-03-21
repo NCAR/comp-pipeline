@@ -469,7 +469,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
               psym=2, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Normalized Intensity', $
-              title='Observations and Fit', $
+              title='Observations and Fit (beam 1)', $
               charsize=1.75, symsize=0.75
         oplot, wav, spec_on
         xyouts, 0.1, 0.423333, string(p1[0], format='("Offset:",f9.5," (nm)")'), $
@@ -482,7 +482,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
               psym=2, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Normalized Intensity', $
-              title='Observations and Fit', $
+              title='Background and Fit (beam 1)', $
               charsize=1.75, symsize=0.75
         oplot, wav, spec_off
 
@@ -491,7 +491,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
               psym=4, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Normalized Intensity', $
-              title='Observations and Fit', $
+              title='Observations and Fit (beam 2)', $
               charsize=1.75
         oplot, wav, spec_on
         xyouts, 0.1, 0.12, string(p2[0], format='("Offset:",f9.5," (nm)")'), $
@@ -509,7 +509,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
               psym=2, $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Normalized Intensity', $
-              title='Observations and Fit', $
+              title='Background and Fit (beam 2)', $
               charsize=1.75
         oplot, wav, spec_off
 
