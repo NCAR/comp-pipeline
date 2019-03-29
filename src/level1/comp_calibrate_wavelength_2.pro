@@ -250,8 +250,8 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
   
       ; define continuum wavelength points
       if (lam0 eq 1074.7) then begin
-        ;to_fit_obs = [0, 1, 6, 10]
-        to_fit_obs = [0, 1, 4, 10]
+        to_fit_obs = [0, 1, 6, 10]
+        ;to_fit_obs = [0, 1, 4, 10]
       endif else begin
         to_fit_obs = [0, 2, 4, 8, 10]
       endelse
@@ -270,8 +270,8 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
       ; fit background continuum
       if (lam0 eq 1074.7) then begin
-        ;to_fit_back = [0, 5, 7, 10]
-        to_fit_back = [0, 4, 5, 7, 10]
+        to_fit_back = [0, 5, 7, 10]
+        ;to_fit_back = [0, 4, 5, 7, 10]
       endif else begin
         to_fit_back = [0, 3, 6, 9]
       endelse
@@ -323,9 +323,9 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
       nparam = 4      ; either 4 or 5
       if ((nparam eq 4) and (lam0 eq 1074.7)) then begin
-        ;p1 = [0.036d0, 0.84d0, 1.0d0, 1.0d0]
+        p1 = [0.036d0, 0.84d0, 1.0d0, 1.0d0]
         ; maybe also change p1[2:3] to 1.05
-        p1 = [0.036d0, 0.4d0, 1.0d0, 1.0d0]
+        ;p1 = [0.036d0, 0.4d0, 1.0d0, 1.0d0]
       endif
       if ((nparam eq 5) and (lam0 eq 1074.7)) then begin
         p1 = [0.036d0, 0.84d0, 1.0d0, 1.0d0, 0.036d0]
@@ -432,35 +432,47 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
                                    subdir=comp_decompose_date(date_dir), $
                                    root=engineering_dir)
         mg_psbegin, filename=output_filename, $
-                    xsize=10.0, ysize=11.0, /inches, $
+                    xsize=8.5, ysize=12.75, /inches, $
                     /color, xoffset=0.0, yoffset=0.0
         !p.multi = [0, 2, 3, 0, 0]
 
-        plot, wav, original_obs1, $
+        transmission = comp_transmission(date_dir)
+
+        display_original_obs1 = original_obs1 * transmission / 84.0
+        display_original_obs2 = original_obs2 * transmission / 84.0
+        display_ofit1 = ofit1 * transmission / 84.0
+        display_ofit2 = ofit2 * transmission / 84.0
+
+        plot, wav, display_original_obs1, $
               psym=2, $
               title='Observations and Continuum Fit', $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Intensity (ppm)', $
-              yrange=[0.0, 1.1 * (max(original_obs1) > max(original_obs2))], $
+              yrange=[0.0, 1.1 * (max(display_original_obs1) > max(display_original_obs2))], $
               charsize=1.75, symsize=0.75
-        oplot, wav, ofit1
-        oplot, wav, original_obs2, psym=4, symsize=0.75
-        oplot, wav, ofit2, linestyle=1
-        oplot, wav[to_fit_obs], original_obs1[to_fit_obs], psym=5, symsize=0.75
-        oplot, wav[to_fit_obs], original_obs2[to_fit_obs], psym=5, symsize=0.75
+        oplot, wav, display_ofit1
+        oplot, wav, display_original_obs2, psym=4, symsize=0.75
+        oplot, wav, display_ofit2, linestyle=1
+        oplot, wav[to_fit_obs], display_original_obs1[to_fit_obs], psym=5, symsize=0.75
+        oplot, wav[to_fit_obs], display_original_obs2[to_fit_obs], psym=5, symsize=0.75
 
-        plot, wav, original_back1, $
+        display_original_back1 = original_back1 * transmission / 84.0
+        display_original_back2 = original_back2 * transmission / 84.0
+        display_bfit1 = bfit1 * transmission / 84.0
+        display_bfit2 = bfit2 * transmission / 84.0
+
+        plot, wav, display_original_back1, $
               psym=2, $
               title='Background and Continuum Fit', $
               xtitle='CoMP Wavelength (nm)', $
               ytitle='Intensity (ppm)',$
-              yrange=[0.0, 1.1*(max(original_obs1) > max(original_obs2))], $
+              yrange=[0.0, 1.1*(max(display_original_obs1) > max(display_original_obs2))], $
               charsize=1.75, symsize=0.75
-        oplot, wav, bfit1
-        oplot, wav, original_back2, psym=4, symsize=0.75
-        oplot, wav, bfit2, linestyle=1
-        oplot, wav[to_fit_back], original_back1[to_fit_back], psym=5, symsize=0.75
-        oplot, wav[to_fit_back], original_back2[to_fit_back], psym=5, symsize=0.75
+        oplot, wav, display_bfit1
+        oplot, wav, display_original_back2, psym=4, symsize=0.75
+        oplot, wav, display_bfit2, linestyle=1
+        oplot, wav[to_fit_back], display_original_back1[to_fit_back], psym=5, symsize=0.75
+        oplot, wav[to_fit_back], display_original_back2[to_fit_back], psym=5, symsize=0.75
 
         xyouts, 0.1, 0.736666, datetime, /normal, charsize=1.0
 
