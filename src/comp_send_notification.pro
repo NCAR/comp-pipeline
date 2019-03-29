@@ -45,7 +45,7 @@ pro comp_send_notification, date, body, t0, gbu_plot_filename
                                        root=engineering_dir)
     endfor
     gbu_plot_indices = where(file_test(gbu_plot_filenames, /regular), /null)
-    gbu_plot_filenames = gbu_plot_filenames[gpu_plot_indices]
+    gbu_plot_filenames = gbu_plot_filenames[gbu_plot_indices]
 
     comp_send_mail, notification_email, subject, body_text, $
                     attachments=gbu_plot_filenames
