@@ -214,7 +214,7 @@ pro comp_run_pipeline, config_filename=config_filename
       error = 0L
       if (~dry_run) then begin
         comp_make_flat, date_dir, error=error
-        if (correct_continuum) then begin
+        if (correct_continuum && error eq 0) then begin
           comp_continuum_correction, date_dir
         endif else begin
           mg_log, 'skipping continuum correction', name='comp', /info
