@@ -148,7 +148,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
   contcorr_output_filename = filepath(string(date_dir, wave_type, $
                                              format='(%"%s.comp.%s.contcorr.txt")'), $
-                                      subdir=comp_decomposed_date(date_dir), $
+                                      subdir=comp_decompose_date(date_dir), $
                                       root=engineering_dir)
 
   ; open flat file for this day
