@@ -146,6 +146,11 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
   date = date_dir
   continuum_debug = 1B     ; debug mode, 'yes' or 'no'
 
+  contcorr_output_filename = filepath(string(date_dir, wave_type, $
+                                             format='(%"%s.comp.%s.contcorr.txt")'), $
+                                      subdir=comp_decomposed_date(date_dir), $
+                                      root=engineering_dir)
+
   ; open flat file for this day
   flat_filename = filepath(string(date_dir, format='(%"%s.comp.flat.fts")'), $
                            subdir=[date_dir, 'level1'], $
@@ -204,6 +209,8 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
     powell_chisq       = fltarr(n_flats, 2)
 
     flat_times         = times[f_index]
+
+    openw, cc_lun, contcorr_output_filename, /get_lun
 
     ; loop over nflats flats
     for iflat = 0, n_flats - 1 do begin
@@ -476,6 +483,13 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
         xyouts, 0.1, 0.736666, datetime, /normal, charsize=1.0
 
+        time_components = float(strmid(datetime, 9, 6))
+        decimal_time = total(time_components * [1.0, 1.0 / 60.0, 1 / 60.0 / 60.0])
+
+        printf, cc_lun, $
+                date_dir, decimal_time, p1[0], p1[1], 0.0, $
+                format='(%"%s %12g %12g %12g %12g")'
+
         plot, wav, obs1, $
               yrange=[0.0, 1.2], $
               psym=2, $
@@ -497,6 +511,10 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
               title='Background and Fit (beam 1)', $
               charsize=1.75, symsize=0.75
         oplot, wav, spec_off
+
+        printf, cc_lun, $
+                date_dir, decimal_time, p2[0], p2[1], 0.0, $
+                format='(%"%s %12g %12g %12g %12g")'
 
         plot, wav, obs2, $
               yrange=[0.0, 1.2], $
@@ -541,6 +559,8 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
         off_tell[iflat, 1] = p2[4]
       endif
     endfor
+
+    free_lun, cc_lun
   endif else begin
     offset     = 0.0
     h2o        = 0.0
