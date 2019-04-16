@@ -483,12 +483,12 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
         xyouts, 0.1, 0.736666, datetime, /normal, charsize=1.0
 
-        time_components = float(strmid(datetime, 9, 6))
+        time_components = float(comp_decompose_time(strmid(datetime, 9, 6)))
         decimal_time = total(time_components * [1.0, 1.0 / 60.0, 1 / 60.0 / 60.0])
 
         printf, cc_lun, $
                 date_dir, decimal_time, p1[0], p1[1], 0.0, $
-                format='(%"%s %12g %12g %12g %12g")'
+                format='(%"%s %12.7g %12.7g %12.7g %12.7g")'
 
         plot, wav, obs1, $
               yrange=[0.0, 1.2], $
@@ -514,7 +514,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
         printf, cc_lun, $
                 date_dir, decimal_time, p2[0], p2[1], 0.0, $
-                format='(%"%s %12g %12g %12g %12g")'
+                format='(%"%s %12.7g %12.7g %12.7g %12.7g")'
 
         plot, wav, obs2, $
               yrange=[0.0, 1.2], $
