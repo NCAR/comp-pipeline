@@ -62,7 +62,7 @@ pro comp_plot_wave_cal, filename, offset_yrange=offset_yrange
   window, xsize=900, ysize=400, /free, title=file_basename(filename)
   plot, beam1_jds, beam1_h2o, psym=4, title='H2O (beam 1)', $
         xstyle=9, xtickformat='label_date', xtitle='date', xticks=12, $
-        ystyle=9, yrange=[0.0, 5.0], ytitle='offset [nm]'
+        ystyle=9, yrange=[0.0, 4.0], ytitle='offset [nm]'
 
   window, xsize=900, ysize=400, /free, title=file_basename(filename)
   plot, beam2_jds, beam2_h2o, psym=4, title='H2O (beam 2)', $
@@ -73,16 +73,15 @@ end
 
 ; main-level example program
 
-root = '/hao/twilight/Data/CoMP/engineering.continuum-correction-2017'
+root = '.'
 basename = 'wave_cal_1074-2017.txt'
 filename = filepath(basename, root=root)
 
-comp_plot_wave_cal, filename, offset_yrange=[0.0, 0.05]
+comp_plot_wave_cal, filename, offset_yrange=[0.03, 0.045]
 
-root = '/hao/twilight/Data/CoMP/engineering.continuum-correction-2017'
 basename = 'wave_cal_1079-2017.txt'
 filename = filepath(basename, root=root)
 
-comp_plot_wave_cal, filename, offset_yrange=[0.0, 0.1]
+comp_plot_wave_cal, filename, offset_yrange=[0.03, 0.08]
 
 end
