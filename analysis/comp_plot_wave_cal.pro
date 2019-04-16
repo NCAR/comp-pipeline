@@ -35,15 +35,15 @@ pro comp_plot_wave_cal, filename
     offset[bad_indices] = !values.f_nan
   endif
 
-  window, xsize=900, ysize=400, /free, title='Offset'
+  window, xsize=900, ysize=400, /free, title=file_basename(filename)
   plot, jds, offset, psym=4, title='Offset', $
         xstyle=9, xtickformat='label_date', xtitle='date', xticks=12, $
-        ystyle=9, yrange=[0.0, 0.05], ytitle='offset [nm]'
+        ystyle=9, yrange=[0.0, 0.1], ytitle='offset [nm]'
 
   smoothed_offset = smooth(offset, 29, /edge_truncate, /nan)
   oplot, jds, smoothed_offset, thick=2, color='00ffff'x
 
-  window, xsize=900, ysize=400, /free, title='H2O'
+  window, xsize=900, ysize=400, /free, title=file_basename(filename)
   plot, jds, data.h2o, psym=4, title='H2O', $
         xstyle=9, xtickformat='label_date', xtitle='date', xticks=12, $
         ystyle=9, yrange=[0.0, 5.0], ytitle='offset [nm]'
@@ -53,7 +53,7 @@ end
 ; main-level example program
 
 root = '/hao/twilight/Data/CoMP/engineering.continuum-correction-2017'
-basename = 'wave_cal_1074-2017.txt'
+basename = 'wave_cal_1079-2017.txt'
 filename = filepath(basename, root=root)
 
 comp_plot_wave_cal, filename
