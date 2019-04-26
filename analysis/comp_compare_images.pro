@@ -1,40 +1,53 @@
 ; docformat = 'rst'
 
-;+
-; :Params:
-;   dir1 : in, required, type=string
-;   dir2 : in, required, type=string
-;   basename : in, required, type=string
-;   ext : in, required, type=integer
-;-
-pro comp_compare_images, dir1, dir2, basename, ext
+function comp_compare_images, filename1, filename2, $
+                              extension=extension, mask=mask
   compile_opt strictarr
 
-  filename1 = filepath(basename, root=dir1)
-  filename2 = filepath(basename, root=dir2)
-  fits_open, filename1, fcb1
-  fits_open, filename2, fcb2
-  fits_read, fcb1, image1, header1, exten_no=ext
-  fits_read, fcb2, image2, header2, exten_no=ext
-  fits_close, fcb1
-  fits_close, fcb2
+  fits_open, filename1, fcb
+  fits_read, fcb, data, header, /header_only
+  fits_close, fcb
 
-  ; display images, difference
-  dims = size(image1, /dimensions)
-  window, xsize=3 * dims[0], ysize=dims[1], /free, title=basename
-  tvscl, image1, 0
-  tvscl, image2, 1
-  diff = image1 - image2
-  r = mg_range(diff)
-  tv, diff, 2
+  date_obs = sxpar(header, 'DATE-OBS')
+  date_tokens = strsplit(date_obs, '-', /extract)
+  date = date_tokens[0] + date_tokens[1] + date_tokens[2]
 
-  ; TODO: display stats
+  comp_make_mask, date, header, mask
+
+  fits_open, filename1, fcb
+  fits_read, fcb, data1, header1, exten_no=extension
+  fits_close, fcb
+
+  ind = where(data1 lt 0, count)
+  if (count gt 0L) then message, string(count, filename1, format='(%"%d negative values in %s")'), /informational
+
+  fits_open, filename2, fcb
+  fits_read, fcb, data2, header2, exten_no=extension
+  fits_close, fcb
+
+  ind = where(data2 lt 0, count)
+  if (count gt 0L) then message, string(count, filename2, format='(%"%d negative values in %s")'), /informational
+
+  ratio = data1 / data2
+  ind = where(mask eq 0.0, count)
+  ratio[ind] = 0.0
+
+  return, ratio
 end
 
 
 ; main-level example
 
-; display a few Q and U line-center images from the .crosstalk-currentvalues
-; and .crosstalk-20160725values runs
+root = '/hao/compdata1/Data/CoMP'
+
+subdir1 = 'process.backgrnd'
+subdir2 = 'process.timetest'
+
+fname = '20150624.170541.comp.1074.fts'
+
+filename1 = filepath(fname, subdir=[subdir1, '20150624'], root=root)
+filename2 = filepath(fname, subdir=[subdir2, '20150624'], root=root)
+
+ratio = comp_compare_images(filename1, filename2, extension=1, mask=mask)
 
 end
