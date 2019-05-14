@@ -123,3 +123,4 @@ install(PROGRAMS
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Makefile.in DESTINATION . RENAME Makefile)
 
 message(STATUS "Installation location = ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "Install version = ${VERSION}")
