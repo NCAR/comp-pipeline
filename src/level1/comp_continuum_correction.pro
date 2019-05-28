@@ -48,7 +48,7 @@ pro comp_continuum_correction, date
   endfor
 
   chisq_limit = 0.01
-  offset_limit = 0.05
+  offset_limit = 0.01
 
   wave_types = ['1074', '1079']
   center_wavelengths = [1074.7, 1079.8]
@@ -95,15 +95,15 @@ pro comp_continuum_correction, date
     ; which 11 pt flat indices to use for a given flat
     cor_ind = value_locate(flat_times_11pt, flat_time)
 
-    mg_log, 'apply continuum correction to %d flats', n_flats, $
+    mg_log, 'apply to %d flats', n_flats, $
             name='comp', /debug
 
     ; correct matching extensions if chisq/offset are OK
     for f = 0L, n_flats - 1L do begin
       if (wave_types[cw] ne flat_type[f]) then continue
 
-      mg_log, '%0.2f nm, type: %s, flat_type: %s', $
-              flat_wavelength[f], wave_types[cw], flat_type[f], $
+      mg_log, '%0.2f nm, type: %s', $
+              flat_wavelength[f], wave_types[cw], $
               name='comp', /debug
 
       if ((max(chisq[cor_ind[f], *]) lt chisq_limit) $
@@ -142,15 +142,12 @@ pro comp_continuum_correction, date
                   name='comp', /warn
         endif
 
-        if (n_11pt_flats eq 0L) then begin
-          mg_log, 'no 11 pt flats', name='comp', /warn
-        endif else begin
-          if (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) lt offset_limit) then begin
-            mg_log, 'abs(offsets) = %0.3f < %0.3f', $
-                    abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]), offset_limit, $
-                    name='comp', /warn
-          endif
-        endelse
+        if (abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]) gt offset_limit) then begin
+          mg_log, 'offset diff %0.3f > %03.f', $
+                  abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]), $
+                  offset_limit, $
+                  name='comp', /warn
+        endif
       endelse
 
       images[f] /= correction
