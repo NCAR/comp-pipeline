@@ -96,5 +96,4 @@ clean:
 	$(ECHO_PREFIX)rm -rf api-docs api-userdocs
 
 sswdeps:
-	find src -name '*.pro' -exec basename {} .pro \; > ROUTINES
-	$(ECHO_PREFIX)$(SSWDEPS_IDL) -IDL_STARTUP "" -IDL_PATH $(SSW_DEP_PATH) -e "comp_find_ssw_dependencies, '$(FULL_SSW_DIR)'"
+	$(ECHO_PREFIX)$(SSWDEPS_IDL) -IDL_STARTUP "" -IDL_PATH $(SSW_DEP_PATH) -e "comp_find_ssw_dependencies, 'src', '$(FULL_SSW_DIR)'"

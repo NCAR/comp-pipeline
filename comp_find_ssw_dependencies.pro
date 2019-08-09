@@ -4,19 +4,15 @@
 ; The CoMP pipeline ssw directory must be in the IDL path before the full ssw
 ; library directories.
 ;-
-pro comp_find_ssw_dependencies, ssw_loc
+pro comp_find_ssw_dependencies, src, ssw_loc
   compile_opt strictarr
 
   ; needs to be done early, otherwise LIST will get compiled and confuse it
   resolve_routine, 'get_suncenter', $
                    /compile_full_file, /either, /no_recompile
 
-  routines_filename = 'ROUTINES'
-  n_routines = file_lines(routines_filename)
-  routines = strarr(n_routines)
-  openr, lun, routines_filename, /get_lun
-  readf, lun, routines
-  free_lun, lun
+  routines = file_search(src, '.pro', count=n_routines)
+
   for r = 0L, n_routines - 1L do begin
     if (~strmatch(routines[r], '*_common')) then begin
       resolve_routine, routines[r], /either, /compile_full_file, /no_recompile
