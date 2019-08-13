@@ -47,7 +47,7 @@ pro comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index, $
               {name: 'sw_revision', type: '''%s'''}]
     sql_cmd = string(strjoin(fields.name, ', '), $
                      strjoin(fields.type, ', '), $
-                     format='(%"INSERT INTO comp_sw (%s) VALUES (%s)")')
+                     format='(%"insert into comp_sw (%s) values (%s)")')
     db->execute, sql_cmd, $               
                  obsday_index, $
                  proc_date, $
