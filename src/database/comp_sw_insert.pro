@@ -41,12 +41,12 @@ pro comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index, $
   if (sw_id_count eq 0L) then begin
     mg_log, 'inserting a new comp_sw row...', name='comp', /info
 
-    fields = [{name: 'obs_day', type: '%s'}, $
-              {name: 'proc_date', type: '%s'}, $
-              {name: 'sw_version', type: '%s'}, $
-              {name: 'sw_revision', type: '%s'}]
+    fields = [{name: 'obs_day', type: '''%s'''}, $
+              {name: 'proc_date', type: '''%s'''}, $
+              {name: 'sw_version', type: '''%s'''}, $
+              {name: 'sw_revision', type: '''%s'''}]
     sql_cmd = string(strjoin(fields.name, ', '), $
-                     strjoin('''' + fields.type + '''', ', '), $
+                     strjoin(fields.type, ', '), $
                      format='(%"INSERT INTO comp_sw (%s) VALUES (%s)")')
     db->execute, sql_cmd, $               
                  obsday_index, $
