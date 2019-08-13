@@ -23,21 +23,34 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   mg_log, 'inserting rows into comp_sci table...', name='comp', /info
 
+  ; TODO: don't add all files
   ; find L1 files
   l1_files = comp_find_l1_files(date_dir, wave_type, /all, count=n_l1_files)
   
   ; angles for full circle in radians
   theta = findgen(360) * !dtor
 
-  ; TODO: don't loop through all files
   ; loop through L1 files
   for f = 0L, n_l1_files - 1L do begin
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
     if (msg ne '') then message, msg
-    date_obs = strin(sxpar(primary_header, 'DATE-OBS'), $
+    date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                      sxpar(primary_header, 'TIME-OBS'), $
                      format='(%"%sT%s")')
+
+    year   = long(strmid(date_obs,  0, 4))
+    month  = long(strmid(date_obs,  5, 2))
+    day    = long(strmid(date_obs,  8, 2))
+    hour   = long(strmid(date_obs, 11, 2))
+    minute = long(strmid(date_obs, 14, 2))
+    second = long(strmid(date_obs, 17, 2))
+
+    fhour = hour + minute / 60.0 + second / 60.0 / 60.0
+    sun, year, month, day, fhour, sd=rsun, pa=pangle, la=bangle
+
+    sun_pixels = rsun / run->epoch('plate_scale')
+
 
     ; TODO: calculate total{i,q,u}, intensity{,_stdev}, {q,u}{,_stddev},
     ; r{108,13}{i,l}, and r{108,13}radazi
