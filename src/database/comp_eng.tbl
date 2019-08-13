@@ -56,4 +56,3 @@ create table comp_eng (
   foreign key (comp_sw_id) references comp_sw(sw_id),
   foreign key (obs_day) references mlso_numfiles(day_id)
 )
-

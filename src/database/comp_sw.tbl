@@ -1,0 +1,7 @@
+create table comp_sw (
+  sw_id             int(10) auto_increment primary key,
+  obs_day           mediumint (5) not null,
+  proc_date         datetime not null,
+  sw_version        char(24),
+  sw_revision       varchar(20)
+)

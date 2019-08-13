@@ -39,6 +39,8 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
                      format='(%"%sT%s")')
 
     ; insert into comp_sci table
+    fields = [{name: 'file_name', type: '%s'}, $
+              
     db->execute, 'INSERT INTO comp_sci (file_name, date_obs, obs_day, totali, totalq, totalu, intensity, intensity_stddev, q, q_stddev, u, u_stddev, r108i, r13i, r108l, r13l, r108radazi, r13radazi) VALUES (''%s'', ''%s'', %d, %f, %f, %f, ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'')', $
                  file_basename(l1_files[f], '.gz'), $
                  date_obs, $
@@ -72,5 +74,6 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
     fits_close, fcb
   endfor
 
+  done:
   mg_log, 'done', name='comp', /info
 end

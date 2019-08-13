@@ -67,5 +67,3 @@ create table comp_mission (
   u_to_v          float (7, 6),  -- -0.155195
   unique (date)
 )
-
-
