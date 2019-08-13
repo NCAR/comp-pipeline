@@ -171,7 +171,13 @@ pro comp_continuum_correction, date
   for f = 0L, n_1083 - 1L do begin
     h = headers[f]
     sxaddpar, h, 'CONTCORR', 1.0, ' continuum emission corr. to flat, eg, H2O vapor', $
-              format='(F0.3)'
+              format='(F0.4)'
+    sxaddpar, h, 'CONTOFF1', 0.0, $
+              ' wavelength offset for beam 1', $
+              format='(F0.4)'
+    sxaddpar, h, 'CONTOFF2', 0.0, $
+              ' wavelength offset for beam 2', $
+              format='(F0.4)'
     headers[f] = h
   endfor
 
