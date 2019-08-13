@@ -62,6 +62,8 @@ pro comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index, $
       goto, done
     endif
 
+    if (n_warnings gt 0L) then comp_db_log_warnings, database=db
+
     sw_index  = db->query('select last_insert_id()')
   endif else begin
     if (sw_id_count gt 1L) then begin
