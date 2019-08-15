@@ -588,9 +588,15 @@ pro comp_run_pipeline, config_filename=config_filename
       db_t0 = systime(/seconds)
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (~dry_run) then begin
-          comp_update_database, date_dir, process_wavelengths[w]
+          comp_update_database, date_dir, process_wavelengths[w], $
+                                database=db, obsday_index=obsday_index
         endif
       endfor
+      if (~dry_run) then begin
+        comp_cal_insert, date_dir, database=db, obsday_index=obsday_index
+        obj_destroy, db
+      endif
+
       db_t1 = systime(/seconds)
       mg_log, 'total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
               db_t1 - db_t0, $

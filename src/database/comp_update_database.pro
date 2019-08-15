@@ -12,7 +12,8 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_update_database, date, wave_type
+pro comp_update_database, date, wave_type, $
+                          database=db, obsday_index=obsday_index
   compile_opt strictarr
   @comp_config_common
   
@@ -64,9 +65,26 @@ pro comp_update_database, date, wave_type
 
   comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
   comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
-  comp_cal_insert, date, wave_type, database=db, obsday_index=obsday_index
   comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   ; close database connection
-  obj_destroy, db
+  if (~arg_present(database)) then obj_destroy, db
+end
+
+
+; main-level example program
+
+date = ''
+
+comp_initialize, date
+config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+
+comp_update_database, date, wave_type, $
+                      database=db, obsday_index=obsday_index
+comp_cal_insert, date_dir, database=db, obsday_index=obsday_index
+obj_destroy, db
+
 end
