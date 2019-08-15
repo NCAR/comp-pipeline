@@ -21,8 +21,6 @@
 pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
 
-  ; O1FOCS keyword might not be present
-
   l1_files = comp_find_l1_files(date_dir, wave_type, /all, count=n_l1_files)
 
   mg_log, 'inserting %d L1 files into comp_eng table...', n_l1_files, $
