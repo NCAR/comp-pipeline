@@ -12,7 +12,7 @@ create table comp_file (
   producttype           tinyint (2),
   filetype              tinyint (2),
 
-  quality               tinyint (2),
+  quality               tinyint (2),  -- TODO: what is this?
 
   pol_list              char (4),
   wavetype              smallint,

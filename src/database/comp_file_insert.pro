@@ -35,7 +35,8 @@ pro comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   for f = 0L, n_l1_files - 1L do begin
     fits_open, l1_files[f], fcb
-    fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
+    fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg, $
+               /header_only
     fits_close, fcb
     if (msg ne '') then message, msg
 
