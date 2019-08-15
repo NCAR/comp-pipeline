@@ -6,8 +6,6 @@
 ; :Params:
 ;   date : in, required, type=string
 ;     date to process, in YYYYMMDD format
-;   wave_type : in, required, type=string
-;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
 ;   database : in, required, type=MGdbMySQL object
@@ -21,11 +19,11 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index, $
+pro comp_sw_insert, date, $
+                    database=db, $
+                    obsday_index=obsday_index, $
                     sw_index=sw_index
   compile_opt strictarr
-
-  mg_log, 'starting...', name='comp', /info
 
   sw_index = 0L ; updated with correct index if all goes well
   sw_version = comp_find_code_version(revision=sw_revision)
@@ -81,5 +79,4 @@ pro comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index, $
   endelse
 
   done:
-  mg_log, 'done', name='comp', /info
 end

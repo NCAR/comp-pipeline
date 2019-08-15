@@ -5,7 +5,7 @@ create table comp_eng (
   file_name      char (32) not null,
   date_obs       datetime not null,
   obs_day        mediumint (5) not null,
-  focus          float (6, 2),   -- focus stage position
+  focus          mediumint (5),  -- focus stage position
   o1focs         float (8, 3),   -- O1 position in mm
 
   obs_id         char (30)       -- name of current measurement
@@ -19,11 +19,11 @@ create table comp_eng (
 
   -- TODO: ask Giuliana if this is sufficient for centering?
   -- distortion corrected centers/radii for occulter
-  ixcnter1       float(8, 4),    -- center x for sub-image 1
-  iycnter1       float(8, 4),    -- center y for sub-image 1
+  ixcenter1      float(8, 4),    -- center x for sub-image 1
+  iycenter1      float(8, 4),    -- center y for sub-image 1
   iradius1       float(8, 4),    -- radius for sub-image 1
-  ixcnter2       float(8, 4),    -- center x for sub-image 2
-  iycnter2       float(8, 4),    -- center y for sub-image 2
+  ixcenter2      float(8, 4),    -- center x for sub-image 2
+  iycenter2      float(8, 4),    -- center y for sub-image 2
   iradius2       float(8, 4),    -- radius for sub-image 2
 
   overlap_angle  float(7, 3),
@@ -44,9 +44,9 @@ create table comp_eng (
   bodytemp       float (9, 6),  --  temperature of filter body (deg C)
   basetemp       float (9, 6),  --  base plate temp (deg C)
   optrtemp       float (9, 6),  --  optical rail temp (deg C)
-  lcvr4tmp       float (9, 6),  --  deg C
+  lcvr4temp      float (9, 6),  --  deg C
 
-  occltrid       char (10),
+  occulter_id    char (10),
   
   comp_sw_id     int (10),
 
