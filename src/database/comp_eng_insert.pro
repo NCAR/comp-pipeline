@@ -28,6 +28,8 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
   mg_log, 'inserting %d L1 files into comp_eng table...', n_l1_files, $
           name='comp', /info
 
+  comp_sw_insert, date, database=db, obsday_index=obsday_index, sw_index=sw_id
+
   for f = 0L, n_l1_files - 1L do begin
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg, $
@@ -86,7 +88,6 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     lcvr4temp = sxpar(header, 'LCVR4TMP')
 
     occulter_id = sxpar(primary_header, 'OCC-ID')
-    comp_sw_insert, date, database=db, obsday_index=obsday_index, sw_index=sw_id
 
     fields = [{name: 'file_name', type: '''%s'''}, $
               {name: 'date_obs', type: '''%s'''}, $
