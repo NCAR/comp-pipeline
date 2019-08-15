@@ -36,8 +36,8 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
     fits_close, fcb
-
     if (msg ne '') then message, msg
+
     date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                      sxpar(primary_header, 'TIME-OBS'), $
                      format='(%"%sT%s")')
