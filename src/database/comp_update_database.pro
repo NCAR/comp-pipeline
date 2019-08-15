@@ -34,13 +34,13 @@ pro comp_update_database, date, wave_type
   obs_day_index = 0
   
   ; check to see if passed observation day date is in mlso_numfiles table
-  obs_day_results = db->query('SELECT count(obs_day) FROM mlso_numfiles WHERE obs_day=''%s''', $
-                              obs_day, fields=fields)
+  query = 'select count(obs_day) from mlso_numfiles where obs_day=''%s'''
+  obs_day_results = db->query(query, obs_day, fields=fields)
   obs_day_count = obs_day_results.count_obs_day_
 
   if (obs_day_count eq 0) then begin
     ; if not already in table, create a new entry for the passed observation day
-    db->execute, 'INSERT INTO mlso_numfiles (obs_day) VALUES (''%s'') ', $
+    db->execute, 'insert into mlso_numfiles (obs_day) values (''%s'') ', $
                  obs_day, $
                  status=status, error_message=error_message, $
                  sql_statement=sql_cmd, $
@@ -54,25 +54,18 @@ pro comp_update_database, date, wave_type
 
     if (n_warnings gt 0L) then comp_db_log_warnings, database=db
 
-    obs_day_index = db->query('SELECT LAST_INSERT_ID()')
+    obs_day_index = db->query('select last_insert_id()')
   endif else begin
     ; if it is in the database, get the corresponding index, day_id
-    obs_day_results = db->query('SELECT day_id FROM mlso_numfiles WHERE obs_day=''%s''', $
-                                obs_day, fields=fields)
+    query = 'select day_id from mlso_numfiles where obs_day=''%s'''
+    obs_day_results = db->query(query, obs_day, fields=fields)
     obs_day_index = obs_day_results.day_id
   endelse
 
-  comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index
-
   comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
-
   comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
-
   comp_cal_insert, date, wave_type, database=db, obsday_index=obsday_index
-
   comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
-
-  comp_sw_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   ; close database connection
   obj_destroy, db
