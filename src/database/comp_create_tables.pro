@@ -78,7 +78,7 @@ pro comp_create_tables, config_filename=config_filename
   endfor
 
   ; populate some tables with fixed information
-  insert_tables = 'comp_' + ['level']
+  insert_tables = 'comp_' + ['level', 'mission']
   for t = 0L, n_elements(insert_tables) - 1L do begin
     mg_log, 'populating %s', insert_tables[t], name=log_name, /info
 
