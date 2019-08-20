@@ -33,10 +33,6 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg, $
                /header_only
     n_extensions = fcb.nextend
-    fits_close, fcb
-    if (msg ne '') then message, msg
-
-    fits_open, l1_files[f], fcb
     fits_read, fcb, data, header, exten_no=1, /no_abort, message=msg, $
                /header_only
     fits_close, fcb
