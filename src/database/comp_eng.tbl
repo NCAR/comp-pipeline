@@ -1,5 +1,4 @@
 -- one per L1 file, only center line
--- TODO: add stray light coefficients
 create table comp_eng (
   eng_id         int (10) auto_increment primary key,
   file_name      char (32) not null,
@@ -13,18 +12,16 @@ create table comp_eng (
 
   cover          tinyint (1),
   opal           tinyint (1),
-  polangle       float (8, 3),
-  polarizer      tinyint (1),
-  retarder       tinyint (1),
 
-  -- TODO: ask Giuliana if this is sufficient for centering?
-  -- distortion corrected centers/radii for occulter
+  -- distortion corrected occulter center/radius
   ixcenter1      float(8, 4),    -- center x for sub-image 1
   iycenter1      float(8, 4),    -- center y for sub-image 1
   iradius1       float(8, 4),    -- radius for sub-image 1
   ixcenter2      float(8, 4),    -- center x for sub-image 2
   iycenter2      float(8, 4),    -- center y for sub-image 2
   iradius2       float(8, 4),    -- radius for sub-image 2
+
+  -- TODO: not distortion corrected occulter center/radius
 
   overlap_angle  float(7, 3),
   post_angle     float(7, 3),
@@ -47,7 +44,9 @@ create table comp_eng (
   lcvr4temp      float (9, 6),  --  deg C
 
   occulter_id    char (10),
-  
+
+  -- TODO: GBU quality bitmask
+
   comp_sw_id     int (10),
 
   unique (file_name),

@@ -1,27 +1,25 @@
--- one entry per L1 file for line center, but need corresponding
--- polarization/dynamics files
-
+-- one entry per day (pick 2nd file that passes GBU) for line center, masked
 create table comp_sci (
-  sci_id              int (10) auto_increment primary key,
-  file_name           char (40) not null,
-  date_obs            datetime not null,
-  obs_day             mediumint (5) not null,
-  totali              float (8, 3),
-  totalq              float (8, 3),
-  totalu              float (8, 3),
-  intensity           blob,
-  intensity_stddev    blob,
-  q                   blob,
-  q_stddev            blob,
-  u                   blob,
-  u_stddev            blob,
-  r108i               blob,
-  r13i                blob,
-  r108l               blob,
-  r13l                blob,
-  r108radazi          blob,
-  r13radazi           blob,
-  r108doppler         blob,
-  r13doppler          blob,
+  sci_id                   int (10) auto_increment primary key,
+  file_name                char (40) not null,
+  date_obs                 datetime not null,
+  obs_day                  mediumint (5) not null,
+
+  -- vector, function of radius: 1.05 to 1.3 in steps of 0.05
+  intensity                blob,
+  intensity_stddev         blob,
+  continuum                blob,
+  continuum_stddev         blob,
+  east_intensity           blob,
+  east_intensity_stddev    blob,
+  west_intensity           blob,
+  west_intensity_stddev    blob,
+
+  -- vector, function of theta: in steps of 0.5 degree
+  r11_intensity            blob,
+  r12_intensity            blob,
+
+  r11_continuum            blob,
+
   foreign key (obs_day) references mlso_numfiles(day_id)
 )

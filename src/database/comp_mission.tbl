@@ -5,7 +5,7 @@
 
 create table comp_mission (
   mission_id      int (10) auto_increment primary key, 
-  date            datetime not null, 
+  date            datetime not null,  -- 20121207?
 
   -- added in l1 primary header
   mlso_url        char (24),
@@ -26,7 +26,7 @@ create table comp_mission (
   object          char (32),
 
   fov_min         float (4, 2),  -- about 1.05
-  fov_max         float (4, 2),  -- about 1.25
+  fov_max         float (4, 2),  -- about 1.3
 
   bitpixl0        tinyint (3),   -- 16
   bitpixl1        tinyint (3),   -- -32

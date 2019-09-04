@@ -1,6 +1,6 @@
--- one per L1 or L2 file
 -- this table is for user searches
 
+-- one per L1 or L2 file
 create table comp_file (
   file_id               int (10) auto_increment primary key,
   file_name             char (35) not null, 
@@ -9,12 +9,11 @@ create table comp_file (
   carrington_rotation   mediumint (5),
 
   level                 tinyint (2) not null,
-  producttype           tinyint (2),
+  producttype           tinyint (2),  -- TODO: add CoMP product types (IQU, IV, IQUV, dynamics, polarizations, quick invert, mean, median, sigma)
   filetype              tinyint (2),
 
   quality               tinyint (2),  -- TODO: what is this?
 
-  pol_list              char (4),
   wavetype              smallint,
   ntunes                tinyint (2),
 

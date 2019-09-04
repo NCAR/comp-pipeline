@@ -1,13 +1,9 @@
--- TODO: ask Giuliana: center info for occulter and field stop (2 sets)
---                     (distortion corrected)?
-
 -- one entry per flat/dark or actual pol calibration file, just line center
 create table comp_cal (
   cal_id                  int (10) auto_increment primary key,
 
   file_name               char (40) not null,
   date_obs                datetime not null,
-  date_end                datetime not null,  -- TODO: how do we know this? remove?
   obs_day                 mediumint (5) not null,
 
   wavelength              float (8, 3),
@@ -18,12 +14,25 @@ create table comp_cal (
 
   cover                   tinyint (1),
   opal                    tinyint (1),
-  polangle                float (8, 3),
-  polarizer               tinyint (1),
-  retarder                tinyint (1),
 
-  median_int_continuum    float (14, 7),   -- dark corrected annulus
-  median_int_linecenter   float (14, 7),   -- dark corrected annulus
+  -- TODO: add stray light coefficients (5-6 coefficients)
+
+  -- distortion corrected centering
+  ixcenter1      float(8, 4),    -- center x for sub-image 1
+  iycenter1      float(8, 4),    -- center y for sub-image 1
+  iradius1       float(8, 4),    -- radius for sub-image 1
+  ixcenter2      float(8, 4),    -- center x for sub-image 2
+  iycenter2      float(8, 4),    -- center y for sub-image 2
+  iradius2       float(8, 4),    -- radius for sub-image 2
+
+  -- TODO: not distortion corrected centering
+
+  -- multiple extensions of the exact same beam/wavelength/hardware state
+  -- averaged together
+  median_int_continuum_beam0    float (14, 7),   -- dark corrected annulus
+  median_int_linecenter_beam0   float (14, 7),   -- dark corrected annulus
+  median_int_continuum_beam1    float (14, 7),   -- dark corrected annulus
+  median_int_linecenter_beam1   float (14, 7),   -- dark corrected annulus
 
   occltrid                char (10),
 

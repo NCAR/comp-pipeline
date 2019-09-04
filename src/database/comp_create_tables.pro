@@ -43,7 +43,7 @@ pro comp_create_tables, config_filename=config_filename
   mg_log, 'connected to %s', host, name=log_name, /info
 
 
-  tables = 'comp_' + ['sw', 'level', 'file', 'sci', 'cal', 'eng', 'mission']
+  tables = 'comp_' + ['sw', 'level', 'file', 'sci', 'dynamics', 'cal', 'eng', 'mission']
 
   ; delete existing tables, if they exist
   for t = n_elements(tables) - 1L, 0L, -1L do begin
