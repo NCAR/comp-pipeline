@@ -32,10 +32,13 @@ pro comp_extract_intensity_cube, filename, $
                                  primary_header=primary_header, $
                                  headers=headers, $
                                  background=background, $
-                                 extnames=extnames
+                                 extnames=extnames, $
+                                 pol_state=pol_state
   compile_opt idl2
   @comp_constants_common
   @comp_config_common
+
+  _pol_state = n_elements(pol_state) eq 0L ? 'I' : strupcase(pol_state)
 
   fits_open, filename, fcbin  ; open input fits file
   
@@ -58,7 +61,7 @@ pro comp_extract_intensity_cube, filename, $
     wavelength = sxpar(header, 'WAVELENG')
     polstate   = strtrim(sxpar(header, 'POLSTATE'), 2)
 
-    target_polstate = keyword_set(background) ? 'BKGI' : 'I'
+    target_polstate = keyword_set(background) ? ('BKG' + _pol_state) : _pol_state
 
     if (polstate eq target_polstate) then begin
       ; save the wavelength and data

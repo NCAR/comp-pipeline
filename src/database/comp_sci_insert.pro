@@ -21,19 +21,32 @@
 pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
 
-  ; TODO: don't add all files
+  ; TODO: define annulus
+  min_annulus_radius = 1.08
+  min_annulus_radius = 3.0
+
   ; find L1 files
   l1_files = comp_find_l1_files(date_dir, wave_type, /all, count=n_l1_files)
 
-  mg_log, 'inserting %d rows into comp_sci table...', n_l1_files, $
-          name='comp', /info
+  if (n_l1_files gt 0L) then begin
+    mg_log, 'inserting row into comp_sci table...', n_l1_files, $
+            name='comp', /info
+  endif else begin
+    mg_log, 'no L1 files to insert into comp_sci table', name='comp', /info
+    goto, done
+  endelse
+
+  ; just choosing the 20th L1 file right now (or the last file, if less than 20
+  ; L1 files)
+  science_files = l1_files[(n_l1_files < 20L) - 1L]
+  n_science_files = n_elements(science_files)
   
   ; angles for full circle in radians
   theta = findgen(360) * !dtor
 
-  ; loop through L1 files
-  for f = 0L, n_l1_files - 1L do begin
-    fits_open, l1_files[f], fcb
+  ; loop through science files
+  for f = 0L, n_science_files - 1L do begin
+    fits_open, science_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
     fits_close, fcb
     if (msg ne '') then message, msg
@@ -54,9 +67,25 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     sun_pixels = rsun / run->epoch('plate_scale')
 
-
     ; TODO: calculate total{i,q,u}, intensity{,_stdev}, {q,u}{,_stddev},
     ; r{108,13}{i,l}, and r{108,13}radazi
+    cx = sxpar(primary_header, 'CRPIX1') - 1.0   ; convert from FITS convention to
+    cy = sxpar(primary_header, 'CRPIX2') - 1.0   ; IDL convention
+
+    x = (rebin(reform(findgen(nx), nx, 1), nx, ny) - cx) / sun_pixels
+    y = (rebin(reform(findgen(ny), 1, ny), nx, ny) - cy) / sun_pixels
+    d = sqrt(x^2 + y^2)
+    annulus = where(d gt min_annulus_radius and d lt max_annulus_radius, count)
+
+    comp_extract_intensity_cube, science_files[f], $
+                                 images=intensity_images, $
+                                 pol_state='I'
+    comp_extract_intensity_cube, science_files[f], $
+                                 images=q_images, $
+                                 pol_state='Q'
+    comp_extract_intensity_cube, science_files[f], $
+                                 images=u_images, $
+                                 pol_state='U'
 
     ; insert into comp_sci table
     fields = [{name: 'file_name', type: '''%s'''}, $
@@ -81,7 +110,7 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
                      strjoin(fields.type, ', '), $
                      format='(%"insert into comp_sci (%s) values (%s)")')
     db->execute, sql_cmd, $
-                 file_basename(l1_files[f], '.gz'), $
+                 file_basename(science_files[f], '.gz'), $
                  date_obs, $
                  obsday_index, $
                  total_i, total_q, total_u, $

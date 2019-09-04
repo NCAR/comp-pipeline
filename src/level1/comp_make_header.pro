@@ -2,7 +2,7 @@
 
 ;+
 ; Procedure to determine the location of the occulting disk and field stop in
-; each beam of a comp large image and put them into a fits header.
+; each beam of a CoMP large image and put them into a FITS header.
 ;
 ; :Uses:
 ;   comp_constants_common, comp_find_annulus, comp_find_post, comp_extract1,
@@ -57,9 +57,13 @@ pro comp_make_header, image, header, date_dir, $
   @comp_config_common
   @comp_diagnostics_common
 
+  ; set to add other occulter radius (R-2) to headers, both distortion
+  ; corrected and not
+  elliptical_occulter = 1B
+
   mkhdr, header, image, /image
 
-  ; restrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
+  ; retrieve distortion coefficients in file: dx1_c, dy1_c, dx2_x, dy2_c
   restore, filename=filepath(distortion_coeffs_file, root=binary_dir)
  
   flat1 = comp_extract1(image)   ; extract the subimage
@@ -102,11 +106,13 @@ pro comp_make_header, image, header, date_dir, $
   corrected_occulter_guess2   = comp_find_flat_initial_guess(flat2)
 
   ; image 1
-  comp_find_annulus, flat1, occulter1, field1, error=error, $
+  comp_find_annulus, flat1, occulter1, field1, $
                      occulter_guess=[corrected_occulter_guess1, 226.0], $
                      field_guess=[corrected_occulter_guess1, 297.0], $
                      occulter_points=corrected_occulter_points1, $
-                     field_points=corrected_field_points1
+                     field_points=corrected_field_points1, $
+                     elliptical=elliptical_occulter, $
+                     error=error
   if (error ne 0L) then begin
     mg_log, 'error finding image center', name='comp', /warn
     return
@@ -115,11 +121,13 @@ pro comp_make_header, image, header, date_dir, $
   comp_find_post, flat1, occulter1, field1, post_angle1
 
   comp_find_annulus, uncorrected_flat1, $
-                     uncorrected_occulter1, uncorrected_field1, $
+                     uncorrected_occulter1, $
+                     uncorrected_field1, $
                      occulter_guess=[uncorrected_occulter_guess1, 226.0], $
                      field_guess=[uncorrected_occulter_guess1, 297.0], $
                      occulter_points=uncorrected_occulter_points1, $
                      field_points=uncorrected_field_points1, $
+                     elliptical=elliptical_occulter
                      error=error
   if (error ne 0L) then begin
     mg_log, 'error finding image center', name='comp', /warn
@@ -131,11 +139,13 @@ pro comp_make_header, image, header, date_dir, $
                   uncorrected_post_angle1
 
   ; image 2
-  comp_find_annulus, flat2, occulter2, field2, error=error, $
+  comp_find_annulus, flat2, occulter2, field2, $
                      occulter_guess=[corrected_occulter_guess2, 226.0], $
                      field_guess=[corrected_occulter_guess2, 297.0], $
                      occulter_points=corrected_occulter_points2, $
-                     field_points=corrected_field_points2
+                     field_points=corrected_field_points2, $
+                     elliptical=elliptical_occulter, $
+                     error=error
   if (error ne 0L) then begin
     mg_log, 'error finding image center', name='comp', /warn
     return
@@ -144,11 +154,13 @@ pro comp_make_header, image, header, date_dir, $
  comp_find_post, flat2, occulter2, field2, post_angle2
 
  comp_find_annulus,  uncorrected_flat2, $
-                     uncorrected_occulter2, uncorrected_field2, $
+                     uncorrected_occulter2, $
+                     uncorrected_field2, $
                      occulter_guess=[uncorrected_occulter_guess2, 226.0], $
                      field_guess=[uncorrected_occulter_guess2, 297.0], $
                      occulter_points=uncorrected_occulter_points2, $
                      field_points=uncorrected_field_points2, $
+                     elliptical=elliptical_occulter, $
                      error=error
   if (error ne 0L) then begin
     mg_log, 'error finding image center', name='comp', /warn
@@ -193,12 +205,20 @@ pro comp_make_header, image, header, date_dir, $
             ' Occulter center Y for dist corrected sub-image 1'
   sxaddpar, header, 'ORADIUS1', occulter1.r, $
             ' Occulter radius for dist corrected sub-image 1'
+  if (keyword_set(elliptical_occulter)) then begin
+    sxaddpar, header, 'ORAD1-2', occulter1.r2, $
+              ' Occulter radius for dist corrected sub-image 1'
+  endif
   sxaddpar, header, 'OXCNTER2', occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for dist corrected sub-image 2'
   sxaddpar, header, 'OYCNTER2', occulter2.y + 1.0, $
             ' Occulter center Y for dist corrected sub-image 2'
   sxaddpar, header, 'ORADIUS2', occulter2.r, $
             ' Occulter radius for dist corrected sub-image 2'
+  if (keyword_set(elliptical_occulter)) then begin
+    sxaddpar, header, 'ORAD2-2', occulter2.r2, $
+              ' Occulter radius for dist corrected sub-image 2'
+  endif
 
   sxaddpar, header, 'OXCNTRU1', uncorrected_occulter1.x + 1.0, $
             ' Occulter center X for dist uncorrected sub-image 1'
@@ -206,12 +226,20 @@ pro comp_make_header, image, header, date_dir, $
             ' Occulter center Y for dist uncorrected sub-image 1'
   sxaddpar, header, 'ORADU1',   uncorrected_occulter1.r, $
             ' Occulter radius for dist uncorrected sub-image 1'
+  if (keyword_set(elliptical_occulter)) then begin
+    sxaddpar, header, 'ORADU1-2', uncorrected_occulter1.r2, $
+              ' Occulter radius for dist uncorrected sub-image 1'
+  endif
   sxaddpar, header, 'OXCNTRU2', uncorrected_occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for dist uncorrected sub-image 2'
   sxaddpar, header, 'OYCNTRU2', uncorrected_occulter2.y + 1.0, $
             ' Occulter center Y for dist uncorrected sub-image 2'
   sxaddpar, header, 'ORADU2',   uncorrected_occulter2.r, $
             ' Occulter radius for dist uncorrected sub-image 2'
+  if (keyword_set(elliptical_occulter)) then begin
+    sxaddpar, header, 'ORADU2-2', uncorrected_occulter2.r2, $
+              ' Occulter radius for dist uncorrected sub-image 2'
+  endif
 
   ; field position
   sxaddpar, header, 'FXCNTER1', field1.x + 1.0, $

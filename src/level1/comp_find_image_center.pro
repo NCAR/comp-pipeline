@@ -49,7 +49,8 @@ function comp_find_image_center, dat, $
                                  drad=drad, $
                                  neg_pol=neg_pol, $
                                  error=error, $
-                                 points=points
+                                 points=points, $
+                                 elliptical=elliptical
   compile_opt strictarr
   @comp_fitc_common
   @comp_constants_common
@@ -75,12 +76,12 @@ function comp_find_image_center, dat, $
 
   x = reform(points[0, *])
   y = reform(points[1, *])
-  p = mpfitellipse(x, y, /circular, /quiet, status=status)
+  p = mpfitellipse(x, y, circular=~keyword_set(elliptical), /quiet, status=status)
   error = status le 0
 
-  radius   = p[0]
-  x_center = p[2]
-  y_center = p[3]
+  ;radius   = p[0]
+  ;x_center = p[2]
+  ;y_center = p[3]
 
   ;c = comp_circfit(theta, r, error=error)
   ;if (error ne 0L) then return, -1L
@@ -101,15 +102,10 @@ function comp_find_image_center, dat, $
 
   ;a = [c[0] * cos(c[1]), c[0] * sin(c[1]), c[2]]
 
-;help, x_center, center_guess[0], y_center, center_guess[1], radius
-;print, a
+  ; changed this to return real center values
+  ;  return, [x_center - nx / 2.0 - center_guess[0], $
+  ;           y_center - ny / 2.0 - center_guess[1], $
+  ;           radius]
 
-; changed this to return real center values
-;  return, [x_center - nx / 2.0 - center_guess[0], $
-;           y_center - ny / 2.0 - center_guess[1], $
-;           radius]
-
-return, [x_center, y_center, radius]
-
-
+  return, p[keyword_set(elliptical) ? [0, 1, 2, 3] : [0, 2, 3]]
 end

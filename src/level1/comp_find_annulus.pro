@@ -32,7 +32,9 @@ pro comp_find_annulus, im, occulter, field, $
                        field_guess=field_guess, $
                        occulter_only=occulter_only, $
                        error=error, $
-                       occulter_points=occulter_points, field_points=field_points
+                       occulter_points=occulter_points, $
+                       field_points=field_points, $
+                       elliptical=elliptical
   compile_opt idl2
 
   error = 0L
@@ -46,7 +48,8 @@ pro comp_find_annulus, im, occulter, field, $
   c_occulter = comp_find_image_center(im, $
                                       center_guess=occulter_center_guess, $
                                       radius_guess=occulter_radius_guess, $
-                                      error=error, points=occulter_points)
+                                      error=error, points=occulter_points, $
+                                      elliptical=elliptical)
   if (error ne 0L) then begin
     mg_log, 'error finding occulter center', name='comp', /warn
     error = 1L
@@ -57,6 +60,11 @@ pro comp_find_annulus, im, occulter, field, $
   if (c_occulter[2] gt 1.1 * occulter_radius_guess) then begin
     mg_log, 'c_occulter radius off', name='comp', /warn
     c_occulter[2] = occulter_radius_guess
+  endif
+
+  if (keyword_set(elliptical) && c_occulter[3] gt 1.1 * occulter_radius_guess) then begin
+    mg_log, 'c_occulter radius 2 off', name='comp', /warn
+    c_occulter[3] = occulter_radius_guess
   endif
 
   if (~keyword_set(occulter_only)) then begin
@@ -92,5 +100,9 @@ pro comp_find_annulus, im, occulter, field, $
     mg_log, 'failed to find image center', name='comp', /warn
   endif
 
-  occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2]}
+   if (keyword_set(elliptical)) then begin
+     occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2], r2: c_occulter[3]}
+   endif else begin
+     occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2]}
+   endelse
 end
