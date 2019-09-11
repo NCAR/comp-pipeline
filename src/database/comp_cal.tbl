@@ -15,17 +15,21 @@ create table comp_cal (
   cover                   tinyint (1),
   opal                    tinyint (1),
 
-  -- TODO: add stray light coefficients (5-6 coefficients)
-
   -- distortion corrected centering
-  ixcenter1      float(8, 4),    -- center x for sub-image 1
-  iycenter1      float(8, 4),    -- center y for sub-image 1
-  iradius1       float(8, 4),    -- radius for sub-image 1
-  ixcenter2      float(8, 4),    -- center x for sub-image 2
-  iycenter2      float(8, 4),    -- center y for sub-image 2
-  iradius2       float(8, 4),    -- radius for sub-image 2
+  xcenter1                float(8, 4),    -- center x for sub-image 1
+  ycenter1                float(8, 4),    -- center y for sub-image 1
+  radius1                 float(8, 4),    -- radius for sub-image 1
+  xcenter2                float(8, 4),    -- center x for sub-image 2
+  ycenter2                float(8, 4),    -- center y for sub-image 2
+  radius2                 float(8, 4),    -- radius for sub-image 2
 
-  -- TODO: not distortion corrected centering
+  -- not distortion corrected centering
+  uncor_xcenter1          float(8, 4),    -- center x for sub-image 1
+  uncor_ycenter1          float(8, 4),    -- center y for sub-image 1
+  uncor_radius1           float(8, 4),    -- radius for sub-image 1
+  uncor_xcenter2          float(8, 4),    -- center x for sub-image 2
+  uncor_ycenter2          float(8, 4),    -- center y for sub-image 2
+  uncor_radius2           float(8, 4),    -- radius for sub-image 2
 
   -- multiple extensions of the exact same beam/wavelength/hardware state
   -- averaged together

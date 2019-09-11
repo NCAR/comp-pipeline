@@ -1,17 +1,17 @@
--- one entry unless hardware changes
-
 -- TODO: ask Steve: are there any instrument hardware changes that need to be
 -- captured in this table?
 
+-- one entry per hardware configuration
 create table comp_mission (
   mission_id      int (10) auto_increment primary key, 
-  date            datetime not null,  -- 20121207?
+  date            datetime not null,
 
   -- added in l1 primary header
   mlso_url        char (24),
   doi_url_1074    char (48),
   doi_url_1079    char (48),
   doi_url_1083    char (48),
+
   bunit           char (15),
   method          char (10),
   wavestep        float (7, 2),

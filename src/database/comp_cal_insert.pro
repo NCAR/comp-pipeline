@@ -34,6 +34,27 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
   catalog_filenames = filepath(catalog_basenames, $
                                subdir=[date, 'level1'], $
                                root=process_basedir)
+
+  flats_basename = string(date, format='(%"%s.comp.dark.fts")')
+  flats_filename = filepath(flats_basename, $
+                            subdir=[date, 'level1'], $
+                            root=process_basedir)
+
+  fits_open, flats_filename, flats_fcb
+  n_flats = flats_fcb.nextend - 3L  ; last 3 extensions are time, wavelength, exposure
+  flats_rawnames = strarr(n_flats)
+  flats_beam = bytarr(n_flats)
+  fits_read, flats_fcb, data, flat_ext_header, exten_no=1, /header_only
+  flats_headers = strarr(n_flats, n_elements(flat_ext_header))
+
+  for e = 1L, n_flats do begin
+    fits_read, flats_fcb, data, flat_ext_header, exten_no=e, /header_only
+    flats_rawnames[e - 1L] = sxpar(flat_ext_header, 'FILENAME')
+    flats_beam[e - 1L] = sxpar(flat_ext_header, 'BEAM')
+    flats_headers[e - 1L, *] = flat_ext_header
+  endfor
+  fits_close, flats_fcb
+
   for c = 0L, n_elements(types) - 1L do begin
     n_files = file_lines(catalog_filenames[c])
 
@@ -57,12 +78,7 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
     for f = 0L, n_files - 1L do begin
       filename = filepath(cal_basenames[f], subdir=date, root=raw_basedir)
 
-      fits_open, filename, fcb
-      fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg, $
-                 /header_only
-      fits_read, fcb, data, header, exten_no=1, /no_abort, message=msg
-      fits_close, fcb
-      if (msg ne '') then message, msg
+      comp_read_data, filename, images, headers, primary_header
 
       date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                         sxpar(primary_header, 'TIME-OBS'), $
@@ -77,13 +93,73 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
       occulter_id = sxpar(primary_header, 'OCC-ID')
 
-      wavelength = comp_find_wave_type(sxpar(header, 'WAVELENG'))
-      exposure = sxpar(header, 'EXPOSURE')
-      ndfilter = sxpar(header, 'NDFILTER')
+      wavelength = comp_find_wave_type(sxpar(headers[*, 0], 'WAVELENG'))
+      exposure = sxpar(headers[*, 0], 'EXPOSURE')
+      ndfilter = sxpar(headers[*, 0], 'NDFILTER')
 
-      ; TODO: compute from dark corrected annulus (read from YYYYMMDD.flat.fts?)
-      median_int_continuum = 0.0
-      median_int_linecenter = 0.0
+      ; get centering information
+      ext_indices = where(flats_rawnames eq cal_basenames[f], count)
+
+      fheader = flats_ext_header[ext_indices[0], *]  ; just using 1st match
+      xcenter1 = sxpar(fheader, 'OXCNTER1')
+      ycenter1 = sxpar(fheader, 'OYCNTER1')
+      radius1 = sxpar(fheader, 'ORADIUS1')
+      xcenter2 = sxpar(fheader, 'OXCNTER2')
+      ycenter2 = sxpar(fheader, 'OYCNTER2')
+      radius2 = sxpar(fheader, 'ORADIUS2')
+
+      uncor_xcenter1 = sxpar(fheader, 'OXCNTRU1')
+      uncor_ycenter1 = sxpar(fheader, 'OYCNTRU1')
+      uncor_radius1 = sxpar(fheader, 'ORADU1')
+      uncor_xcenter2 = sxpar(fheader, 'OXCNTRU2')
+      uncor_ycenter2 = sxpar(fheader, 'OYCNTRU2')
+      uncor_radius2 = sxpar(fheader, 'ORADU2')
+
+      ; compute medians of dark corrected annulus
+      if (cover eq 0 && opal eq 1) then begin
+        time = comp_extract_time(headers)
+        dark = comp_dark_interp(date, time, exposure)
+
+        comp_inventory_header, headers, beam, wave, pol, type, expose, $
+                               cover, cal_pol, cal_ret
+
+        center_wavelength = comp_find_wave_type(wave)
+
+        minus_flat_indices = where(wave eq center_wavelength and beam eq -1, $
+                                   n_minus_flat)
+        plus_flat_indices = where(wave eq center_wavelength and beam eq 1, $
+                                  n_plus_flat)
+        if (n_minus_flat eq 0L) then begin
+          mg_log, 'no flats with -1 beam state found, skipping', name='comp', /warn
+          continue
+        endif
+        if (n_plus_flat eq 0L) then begin
+          mg_log, 'no flats with +1 beam state found, skipping', name='comp', /warn
+          continue
+        endif
+
+        minus_image = mean(images[*, *, minus_flat_indices], dimension=3)
+        plus_image = mean(images[*, *, plus_flat_indices], dimension=3)
+
+        mask1 = comp_mask_1024_1(fheader, margin=0.0)
+        mask2 = comp_mask_1024_2(fheader, margin=0.0)
+
+        mask1_indices = where(mask1, count)
+        mask2_indices = where(mask2, count)
+
+        median_int_continuum_beam0 = median(minus_image[mask2_indices])
+        median_int_linecenter_beam0 = median(minus_image[mask1_indices])
+
+        median_int_continuum_beam1 = median(plus_image[mask1_indices])
+        median_int_linecenter_beam1 = median(plus_image[mask2_indices])
+
+      endif else begin   ; is not useful for darks
+        median_int_continuum_beam0 = 0.0
+        median_int_linecenter_beam0 = 0.0
+        median_int_continuum_beam1 = 0.0
+        median_int_linecenter_beam1 = 0.0
+      endelse
+
 
       fields = [{name: 'file_name', type: '''%s'''}, $
                 {name: 'date_obs', type: '''%s'''}, $
@@ -97,12 +173,26 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
                 {name: 'cover', type: '%d'}, $
                 {name: 'opal', type: '%d'}, $
-                {name: 'polangle', type: '%f'}, $
-                {name: 'polarizer', type: '%d'}, $
-                {name: 'retarder', type: '%d'}, $
 
-                {name: 'median_int_continuum', type: '%f'}, $
-                {name: 'median_int_linecenter', type: '%f'}, $
+                {name: 'xcenter1', type: '%f'}, $
+                {name: 'ycenter1', type: '%f'}, $
+                {name: 'radius1', type: '%f'}, $
+                {name: 'xcenter2', type: '%f'}, $
+                {name: 'ycenter2', type: '%f'}, $
+                {name: 'radius2', type: '%f'}, $
+
+                {name: 'uncor_xcenter1', type: '%f'}, $
+                {name: 'uncor_ycenter1', type: '%f'}, $
+                {name: 'uncor_radius1', type: '%f'}, $
+                {name: 'uncor_xcenter2', type: '%f'}, $
+                {name: 'uncor_ycenter2', type: '%f'}, $
+                {name: 'uncor_radius2', type: '%f'}, $
+
+                {name: 'median_int_continuum_beam0', type: '%f'}, $
+                {name: 'median_int_linecenter_beam0', type: '%f'}, $
+
+                {name: 'median_int_continuum_beam1', type: '%f'}, $
+                {name: 'median_int_linecenter_beam1', type: '%f'}, $
 
                 {name: 'occulter_id', type: '''%s'''}]
       sql_cmd = string(strjoin(fields.name, ', '), $
@@ -121,12 +211,25 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
                    cover, $
                    opal, $
-                   polangle, $
-                   polarizer, $
-                   retarder, $
 
-                   median_int_continuum, $
-                   median_int_linecenter, $
+                   xcenter1, $
+                   ycenter1, $
+                   radius1, $
+                   xcenter2, $
+                   ycenter2, $
+                   radius2, $
+
+                   uncor_xcenter1, $
+                   uncor_ycenter1, $
+                   uncor_radius1, $
+                   uncor_xcenter2, $
+                   uncor_ycenter2, $
+                   uncor_radius2, $
+
+                   median_int_continuum_beam0, $
+                   median_int_linecenter_beam0, $
+                   median_int_continuum_beam1, $
+                   median_int_linecenter_beam1, $
 
                    occulter_id, $
 
