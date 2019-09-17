@@ -26,7 +26,7 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   min_annulus_radius = 3.0
 
   ; find L1 files
-  l1_files = comp_find_l1_files(date_dir, wave_type, /all, count=n_l1_files)
+  l1_files = comp_find_l1_files(date, wave_type, /all, count=n_l1_files)
 
   if (n_l1_files gt 0L) then begin
     mg_log, 'inserting row into comp_sci table...', n_l1_files, $
