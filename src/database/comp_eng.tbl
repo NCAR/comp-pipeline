@@ -1,53 +1,62 @@
 -- one per L1 file, only center line
 create table comp_eng (
-  eng_id         int (10) auto_increment primary key,
-  file_name      char (32) not null,
-  date_obs       datetime not null,
-  obs_day        mediumint (5) not null,
-  focus          mediumint (5),  -- focus stage position
-  o1focs         float (8, 3),   -- O1 position in mm
+  eng_id            int (10) auto_increment primary key,
 
-  obs_id         char (30),      -- name of current measurement
-  obs_plan       char (30),      -- name of current program
+  file_name         char (32) not null,
+  date_obs          datetime not null,
+  obs_day           mediumint (5) not null,
 
-  cover          tinyint (1),
-  opal           tinyint (1),
+  focus             mediumint (5), -- focus stage position
+  o1focs            float (8, 3),  -- O1 position in mm
 
-  -- distortion corrected occulter center/radius
-  ixcenter1      float(8, 4),    -- center x for sub-image 1
-  iycenter1      float(8, 4),    -- center y for sub-image 1
-  iradius1       float(8, 4),    -- radius for sub-image 1
-  ixcenter2      float(8, 4),    -- center x for sub-image 2
-  iycenter2      float(8, 4),    -- center y for sub-image 2
-  iradius2       float(8, 4),    -- radius for sub-image 2
+  obs_id            char (30),     -- name of current measurement
+  obs_plan          char (30),     -- name of current program
 
-  -- TODO: not distortion corrected occulter center/radius
+  cover             tinyint (1),
+  opal              tinyint (1),
 
-  overlap_angle  float(7, 3),
-  post_angle     float(7, 3),
+  -- distortion corrected occulter centering
+  xcenter1          float(8, 4),   -- center x for sub-image 1
+  ycenter1          float(8, 4),   -- center y for sub-image 1
+  radius1           float(8, 4),   -- radius for sub-image 1
+  xcenter2          float(8, 4),   -- center x for sub-image 2
+  ycenter2          float(8, 4),   -- center y for sub-image 2
+  radius2           float(8, 4),   -- radius for sub-image 2
 
-  wavelength     float (8, 3),
-  ntunes         tinyint (2),
-  pol_list       char (4),
+  -- not distortion corrected occuler centering
+  uncor_xcenter1    float(8, 4),   -- center x for sub-image 1
+  uncor_ycenter1    float(8, 4),   -- center y for sub-image 1
+  uncor_radius1     float(8, 4),   -- radius for sub-image 1
+  uncor_xcenter2    float(8, 4),   -- center x for sub-image 2
+  uncor_ycenter2    float(8, 4),   -- center y for sub-image 2
+  uncor_radius2     float(8, 4),   -- radius for sub-image 2
 
-  nextensions    smallint,
+  overlap_angle     float(7, 3),
+  post_angle        float(7, 3),
+
+  wavelength        float (8, 3),
+  ntunes            tinyint (2),
+  pol_list          char (4),
+
+  nextensions       smallint,
+
+  -- GBU quality bitmask
+  gbu_bitmask       int,
 
   -- extract the rest from from first extension
 
-  exposure       float (5, 1),  -- millisec
-  nd             tinyint (2),
-  background     float (7, 3),  -- median of masked line center background for i
+  exposure          float (5, 1),  -- millisec
+  nd                tinyint (2),
+  background        float (7, 3),  -- median of masked line center background for i
 
-  bodytemp       float (9, 6),  --  temperature of filter body (deg C)
-  basetemp       float (9, 6),  --  base plate temp (deg C)
-  optrtemp       float (9, 6),  --  optical rail temp (deg C)
-  lcvr4temp      float (9, 6),  --  deg C
+  bodytemp          float (9, 6),  -- temperature of filter body (deg C)
+  basetemp          float (9, 6),  -- base plate temp (deg C)
+  optrtemp          float (9, 6),  -- optical rail temp (deg C)
+  lcvr4temp         float (9, 6),  -- deg C
 
-  occulter_id    char (10),
+  occulter_id       char (10),
 
-  -- TODO: GBU quality bitmask
-
-  comp_sw_id     int (10),
+  comp_sw_id        int (10),
 
   unique (file_name),
   index (date_obs),

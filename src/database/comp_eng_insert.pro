@@ -28,6 +28,10 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   comp_sw_insert, date, database=db, obsday_index=obsday_index, sw_index=sw_id
 
+  gbu_file = filepath(string(date, wave_type, format='(%"%s.comp.%s.gbu.log")'), $
+                      root=l1_process_dir)
+  gbu = comp_read_gbu(gbu_file, count=n_gbu)
+
   for f = 0L, n_l1_files - 1L do begin
     fits_open, l1_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg, $
@@ -53,16 +57,20 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     cover = sxpar(primary_header, 'COVER')
     opal = sxpar(primary_header, 'OPAL')
-    polangle = sxpar(primary_header, 'POLANGLE')
-    polarizer = sxpar(primary_header, 'POLARIZR')
-    retarder = sxpar(primary_header, 'RETARDER')
 
-    ixcenter1 = sxpar(primary_header, 'IXCNTER1')
-    iycenter1 = sxpar(primary_header, 'IYCNTER1')
-    iradius1 = sxpar(primary_header, 'IRADIUS1')
-    ixcenter2 = sxpar(primary_header, 'IXCNTER2')
-    iycenter2 = sxpar(primary_header, 'IYCNTER2')
-    iradius2 = sxpar(primary_header, 'IRADIUS2')
+    xcenter1 = sxpar(primary_header, 'IXCNTER1')
+    ycenter1 = sxpar(primary_header, 'IYCNTER1')
+    radius1 = sxpar(primary_header, 'IRADIUS1')
+    xcenter2 = sxpar(primary_header, 'IXCNTER2')
+    ycenter2 = sxpar(primary_header, 'IYCNTER2')
+    radius2 = sxpar(primary_header, 'IRADIUS2')
+
+    uncor_xcenter1 = sxpar(fheader, 'OXCNTRU1')
+    uncor_ycenter1 = sxpar(fheader, 'OYCNTRU1')
+    uncor_radius1 = sxpar(fheader, 'ORADU1')
+    uncor_xcenter2 = sxpar(fheader, 'OXCNTRU2')
+    uncor_ycenter2 = sxpar(fheader, 'OYCNTRU2')
+    uncor_radius2 = sxpar(fheader, 'ORADU2')
 
     overlap_angle = sxpar(primary_header, 'OVRLANG')
     post_angle = sxpar(primary_header, 'POSTANG')
@@ -71,6 +79,14 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     ntunes = sxpar(primary_header, 'NTUNES')
     pol_list = sxpar(primary_header, 'POL_LIST')
+
+    ; get GBU
+    gbu_indices = where(l1_files[f] eq gbu.l1file, n_gbu_indices)
+    if (n_gbu_indices eq 0L) then begin
+      gbu_bitmask = 0L
+    endif else begin
+      gbu_bitmask = gbu[gbu_indices[0]].reason
+    endelse
 
     exposure = sxpar(header, 'EXPOSURE')
     ndfilter = sxpar(header, 'NDFILTER')
@@ -86,39 +102,52 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     fields = [{name: 'file_name', type: '''%s'''}, $
               {name: 'date_obs', type: '''%s'''}, $
               {name: 'obs_day', type: '%d'}, $
+
               {name: 'focus', type: '%d'}, $
               {name: 'o1focus', type: '%s'}, $
+
               {name: 'obs_id', type: '''%s'''}, $
               {name: 'obs_plan', type: '''%s'''}, $
+
               {name: 'cover', type: '%d'}, $
               {name: 'opal', type: '%d'}, $
-              {name: 'polangle', type: '%f'}, $
-              {name: 'polarizer', type: '%d'}, $
-              {name: 'retarder', type: '%d'}, $
 
-              {name: 'ixcenter1', type: '%f'}, $
-              {name: 'iycenter1', type: '%f'}, $
-              {name: 'iradius1', type: '%f'}, $
-              {name: 'ixcenter2', type: '%f'}, $
-              {name: 'iycenter2', type: '%f'}, $
-              {name: 'iradius2', type: '%f'}, $
+              {name: 'xcenter1', type: '%f'}, $
+              {name: 'ycenter1', type: '%f'}, $
+              {name: 'radius1', type: '%f'}, $
+              {name: 'xcenter2', type: '%f'}, $
+              {name: 'ycenter2', type: '%f'}, $
+              {name: 'radius2', type: '%f'}, $
+
+              {name: 'uncor_xcenter1', type: '%f'}, $
+              {name: 'uncor_ycenter1', type: '%f'}, $
+              {name: 'uncor_radius1', type: '%f'}, $
+              {name: 'uncor_xcenter2', type: '%f'}, $
+              {name: 'uncor_ycenter2', type: '%f'}, $
+              {name: 'uncor_radius2', type: '%f'}, $
 
               {name: 'overlap_angle', type: '%f'}, $
               {name: 'post_angle', type: '%f'}, $
+
               {name: 'wavelength', type: '%f'}, $
               {name: 'ntunes', type: '%d'}, $
               {name: 'pol_list', type: '''%s'''}, $
+
               {name: 'nextensions', type: '%d'}, $
+
+              {name: 'gbu_bitmask', type: '%d'}, $
 
               {name: 'exposure', type: '%f'}, $
               {name: 'nd', type: '%d'}, $
               {name: 'background', type: '%f'}, $
+
               {name: 'bodytemp', type: '%f'}, $
               {name: 'basetemp', type: '%f'}, $
               {name: 'optrtemp', type: '%f'}, $
               {name: 'lcvr4temp', type: '%f'}, $
 
               {name: 'occulter_id', type: '''%s'''}, $
+
               {name: 'comp_sw_id', type: '%d'}]
     sql_cmd = string(strjoin(fields.name, ', '), $
                      strjoin(fields.type, ', '), $
@@ -127,29 +156,40 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
                  file_basename(l1_files[f]), $
                  date_obs, $
                  obsday_index, $
+
                  focus, $
                  o1focus, $
+
                  obs_id, $
                  obs_plan, $
+
                  cover, $
                  opal, $
-                 polangle, $
-                 polarizer, $
-                 retarder, $
 
-                 ixcenter1, $
-                 iycenter1, $
-                 iradius1, $
-                 ixcenter2, $
-                 iycenter2, $
-                 iradius2, $
+                 xcenter1, $
+                 ycenter1, $
+                 radius1, $
+                 xcenter2, $
+                 ycenter2, $
+                 radius2, $
+
+                 uncor_xcenter1, $
+                 uncor_ycenter1, $
+                 uncor_radius1, $
+                 uncor_xcenter2, $
+                 uncor_ycenter2, $
+                 uncor_radius2, $
 
                  overlap_angle, $
                  post_angle, $
+
                  wavelength, $
                  ntunes, $
                  pol_list, $
+
                  n_extensions, $
+
+                 gbu_bitmask, $
 
                  exposure, $
                  ndfilter, $
@@ -161,6 +201,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
                  lcvrtemp, $
 
                  occulter_id, $
+
                  sw_id, $
 
                  status=status, $
