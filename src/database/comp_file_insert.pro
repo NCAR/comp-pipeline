@@ -6,7 +6,7 @@ pro comp_file_insert_l2type, date, wave_type, fname_type, $
                              obsday_index=obsday_index
   compile_opt strictarr
 
-  basename = string(date, wave_type, fname_type, format='(%"%s.comp.%s.%s.*.fts*")')
+  basename = string(date, wave_type, fname_type, format='(%"%s.comp.%s.%s.*fts*")')
   files = file_search(filepath(basename, $
                                subdir=[date, 'level2'], $
                                root=process_basedir), $
