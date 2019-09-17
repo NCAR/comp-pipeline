@@ -15,7 +15,7 @@ create table comp_cal (
   cover                   tinyint (1),
   opal                    tinyint (1),
 
-  -- distortion corrected centering
+  -- distortion corrected occulter centering
   xcenter1                float(8, 4),    -- center x for sub-image 1
   ycenter1                float(8, 4),    -- center y for sub-image 1
   radius1                 float(8, 4),    -- radius for sub-image 1
@@ -23,7 +23,7 @@ create table comp_cal (
   ycenter2                float(8, 4),    -- center y for sub-image 2
   radius2                 float(8, 4),    -- radius for sub-image 2
 
-  -- not distortion corrected centering
+  -- not distortion corrected occuler centering
   uncor_xcenter1          float(8, 4),    -- center x for sub-image 1
   uncor_ycenter1          float(8, 4),    -- center y for sub-image 1
   uncor_radius1           float(8, 4),    -- radius for sub-image 1
