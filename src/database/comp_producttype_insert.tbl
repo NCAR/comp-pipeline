@@ -2,7 +2,7 @@ insert into mlso_producttype (producttype, description) values ('IQU', 'CoMP lev
 insert into mlso_producttype (producttype, description) values ('IV', 'CoMP level 1 intensity and V')
 insert into mlso_producttype (producttype, description) values ('IQUV', 'CoMP level 1 intensity, Q, U, and V')
 insert into mlso_producttype (producttype, description) values ('dynamics', 'CoMP level 2 dynamics')
-insert into mlso_producttype (producttype, description) values ('polarizations', 'CoMP level 2 polarizations')
+insert into mlso_producttype (producttype, description) values ('polarization', 'CoMP level 2 polarization')
 insert into mlso_producttype (producttype, description) values ('quick-invert', 'CoMP level 2 quick invert')
 insert into mlso_producttype (producttype, description) values ('mean', 'CoMP mean')
 insert into mlso_producttype (producttype, description) values ('median', 'CoMP median')
