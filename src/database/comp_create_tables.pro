@@ -74,11 +74,24 @@ pro comp_create_tables, config_filename=config_filename
     if (status ne 0L) then begin
       mg_log, 'problem creating %s', tables[t], name=log_name, /error
       mg_log, '%s', error_message, name=log_name, /error
+      goto, done
     endif
   endfor
 
+  ; remove old CoMP product types from mlso_producttype table
+  db->execute, 'delete from mlso_producttype where description contains "CoMP"', $
+               status=status, error_message=error_message, $
+               sql_statement=sql_cmd
+  if (status ne 0L) then begin
+    mg_log, 'problem removing old CoMP product types', name=log_name, /error
+    mg_log, 'status: %d, error message: %s', status, error_message, $
+            name=log_name, /error
+    mg_log, 'SQL command: %s', sql_cmd, name=log_name, /error
+    goto, done
+  endif
+
   ; populate some tables with fixed information
-  insert_tables = 'comp_' + ['level', 'mission']
+  insert_tables = ['comp_level', 'comp_mission', 'mlso_producttype']
   for t = 0L, n_elements(insert_tables) - 1L do begin
     mg_log, 'populating %s', insert_tables[t], name=log_name, /info
 
@@ -105,6 +118,7 @@ pro comp_create_tables, config_filename=config_filename
   endfor
 
   ; disconnect from database
+  done:
   mg_log, 'disconnecting from %s', host, name=log_name, /info
   obj_destroy, db
 end

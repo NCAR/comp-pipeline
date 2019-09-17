@@ -9,10 +9,10 @@ create table comp_file (
   carrington_rotation   mediumint (5),
 
   level                 tinyint (2) not null,
-  producttype           tinyint (2),  -- TODO: add CoMP product types (IQU, IV, IQUV, dynamics, polarizations, quick invert, mean, median, sigma)
+  producttype           tinyint (2),
   filetype              tinyint (2),
 
-  quality               tinyint (2),  -- TODO: what is this?
+  quality               tinyint (2),
 
   wavetype              smallint,
   ntunes                tinyint (2),
