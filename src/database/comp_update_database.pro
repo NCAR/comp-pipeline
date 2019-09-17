@@ -66,6 +66,7 @@ pro comp_update_database, date, wave_type, $
   comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
   comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
   comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
+  comp_dynamics_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   ; close database connection
   if (~arg_present(database)) then obj_destroy, db

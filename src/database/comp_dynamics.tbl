@@ -5,7 +5,7 @@ create table comp_dynamics {
   date_obs                 datetime not null,
   obs_day                  mediumint (5) not null,
 
-  intensity_max.           float (14, 7),
+  intensity_max            float (14, 7),
   doppler_min              float (14, 7),
   doppler_max              float (14, 7),
 
