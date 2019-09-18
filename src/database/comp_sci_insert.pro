@@ -21,12 +21,16 @@
 pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
 
-  ; TODO: define annulus
-  min_annulus_radius = 1.08
-  min_annulus_radius = 3.0
+  ; define annulus
+  min_radius = 1.05
+  max_radius = 1.3
+  n_radius_steps = 7L   ; every 0.05
+  radii = (max_radius - min_radius) / (n_radius_steps - 1L) * findgen(n_radius_steps) $
+            + min_radius
 
   ; find L1 files
   l1_files = comp_find_l1_files(date, wave_type, /all, count=n_l1_files)
+  bkg_files = comp_find_l1_files(date, wave_type, /all, count=n_bkg_files, /background)
 
   if (n_l1_files gt 0L) then begin
     mg_log, 'inserting row into comp_sci table...', n_l1_files, $
@@ -39,10 +43,8 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   ; just choosing the 20th L1 file right now (or the last file, if less than 20
   ; L1 files)
   science_files = l1_files[(n_l1_files < 20L) - 1L]
+  science_bkg_files = bkg_files[(n_l1_files < 20L) - 1L]
   n_science_files = n_elements(science_files)
-  
-  ; angles for full circle in radians
-  theta = findgen(360) * !dtor
 
   ; loop through science files
   for f = 0L, n_science_files - 1L do begin
@@ -67,45 +69,59 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     sun_pixels = rsun / run->epoch('plate_scale')
 
-    ; TODO: calculate total{i,q,u}, intensity{,_stdev}, {q,u}{,_stddev},
-    ; r{108,13}{i,l}, and r{108,13}radazi
     cx = sxpar(primary_header, 'CRPIX1') - 1.0   ; convert from FITS convention to
     cy = sxpar(primary_header, 'CRPIX2') - 1.0   ; IDL convention
-
-    x = (rebin(reform(findgen(nx), nx, 1), nx, ny) - cx) / sun_pixels
-    y = (rebin(reform(findgen(ny), 1, ny), nx, ny) - cy) / sun_pixels
-    d = sqrt(x^2 + y^2)
-    annulus = where(d gt min_annulus_radius and d lt max_annulus_radius, count)
 
     comp_extract_intensity_cube, science_files[f], $
                                  images=intensity_images, $
                                  pol_state='I'
-    comp_extract_intensity_cube, science_files[f], $
-                                 images=q_images, $
-                                 pol_state='Q'
-    comp_extract_intensity_cube, science_files[f], $
-                                 images=u_images, $
-                                 pol_state='U'
+    comp_extract_intensity_cube, science_bkg_files[f], $
+                                 images=continuum_images, $
+                                 /background, $
+                                 pol_state='I'
+
+    intensity_image = mean(intensity_images, dimension=3)
+    continuum_image = mean(continuum_images, dimension=3)
+
+    intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
+                                           cx=cx, cy=cy, $
+                                           standard_deviation=intensity_stddev)
+    continuum = comp_extract_radial_values(continuum_image, radii, sun_pixels, $
+                                           cx=cx, cy=cy, $
+                                           standard_deviation=continuum_stddev)
+    east_intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
+                                                limb='east', $
+                                                cx=cx, cy=cy, $
+                                                standard_deviation=east_intensity_stddev)
+    west_intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
+                                                limb='west', $
+                                                cx=cx, cy=cy, $
+                                                standard_deviation=west_intensity_stddev)
+
+    r11_intensity = comp_annulus_gridmeans(intensity_image, 1.1, sun_pixels, $
+                                           nbins=720, width=0.02)
+    r11_continuum = comp_annulus_gridmeans(continuum_image, 1.1, sun_pixels, $
+                                           nbins=720, width=0.02)
+    r12_intensity = comp_annulus_gridmeans(intensity_image, 1.2, sun_pixels, $
+                                           nbins=720, width=0.02)
 
     ; insert into comp_sci table
     fields = [{name: 'file_name', type: '''%s'''}, $
               {name: 'date_obs', type: '''%s'''}, $
               {name: 'obs_day', type: '%d'}, $
-              {name: 'totali', type: '%f'}, $
-              {name: 'totalq', type: '%f'}, $
-              {name: 'totalu', type: '%f'}, $
+
               {name: 'intensity', type: '''%s'''}, $
               {name: 'intensity_stddev', type: '''%s'''}, $
-              {name: 'q', type: '''%s'''}, $
-              {name: 'q_stddev', type: '''%s'''}, $
-              {name: 'u', type: '''%s'''}, $
-              {name: 'u_stddev', type: '''%s'''}, $
-              {name: 'r108i', type: '''%s'''}, $
-              {name: 'r13i', type: '''%s'''}, $
-              {name: 'r108l', type: '''%s'''}, $
-              {name: 'r13l', type: '''%s'''}, $
-              {name: 'r108radazi', type: '''%s'''}, $
-              {name: 'r13radazi', type: '''%s'''}]
+              {name: 'continuum', type: '''%s'''}, $
+              {name: 'continuum_stddev', type: '''%s'''}, $
+              {name: 'east_intensity', type: '''%s'''}, $
+              {name: 'east_intensity_stddev', type: '''%s'''}, $
+              {name: 'west_intensity', type: '''%s'''}, $
+              {name: 'west_intensity_stddev', type: '''%s'''}, $
+
+              {name: 'r11_intensity', type: '''%s'''}, $
+              {name: 'r12_intensity', type: '''%s'''}, $
+              {name: 'r11_continuum', type: '''%s'''}]
     sql_cmd = string(strjoin(fields.name, ', '), $
                      strjoin(fields.type, ', '), $
                      format='(%"insert into comp_sci (%s) values (%s)")')
@@ -113,19 +129,19 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
                  file_basename(science_files[f], '.gz'), $
                  date_obs, $
                  obsday_index, $
-                 total_i, total_q, total_u, $
+
                  db->escape_string(intensity), $
                  db->escape_string(intensity_stdev), $
-                 db->escape_string(q), $
-                 db->escape_string(q_stddev), $
-                 db->escape_string(u), $
-                 db->escape_string(u_stddev), $
-                 db->escape_string(r108i), $
-                 db->escape_string(r13i), $
-                 db->escape_string(r108l), $
-                 db->escape_stringr(r13l), $
-                 db->escape_string(r108radazi), $
-                 db->escape_string(r13radazi), $
+                 db->escape_string(continuum), $
+                 db->escape_string(continuum_stdev), $
+                 db->escape_string(east_intensity), $
+                 db->escape_string(east_intensity_stdev), $
+                 db->escape_string(west_intensity), $
+                 db->escape_string(west_intensity_stdev), $
+
+                 db->escape_string(r11_intensity), $
+                 db->escape_string(r12_intensity), $
+                 db->escape_string(r11_continuum), $
                  status=status, $
                  error_message=error_message, $
                  sql_statement=final_sql_cmd, $

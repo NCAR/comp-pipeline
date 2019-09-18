@@ -1,6 +1,7 @@
 -- one entry per day (pick 2nd file that passes GBU) for line center, masked
 create table comp_sci (
   sci_id                   int (10) auto_increment primary key,
+
   file_name                char (40) not null,
   date_obs                 datetime not null,
   obs_day                  mediumint (5) not null,
