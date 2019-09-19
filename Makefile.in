@@ -24,9 +24,8 @@ else
   OPEN=firefox
 endif
 
-
 MACHINE=$(shell comp_get_hostname.sh)
-CONFIG=config/comp.$(USER).$(MACHINE)$(FLAGS).cfg
+CONFIG=config/comp.$(FLAGS).cfg
 CONFIG_FILENAME:=$(shell mktemp)
 
 SSW_DIR=$(PWD)/ssw
