@@ -79,7 +79,7 @@ pro comp_create_tables, config_filename=config_filename
   endfor
 
   ; remove old CoMP product types from mlso_producttype table
-  db->execute, 'delete from mlso_producttype where description contains "CoMP"', $
+  db->execute, 'delete from mlso_producttype where description like "CoMP%"', $
                status=status, error_message=error_message, $
                sql_statement=sql_cmd
   if (status ne 0L) then begin
@@ -126,7 +126,7 @@ end
 
 ; main-level example program
 
-comp_create_tables, config_filename=filepath('comp.mgalloy.mahi.latest.cfg', $
+comp_create_tables, config_filename=filepath('comp.latest.cfg', $
                                              subdir=['..', '..', 'config'], $
                                              root=mg_src_root())
 

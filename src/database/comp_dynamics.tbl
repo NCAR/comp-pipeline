@@ -1,5 +1,5 @@
 -- one entry per dynamics file
-create table comp_dynamics {
+create table comp_dynamics (
   doppler_id               int (10) auto_increment primary key,
   file_name                char (40) not null,
   date_obs                 datetime not null,
@@ -10,4 +10,4 @@ create table comp_dynamics {
   doppler_max              float (14, 7),
 
   foreign key (obs_day) references mlso_numfiles(day_id)
-}
+)
