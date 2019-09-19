@@ -11,6 +11,7 @@ pro comp_continuum_correction, date
   compile_opt strictarr
   on_error, 2
   @comp_config_common
+  @comp_flats_common
 
   mg_log, 'starting', name='comp', /info
 
@@ -200,6 +201,11 @@ pro comp_continuum_correction, date
   fits_write, fcb, flat_exposure, exposure_header, extname='Exposure'
 
   fits_close, fcb
+
+  if (cache_flats) then begin
+    flat_headers = headers->toArray()
+    flat_headers = transpose(flat_headers, [1, 0])
+  endif
 
   done:
   if (obj_valid(headers)) then obj_destroy, headers
