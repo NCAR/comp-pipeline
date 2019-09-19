@@ -261,14 +261,17 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
               ' median of dark and exposure corrected flat', $
               format='(F0.2)', after='FLATEXT'
 
-    contcorr = sxpar('CONTCORR', count=n_contcorr, comment=contcorr_comment)
+    contcorr = sxpar(flat_header[*, iflat], 'CONTCORR', $
+                     count=n_contcorr, comment=contcorr_comment)
     sxaddpar, header, 'CONTCORR', contcorr, contcorr_comment, format='(F0.4)', $
               after='FLATMED'
 
-    contoff1 = sxpar('CONTOFF1', count=n_contoff1, comment=contoff1_comment)
+    contoff1 = sxpar(flat_header[*, iflat], 'CONTOFF1', $
+                     count=n_contoff1, comment=contoff1_comment)
     sxaddpar, header, 'CONTOFF1', contoff1, contoff1_comment, format='(F0.4)', $
               after='CONTCORR'
-    contoff2 = sxpar('CONTOFF2', count=n_contoff2, comment=contoff2_comment)
+    contoff2 = sxpar(flat_header[*, iflat], 'CONTOFF2', $
+                     count=n_contoff2, comment=contoff2_comment)
     sxaddpar, header, 'CONTOFF2', contoff2, contoff2_comment, format='(F0.4)', $
               after='CONTOFF1'
 
