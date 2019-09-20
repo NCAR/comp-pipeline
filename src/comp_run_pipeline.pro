@@ -586,6 +586,15 @@ pro comp_run_pipeline, config_filename=config_filename
     if (update_database) then begin
       mg_log, 'updating database', name='comp', /info
       db_t0 = systime(/seconds)
+
+      obsday_index = mlso_obsday_insert(date_dir, $
+                                        database_config_filename, $
+                                        database_config_section, $
+                                        database=db, $
+                                        status=status, $
+                                        log_name='comp')
+      comp_db_clearday, database=db, obsday_index=obsday_index
+
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (~dry_run) then begin
           comp_update_database, date_dir, process_wavelengths[w], $

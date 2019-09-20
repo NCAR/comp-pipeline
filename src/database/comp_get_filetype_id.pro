@@ -21,13 +21,13 @@
 function comp_get_filetype_id, filetype_name, database=db, count=count
   compile_opt strictarr
 
-  q = 'select count(id) from comp_level where filetype=''%s'''
-  count_result = db->query(q, level_name)
-  count = count_result.count_id_
+  q = 'select count(filetype_id) from mlso_filetype where filetype=''%s'''
+  count_result = db->query(q, filetype_name)
+  count = count_result.count_filetype_id_
 
   _filetype_name = count eq 0 ? 'unk' : filetype_name
 
-  results = db->query('select * from comp_filetype where filetype=''%s''', $
+  results = db->query('select * from mlso_filetype where filetype=''%s''', $
                       _filetype_name, fields=fields)
-  return, results[0].id
+  return, results[0].filetype_id
 end

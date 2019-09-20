@@ -52,7 +52,8 @@ pro comp_sw_insert, date, $
                  sw_version, $
                  sw_revision, $
                  status=status, error_message=error_message, $
-                 sql_statement=final_sql_cmd
+                 sql_statement=final_sql_cmd, $
+                 n_warnings=n_warnings
     if (status ne 0L) then begin
       mg_log, '%d, error message: %s', status, error_message, $
               name='comp', /error

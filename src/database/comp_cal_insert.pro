@@ -35,12 +35,13 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
                                subdir=[date, 'level1'], $
                                root=process_basedir)
 
-  flats_basename = string(date, format='(%"%s.comp.dark.fts")')
+  flats_basename = string(date, format='(%"%s.comp.flat.fts")')
   flats_filename = filepath(flats_basename, $
                             subdir=[date, 'level1'], $
                             root=process_basedir)
 
   fits_open, flats_filename, flats_fcb
+
   n_flats = flats_fcb.nextend - 3L  ; last 3 extensions are time, wavelength, exposure
   flats_rawnames = strarr(n_flats)
   flats_beam = bytarr(n_flats)
@@ -80,18 +81,30 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
       comp_read_data, filename, images, headers, primary_header
 
-      date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
-                        sxpar(primary_header, 'TIME-OBS'), $
-                        format='(%"%sT%s")')
+      dateobs = sxpar(primary_header, 'DATE_OBS')
+      timeobs = sxpar(primary_header, 'TIME_OBS')
+
+      date_tokens = strsplit(dateobs, '/', /extract)
+      year = long(date_tokens[2])
+      month = long(date_tokens[0])
+      day = long(date_tokens[1])
+
+      time_tokens = strsplit(timeobs, ' :', /extract)
+      hour = long(time_tokens[0])
+      minute = long(time_tokens[1])
+      second = long(time_tokens[2])
+
+      date_obs = string(year, month, day, hour, minute, second, $
+                        format='(%"%04d-%02d-%02dT%02d:%02d:%02d")')
 
       ntunes = sxpar(primary_header, 'NTUNES')
       cover = sxpar(primary_header, 'COVER')
       opal = sxpar(primary_header, 'OPAL')
       polangle = sxpar(primary_header, 'POLANGLE')
       polarizer = sxpar(primary_header, 'POLARIZR')
-      retarder = sxpar(primary_header, 'RETARDER')
+      retarder = strtrim(sxpar(primary_header, 'RETARDER'), 2)
 
-      occulter_id = sxpar(primary_header, 'OCC-ID')
+      occulter_id = strtrim(sxpar(primary_header, 'OCCULTER'), 2)
 
       wavelength = comp_find_wave_type(sxpar(headers[*, 0], 'WAVELENG'))
       exposure = sxpar(headers[*, 0], 'EXPOSURE')
@@ -100,7 +113,8 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
       ; get centering information
       ext_indices = where(flats_rawnames eq cal_basenames[f], count)
 
-      fheader = flats_ext_header[ext_indices[0], *]  ; just using 1st match
+      fheader = reform(flats_headers[ext_indices[0], *])  ; just using 1st match
+
       xcenter1 = sxpar(fheader, 'OXCNTER1')
       ycenter1 = sxpar(fheader, 'OYCNTER1')
       radius1 = sxpar(fheader, 'ORADIUS1')
@@ -116,7 +130,7 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
       uncor_radius2 = sxpar(fheader, 'ORADU2')
 
       ; compute medians of dark corrected annulus
-      if (cover eq 0 && opal eq 1) then begin
+      if (cover eq 1 && opal eq 1) then begin
         time = comp_extract_time(headers)
         dark = comp_dark_interp(date, time, exposure)
 
@@ -125,10 +139,11 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
         center_wavelength = comp_find_wave_type(wave)
 
-        minus_flat_indices = where(wave eq center_wavelength and beam eq -1, $
+        minus_flat_indices = where(abs(wave - center_wavelength) lt 0.1 and beam eq -1, $
                                    n_minus_flat)
-        plus_flat_indices = where(wave eq center_wavelength and beam eq 1, $
+        plus_flat_indices = where(abs(wave - center_wavelength) lt 0.1 and beam eq 1, $
                                   n_plus_flat)
+
         if (n_minus_flat eq 0L) then begin
           mg_log, 'no flats with -1 beam state found, skipping', name='comp', /warn
           continue
@@ -201,7 +216,7 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
       db->execute, sql_cmd, $
                    cal_basenames[f], $
                    date_obs, $
-                   obs_day, $
+                   obsday_index, $
 
                    wavelength, $
                    ntunes, $
@@ -250,4 +265,28 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
   done:
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+@comp_config_common
+
+date = '20130115'
+comp_initialize, date
+config_filename = filepath('comp.db.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+
+obsday_index = mlso_obsday_insert(date, $
+                                  database_config_filename, $
+                                  database_config_section, $
+                                  database=db, status=status, log_name='comp')
+
+comp_db_clearday, database=db, obsday_index=obsday_index
+
+comp_cal_insert, date, database=db, obsday_index=obsday_index
+obj_destroy, db
+
 end

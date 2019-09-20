@@ -33,15 +33,15 @@ function comp_extract_radial_values, image, radii, sun_pixels, $
   endcase
 
   n_radii = n_elements(radii)
-  intensity = fltarr(n_radii)
+  values = fltarr(n_radii)
   standard_deviation = fltarr(n_radii)
 
   for r = 0L, n_radii - 1L do begin
     x = sun_pixels * radii[r] * cos(theta[limb_indices]) + _cx
     y = sun_pixels * radii[r] * sin(theta[limb_indices]) + _cy
-    intensity[r] = mean(image[round(x), round(y)])
+    values[r] = mean(image[round(x), round(y)])
     standard_deviation[r] = stddev(image[round(x), round(y)])
   endfor
 
-  return, intensity
+  return, values
 end

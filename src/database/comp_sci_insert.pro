@@ -20,6 +20,7 @@
 ;-
 pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
+  @comp_mask_constants_common
 
   ; define annulus
   min_radius = 1.05
@@ -29,14 +30,17 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
             + min_radius
 
   ; find L1 files
-  l1_files = comp_find_l1_files(date, wave_type, /all, count=n_l1_files)
-  bkg_files = comp_find_l1_files(date, wave_type, /all, count=n_bkg_files, /background)
+  l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
+  bkg_files = comp_find_l1_file(date, wave_type, /all, count=n_bkg_files, /background)
 
   if (n_l1_files gt 0L) then begin
-    mg_log, 'inserting row into comp_sci table...', n_l1_files, $
+    mg_log, 'inserting %d rows into %s nm comp_sci table...', $
+            n_l1_files, wave_type, $
             name='comp', /info
   endif else begin
-    mg_log, 'no L1 files to insert into comp_sci table', name='comp', /info
+    mg_log, 'no L1 files to insert into %s nm comp_sci table', $
+            wave_type, $
+            name='comp', /info
     goto, done
   endelse
 
@@ -67,7 +71,7 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
     fhour = hour + minute / 60.0 + second / 60.0 / 60.0
     sun, year, month, day, fhour, sd=rsun, pa=pangle, la=bangle
 
-    sun_pixels = rsun / run->epoch('plate_scale')
+    sun_pixels = rsun / plate_scale
 
     cx = sxpar(primary_header, 'CRPIX1') - 1.0   ; convert from FITS convention to
     cy = sxpar(primary_header, 'CRPIX2') - 1.0   ; IDL convention
@@ -131,17 +135,18 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
                  obsday_index, $
 
                  db->escape_string(intensity), $
-                 db->escape_string(intensity_stdev), $
+                 db->escape_string(intensity_stddev), $
                  db->escape_string(continuum), $
-                 db->escape_string(continuum_stdev), $
+                 db->escape_string(continuum_stddev), $
                  db->escape_string(east_intensity), $
-                 db->escape_string(east_intensity_stdev), $
+                 db->escape_string(east_intensity_stddev), $
                  db->escape_string(west_intensity), $
-                 db->escape_string(west_intensity_stdev), $
+                 db->escape_string(west_intensity_stddev), $
 
                  db->escape_string(r11_intensity), $
                  db->escape_string(r12_intensity), $
                  db->escape_string(r11_continuum), $
+
                  status=status, $
                  error_message=error_message, $
                  sql_statement=final_sql_cmd, $

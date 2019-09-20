@@ -20,7 +20,7 @@ pro comp_file_insert_l2type, date, wave_type, fname_type, $
 end
 
 
-pro comp_file_insert_file, file, wave_type, $
+pro comp_file_insert_file, file, wave_type, level_id, filetype_id, $
                            product_type=product_type, $
                            database=db, $
                            obsday_index=obsday_index
@@ -65,7 +65,7 @@ pro comp_file_insert_file, file, wave_type, $
                    strjoin(fields.type, ', '), $
                    format='(%"insert into comp_file (%s) values (%s)")')
   db->execute, sql_cmd, $
-               file_basename(l1_files[f]), $
+               file_basename(file), $
                date_obs, $
                obsday_index, $
                carrington_rotation, $
@@ -112,16 +112,23 @@ end
 pro comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
 
-  l1_files = comp_find_l1_files(date, wave_type, /all, count=n_l1_files)
+  l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
 
-  mg_log, 'inserting %d L1 files into comp_file table...', n_l1_files, $
-          name='comp', /info
+  if (n_l1_files gt 0L) then begin
+    mg_log, 'inserting %d L1 files into %s nm comp_file table...', $
+            n_l1_files, wave_type, $
+            name='comp', /info
+  endif else begin
+    mg_log, 'no L1 files to insert into %s nm comp_file table...', $
+            wave_type, $
+            name='comp', /info
+  endelse
 
   level_id = comp_get_level_id('l1', database=db)
   filetype_id = comp_get_filetype_id('fits', database=db)
 
   for f = 0L, n_l1_files - 1L do begin
-    comp_file_insert_file, l1_files[f], wave_type, $
+    comp_file_insert_file, l1_files[f], wave_type, level_id, filetype_id, $
                            database=db, obsday_index=obsday_index
   endfor
 

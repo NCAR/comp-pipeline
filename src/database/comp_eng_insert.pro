@@ -20,16 +20,25 @@
 ;-
 pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
+  @comp_config_common
 
-  l1_files = comp_find_l1_files(date, wave_type, /all, count=n_l1_files)
+  l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
 
-  mg_log, 'inserting %d L1 files into comp_eng table...', n_l1_files, $
-          name='comp', /info
+  if (n_l1_files gt 0L) then begin
+    mg_log, 'inserting %d L1 files into %s nm comp_eng table...', $
+            n_l1_files, wave_type, $
+            name='comp', /info
+  endif else begin
+    mg_log, 'no L1 files to insert into %s nm comp_eng table...', $
+            wave_type, $
+            name='comp', /info
+  endelse
 
   comp_sw_insert, date, database=db, obsday_index=obsday_index, sw_index=sw_id
 
   gbu_file = filepath(string(date, wave_type, format='(%"%s.comp.%s.gbu.log")'), $
-                      root=l1_process_dir)
+                      subdir=[date, 'level1'], $
+                      root=process_basedir)
   gbu = comp_read_gbu(gbu_file, count=n_gbu)
 
   for f = 0L, n_l1_files - 1L do begin
@@ -55,8 +64,8 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     o1focus = sxpar(primary_header, 'O1FOCS', count=n_o1focus)
     o1focus = n_o1focus eq 0L ? 'NULL' : string(o1focus, format='(%"0.3f")')
 
-    cover = sxpar(primary_header, 'COVER')
-    opal = sxpar(primary_header, 'OPAL')
+    cover = strtrim(sxpar(primary_header, 'COVER'), 2)
+    opal = strtrim(sxpar(primary_header, 'OPAL'), 2)
 
     xcenter1 = sxpar(primary_header, 'IXCNTER1')
     ycenter1 = sxpar(primary_header, 'IYCNTER1')
@@ -65,12 +74,12 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     ycenter2 = sxpar(primary_header, 'IYCNTER2')
     radius2 = sxpar(primary_header, 'IRADIUS2')
 
-    uncor_xcenter1 = sxpar(fheader, 'OXCNTRU1')
-    uncor_ycenter1 = sxpar(fheader, 'OYCNTRU1')
-    uncor_radius1 = sxpar(fheader, 'ORADU1')
-    uncor_xcenter2 = sxpar(fheader, 'OXCNTRU2')
-    uncor_ycenter2 = sxpar(fheader, 'OYCNTRU2')
-    uncor_radius2 = sxpar(fheader, 'ORADU2')
+    uncor_xcenter1 = sxpar(primary_header, 'OXCNTRU1')
+    uncor_ycenter1 = sxpar(primary_header, 'OYCNTRU1')
+    uncor_radius1 = sxpar(primary_header, 'ORADU1')
+    uncor_xcenter2 = sxpar(primary_header, 'OXCNTRU2')
+    uncor_ycenter2 = sxpar(primary_header, 'OYCNTRU2')
+    uncor_radius2 = sxpar(primary_header, 'ORADU2')
 
     overlap_angle = sxpar(primary_header, 'OVRLANG')
     post_angle = sxpar(primary_header, 'POSTANG')
@@ -78,7 +87,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     wavelength = comp_find_wave_type(sxpar(header, 'WAVELENG'))
 
     ntunes = sxpar(primary_header, 'NTUNES')
-    pol_list = sxpar(primary_header, 'POL_LIST')
+    pol_list = strtrim(sxpar(primary_header, 'POL_LIST'), 2)
 
     ; get GBU
     gbu_indices = where(l1_files[f] eq gbu.l1file, n_gbu_indices)
@@ -97,7 +106,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     optrtemp = sxpar(header, 'OPTRTEMP')
     lcvr4temp = sxpar(header, 'LCVR4TMP')
 
-    occulter_id = sxpar(primary_header, 'OCC-ID')
+    occulter_id = strtrim(sxpar(primary_header, 'OCC-ID'), 2)
 
     fields = [{name: 'file_name', type: '''%s'''}, $
               {name: 'date_obs', type: '''%s'''}, $
@@ -198,7 +207,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
                  bodytemp, $
                  basetemp, $
                  optrtemp, $
-                 lcvrtemp, $
+                 lcvr4temp, $
 
                  occulter_id, $
 

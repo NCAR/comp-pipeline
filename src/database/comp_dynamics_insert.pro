@@ -28,10 +28,13 @@ pro comp_dynamics_insert, date, wave_type, database=db, obsday_index=obsday_inde
                                count=n_dynamics_files)
 
   if (n_dynamics_files gt 0L) then begin
-    mg_log, 'inserting %d rows into comp_dynamics table...', n_dynamics_files, $
+    mg_log, 'inserting %d rows into %s nm comp_dynamics table...', $
+            n_dynamics_files, wave_type, $
             name='comp', /info
   endif else begin
-    mg_log, 'no dynamics files to insert into comp_dynamics table', name='comp', /info
+    mg_log, 'no dynamics files to insert into %s nm comp_dynamics table', $
+            wave_type, $
+            name='comp', /info
     goto, done
   endelse
 

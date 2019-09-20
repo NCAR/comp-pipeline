@@ -3,7 +3,7 @@
 -- one per L1 or L2 file
 create table comp_file (
   file_id               int (10) auto_increment primary key,
-  file_name             char (35) not null, 
+  file_name             char (50) not null, 
   date_obs              datetime not null, 
   obs_day               mediumint (5) not null,
   carrington_rotation   mediumint (5),
@@ -14,6 +14,7 @@ create table comp_file (
 
   quality               tinyint (2),
 
+  pol_list              char (4),
   wavetype              smallint,
   ntunes                tinyint (2),
 

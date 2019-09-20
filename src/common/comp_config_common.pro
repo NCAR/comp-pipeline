@@ -61,6 +61,8 @@ common comp_config, doi_1074,$
                     validate, $
                     lock_raw, $
                     max_n_concurrent, $
+                    database_config_filename, $
+                    database_config_section, $
                     update_database, $
                     code_version, $
                     code_revision, $
