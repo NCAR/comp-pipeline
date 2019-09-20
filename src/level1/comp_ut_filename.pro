@@ -26,41 +26,10 @@ function comp_ut_filename, hst_filename
   minute = long(strmid(hst_filename, 11, 2))
   second = long(strmid(hst_filename, 13, 2))
 
-  jd = julday(month, day, year, hour, minute, second)
+  ut = comp_hst2ut(year, month, day, hour, minute, second)
 
-  ; add 10 hours get UT
-  jd += 10.D / 24.D
-
-  caldat, jd, ut_month, ut_day, ut_year, ut_hour, ut_minute, ut_second
-
-  rsecond = round(ut_second)
-  if (rsecond gt 59) then begin
-    ut_second -= 60
-    ut_minute += 1
-  endif
-
-  if (ut_minute gt 59) then begin
-    ut_minute -= 60
-    ut_hour += 1
-  endif
-
-  if (ut_hour gt 23) then begin
-    ut_hour -= 24
-    ut_day += 1
-  endif
-
-  if (ut_day gt 31) then begin
-    ut_day -= 31
-    ut_month += 1
-  endif
-
-  if (ut_month gt 12) then begin
-    ut_month -= 12
-    ut_year += 1
-  endif
-
-  ut_filename = string(ut_year, ut_month, ut_day, $
-                       ut_hour, ut_minute, ut_second, $
+  ut_filename = string(ut.year, ut.month, ut.day, $
+                       ut.hour, ut.minute, ut.second, $
                        format='(%"%04d%02d%02d.%02d%02d%02d")')
 
   return, ut_filename
