@@ -194,3 +194,21 @@ pro comp_read_flats, date_dir, wave, beam, time, flat, file_flat_headers, $
  endif
 
 end
+
+
+; main-level example program
+
+date = '20130115'
+config_filename = filepath('comp.db.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+comp_initialize, date
+comp_configuration, config_filename=config_filename
+
+comp_read_flats, date, 1074.62, 1, 5.0, flat, file_flat_headers, $
+                 flat_waves, flat_names, flat_exposure, $
+                 file=file, flat_extensions=flat_extensions, $
+                 flat_found=flat_found, normalize=normalize
+
+end

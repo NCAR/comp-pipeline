@@ -603,6 +603,7 @@ pro comp_run_pipeline, config_filename=config_filename
       endfor
       if (~dry_run) then begin
         comp_cal_insert, date_dir, database=db, obsday_index=obsday_index
+        comp_numfiles_update, date_dir, database=db, obsday_index=obsday_index
         obj_destroy, db
       endif
 

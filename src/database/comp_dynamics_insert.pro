@@ -18,7 +18,8 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_dynamics_insert, date, wave_type, database=db, obsday_index=obsday_index
+pro comp_dynamics_insert, date, wave_type, $
+                          database=db, obsday_index=obsday_index
   compile_opt strictarr
 
   basename = string(date, wave_type, format='(%"%s.comp.%s.dynamics.fts*")')

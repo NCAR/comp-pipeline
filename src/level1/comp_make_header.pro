@@ -59,7 +59,7 @@ pro comp_make_header, image, header, date_dir, $
 
   ; set to add other occulter radius (R-2) to headers, both distortion
   ; corrected and not
-  elliptical_occulter = 1B
+  elliptical_occulter = 0B
 
   mkhdr, header, image, /image
 
