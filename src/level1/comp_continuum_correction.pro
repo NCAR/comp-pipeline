@@ -170,7 +170,7 @@ pro comp_continuum_correction, date
   ; put a default 1.0 in the 1083 flat headers
   ind_1083 = where(flat_type eq '1083', n_1083)
   for f = 0L, n_1083 - 1L do begin
-    h = headers[f]
+    h = headers[ind_1083[f]]
     sxaddpar, h, 'CONTCORR', 1.0, ' continuum emission corr. to flat, eg, H2O vapor', $
               format='(F0.4)'
     sxaddpar, h, 'CONTOFF1', 0.0, $
@@ -179,7 +179,7 @@ pro comp_continuum_correction, date
     sxaddpar, h, 'CONTOFF2', 0.0, $
               ' wavelength offset for beam 2', $
               format='(F0.4)'
-    headers[f] = h
+    headers[ind_1083[f]] = h
   endfor
 
   ; write flat file
