@@ -35,6 +35,7 @@ pro comp_file_insert_file, file, wave_type, level_id, filetype_id, $
   date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                     sxpar(primary_header, 'TIME-OBS'), $
                     format='(%"%sT%s")')
+  date_obs = comp_normalize_datetime(date_obs)
 
   carrington_rotation = sxpar(primary_header, 'CARR_ROT')
 

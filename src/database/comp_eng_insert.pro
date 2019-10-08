@@ -54,6 +54,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
     date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                      sxpar(primary_header, 'TIME-OBS'), $
                      format='(%"%sT%s")')
+    date_obs = comp_normalize_datetime(date_obs)
 
     obs_id = sxpar(primary_header, 'OBS_ID', count=n_obs_id)
     if (n_obs_id eq 0L) then obs_id = ''

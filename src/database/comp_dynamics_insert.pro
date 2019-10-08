@@ -51,6 +51,7 @@ pro comp_dynamics_insert, date, wave_type, $
     date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                      sxpar(primary_header, 'TIME-OBS'), $
                      format='(%"%sT%s")')
+    date_obs = comp_normalize_datetime(date_obs)
 
     intensity_max = max(intensity)
     doppler_min = min(velocity, max=doppler_max)

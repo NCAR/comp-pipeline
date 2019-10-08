@@ -107,5 +107,5 @@ function comp_find_image_center, dat, $
   ;           y_center - ny / 2.0 - center_guess[1], $
   ;           radius]
 
-  return, p[keyword_set(elliptical) ? [0, 1, 2, 3] : [0, 2, 3]]
+  return, p[keyword_set(elliptical) ? [2, 3, 0, 1] : [2, 3, 0]]
 end
