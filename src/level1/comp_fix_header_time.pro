@@ -50,6 +50,10 @@ pro comp_fix_header_time, header
   ; add 10 hours get UT
   jd += 10. / 24.
 
+  ; add 0.5 sec so that CALDAT result for seconds can be FLOOR'ed instead of
+  ; ROUND'ed
+  jd += 0.5 / 24.0 / 60.0 / 60.0
+
   caldat, jd, utmonth, utday, utyear, uthour, utminute, utsecond
 
   utyear =   string(utyear, format='(I4)')
@@ -57,7 +61,7 @@ pro comp_fix_header_time, header
   utmonth =  string(utmonth, format='(I02)')
   uthour =   string(uthour, format='(I02)')
   utminute = string(utminute, format='(I02)')
-  utsecond = string(round(utsecond), format='(I02)')
+  utsecond = string(floor(utsecond), format='(I02)')
 
   ; construct FITS standard strings
   date_str = utyear + '-' + utmonth + '-' + utday
