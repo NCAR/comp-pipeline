@@ -67,7 +67,9 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
   ntags++   ; for the FLATEXT tag we add below
   ntags++   ; for the FLATMED tag we add below
 
-  ntags += 3 ; for CONTCORR, CONTOFF1, CONTOFF2
+  if (correct_continuum) then begin
+    ntags += 3 ; for CONTCORR, CONTOFF1, CONTOFF2
+  endif
 
   if (remove_stray_light && wave_type ne '1083') then ntags += 2   ; for FITMNLIN/FITVRLIN
 
@@ -261,19 +263,21 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
               ' median of dark and exposure corrected flat', $
               format='(F0.2)', after='FLATEXT'
 
-    contcorr = sxpar(reform(flat_header[*, iflat]), 'CONTCORR', $
-                     count=n_contcorr, comment=contcorr_comment)
-    sxaddpar, header, 'CONTCORR', contcorr, contcorr_comment, format='(F0.4)', $
-              after='FLATMED'
+    if (correct_continuum) then begin
+      contcorr = sxpar(reform(flat_header[*, iflat]), 'CONTCORR', $
+                       count=n_contcorr, comment=contcorr_comment)
+      sxaddpar, header, 'CONTCORR', contcorr, contcorr_comment, format='(F0.4)', $
+                after='FLATMED'
 
-    contoff1 = sxpar(reform(flat_header[*, iflat]), 'CONTOFF1', $
-                     count=n_contoff1, comment=contoff1_comment)
-    sxaddpar, header, 'CONTOFF1', contoff1, contoff1_comment, format='(F0.4)', $
-              after='CONTCORR'
-    contoff2 = sxpar(reform(flat_header[*, iflat]), 'CONTOFF2', $
-                     count=n_contoff2, comment=contoff2_comment)
-    sxaddpar, header, 'CONTOFF2', contoff2, contoff2_comment, format='(F0.4)', $
-              after='CONTOFF1'
+      contoff1 = sxpar(reform(flat_header[*, iflat]), 'CONTOFF1', $
+                       count=n_contoff1, comment=contoff1_comment)
+      sxaddpar, header, 'CONTOFF1', contoff1, contoff1_comment, format='(F0.4)', $
+                after='CONTCORR'
+      contoff2 = sxpar(reform(flat_header[*, iflat]), 'CONTOFF2', $
+                       count=n_contoff2, comment=contoff2_comment)
+      sxaddpar, header, 'CONTOFF2', contoff2, contoff2_comment, format='(F0.4)', $
+                after='CONTOFF1'
+    endif
 
     nonblank_ind = where(header ne blank_line, n_nonblank)
     header = header[nonblank_ind]
