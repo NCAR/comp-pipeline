@@ -60,36 +60,33 @@ pro comp_run_pipeline, config_filename=config_filename
 
   comp_setup_loggers
 
-  candidate_dirs = file_search(filepath(date_pattern, root=raw_basedir), $
-                               /test_directory, $
-                               count=n_candidate_dirs)
-  candidate_dirs = file_basename(candidate_dirs)
-  date_mask = stregex(candidate_dirs, $
-                      '^[[:digit:]]{8}$', $
-                      /boolean)
-  date_dirs_ind = where(date_mask, n_dirs)
-
-  if (n_candidate_dirs eq 0 || n_dirs eq 0) then begin
+  candidate_dates = comp_expand_date_expr(date_pattern, count=n_candidate_dates)
+  if (n_candidate_dates eq 0) then begin
     t1 = systime(/seconds)
-    mg_log, 'no days to process found in raw directory %s', $
-            raw_basedir, $
-            name='comp', /error
+    mg_log, 'no days to process', name='comp', /error
     mg_log, 'total running time: %0.2f sec', t1 - t0, name='comp', /info
     mg_log, /quit
     return
   endif
 
-  dirs = candidate_dirs[date_dirs_ind]
-
   ; ignore math errors
   orig_except = !except
   !except = 0
 
-  for d = 0L, n_dirs - 1L do begin
+  for d = 0L, n_candidate_dates - 1L do begin
     t0 = systime(/seconds)
 
     error = 0L
-    date_dir = dirs[d]
+    date_dir = candidate_dates[d]
+    if (n_elements(raw_routing_filename) gt 0L) then begin
+      raw_basedir = comp_get_route(raw_routing_filename, date_dir, found=found)
+      if (~found) then begin
+        mg_log, 'no raw basedir found for %s in routing file', $
+                date_dir, $
+                name='comp', /critical
+        goto, done
+      endif
+    endif
 
     comp_initialize, date_dir
     if (~dry_run) then comp_setup_loggers_date, date_dir
