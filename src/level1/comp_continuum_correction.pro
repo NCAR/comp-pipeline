@@ -48,6 +48,8 @@ pro comp_continuum_correction, date
     flat_type[f] = comp_find_wave_type(flat_wavelength[f], /name)
   endfor
 
+  found_correction = bytarr(n_flats)
+
   chisq_limit = 0.01
   offset_limit = 0.01
 
@@ -164,13 +166,15 @@ pro comp_continuum_correction, date
                 ' wavelength offset for beam 2', $
                 format='(F0.4)'
       headers[f] = h
+
+      found_correction[f] = 1B
     endfor
   endfor
 
   ; put a default 1.0 in the 1083 flat headers
-  ind_1083 = where(flat_type eq '1083', n_1083)
-  for f = 0L, n_1083 - 1L do begin
-    h = headers[ind_1083[f]]
+  not_found_indices = where(found_correction eq 0B, n_not_found)
+  for f = 0L, n_not_found - 1L do begin
+    h = headers[not_found_indices[f]]
     sxaddpar, h, 'CONTCORR', 1.0, ' continuum emission corr. to flat, eg, H2O vapor', $
               format='(F0.4)'
     sxaddpar, h, 'CONTOFF1', 0.0, $
@@ -179,7 +183,7 @@ pro comp_continuum_correction, date
     sxaddpar, h, 'CONTOFF2', 0.0, $
               ' wavelength offset for beam 2', $
               format='(F0.4)'
-    headers[ind_1083[f]] = h
+    headers[not_found_indices[f]] = h
   endfor
 
   ; write flat file
