@@ -63,7 +63,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     focus = sxpar(primary_header, 'FOCUS')
     o1focus = sxpar(primary_header, 'O1FOCS', count=n_o1focus)
-    o1focus = n_o1focus eq 0L ? 'NULL' : string(o1focus, format='(%"0.3f")')
+    o1focus = n_o1focus eq 0L ? 'NULL' : string(o1focus, format='(%"%0.3f")')
 
     cover = strtrim(sxpar(primary_header, 'COVER'), 2)
     opal = strtrim(sxpar(primary_header, 'OPAL'), 2)
