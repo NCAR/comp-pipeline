@@ -15,7 +15,7 @@ function comp_normalize_datetime, dt
     tokens[3] += 1L
   endif
 
-  if (tokens[3] ge 23) then begin
+  if (tokens[3] ge 24) then begin
     tokens[3] -= 24L
     tokens[2] += 1L
   endif
@@ -38,6 +38,9 @@ end
 ; main-level example
 
 dt = '2017-09-10T19:28:60'
+print, dt, comp_normalize_datetime(dt), format='(%"%s -> %s")'
+
+dt = '2017-02-13T23:00:23'
 print, dt, comp_normalize_datetime(dt), format='(%"%s -> %s")'
 
 end
