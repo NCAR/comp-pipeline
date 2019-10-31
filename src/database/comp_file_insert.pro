@@ -88,7 +88,10 @@ pro comp_file_insert_file, file, wave_type, level_id, filetype_id, $
     mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
   endif
 
-  if (n_warnings gt 0L) then comp_db_log_warnings, database=db
+  if (n_warnings gt 0L) then begin
+    comp_db_log_warnings, database=db
+    mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
+  endif
 end
 
 

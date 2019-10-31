@@ -67,7 +67,9 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                                  root=process_basedir)
 
   if (wave_type eq '1083') then begin
-    sxaddpar, primary_header, 'BACKGRND', 'NA'
+    fxaddpar, primary_header, 'BACKGRND', !values.f_nan, $
+              ' Median of masked line center background', format='(F10.3)', $
+              after='TIME_HST', /null
   endif
 
   ; write the input primary header into the output
@@ -172,7 +174,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
       endif
     endif else begin
       if (wave_type eq '1083') then begin
-        extension_background = 'NA'
+        extension_background = !values.f_nan
       endif else begin
         ; give a median background for each extension
         background = comp_get_component(images, headers, $
@@ -182,9 +184,9 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
         extension_background = median(background[where(mask eq 1.0)])
       endelse
 
-      sxaddpar, header, 'BACKGRND', extension_background, $
+      fxaddpar, header, 'BACKGRND', extension_background, $
                 ' Median of masked line center background', format='(F10.3)', $
-                after='ND-TRANS'
+                after='ND-TRANS', /null
 
       ind = where(finite(images[*, *, i]) eq 0, n_nans)
       if (n_nans gt 0L) then begin

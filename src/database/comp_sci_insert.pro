@@ -44,10 +44,12 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
     goto, done
   endelse
 
+  produce_continuum = n_bkg_files gt 0L
+
   ; just choosing the 20th L1 file right now (or the last file, if less than 20
   ; L1 files)
   science_files = l1_files[(n_l1_files < 20L) - 1L]
-  science_bkg_files = bkg_files[(n_l1_files < 20L) - 1L]
+  if (produce_continuum) then science_bkg_files = bkg_files[(n_l1_files < 20L) - 1L]
   n_science_files = n_elements(science_files)
 
   ; loop through science files
@@ -80,20 +82,28 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
     comp_extract_intensity_cube, science_files[f], $
                                  images=intensity_images, $
                                  pol_state='I'
-    comp_extract_intensity_cube, science_bkg_files[f], $
-                                 images=continuum_images, $
-                                 /background, $
-                                 pol_state='I'
+    if (produce_continuum) then begin
+      comp_extract_intensity_cube, science_bkg_files[f], $
+                                   images=continuum_images, $
+                                   /background, $
+                                   pol_state='I'
+    endif
 
     intensity_image = mean(intensity_images, dimension=3)
-    continuum_image = mean(continuum_images, dimension=3)
+    if (produce_continuum) then continuum_image = mean(continuum_images, dimension=3)
 
     intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
                                            cx=cx, cy=cy, $
                                            standard_deviation=intensity_stddev)
-    continuum = comp_extract_radial_values(continuum_image, radii, sun_pixels, $
-                                           cx=cx, cy=cy, $
-                                           standard_deviation=continuum_stddev)
+    if (produce_continuum) then begin
+      continuum = comp_extract_radial_values(continuum_image, radii, sun_pixels, $
+                                             cx=cx, cy=cy, $
+                                             standard_deviation=continuum_stddev)
+    endif else begin
+      continuum = fltarr(n_radius_steps)
+      continuum_stddev = fltarr(n_radius_steps)
+    endelse
+
     east_intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
                                                 limb='east', $
                                                 cx=cx, cy=cy, $
@@ -105,8 +115,12 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     r11_intensity = comp_annulus_gridmeans(intensity_image, 1.1, sun_pixels, $
                                            nbins=720, width=0.02)
-    r11_continuum = comp_annulus_gridmeans(continuum_image, 1.1, sun_pixels, $
-                                           nbins=720, width=0.02)
+    if (produce_continuum) then begin
+      r11_continuum = comp_annulus_gridmeans(continuum_image, 1.1, sun_pixels, $
+                                             nbins=720, width=0.02)
+    endif else begin
+      r11_continuum = fltarr(720)
+    endelse
     r12_intensity = comp_annulus_gridmeans(intensity_image, 1.2, sun_pixels, $
                                            nbins=720, width=0.02)
 
@@ -164,4 +178,22 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   done:
   mg_log, 'done', name='comp', /info
+end
+
+; main-level example program
+
+wave_type = '1083'
+
+date = '20170213'
+config_filename = filepath('comp.elliptic.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_initialize, date
+comp_configuration, config_filename=config_filename
+
+l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
+bkg_files = comp_find_l1_file(date, wave_type, /all, count=n_bkg_files, /background)
+help, l1_files, n_l1_files
+help, bkg_files, n_bkg_files
+
 end

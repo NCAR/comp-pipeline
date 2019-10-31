@@ -149,12 +149,12 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
               {name: 'exposure', type: '%f'}, $
               {name: 'nd', type: '%d'}, $
-              {name: 'background', type: '%f'}, $
+              {name: 'background', type: '''%s'''}, $
 
-              {name: 'bodytemp', type: '%f'}, $
-              {name: 'basetemp', type: '%f'}, $
-              {name: 'optrtemp', type: '%f'}, $
-              {name: 'lcvr4temp', type: '%f'}, $
+              {name: 'bodytemp', type: '''%s'''}, $
+              {name: 'basetemp', type: '''%s'''}, $
+              {name: 'optrtemp', type: '''%s'''}, $
+              {name: 'lcvr4temp', type: '''%s'''}, $
 
               {name: 'occulter_id', type: '''%s'''}, $
 
@@ -203,12 +203,12 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
                  exposure, $
                  ndfilter, $
-                 background, $
+                 comp_db_float2str(background), $
 
-                 bodytemp, $
-                 basetemp, $
-                 optrtemp, $
-                 lcvr4temp, $
+                 comp_db_float2str(bodytemp), $
+                 comp_db_float2str(basetemp), $
+                 comp_db_float2str(optrtemp), $
+                 comp_db_float2str(lcvr4temp), $
 
                  occulter_id, $
 
@@ -219,7 +219,9 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
                  sql_statement=final_sql_cmd, $
                  n_warnings=n_warnings
     if (status ne 0L) then begin
-      mg_log, 'error inserting into comp_eng table', name='comp', /error
+      mg_log, 'error inserting %s into comp_eng table', $
+              file_basename(l1_files[f]), $
+              name='comp', /error
       mg_log, 'status: %d, error message: %s', status, error_message, $
               name='comp', /error
       mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
@@ -230,4 +232,31 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
   done:
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+@comp_config_common
+
+date = '20170213'
+wave_type = '1083'
+config_filename = filepath('comp.elliptic.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_initialize, date
+comp_configuration, config_filename=config_filename
+
+db = mgdbmysql()
+db->connect, config_filename=database_config_filename, $
+             config_section=database_config_section, $
+             status=status, error_message=error_message
+obsday_index = mlso_obsday_insert(date, $
+                                  database_config_filename, $
+                                  database_config_section, $
+                                  database=db)
+comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
+
+obj_destroy, db
+
 end
