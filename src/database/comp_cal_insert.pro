@@ -253,7 +253,9 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
                    sql_statement=final_sql_cmd, $
                    n_warnings=n_warnings
       if (status ne 0L) then begin
-        mg_log, 'error inserting into comp_cal table', name='comp', /error
+        mg_log, 'error inserting %s into comp_cal table', $
+                cal_basenames[f], $
+                name='comp', /error
         mg_log, 'status: %d, error message: %s', status, error_message, $
                 name='comp', /error
         mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error

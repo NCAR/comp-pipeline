@@ -81,7 +81,9 @@ pro comp_dynamics_insert, date, wave_type, $
                  sql_statement=final_sql_cmd, $
                  n_warnings=n_warnings
     if (status ne 0L) then begin
-      mg_log, 'error inserting into comp_dynamics table', name='comp', /error
+      mg_log, 'error inserting %s into comp_dynamics table', $
+              file_basename(dynamics_files[f]), $
+              name='comp', /error
       mg_log, 'status: %d, error message: %s', status, error_message, $
               name='comp', /error
       mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
