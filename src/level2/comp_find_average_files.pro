@@ -489,11 +489,13 @@ function comp_find_average_files, date_dir, wave_type, $
       min_n_cluster_files = averaging_min_n_cluster_synoptic_files[min_c]
       for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
         cadence_interval = averaging_max_cadence_interval[mci]
-        cadence_interval /= 60.0D * 60.0D * 24.0D
 
-        mg_log, 'searching for at least %d I files with cadence interval %0.1f sec', $
+        mg_log, 'searching for >= %d I files with cadence %0.1f sec', $
                 min_n_cluster_files, cadence_interval, $
                 name='comp', /debug
+
+        ; convert to days
+        cadence_interval /= 60.0D * 60.0D * 24.0D
 
         i_files = comp_find_average_files_nogap(list_filename, 'i', flat_times, $
                                                 min_n_cluster_files=min_n_cluster_files, $
