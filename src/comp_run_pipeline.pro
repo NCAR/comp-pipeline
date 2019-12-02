@@ -88,6 +88,12 @@ pro comp_run_pipeline, config_filename=config_filename
       endif
     endif
 
+    if (~file_test(filepath(date_dir, root=raw_basedir), /directory)) then begin
+      mg_log, 'no raw base directory for %s, skipping', date_dir, $
+              name='comp', /warn
+      continue
+    endif
+
     comp_initialize, date_dir
     if (~dry_run) then comp_setup_loggers_date, date_dir
     if (lock_raw) then begin
