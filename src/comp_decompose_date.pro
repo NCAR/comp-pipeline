@@ -4,11 +4,12 @@
 ; Decompose a date string into year, month, day.
 ;
 ; :Returns:
-;   `strarr(3)`
+;   `strarr(3)` or `strarr(n, 3)` where `n` is the number of date strings passed
+;   in through `date`
 ;
 ; :Params:
-;   date : in, required, type=string
-;     date in the form "20150801"
+;   date : in, required, type=string or strarr(n)
+;     date(s) in the form "20150801"
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -20,5 +21,5 @@ function comp_decompose_date, date
   month = strmid(date, 4, 2)
   day = strmid(date, 6, 2)
 
-  return, [year, month, day]
+  return, reform([[year], [month], [day]])
 end
