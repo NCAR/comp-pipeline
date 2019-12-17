@@ -65,23 +65,20 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   date = string(start_dt, end_dt, format=date_range_fmt)
   !null = label_date(date_format='%Y-%N-%D')
 
-  window, xsize=2 * xsize, ysize=2 * ysize, title=date, /free
-  !p.multi = [0, 2, 2]
+  window, xsize=xsize, ysize=2 * ysize, title=date, /free
+  !p.multi = [0, 1, 2]
 
-  plot, jds[good_indices], uncorr_radii[good_indices, 0], /nodata, $
-        xstyle=1, xtickformat='label_date', xticks=8, $
-        yrange=_yrange, ystyle=1, $
-        title=string(date, wave_types[0], $
-                     format='(%"%s [wave type: %s] - ORADU1 (not dist corrected)")')
-  oplot, jds[good_indices], uncorr_radii[good_indices, 0], color='00ffff'x, psym=psym
-  oplot, jds[good_indices], uncorr_radii[good_indices, 1], color='0000ff'x, psym=psym
+;  plot, jds[good_indices], uncorr_radii[good_indices, 0], /nodata, $
+;        xstyle=1, xtickformat='label_date', xticks=8, $
+;        yrange=_yrange, ystyle=1, $
+;        title=string(date, wave_types[0], $
+;                     format='(%"%s [wave type: %s] - ORADU1 (not dist corrected)")')
+;  oplot, jds[good_indices], uncorr_radii[good_indices, 0], color='00ffff'x, psym=psym
+;  oplot, jds[good_indices], uncorr_radii[good_indices, 1], color='0000ff'x, psym=psym
   ;for o = 0L, n_occulter_changes - 1L do begin
   ;  oplot, dblarr(2) + jds[occulter_change_indices[o]], !y.crange, $
   ;         color='00ff00'x
   ;endfor
-
-  xyouts, 0.05, 0.94, /normal, 'width', color='00ffff'x
-  xyouts, 0.05, 0.92, /normal, 'height', color='0000ff'x
 
   plot, jds[good_indices], distcorr_radii[good_indices, 0], /nodata, $
         xstyle=1, xtickformat='label_date', xticks=8, $
@@ -95,13 +92,16 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   ;         color='00ff00'x
   ;endfor
 
-  plot, jds[good_indices], uncorr_radii[good_indices, 2], /nodata, $
-        xstyle=1, xtickformat='label_date', xticks=8, $
-        yrange=_yrange, ystyle=1, $
-        title=string(date, wave_types[0], $
-                     format='(%"%s [wave type: %s] - ORADU2 (not dist corrected)")')
-  oplot, jds[good_indices], uncorr_radii[good_indices, 2], color='00ffff'x, psym=psym
-  oplot, jds[good_indices], uncorr_radii[good_indices, 3], color='0000ff'x, psym=psym
+  xyouts, 0.1, 0.94, /normal, 'width', color='00ffff'x
+  xyouts, 0.1, 0.92, /normal, 'height', color='0000ff'x
+
+;  plot, jds[good_indices], uncorr_radii[good_indices, 2], /nodata, $
+;        xstyle=1, xtickformat='label_date', xticks=8, $
+;        yrange=_yrange, ystyle=1, $
+;        title=string(date, wave_types[0], $
+;                     format='(%"%s [wave type: %s] - ORADU2 (not dist corrected)")')
+;  oplot, jds[good_indices], uncorr_radii[good_indices, 2], color='00ffff'x, psym=psym
+;  oplot, jds[good_indices], uncorr_radii[good_indices, 3], color='0000ff'x, psym=psym
   ;for o = 0L, n_occulter_changes - 1L do begin
   ;  oplot, dblarr(2) + jds[occulter_change_indices[o]], !y.crange, $
   ;         color='00ff00'x
@@ -119,17 +119,61 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   ;         color='00ff00'x
   ;endfor
 
+  window, xsize=2*xsize, ysize=2 * ysize, title=date, /free
+  !p.multi = [0, 2, 2]
+
+  nbins = 100
+
+  h = histogram(distcorr_radii[good_indices, 0], nbins=nbins, locations=locs)
+  mg_histplot, locs, h, color='00ffff'x, /fill, $
+               title=string(date, wave_types[0], $
+                            format='(%"Width: %s [wave type: %s] - ORADIUS1 (dist corrected)")')
+
+  h = histogram(distcorr_radii[good_indices, 1], nbins=nbins, locations=locs)
+  mg_histplot, locs, h, color='0000ff'x, /fill, $
+               title=string(date, wave_types[0], $
+                            format='(%"Height: %s [wave type: %s] - ORADIUS1 (dist corrected)")')
+
+  h = histogram(distcorr_radii[good_indices, 2], nbins=nbins, locations=locs)
+  mg_histplot, locs, h, color='00ffff'x, /fill, $
+               title=string(date, wave_types[0], $
+                            format='(%"Width: %s [wave type: %s] - ORADIUS2 (dist corrected)")')
+
+  h = histogram(distcorr_radii[good_indices, 3], nbins=nbins, locations=locs)
+  mg_histplot, locs, h, color='0000ff'x, /fill, $
+               title=string(date, wave_types[0], $
+                            format='(%"Height: %s [wave type: %s] - ORADIUS2 (dist corrected)")')
+
   !p.multi = 0
 end
 
 
 ; main-level example program
 
-start_date = '20170317'
-end_date = '20170607'
-yrange = [228.0, 232.0]
-;date = '20170713'
-;date = '20171031'
+; winter occulter
+;yrange = [229.0, 234.5]
+;start_date = '20170101'
+;end_date = '20170317'
+
+; spring/fall occulter
+;yrange = [228.0, 231.5]
+;start_date = '20170317'
+;end_date = '20170607'
+
+; summer occulter
+;yrange = [225.0, 228.5]
+;start_date = '20170607'
+;end_date = '20170910'
+
+; spring/fall occulter
+;yrange = [228.0, 231.5]
+;start_date = '20170911'
+;end_date = '20171030'
+
+; winter occulter
+yrange = [231.5, 234.5]
+start_date = '20171031'
+end_date = '20171231'
 
 comp_plot_radii, 'comp-2017-radii.csv', $
                  start_date=start_date, end_date=end_date, $
