@@ -76,7 +76,8 @@ function comp_find_image_center, dat, $
 
   x = reform(points[0, *])
   y = reform(points[1, *])
-  p = mpfitellipse(x, y, circular=~keyword_set(elliptical), /quiet, status=status)
+  p = mpfitellipse(x, y, circular=~keyword_set(elliptical), tilt=keyword_set(elliptical), $
+                   /quiet, status=status)
   error = status le 0
 
   ;radius   = p[0]
@@ -107,5 +108,5 @@ function comp_find_image_center, dat, $
   ;           y_center - ny / 2.0 - center_guess[1], $
   ;           radius]
 
-  return, p[keyword_set(elliptical) ? [2, 3, 0, 1] : [2, 3, 0]]
+  return, p[keyword_set(elliptical) ? [2, 3, 0, 1, 4] : [2, 3, 0]]
 end

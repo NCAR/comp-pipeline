@@ -101,7 +101,9 @@ pro comp_find_annulus, im, occulter, field, $
   endif
 
    if (keyword_set(elliptical)) then begin
-     occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2], r2: c_occulter[3]}
+     occulter = {x:c_occulter[0], y:c_occulter[1], $
+                 r:c_occulter[2], r2: c_occulter[3], $
+                 tilt: c_occulter[4]}
    endif else begin
      occulter = {x:c_occulter[0], y:c_occulter[1], r:c_occulter[2]}
    endelse

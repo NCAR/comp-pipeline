@@ -208,6 +208,8 @@ pro comp_make_header, image, header, date_dir, $
   if (keyword_set(elliptical_occulter)) then begin
     sxaddpar, header, 'ORAD1-2', occulter1.r2, $
               ' Occulter radius for dist corrected sub-image 1'
+    sxaddpar, header, 'OTILT1', occulter1.tilt, $
+              ' tilt of ellipse for dist corrected sub-image 1'
   endif
   sxaddpar, header, 'OXCNTER2', occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for dist corrected sub-image 2'
@@ -218,6 +220,8 @@ pro comp_make_header, image, header, date_dir, $
   if (keyword_set(elliptical_occulter)) then begin
     sxaddpar, header, 'ORAD2-2', occulter2.r2, $
               ' Occulter radius for dist corrected sub-image 2'
+    sxaddpar, header, 'OTILT2', occulter1.tilt, $
+              ' tilt of ellipse for dist corrected sub-image 2'
   endif
 
   sxaddpar, header, 'OXCNTRU1', uncorrected_occulter1.x + 1.0, $
@@ -229,6 +233,8 @@ pro comp_make_header, image, header, date_dir, $
   if (keyword_set(elliptical_occulter)) then begin
     sxaddpar, header, 'ORADU1-2', uncorrected_occulter1.r2, $
               ' Occulter radius for dist uncorrected sub-image 1'
+    sxaddpar, header, 'OTILTU1', uncorrected_occulter1.tilt, $
+              ' tilt of ellipse for dist uncorrected sub-image 1'
   endif
   sxaddpar, header, 'OXCNTRU2', uncorrected_occulter2.x + 1.0 + 1024 - nx, $
             ' Occulter center X for dist uncorrected sub-image 2'
@@ -239,6 +245,8 @@ pro comp_make_header, image, header, date_dir, $
   if (keyword_set(elliptical_occulter)) then begin
     sxaddpar, header, 'ORADU2-2', uncorrected_occulter2.r2, $
               ' Occulter radius for dist uncorrected sub-image 2'
+    sxaddpar, header, 'OTILTU2', uncorrected_occulter2.tilt, $
+              ' tilt of ellipse for dist uncorrected sub-image 2'
   endif
 
   ; field position
