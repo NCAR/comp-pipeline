@@ -20,9 +20,9 @@ pro comp_make_elliptical_db, wave_type, config_filename, output_filename
 
   printf, lun, $
           'date', 'time', 'wave_name', 'wavelength', 'beam', 'occulter', $
-          'ORADIUS1', 'ORAD1-2', 'ORADIUS2', 'ORAD2-2', $
-          'ORADU1', 'ORADU1-2', 'ORADU2', 'ORADU2-2', $
-          format='(%"%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s")'
+          'ORADIUS1', 'ORAD1-2', 'ORADIUS2', 'ORAD2-2', 'OTILT1', 'OTILT2', $
+          'ORADU1', 'ORADU1-2', 'ORADU2', 'ORADU2-2', 'OTILTU1', 'OTILTU2', $
+          format='(%"%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s")'
 
   n_summary_exts = 3L
 
@@ -44,7 +44,9 @@ pro comp_make_elliptical_db, wave_type, config_filename, output_filename
     endif
 
     distcorr_radii = fltarr(fcb.nextend - n_summary_exts, 4)
+    distcorr_tilt = fltarr(fcb.nextend - n_summary_exts, 2)
     uncorr_radii = fltarr(fcb.nextend - n_summary_exts, 4)
+    uncorr_tilt = fltarr(fcb.nextend - n_summary_exts, 2)
     beam = lonarr(fcb.nextend - n_summary_exts)
     occulter = strarr(fcb.nextend - n_summary_exts)
 
@@ -54,11 +56,14 @@ pro comp_make_elliptical_db, wave_type, config_filename, output_filename
                                    sxpar(header, 'ORAD1-2'), $
                                    sxpar(header, 'ORADIUS2'), $
                                    sxpar(header, 'ORAD2-2')]
-
+      distcorr_tilt[e - 1L, *] = [sxpar(header, 'OTILT1'), $
+                                  sxpar(header, 'OTILT2')]
       uncorr_radii[e - 1L, *] = [sxpar(header, 'ORADU1'), $
                                  sxpar(header, 'ORADU1-2'), $
                                  sxpar(header, 'ORADU2'), $
                                  sxpar(header, 'ORADU2-2')]
+      uncorr_tilt[e - 1L, *] = [sxpar(header, 'OTILTU1'), $
+                                sxpar(header, 'OTILTU2')]
       beam[e - 1L] = sxpar(header, 'BEAM')
       occulter[e - 1L] = sxpar(header, 'OCCLTRID')
     endfor
@@ -86,7 +91,9 @@ pro comp_make_elliptical_db, wave_type, config_filename, output_filename
     endif
 
     distcorr_radii = distcorr_radii[indices, *]
+    distcorr_tilt = distcorr_tilt[indices, *]
     uncorr_radii = uncorr_radii[indices, *]
+    uncorr_tilt = uncorr_tilt[indices, *]
     times = times[indices]
     beam = beam[indices]
     wavelengths = wavelengths[indices]
@@ -96,8 +103,9 @@ pro comp_make_elliptical_db, wave_type, config_filename, output_filename
     for t = 0L, n_elements(times) - 1L do begin
       printf, lun, $
               date, times[t], wave_name, wavelengths[t], beam[t], occulter[t], $
-              distcorr_radii[t, *], uncorr_radii[t, *], $
-              format='(%"%s, %f, %s, %f, %d, %s, %f, %f, %f, %f, %f, %f, %f, %f")'
+              distcorr_radii[t, *], distcorr_tilt[t, *], $
+              uncorr_radii[t, *], uncorr_tilt[t, *], $
+              format='(%"%s, %f, %s, %f, %d, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f")'
     endfor
   endfor
 
