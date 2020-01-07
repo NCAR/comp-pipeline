@@ -3,9 +3,9 @@
 pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=yrange
   compile_opt strictarr
 
-  types = ['date', 'float', 'string', 'float', 'long', $   ;'string', $
-           'float', 'float', 'float', 'float', $
-           'float', 'float', 'float', 'float']
+  types = ['date', 'float', 'string', 'float', 'long', 'string', $
+           'float', 'float', 'float', 'float', 'float', 'float', $
+           'float', 'float', 'float', 'float', 'float', 'float']
   data = read_csv(radii_db, types=types)
 
   dates = data.field01
@@ -18,16 +18,24 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   n_rows = n_elements(dates)
 
   distcorr_radii = fltarr(n_rows, 4)
-  distcorr_radii[*, 0] = data.field06
-  distcorr_radii[*, 1] = data.field07
-  distcorr_radii[*, 2] = data.field08
-  distcorr_radii[*, 3] = data.field09
+  distcorr_radii[*, 0] = data.field07
+  distcorr_radii[*, 1] = data.field08
+  distcorr_radii[*, 2] = data.field09
+  distcorr_radii[*, 3] = data.field10
+
+  distcorr_tilt = fltarr(n_rows, 2)
+  distcorr_tilt[*, 0] = data.field11
+  distcorr_tilt[*, 1] = data.field12
 
   uncorr_radii = fltarr(n_rows, 4)
-  uncorr_radii[*, 0] = data.field10
-  uncorr_radii[*, 1] = data.field11
-  uncorr_radii[*, 2] = data.field12
-  uncorr_radii[*, 3] = data.field13
+  uncorr_radii[*, 0] = data.field13
+  uncorr_radii[*, 1] = data.field14
+  uncorr_radii[*, 2] = data.field15
+  uncorr_radii[*, 3] = data.field16
+
+  uncorr_tilt = fltarr(n_rows, 2)
+  uncorr_tilt[*, 0] = data.field17
+  uncorr_tilt[*, 1] = data.field18
 
   ymd = long(comp_decompose_date(dates))
   jds = julday(ymd[*, 1], ymd[*, 2], ymd[*, 0], times)
@@ -92,8 +100,8 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   ;         color='00ff00'x
   ;endfor
 
-  xyouts, 0.1, 0.94, /normal, 'width', color='00ffff'x
-  xyouts, 0.1, 0.92, /normal, 'height', color='0000ff'x
+  xyouts, 0.1, 0.94, /normal, 'major axis', color='00ffff'x
+  xyouts, 0.1, 0.92, /normal, 'minor axis', color='0000ff'x
 
 ;  plot, jds[good_indices], uncorr_radii[good_indices, 2], /nodata, $
 ;        xstyle=1, xtickformat='label_date', xticks=8, $
@@ -119,7 +127,44 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   ;         color='00ff00'x
   ;endfor
 
-  window, xsize=2*xsize, ysize=2 * ysize, title=date, /free
+  window, xsize=xsize, ysize=2 * ysize, title=date, /free
+  !p.multi = [0, 1, 2]
+
+  plot, jds[good_indices], $
+        distcorr_radii[good_indices, 0] - distcorr_radii[good_indices, 1], $
+        xstyle=1, xtickformat='label_date', xticks=8, $
+        yrange=[-0.5, 2.0], ystyle=1, $
+        psym=4, $
+        title=string(date, wave_types[0], $
+                     format='(%"Major - minor difference: %s [wave_type: %s] - ORADIUS1 (dist corrected)")')
+
+  plot, jds[good_indices], $
+        distcorr_radii[good_indices, 2] - distcorr_radii[good_indices, 3], $
+        xstyle=1, xtickformat='label_date', xticks=8, $
+        yrange=[-0.5, 2.0], ystyle=1, $
+        psym=4, $
+        title=string(date, wave_types[0], $
+                     format='(%"Major - minor difference: %s [wave_type: %s] - ORADIUS2 (dist corrected)")')
+
+  window, xsize=xsize, ysize=2 * ysize, title=date, /free
+  !p.multi = [0, 1, 2]
+
+  plot, jds[good_indices], distcorr_tilt[good_indices, 0], $
+        xstyle=1, xtickformat='label_date', xticks=8, $
+        yrange=[-5.0, 5.0], ystyle=1, $
+        psym=4, $
+        title=string(date, wave_types[0], $
+                     format='(%"%s [wave_type: %s] - Tilt 1 (dist corrected)")')
+
+  plot, jds[good_indices], distcorr_tilt[good_indices, 1], $
+        xstyle=1, xtickformat='label_date', xticks=8, $
+        yrange=[-5.0, 5.0], ystyle=1, $
+        psym=4, $
+        title=string(date, wave_types[0], $
+                     format='(%"%s [wave_type: %s] - Tilt 2 (dist corrected)")')
+
+
+  window, xsize=2 * xsize, ysize=2 * ysize, title=date, /free
   !p.multi = [0, 2, 2]
 
   nbins = 100
@@ -127,22 +172,22 @@ pro comp_plot_radii, radii_db, start_date=start_date, end_date=end_date, yrange=
   h = histogram(distcorr_radii[good_indices, 0], nbins=nbins, locations=locs)
   mg_histplot, locs, h, color='00ffff'x, /fill, $
                title=string(date, wave_types[0], $
-                            format='(%"Width: %s [wave type: %s] - ORADIUS1 (dist corrected)")')
+                            format='(%"Major axis: %s [wave type: %s] - ORADIUS1 (dist corrected)")')
 
   h = histogram(distcorr_radii[good_indices, 1], nbins=nbins, locations=locs)
   mg_histplot, locs, h, color='0000ff'x, /fill, $
                title=string(date, wave_types[0], $
-                            format='(%"Height: %s [wave type: %s] - ORADIUS1 (dist corrected)")')
+                            format='(%"Minor axis: %s [wave type: %s] - ORADIUS1 (dist corrected)")')
 
   h = histogram(distcorr_radii[good_indices, 2], nbins=nbins, locations=locs)
   mg_histplot, locs, h, color='00ffff'x, /fill, $
                title=string(date, wave_types[0], $
-                            format='(%"Width: %s [wave type: %s] - ORADIUS2 (dist corrected)")')
+                            format='(%"Major axis: %s [wave type: %s] - ORADIUS2 (dist corrected)")')
 
   h = histogram(distcorr_radii[good_indices, 3], nbins=nbins, locations=locs)
   mg_histplot, locs, h, color='0000ff'x, /fill, $
                title=string(date, wave_types[0], $
-                            format='(%"Height: %s [wave type: %s] - ORADIUS2 (dist corrected)")')
+                            format='(%"Minor axis: %s [wave type: %s] - ORADIUS2 (dist corrected)")')
 
   !p.multi = 0
 end
