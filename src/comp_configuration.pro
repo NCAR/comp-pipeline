@@ -185,6 +185,10 @@ pro comp_configuration, config_filename=config_filename, error=error
             name='comp', /critical
     error = 1B
   endif
+  add_uncorrected_velocity = config->get('add_uncorrected_velocity', $
+                                         section='options', $
+                                         /boolean, $
+                                         default=0B)
 
 
   ; flats

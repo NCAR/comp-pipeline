@@ -208,11 +208,13 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     bad_pixels = where(bad_pixels_mask, n_bad_pixels)
     if (n_bad_pixels gt 0L) then begin
+      temp_velo[bad_pixels] = 0.0D
       temp_corr_velo[bad_pixels] = 0.0D
       temp_line_width[bad_pixels] = 0.0D
     endif
 
     temp_int[thresh_masked]        = 0D
+    temp_velo[thresh_masked]  = 0D
     temp_corr_velo[thresh_masked]  = 0D
     temp_line_width[thresh_masked] = 0D
     int_enh[thresh_masked]         = 0.0D
@@ -272,6 +274,18 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                       max(temp_line_width)])
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_line_width), extension_header, /append
+
+    if (add_uncorrected_velocity) then begin
+      ; uncorrected LOS velocity
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
+                                             /exten, $
+                                             extname='Corrected LOS velocity', $
+                                             datminmax=[min(temp_velo), $
+                                                        max(temp_velo)])
+      sxdelpar, extension_header, 'SIMPLE'
+      writefits, outfilename, float(temp_velo), extension_header, /append
+    endif
 
     zip_cmd = string(outfilename, format='(%"gzip -f %s")')
     spawn, zip_cmd, result, error_result, exit_status=status

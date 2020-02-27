@@ -210,16 +210,23 @@ pro comp_quick_invert, date_dir, wave_type, $
             name='comp', /warn
   endif
   corrected_dop = reform(post_corr[*, *, 1])
+  dop[zero] = !values.f_nan
   corrected_dop[zero] = !values.f_nan
 
   good_pixel_mask = (i2 gt int_min_thresh) and (i2 lt int_max_thresh) $
                       and (i1 gt 0.01) and (i3 gt 0.01)
   good_pixels = where(good_pixel_mask, complement=bad_pixels, ncomplement=n_bad_pixels)
-  if (n_bad_pixels gt 0L) then corrected_dop[bad_pixels] = !values.f_nan
+  if (n_bad_pixels gt 0L) then begin
+    dop[bad_pixels] = !values.f_nan
+    corrected_dop[bad_pixels] = !values.f_nan
+  endif
 
   ; difference between calculated peak intensity and measured is not too great
   ind = where(abs(i_cent - i2) gt 1.5 * i2, count)
-  if (count gt 0L) then corrected_dop[ind] = !values.f_nan
+  if (count gt 0L) then begin
+    dop[ind] = !values.f_nan
+    corrected_dop[ind] = !values.f_nan
+  endif
 
   ; write fit parameters to output file
 
@@ -273,6 +280,12 @@ pro comp_quick_invert, date_dir, wave_type, $
   sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' MINIMUM DATA VALUE'
   sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' MAXIMUM DATA VALUE'
   fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
+
+  if (add_uncorrected_velocity) then begin
+    sxaddpar, header, 'DATAMIN', min(dop, /nan), ' MINIMUM DATA VALUE'
+    sxaddpar, header, 'DATAMAX', max(dop, /nan), ' MAXIMUM DATA VALUE'
+    fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
+  endif
 
   fits_close, fcbout
 
