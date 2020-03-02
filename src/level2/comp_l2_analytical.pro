@@ -214,7 +214,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     endif
 
     temp_int[thresh_masked]        = 0D
-    temp_velo[thresh_masked]  = 0D
     temp_corr_velo[thresh_masked]  = 0D
     temp_line_width[thresh_masked] = 0D
     int_enh[thresh_masked]         = 0.0D
@@ -280,7 +279,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
-                                             extname='Corrected LOS velocity', $
+                                             extname='Uncorrected LOS velocity', $
                                              datminmax=[min(temp_velo), $
                                                         max(temp_velo)])
       sxdelpar, extension_header, 'SIMPLE'
