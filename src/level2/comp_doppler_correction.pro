@@ -49,16 +49,21 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
     sub_good = where(fit_arr_in[i, *, 0] ge int_min_thresh + 1 $
                        and fit_arr_in[i, *, 1] gt 0, $
                      n_good)
+
+    ; TODO: should be "ge 10L"?
     if (n_good ne 10L) then begin
       residualtrend[i] = median([fit_arr_in[i, sub_good, 1]])
     endif else residualtrend[i] = rest
   endfor
 
-  sub_abnor = where(abs(residualtrend - rest) ge 0.4)
-  if (sub_abnor[0] ne -1) then residualtrend[sub_abnor] = rest
+  ; set values that differ by > 0.4 to the rest wavelength
+  sub_abnor = where(abs(residualtrend - rest) ge 0.4, n_sub_abnor)
+  if (n_sub_abnor gt 0L) then residualtrend[sub_abnor] = rest
+
   sub_eff = where(residualtrend ne rest, n_eff)
   s1 = sub_eff[0]
   s2 = sub_eff[n_eff - 1]
+
   ; median filter of the east-west trend
   residualtrend = fmedian(residualtrend, 20)
   if (size(x[s1:s2]))[1] gt 1 then begin
@@ -66,11 +71,13 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
     r = poly_fit(x[s1:s2], residualtrend[s1:s2], 5, /double)
     ewtrend = poly(x, r)
     resitren = reform(ewtrend) # (fltarr(ny) + 1)
+
     ; eliminate the east-west trend
     fit_arr_in[*, *, 1] = reform(fit_arr_in[*, *, 1]) - resitren
   endif
 
-  sub = where(reform(fit_arr_in[*,*,0]) ge int_min_thresh + 1) ;exclude pixels with no data or low S/N data
+  ; exclude pixels with no data or low S/N data
+  sub = where(reform(fit_arr_in[*, *, 0]) ge int_min_thresh + 1)
   if ((size(sub))[0] eq 1) then begin
     ; may select proper ranges to avoid eruptive events, e.g.,
     ; v1=reform(fit_arr_in[300:610,0:619,1,t])
