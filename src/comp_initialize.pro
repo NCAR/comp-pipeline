@@ -150,6 +150,10 @@ pro comp_initialize, date_dir
   center1079 = comp_initialize_readconfig('center_1079', date_dir, options, type=4)
   center1083 = comp_initialize_readconfig('center_1083', date_dir, options, type=4)
 
+  offset_1074 = comp_initialize_readconfig('offset_1074', date_dir, options, type=4)
+  offset_1079 = comp_initialize_readconfig('offset_1079', date_dir, options, type=4)
+  offset_1083 = comp_initialize_readconfig('offset_1083', date_dir, options, type=4)
+
   wavelengths_3pt_1074 = comp_initialize_readconfig('1074_3pt_wavelengths', $
                                                     date_dir, options, $
                                                     type=4, /extract)
