@@ -411,16 +411,16 @@ pro comp_average, date_dir, wave_type, $
       mg_log, 'writing median...', name='comp', /debug
       ; write Stokes parameters to output files
       if (compute_median) then begin
-        sxaddpar, header, ' DATAMIN', min(med, /nan), ' MINIMUM DATA VALUE'
-        sxaddpar, header, 'DATAMAX', max(med, /nan), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMIN', min(med, /nan), ' minimum data value', format='(F0.3)'
+        sxaddpar, header, 'DATAMAX', max(med, /nan), ' maximum data value', format='(F0.3)'
 
         fits_write, fcbmed, med, header, extname=ename
       endif
 
       mg_log, 'writing mean...', name='comp', /debug
       if (compute_mean) then begin
-        sxaddpar, header, 'DATAMIN', min(aver, /nan), ' MINIMUM DATA VALUE'
-        sxaddpar, header, 'DATAMAX', max(aver, /nan), ' MAXIMUM DATA VALUE'
+        sxaddpar, header, 'DATAMIN', min(aver, /nan), ' minimum data value', format='(F0.3)'
+        sxaddpar, header, 'DATAMAX', max(aver, /nan), ' maximum data value', format='(F0.3)'
 
         fits_write, fcbavg, aver, header, extname=ename
       endif
@@ -452,9 +452,9 @@ pro comp_average, date_dir, wave_type, $
                   ' Number of files used', $
                   after='NAVERAGE'
         sxaddpar, header, 'DATAMIN', min(back[*, *, s, w], /nan), $
-                  ' Minimum data value'
+                  ' minimum data value', format='(F0.3)'
         sxaddpar, header, 'DATAMAX', max(back[*, *, s, w], /nan), $
-                  ' Maximum data value'
+                  ' maximum data value', format='(F0.3)'
         sxaddpar, header, 'POLSTATE', string(stokes[s], format='(%"BKG%s")')
         ename = string(stokes[s], waves[w], format='(%"B%s, %7.2f")')
         if (compute_median) then begin
@@ -480,9 +480,9 @@ pro comp_average, date_dir, wave_type, $
                 ' Number of files used', $
                 after='NAVERAGE'
       sxaddpar, header, 'DATAMIN', min(back[*, *, w], /nan), $
-                ' Minimum data value'
+                ' minimum data value', format='(F0.3)'
       sxaddpar, header, 'DATAMAX', max(back[*, *, w], /nan), $
-                ' Maximum data value'
+                ' maximum data value', format='(F0.3)'
       sxaddpar, header, 'POLSTATE', 'BKG'
       ename = 'B, ' + string(waves[w], format='(f7.2)')
 

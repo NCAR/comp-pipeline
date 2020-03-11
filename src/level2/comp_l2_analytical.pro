@@ -48,9 +48,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   wave = wave_type
 
   case wave_type of
-    '1074': rest = double(center1074)
-    '1079': rest = double(center1079)
-    '1083': rest = double(center1083)
+    '1074': rest = double(center1074) - offset_1074
+    '1079': rest = double(center1079) - offset_1079
+    '1083': rest = double(center1083) - offset_1083
   endcase
   c = 299792.458D
 
@@ -156,8 +156,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           sub_bad = where(profile le 0, n_bad)
           if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
-          if (profile[1] gt int_min_thresh && profile[1] lt int_max_thresh $
-                && profile[0] gt 0.0 && profile[2] gt 0.0) then begin
+          if (profile[1] gt int_min_thresh $
+              && profile[1] lt int_max_thresh $
+              && profile[0] gt 0.01 $
+              && profile[2] gt 0.01 $
+              && profile[0] lt int_max_thresh $
+              && profile[1] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
           endif else begin
             bad_pixels_mask[xx, yy] = 1B
@@ -212,6 +216,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       temp_corr_velo[bad_pixels] = 0.0D
       temp_line_width[bad_pixels] = 0.0D
     endif
+
+    ; convert temp_velo from wavelength to velocity
+    temp_velo = (temp_velo - rest) * c / rest
 
     temp_int[thresh_masked]        = 0D
     temp_corr_velo[thresh_masked]  = 0D
@@ -282,6 +289,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                              extname='Uncorrected LOS velocity', $
                                              datminmax=[min(temp_velo), $
                                                         max(temp_velo)])
+      sxaddpar, extension_header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(temp_velo), extension_header, /append
     endif

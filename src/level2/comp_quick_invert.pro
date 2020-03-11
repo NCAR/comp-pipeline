@@ -158,9 +158,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   sxaddpar, primary_header, 'N_EXT', 8, /savecomment
 
   case wave_type of
-    '1074': rest = double(center1074)
-    '1079': rest = double(center1079)
-    '1083': rest = double(center1083)
+    '1074': rest = double(center1074) - offset_1074
+    '1079': rest = double(center1079) - offset_1079
+    '1083': rest = double(center1083) - offset_1083
   endcase
   c = 299792.458D
 
@@ -213,6 +213,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   dop[zero] = !values.f_nan
   corrected_dop[zero] = !values.f_nan
 
+  ; convert doppler from wavelength to velocity
+  dop = (dop - rest) * c / rest
+
   good_pixel_mask = (i2 gt int_min_thresh) and (i2 lt int_max_thresh) $
                       and (i1 gt 0.01) and (i3 gt 0.01)
   good_pixels = where(good_pixel_mask, complement=bad_pixels, ncomplement=n_bad_pixels)
@@ -245,45 +248,50 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
-  sxaddpar, header, 'DATAMIN', min(i, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(i, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(i, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(i, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, i, header, extname='I'
 
-  sxaddpar, header, 'DATAMIN', min(q, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(q, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(q, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(q, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, q, header, extname='Q'
 
-  sxaddpar, header, 'DATAMIN', min(u, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(u, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(u, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(u, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, u, header, extname='U'
 
   sxdelpar, header, 'COMMENT'
-  sxaddpar, header, 'DATAMIN', min(l, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(l, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(l, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(l, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, l, header, extname='Linear Polarization'
 
   sxaddpar, header, 'COMMENT', $
             'Azimuth is measured positive counter-clockwise from the horizontal.'
-  sxaddpar, header, 'DATAMIN', min(azimuth, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(azimuth, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(azimuth, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(azimuth, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, azimuth, header, extname='Azimuth'
   sxdelpar, header, 'COMMENT'
 
-  sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' minimum data value', $
+            format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
+            format='(F0.3)'
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
 
-  sxaddpar, header, 'DATAMIN', min(width, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(width, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(width, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(width, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, width, header, extname='Line Width'
 
-  sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' MINIMUM DATA VALUE'
-  sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' MAXIMUM DATA VALUE'
+  sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' minimum data value', $
+            format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' maximum data value', $
+            format='(F0.3)'
   fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
 
   if (add_uncorrected_velocity) then begin
-    sxaddpar, header, 'DATAMIN', min(dop, /nan), ' MINIMUM DATA VALUE'
-    sxaddpar, header, 'DATAMAX', max(dop, /nan), ' MAXIMUM DATA VALUE'
+    sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', format='(F0.3)'
+    sxaddpar, header, 'DATAMAX', max(dop, /nan), ' maximum data value', format='(F0.3)'
+    sxaddpar, header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
     fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
   endif
 
