@@ -12,7 +12,7 @@ function comp_plot_continuum_corrections_model, x, a
 end
 
 
-pro comp_plot_continuum_corrections, filename
+pro comp_plot_continuum_corrections, filename, wave_type
   compile_opt strictarr
 
   n_lines = file_lines(filename)
@@ -50,7 +50,11 @@ pro comp_plot_continuum_corrections, filename
   beam2_offsets = reform(offsets[0, 1:*:2])
   beam2_jds     = jds[1:*:2]
 
-  good_range = [0.02, 0.05]
+  case wave_type of
+    '1074': good_range = [0.02, 0.05]
+    '1079': good_range = [0.02, 0.12]
+    else: message, 'unknown wave_type'
+  endcase
 
   title = string(file_basename(filename), format='(%"Offsets for %s")')
   window, xsize=xsize, ysize=ysize, /free, title=title
@@ -102,6 +106,8 @@ pro comp_plot_continuum_corrections, filename
 
   coeffs2 = linfit(beam2_jds[beam2_indices] - jds[0], beam2_offsets[beam2_indices])
   offset_fit2 = coeffs2[0] + coeffs2[1] * (beam2_jds - jds[0])
+
+  print, (coeffs1[0] + coeffs2[0]) / 2.0
 
   xyouts, 0.75, 0.8, /normal, $
           string(coeffs1, coeffs2, $
@@ -181,9 +187,12 @@ basename = 'wave_cal_1074-2017-destray.txt'
 ;basename = 'wave_cal_1079-2017-destray.txt'
 
 eng_basedir = filepath('resource', subdir=['..'], root=mg_src_root())
-basename = 'wave_cal_1074_2.txt'
+;wave_type = '1074'
+;basename = 'wave_cal_1074_2.txt'
+wave_type = '1079'
+basename = 'wave_cal_1079.txt'
 
 filename = filepath(basename, root=eng_basedir)
-comp_plot_continuum_corrections, filename
+comp_plot_continuum_corrections, filename, wave_type
 
 end
