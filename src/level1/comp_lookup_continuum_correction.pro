@@ -50,7 +50,7 @@ pro comp_lookup_continuum_correction, date, wave_type, found=found, $
   endcase
 
   filename = filepath(basename, $
-                      subdir=['../../resource'])
+                      subdir=['..', '..', 'resource'])
                       root=mg_src_root())
 
   n_lines = file_lines(filename)
