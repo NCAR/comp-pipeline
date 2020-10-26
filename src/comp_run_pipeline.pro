@@ -331,8 +331,13 @@ pro comp_run_pipeline, config_filename=config_filename
                                        format='(%"%s.comp.%s.gbu.log")'), $
                                 subdir=[date_dir, 'level1'], $
                                 root=process_basedir)
-        comp_plot_gbu, date_dir, process_wavelengths[w], $
-                       gbu_plot_filename, gbu_filename
+        if (file_test(gbu_filename, /regular)) then begin
+          comp_plot_gbu, date_dir, process_wavelengths[w], $
+                         gbu_plot_filename, gbu_filename
+        endif else begin
+          mg_log, 'skipping GBU plot for %s nm...', process_wavelengths[w], $
+                  name='comp', /warn
+        endelse
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
