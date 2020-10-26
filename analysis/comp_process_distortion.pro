@@ -62,12 +62,12 @@ fits_read, fcb, im, exten_no=ext
 fits_close, fcb
 
 dark_im = im - dark
-;im  = comp_fixrock(temporary(im), 0.030)
-;im  = comp_fix_image(temporary(im))
+im  = comp_fixrock(temporary(im), 0.030)
+im  = comp_fix_image(temporary(im))
 flat_im = dark_im / flat
 
 restore, filename=hot_file, /verbose
-;im = comp_fix_hot(temporary(im), hot=hot, adjacent=adjacent)
+im = comp_fix_hot(temporary(im), hot=hot, adjacent=adjacent)
 im1 = comp_extract1(flat_im)
 im2 = comp_extract2(flat_im)
 
