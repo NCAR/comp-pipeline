@@ -68,14 +68,16 @@ flat_im = dark_im / flat
 
 restore, filename=hot_file, /verbose
 im = comp_fix_hot(temporary(im), hot=hot, adjacent=adjacent)
+
 im1 = comp_extract1(flat_im)
 im2 = comp_extract2(flat_im)
 
+; apply old distortion coefficients
 old_dist_im1 = comp_apply_distortion_coeffs(im1, distortion_coeffs[0])
 old_dist_im2 = comp_apply_distortion_coeffs(im2, distortion_coeffs[1])
 
+; apply new distortion
 restore, filename=filepath(distortion_coeffs_file, root=binary_dir), /verbose
-
 new_dist_im1 = comp_apply_distortion_file(im1, dx1_c, dy1_c)
 new_dist_im2 = comp_apply_distortion_file(im2, dx2_c, dy2_c)
 
@@ -87,6 +89,7 @@ save, im, dark_im, flat_im, im1, im2, $
       old_dist_im1, old_dist_im2, $
       new_dist_im1, new_dist_im2, filename=save_filename
 
+; display results
 comp_process_distortion_display, im1, im2, title='Uncorrected'
 comp_process_distortion_display, old_dist_im1, old_dist_im2, title='Old distortion'
 comp_process_distortion_display, new_dist_im1, new_dist_im2, title='New distortion'
