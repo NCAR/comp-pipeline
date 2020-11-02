@@ -178,7 +178,7 @@ pro comp_configuration, config_filename=config_filename, error=error
                                                default=~empirical_crosstalk_calculation_mode)
   distortion_method = strlowcase(config->get('distortion_method', $
                                              section='options', $
-                                             default='coeffs'))
+                                             default='file'))
   if (distortion_method ne 'coeffs' && distortion_method ne 'file' $
         && distortion_method ne 'none') then begin
     mg_log, 'unknown distortion method %s', distortion_method, $
