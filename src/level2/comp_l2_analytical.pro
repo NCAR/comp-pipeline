@@ -48,9 +48,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   wave = wave_type
 
   case wave_type of
-    '1074': rest = double(center1074) - offset_1074
-    '1079': rest = double(center1079) - offset_1079
-    '1083': rest = double(center1083) - offset_1083
+    '1074': rest = double(center1074)
+    '1079': rest = double(center1079)
+    '1083': rest = double(center1083)
   endcase
   c = 299792.458D
 
@@ -229,6 +229,15 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       stks_q[thresh_masked] = 0D
       stks_u[thresh_masked] = 0D
     endif
+
+    ; find median of finite dop -> "real rest wavelength"
+    finite_dop_ind = where(finite(temp_velo), n_finite_dop)
+    if (n_finite_dop gt 0L) then begin
+      median_rest_wavelength = median(temp_velo[finite_dop_ind])
+      temp_corr_velo = temp_velo - median_rest_wavelength
+    endif else begin
+      temp_corr_velo = temp_velo
+    endelse
 
     ;=== write out FITS files ===
     mg_log, 'write out FITS %d/%d @ %s', ii + 1, nt, wave_type, name='comp', /info

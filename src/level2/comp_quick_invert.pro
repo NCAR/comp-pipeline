@@ -158,14 +158,14 @@ pro comp_quick_invert, date_dir, wave_type, $
   sxaddpar, primary_header, 'N_EXT', 8, /savecomment
 
   case wave_type of
-    '1074': rest = double(center1074) - offset_1074
-    '1079': rest = double(center1079) - offset_1079
-    '1083': rest = double(center1083) - offset_1083
+    '1074': rest = double(center1074)
+    '1079': rest = double(center1079)
+    '1083': rest = double(center1083)
   endcase
   c = 299792.458D
 
   sxaddpar, primary_header, 'METHOD', _method, $
-            'Input file type used for quick invert'
+            ' Input file type used for quick invert'
 
   ; update version
   comp_l2_update_version, primary_header
@@ -204,7 +204,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   pre_corr[*, *, 0] = i_cent
   pre_corr[*, *, 1] = dop
 
-  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
+  ; TODO: not using this corrected_dop right now
+  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend, $
+                           rest_wavelength=rest_wavelength
   if (abs(temptrend) gt 0.01) then begin
     mg_log, 'potential bad doppler correction: temptrend = %f', temptrend, $
             name='comp', /warn
@@ -224,12 +226,22 @@ pro comp_quick_invert, date_dir, wave_type, $
     corrected_dop[bad_pixels] = !values.f_nan
   endif
 
+
   ; difference between calculated peak intensity and measured is not too great
   ind = where(abs(i_cent - i2) gt 1.5 * i2, count)
   if (count gt 0L) then begin
     dop[ind] = !values.f_nan
     corrected_dop[ind] = !values.f_nan
   endif
+
+  ; find median of finite dop -> "real rest wavelength"
+  finite_dop_ind = where(finite(dop), n_finite_dop)
+  if (n_finite_dop gt 0L) then begin
+    median_rest_wavelength = median(dop[finite_dop_ind])
+    corrected_dop = dop - median_rest_wavelength
+  endif else begin
+    corrected_dop = dop
+  endelse
 
   ; write fit parameters to output file
 

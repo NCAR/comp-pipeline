@@ -18,6 +18,11 @@
 ;   temptrend : out, optional, type=float
 ;     output parameter, temporal trend of the Doppler shift
 ;
+; :Keywords:
+;   rest_wavelength : out, optional, type=float
+;     set to a named variable to retrieve the rest wavelength used in the
+;     calculation
+;
 ; :Author:
 ;   MLSO Software Team
 ;
@@ -26,7 +31,8 @@
 ;   see git log for recent changes
 ;-
 pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
-                             temptrend
+                             temptrend, $
+                             rest_wavelength=rest
   compile_opt strictarr
   @comp_constants_common
 
