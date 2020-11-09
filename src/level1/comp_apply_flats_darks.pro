@@ -290,4 +290,3 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
 
   done:
 end
-  

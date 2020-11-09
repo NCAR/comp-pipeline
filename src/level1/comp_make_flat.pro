@@ -336,7 +336,7 @@ pro comp_make_flat, date_dir, error=error
         n_flats_too_low += 1
         continue
       endif
-      
+
       ; make sure there aren't any zeros
       bad = where(image eq 0.0, count)
       if (count gt 0L) then begin
