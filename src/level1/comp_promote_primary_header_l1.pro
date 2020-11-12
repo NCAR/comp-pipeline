@@ -73,9 +73,18 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Calibration processing software branch'
 
   case wave_type of
-    '1074': doi = doi_1074
-    '1079': doi = doi_1079
-    '1083': doi = doi_1083
+    '1074': begin
+        offset = offset_1074
+        doi = doi_1074
+      end
+    '1079': begin
+        offset = offset_1079
+        doi = doi_1079
+      end
+    '1083': begin
+        offset = offset_1083
+        doi = doi_1083
+      end
   endcase
   sxaddpar, primary_header, 'DOI', doi, ' Digital Object Identifier (DOI)'
 
@@ -85,8 +94,12 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Wavelength type', after='NTUNES'
   sxaddpar, primary_header, 'WAVE_REF', unique_wave[n_elements(unique_wave) / 2], $
             ' [nm] Center wavelength', after='WAVETYPE', format='(F0.2)'
+  sxaddpar, header, 'WAVE_OFF', offset, $
+            ' [nm] Estimated offset based on ref. spectrum', $
+            after='WAVE_REF', format='(F0.2)'
+
   sxaddpar, primary_header, 'WAVESTEP', unique_wave[1] - unique_wave[0], $
-            ' [nm] Spacing between wavelengths', after='WAVE_REF', format='(F0.2)'
+            ' [nm] Spacing between wavelengths', after='WAVE_OFF', format='(F0.2)'
   sxaddpar, primary_header, 'WAVEFWHM', wavefwhm, $
             ' [nm] full width half max of bandpass filter', after='WAVESTEP', $
             format='(F0.2)'
