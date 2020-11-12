@@ -43,13 +43,18 @@ pro comp_l0_make_gif, l0_filename, output_filename, extension=extension
           decomposed=0, $
           set_pixel_depth=8, $
           set_colors=256
+
   loadct, 0, /silent, ncolors=top + 1L
+  white = 255
+  tvlct, 255, 255, 255, white
   tvlct, r, g, b, /get
 
   ; display image
   tv, bytscl(data, min=display_min, max=display_max, top=top)
 
-  ; TODO: annotation
+  ; annotation
+  xyouts, 0.05, 0.95, /normal, $
+          file_basename(l0_filename), color=white
 
   ; save image to output
   write_gif, output_filename, tvrd(), r, g, b
