@@ -230,12 +230,13 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       stks_u[thresh_masked] = 0D
     endif
 
-    ; find median of finite dop -> "real rest wavelength"
-    finite_dop_ind = where(finite(temp_velo), n_finite_dop)
-    if (n_finite_dop gt 0L) then begin
-      median_rest_wavelength = median(temp_velo[finite_dop_ind])
+    ; find median of non-CME finite dop -> "real rest wavelength"
+    good_dop_ind = where(finite(temp_velo) and abs(temp_velo) lt 80.0, n_good_dop)
+    if (n_good_dop gt 0L) then begin
+      median_rest_wavelength = median(temp_velo[good_dop_ind])
       temp_corr_velo = temp_velo - median_rest_wavelength
     endif else begin
+      median_rest_wavelength = !values.f_nan
       temp_corr_velo = temp_velo
     endelse
 
@@ -277,8 +278,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                            extname='Corrected LOS velocity', $
                                            datminmax=[min(temp_corr_velo), $
                                                       max(temp_corr_velo)])
+    sxaddpar, extension_header, 'RESTWVL', median_rest_wavelength, ' [nm] rest wavelength', format='(F0.3)'
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
+    sxdelpar, extension_header, 'RESTWVL'
 
     ; line width
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
@@ -298,9 +301,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                              extname='Uncorrected LOS velocity', $
                                              datminmax=[min(temp_velo), $
                                                         max(temp_velo)])
-      sxaddpar, extension_header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
+      ;sxaddpar, extension_header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(temp_velo), extension_header, /append
+      ;sxdelpar, extension_header, 'RESTWVL'
     endif
 
     zip_cmd = string(outfilename, format='(%"gzip -f %s")')

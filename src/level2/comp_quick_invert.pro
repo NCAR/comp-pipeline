@@ -234,12 +234,13 @@ pro comp_quick_invert, date_dir, wave_type, $
     corrected_dop[ind] = !values.f_nan
   endif
 
-  ; find median of finite dop -> "real rest wavelength"
-  finite_dop_ind = where(finite(dop), n_finite_dop)
-  if (n_finite_dop gt 0L) then begin
-    median_rest_wavelength = median(dop[finite_dop_ind])
+  ; find median of non-CME finite dop -> "real rest wavelength"
+  good_dop_ind = where(finite(dop) and abs(dop) lt 80.0, n_good_dop)
+  if (n_good_dop gt 0L) then begin
+    median_rest_wavelength = median(dop[good_dop_ind])
     corrected_dop = dop - median_rest_wavelength
   endif else begin
+    median_rest_wavelength = !values.f_nan!
     corrected_dop = dop
   endelse
 
@@ -288,7 +289,10 @@ pro comp_quick_invert, date_dir, wave_type, $
             format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
             format='(F0.3)'
+  sxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [nm] rest wavelength', $
+            format='(F0.3)'
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
+  sxdelpar, header, 'RESTWVL'
 
   sxaddpar, header, 'DATAMIN', min(width, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(width, /nan), ' maximum data value', format='(F0.3)'
@@ -303,8 +307,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   if (add_uncorrected_velocity) then begin
     sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', format='(F0.3)'
     sxaddpar, header, 'DATAMAX', max(dop, /nan), ' maximum data value', format='(F0.3)'
-    sxaddpar, header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
+    ;sxaddpar, header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
     fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
+    ;sxdelpar, header, 'RESTWVL'
   endif
 
   fits_close, fcbout
