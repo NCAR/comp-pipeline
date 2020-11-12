@@ -38,6 +38,7 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
                             filename=filename, $
                             error=error
   compile_opt strictarr
+  @comp_check_common
   @comp_config_common
   @comp_constants_common
 
@@ -125,6 +126,14 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
       mg_log, file_basename(filename), $
               name=strjoin(['comp', 'bad.quality', wave_type], '/'), $
               /info
+      n_bad_quality += 1L
+
+      bad_gif_filename = filepath(string(file_basename(filename, '.FTS'), $
+                                         format='(%"%s.bad.gif")'), $
+                                  subdir=comp_decompose_date(date_dir), $
+                                  root=engineering_dir)
+      comp_l0_make_gif, filename, bad_gif_filename, extension=i + 1L
+
       error = 1
       goto, done
     endif

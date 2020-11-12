@@ -11,7 +11,7 @@
 ; :Author:
 ;   MLSO Software Team
 ;-
-pro comp_l1_check_all, date_dir, body=body
+pro comp_l1_check_all, date_dir, body=body, no_log_message=no_log_message
   compile_opt strictarr
   @comp_config_common
   @comp_check_common
@@ -36,7 +36,7 @@ pro comp_l1_check_all, date_dir, body=body
   body->add, '## Warnings'
   body->add, ''
 
-  n_warnings = (n_images_off_detector gt 0L) + (n_flats_too_low)
+  n_warnings = (n_images_off_detector gt 0L) + (n_flats_too_low gt 0L) + (n_bad_quality gt 0L)
 
   if (n_warnings eq 0L) then body->add, 'no warnings'
 
@@ -52,16 +52,26 @@ pro comp_l1_check_all, date_dir, body=body
             name='comp', /warn
   endif
 
-  body->add, ''
-  body->add, '## Log message warnings'
-  body->add, ''
+  if (n_bad_quality gt 0L) then begin
+    body->add, string(n_bad_quality, $
+                      format='(%"%d science images failed quality check")')
+    mg_log, '%d science images failed quality check', n_bad_quality, $
+            name='comp', /warn
+  endif
+
   log_filename = filepath(date_dir + '.comp.log', root=log_dir)
-  warning_msgs = comp_filter_log(log_filename, /warning, n_messages=n_messages)
-  if (n_messages eq 0L) then begin
-    body->add, 'no warning messages'
-  endif else begin
-    body->add, warning_msgs, /extract
-  endelse
+
+  if (not keyword_set(no_log_message)) then begin
+    body->add, ''
+    body->add, '## Log message warnings'
+    body->add, ''
+    warning_msgs = comp_filter_log(log_filename, /warning, n_messages=n_messages)
+    if (n_messages eq 0L) then begin
+      body->add, 'no warning messages'
+    endif else begin
+      body->add, warning_msgs, /extract
+    endelse
+  endif
 
   body->add, ''
   body->add, string(log_filename, format='(%"See log %s for details")')

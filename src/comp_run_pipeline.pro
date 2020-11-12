@@ -347,6 +347,14 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
     if (create_l1) then begin
+      mg_log, 'creating mp4 of bad science images', name='comp', /info
+      comp_create_bad_mp4, date_dir
+    endif else begin
+      mg_log, 'skipping creating mp4 of bad science images', name='comp', /info
+    endelse
+
+
+    if (create_l1) then begin
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         mg_log, 'plotting daily %s engineering data', process_wavelengths[w], $
                 name='comp', /info
@@ -632,7 +640,6 @@ pro comp_run_pipeline, config_filename=config_filename
       ; check metrics of L1 data
 
       comp_l1_check_all, date_dir, body=body
-
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         mg_log, 'checking %s L1 data', process_wavelengths[w], $
                 name='comp', /info
@@ -642,6 +649,23 @@ pro comp_run_pipeline, config_filename=config_filename
       endfor
 
       comp_send_notification, date_dir, body, t0, gbu_plot_filename
+
+      comp_l1_check_all, date_dir, body=summary_body, /no_log_message
+      for w = 0L, n_elements(process_wavelengths) - 1L do begin
+        if (~dry_run) then begin
+          comp_l1_check, date_dir, process_wavelengths[w], body=summary_body
+        endif
+      endfor
+
+      summary_filename = filepath(string(date_dir, format='(%"%s.comp.l1.summary.txt")'), $
+                                  subdir=[date_dir, 'level1'], $
+                                  root=process_basedir)
+      openw, lun, summary_filename, /get_lun
+      printf, lun, transpose(summary_body->toArray())
+      free_lun, lun
+
+      if (obj_valid(body)) then obj_destroy, body
+      if (obj_valid(summary_body)) then obj_destroy, summary_body
 
       check_l1_t1 = systime(/seconds)
       mg_log, 'total time for COMP_L1_CHECK: %0.1f seconds', $

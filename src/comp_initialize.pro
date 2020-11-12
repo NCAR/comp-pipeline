@@ -269,6 +269,7 @@ pro comp_initialize, date_dir
   ; initialize L1 check values
   n_images_off_detector = 0L
   n_flats_too_low = 0L
+  n_bad_quality = 0L
   n_1074_files_post_angle_diff = 0L
   n_1079_files_post_angle_diff = 0L
   n_1083_files_post_angle_diff = 0L
