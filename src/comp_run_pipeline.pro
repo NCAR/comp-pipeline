@@ -623,8 +623,8 @@ pro comp_run_pipeline, config_filename=config_filename
       if (~dry_run) then begin
         comp_cal_insert, date_dir, database=db, obsday_index=obsday_index
         comp_numfiles_update, date_dir, database=db, obsday_index=obsday_index
-        obj_destroy, db
       endif
+      obj_destroy, db
 
       db_t1 = systime(/seconds)
       mg_log, 'total time for COMP_UPDATE_DATABASE: %0.1f seconds', $
