@@ -129,10 +129,11 @@ pro comp_apply_flats_darks, wave_type, images, headers, primary_header, date_dir
       n_bad_quality += 1L
 
       bad_gif_filename = filepath(string(file_basename(filename, '.FTS'), $
-                                         format='(%"%s.bad.gif")'), $
+                                         format='(%"%s.comp.bad.gif")'), $
                                   subdir=comp_decompose_date(date_dir), $
                                   root=engineering_dir)
-      comp_l0_make_gif, filename, bad_gif_filename, extension=i + 1L
+      comp_make_gif, filename, bad_gif_filename, extension=i + 1L, $
+                     annotation_text=string(i + 1L, format='(%"ext %d")')
 
       error = 1
       goto, done

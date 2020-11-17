@@ -240,7 +240,7 @@ pro comp_quick_invert, date_dir, wave_type, $
     median_rest_wavelength = median(dop[good_dop_ind])
     corrected_dop = dop - median_rest_wavelength
   endif else begin
-    median_rest_wavelength = !values.f_nan!
+    median_rest_wavelength = !values.f_nan
     corrected_dop = dop
   endelse
 

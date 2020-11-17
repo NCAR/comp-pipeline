@@ -9,18 +9,18 @@
 ;-
 pro comp_create_bad_mp4, date
   compile_opt strictarr
-  @comp_common_config
+  @comp_config_common
 
   ; find .bad.gifs in engineering directory
-  bad_gifs = file_search(filepath('*.bad.gif', $
+  bad_gifs = file_search(filepath('????????.??????.comp.bad.gif', $
                                   subdir=comp_decompose_date(date), $
-                                  root=engineering_basedir), $
+                                  root=engineering_dir), $
                          count=n_bad_gifs)
   if (n_bad_gifs eq 0L) then begin
     mg_log, 'no bad science images, exiting', name='comp', /info
     goto, done
   endif else begin
-    mg_log, 'creating mp4 of %d bad science images', name='comp', /info
+    mg_log, 'creating mp4 of %d bad science images', n_bad_gifs, name='comp', /info
   endelse
 
   ; sort list of frames
@@ -28,9 +28,9 @@ pro comp_create_bad_mp4, date
   bad_gifs = bad_gifs[ind]
 
   ; create mp4
-  bad_mp4_filename = filepath(string(date, format='(%"%s.bad.mp4")'), $
+  bad_mp4_filename = filepath(string(date, format='(%"%s.comp.bad.mp4")'), $
                               subdir=comp_decompose_date(date), $
-                              root=engineering_basedir)
+                              root=engineering_dir)
   comp_create_mp4, bad_gifs, bad_mp4_filename, $$
                    executable=filepath('ffmpeg', root=ffmpeg_dir), $
                    frames_per_second=2L, $
@@ -48,4 +48,21 @@ pro comp_create_bad_mp4, date
 
   done:
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+@comp_config_common
+
+date = '20140618'
+config_filename = filepath('comp.reprocess-check.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+
+comp_configuration, config_filename=config_filename
+comp_initialize, date
+
+comp_create_bad_mp4, date
+
 end

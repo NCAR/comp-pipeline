@@ -21,11 +21,26 @@ end
 ; main-level example program
 
 ; 20180330.123121.FTS ext 1, beam -1
-date = '20180330'
-time = '123121'
+; date = '20180330'
+; time = '123121'
+; ext = 1
+; flat_date = date
+; flat_ext = 512   ; 12:21:16
+; dark_date = date
+; dark_ext = 13    ; 12:30:07
+; range = [0.0, 100.0]
+; local_raw_basedir = '/hao/mahidata1/Data/CoMP/raw'
+
+; 20161107.093403.FTS, ext 1, beam -1, 1074.62 nm
+date = '20161107'
+time = '093403'
 ext = 1
-flat_ext = 512   ; 12:21:16
-dark_ext = 13    ; 12:30:07
+flat_date = '20161106'
+flat_ext = 6
+dark_date = '20161107'
+dark_ext = 1
+range = [0.0, 100.0]
+local_raw_basedir = '/hao/dawn/Data/CoMP/raw'
 
 config_filename = filepath('comp.distortion.cfg', $
                            subdir=['..', 'config'], $
@@ -37,16 +52,26 @@ config_filename = filepath('comp.distortion.cfg', $
 comp_initialize, date
 comp_configuration, config_filename=config_filename
 
-flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), $
-                         subdir=[date, 'level1'], $
+flat_filename = filepath(string(flat_date, format='(%"%s.comp.flat.fts")'), $
+                         subdir=[flat_date, 'level1'], $
                          root=process_basedir)
 
 fits_open, flat_filename, flat_file_fcb
-fits_read, flat_file_fcb, flat, exten_no=flat_ext
+fits_read, flat_file_fcb, flat, flat_header, exten_no=flat_ext
 fits_close, flat_file_fcb
 
-dark_filename = filepath(string(date, format='(%"%s.comp.dark.fts")'), $
-                         subdir=[date, 'level1'], $
+; fill flats
+mask_full_fill = comp_annulus_1024(flat_header, $
+                                   o_offset=1.0, f_offset=-1.0, $
+                                   /uncorrected)
+
+good_pixels = where(mask_full_fill eq 1.0, n_good_pixels, $
+                    complement=bad_pixels, ncomplement=n_bad_pixels)
+medflat = median(flat[good_pixels])
+flat[bad_pixels] = medflat
+
+dark_filename = filepath(string(dark_date, format='(%"%s.comp.dark.fts")'), $
+                         subdir=[dark_date, 'level1'], $
                          root=process_basedir)
 
 fits_open, dark_filename, dark_file_fcb
@@ -55,22 +80,24 @@ fits_close, dark_file_fcb
 
 data_filename = filepath(string(date, time, format='(%"%s.%s.FTS")'), $
                          subdir=[date], $
-                         root=raw_basedir)
+                         root=local_raw_basedir)
 
 fits_open, data_filename, fcb
 fits_read, fcb, im, exten_no=ext
 fits_close, fcb
 
-dark_im = im - dark
+im = im - dark
+
 im  = comp_fixrock(temporary(im), 0.030)
 im  = comp_fix_image(temporary(im))
-flat_im = dark_im / flat
+
+im = im / flat
 
 restore, filename=hot_file, /verbose
 im = comp_fix_hot(temporary(im), hot=hot, adjacent=adjacent)
 
-im1 = comp_extract1(flat_im)
-im2 = comp_extract2(flat_im)
+im1 = comp_extract1(im)
+im2 = comp_extract2(im)
 
 ; apply old distortion coefficients
 old_dist_im1 = comp_apply_distortion_coeffs(im1, distortion_coeffs[0])
@@ -85,13 +112,13 @@ save_filename = filepath(string(date, time, format='(%"%s.%s.distortion.sav")'),
                          subdir=[date, 'level1'], $
                          root=process_basedir)
 print, save_filename, format='(%"saving results to %s...")'
-save, im, dark_im, flat_im, im1, im2, $
+save, im, im1, im2, $
       old_dist_im1, old_dist_im2, $
       new_dist_im1, new_dist_im2, filename=save_filename
 
 ; display results
-comp_process_distortion_display, im1, im2, title='Uncorrected'
-comp_process_distortion_display, old_dist_im1, old_dist_im2, title='Old distortion'
-comp_process_distortion_display, new_dist_im1, new_dist_im2, title='New distortion'
+comp_process_distortion_display, im1, im2, title='Uncorrected', range=range
+comp_process_distortion_display, old_dist_im1, old_dist_im2, title='Old distortion', range=range
+comp_process_distortion_display, new_dist_im1, new_dist_im2, title='New distortion', range=range
 
 end

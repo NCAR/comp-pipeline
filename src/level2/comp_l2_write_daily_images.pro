@@ -23,8 +23,12 @@
 ;     wavelength range for the observations, '1074', '1079' or '1083'
 ;
 ; :Keywords:
-;    n_avrg : in, optional, type=integer, default=50
-;      number of files to average over
+;   median : in, optional, type=boolean
+;     set to use median files instead of mean files
+;   waves : in, optional, type=boolean
+;     set to explicitly use waves files, and produce waves output files
+;   synoptic : in, optional, type=boolean
+;     set to explicitly use synoptic files, and produce synoptic output files
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -34,7 +38,8 @@
 ;   removed gzip    Oct 1 2014  GdT
 ;   see git log for recent changes
 ;-
-pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
+pro comp_l2_write_daily_images, date_dir, wave_type, $
+                                median=median, waves=waves, synoptic=synoptic
   compile_opt strictarr
   @comp_constants_common
   @comp_config_common
@@ -47,14 +52,16 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   if (file_test('movies', /directory) eq 0) then file_mkdir, 'movies'
 
+  averaging = keyword_set(median) ? 'median' : 'mean'
+
   ; read images from quick invert file
-  waves_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.waves.fts.gz")'
-  waves_quick_invert_filename = filepath(string(date_dir, wave_type, $
+  waves_quick_invert_format = '(%"%s.comp.%s.quick_invert.%s.waves.fts.gz")'
+  waves_quick_invert_filename = filepath(string(date_dir, wave_type, averaging, $
                                                 format=waves_quick_invert_format), $
                                          root=l2_process_dir)
 
   synoptic_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
-  synoptic_quick_invert_filename = filepath(string(date_dir, wave_type, $
+  synoptic_quick_invert_filename = filepath(string(date_dir, wave_type, averaging, $
                                                    format=synoptic_quick_invert_format), $
                                             root=l2_process_dir)
 
@@ -62,28 +69,56 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   ; use quick invert images and eliminate reading L1 files
 
   waves_found = file_test(waves_quick_invert_filename)
-  if (~waves_found) then begin
-    mg_log, 'waves quick invert file %s not found', $
-            file_basename(waves_quick_invert_filename), $
-            name='comp', /debug
-  endif
-
   synoptic_found = file_test(synoptic_quick_invert_filename)
-  if (~synoptic_found) then begin
-    mg_log, 'synoptic quick invert file %s not found', $
-            file_basename(synoptic_quick_invert_filename), $
-            name='comp', /debug
-  endif
 
-  if (~waves_found && ~synoptic_found) then begin
-    mg_log, 'neither waves nor synoptic quick invert file found, skipping', $
-            name='comp', /warn
-    goto, skip
-  endif
-
-  dynamics_quick_invert_filename = synoptic_found $
-                                     ? synoptic_quick_invert_filename $
-                                     : waves_quick_invert_filename
+  if (keyword_set(waves) && keyword_set(synoptic)) then begin
+    mg_log, 'both WAVES and SYNOPTIC keywords set', $
+            name='comp', /error
+    goto, done
+  endif else if (keyword_set(waves)) then begin
+    if (~waves_found) then begin
+      mg_log, 'waves quick invert file %s not found', $
+              file_basename(waves_quick_invert_filename), $
+              name='comp', /debug
+      goto, done
+    endif
+    dynamics_quick_invert_filename = waves_quick_invert_filename
+    polarization_quick_invert_filename = waves_quick_invert_filename
+  endif else if (keyword_set(synoptic)) then begin
+    if (~synoptic_found) then begin
+      mg_log, 'synoptic quick invert file %s not found', $
+              file_basename(synoptic_quick_invert_filename), $
+              name='comp', /debug
+      goto, done
+    endif
+    dynamics_quick_invert_filename = synoptic_quick_invert_filename
+    polarization_quick_invert_filename = synoptic_quick_invert_filename
+  endif else begin
+    if (~waves_found) then begin
+      mg_log, 'waves quick invert file %s not found', $
+              file_basename(waves_quick_invert_filename), $
+              name='comp', /debug
+    endif
+    
+    if (~synoptic_found) then begin
+      mg_log, 'synoptic quick invert file %s not found', $
+              file_basename(synoptic_quick_invert_filename), $
+              name='comp', /debug
+    endif
+    
+    if (~waves_found && ~synoptic_found) then begin
+      mg_log, 'neither waves nor synoptic quick invert file found, skipping', $
+              name='comp', /warn
+      goto, done
+    endif
+    
+    dynamics_quick_invert_filename = synoptic_found $
+                                       ? synoptic_quick_invert_filename $
+                                       : waves_quick_invert_filename
+    polarization_quick_invert_filename = waves_found $
+                                           ? waves_quick_invert_filename $
+                                           : synoptic_quick_invert_filename
+  endelse
 
   fits_open, dynamics_quick_invert_filename, dynamics_quick_invert_fcb
 
@@ -98,10 +133,6 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   if (msg ne '') then message, msg
 
   fits_close, dynamics_quick_invert_fcb
-
-  polarization_quick_invert_filename = waves_found $
-                                       ? waves_quick_invert_filename $
-                                       : synoptic_quick_invert_filename
 
   fits_open, polarization_quick_invert_filename, polarization_quick_invert_fcb
 
@@ -646,6 +677,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
   radial_azimuth = tvrd(/true)
   erase
 
+  modifier = ''
+  if (keyword_set(median)) then modifier += '.median'
+  if (keyword_set(waves)) then modifier += '.waves'
+  if (keyword_set(synoptic)) then modifier += '.synoptic'
+  obasefilename += modifer
+
   write_png, obasefilename + '.daily_intensity.png', intensity
   write_png, obasefilename + '.daily_enhanced_intensity.png', $
              enhanced_intensity
@@ -660,7 +697,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, n_avrg=n_avrg
 
   ; end of plotting daily images
 
-  skip:
+  done:
   mg_log, 'done', name='comp', /info
 end
 

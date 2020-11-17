@@ -546,8 +546,11 @@ pro comp_run_pipeline, config_filename=config_filename
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         if (process_wavelengths[w] ne '1083') then begin
           if (~dry_run) then begin
+            comp_l2_write_daily_images, date_dir, process_wavelengths[w]
             comp_l2_write_daily_images, date_dir, process_wavelengths[w], $
-                                        n_avrg=50
+                                        /median, /waves
+            comp_l2_write_daily_images, date_dir, process_wavelengths[w], $
+                                        /median, /synoptic
           endif
         endif
       endfor

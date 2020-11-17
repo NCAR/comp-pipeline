@@ -35,13 +35,17 @@ pro comp_make_elliptical_db, wave_type, config_filename, output_filename
     flat_filename = filepath(string(date, format=fmt), $
                              subdir=[date, 'level1'], $
                              root=process_basedir)
-    if (~file_test(flat_filename, /regular)) then continue
+    if (~file_test(flat_filename, /regular)) then begin
+      print, flat_filename, format='(%"  %s not found")'
+      continue
+    endif
 
     fits_open, flat_filename, fcb
     if (fcb.nextend - n_summary_exts le 0L) then begin
       fits_close, fcb
+      print, '  no flats, skipping...'
       continue
-    endif
+    endif else print, fcb.nextend - n_summary_exts, format='(%"  %d extensions")'
 
     distcorr_radii = fltarr(fcb.nextend - n_summary_exts, 4)
     distcorr_tilt = fltarr(fcb.nextend - n_summary_exts, 2)
@@ -117,10 +121,10 @@ end
 ; main-level example program
 
 wave_type = '1074'
-config_filename = filepath('comp.elliptic.cfg', $
+config_filename = filepath('comp.elliptic-newdist.cfg', $
                            subdir=['..', 'config'], $
                            root=mg_src_root())
-output_filename = 'comp-2017-radii-2.csv'
+output_filename = 'comp-2017-radii-newdist.csv'
 comp_make_elliptical_db, wave_type, config_filename, output_filename
 
 end

@@ -241,6 +241,9 @@ pro comp_make_flat, date_dir, error=error
                                         o_offset=1.0, f_offset=-3.0 )
     endif
 
+    mg_log, 'waves: %s', strjoin(strtrim(uniq_waves, 2), ', '), $
+            name='comp', /debug
+
     ; Process by wavelength
     for i = 0L, nwaves - 1L do begin
       ; any error will go on to the next image
@@ -257,8 +260,6 @@ pro comp_make_flat, date_dir, error=error
       ; fix hot pixels
       image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
 
-      mg_log, 'waves: %s', strjoin(strtrim(uniq_waves, 2), ', '), $
-              name='comp', /debug
       if (debug eq 1) then begin
         tvwin, image
         profiles, image

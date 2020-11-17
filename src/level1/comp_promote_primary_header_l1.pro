@@ -94,9 +94,9 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
             ' Wavelength type', after='NTUNES'
   sxaddpar, primary_header, 'WAVE_REF', unique_wave[n_elements(unique_wave) / 2], $
             ' [nm] Center wavelength', after='WAVETYPE', format='(F0.2)'
-  sxaddpar, header, 'WAVE_OFF', offset, $
+  sxaddpar, primary_header, 'WAVE_OFF', offset, $
             ' [nm] Estimated offset based on ref. spectrum', $
-            after='WAVE_REF', format='(F0.2)'
+            after='WAVE_REF', format='(F0.4)'
 
   sxaddpar, primary_header, 'WAVESTEP', unique_wave[1] - unique_wave[0], $
             ' [nm] Spacing between wavelengths', after='WAVE_OFF', format='(F0.2)'

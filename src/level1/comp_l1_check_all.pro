@@ -15,6 +15,7 @@ pro comp_l1_check_all, date_dir, body=body, no_log_message=no_log_message
   compile_opt strictarr
   @comp_config_common
   @comp_check_common
+  @comp_flats_common
   @comp_constants_common
 
   body = list()
@@ -46,9 +47,11 @@ pro comp_l1_check_all, date_dir, body=body, no_log_message=no_log_message
   endif
 
   if (n_flats_too_low gt 0L) then begin
-    body->add, string(n_flats_too_low, $
-                      format='(%"%d flats rejected for being below threshold")')
-    mg_log, '%d flats rejected for median below threshold', n_flats_too_low, $
+    n_total_flats = n_flats_too_low + n_elements(flat_times)
+    body->add, string(n_flats_too_low, n_total_flats, $
+                      format='(%"%d of %d flats rejected for being below threshold")')
+    mg_log, '%d of %d flats rejected for median below threshold', $
+            n_flats_too_low, n_total_flats, $
             name='comp', /warn
   endif
 
@@ -59,9 +62,9 @@ pro comp_l1_check_all, date_dir, body=body, no_log_message=no_log_message
             name='comp', /warn
   endif
 
-  log_filename = filepath(date_dir + '.comp.log', root=log_dir)
-
   if (not keyword_set(no_log_message)) then begin
+    log_filename = filepath(date_dir + '.comp.log', root=log_dir)
+
     body->add, ''
     body->add, '## Log message warnings'
     body->add, ''
@@ -71,10 +74,10 @@ pro comp_l1_check_all, date_dir, body=body, no_log_message=no_log_message
     endif else begin
       body->add, warning_msgs, /extract
     endelse
-  endif
 
-  body->add, ''
-  body->add, string(log_filename, format='(%"See log %s for details")')
+    body->add, ''
+    body->add, string(log_filename, format='(%"See log %s for details")')
+  endif
 
   body->add, ['', ''], /extract
 end
