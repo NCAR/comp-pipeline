@@ -3,6 +3,7 @@ add_subdirectory(data)
 add_subdirectory(database)
 add_subdirectory(level1)
 add_subdirectory(level2)
+add_subdirectory(util)
 
 configure_file(comp_find_code_version.pro.in comp_find_code_version.pro)
 
