@@ -60,7 +60,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
                                                 format=waves_quick_invert_format), $
                                          root=l2_process_dir)
 
-  synoptic_quick_invert_format = '(%"%s.comp.%s.quick_invert.mean.synoptic.fts.gz")'
+  synoptic_quick_invert_format = '(%"%s.comp.%s.quick_invert.%s.synoptic.fts.gz")'
   synoptic_quick_invert_filename = filepath(string(date_dir, wave_type, averaging, $
                                                    format=synoptic_quick_invert_format), $
                                             root=l2_process_dir)
@@ -681,7 +681,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   if (keyword_set(median)) then modifier += '.median'
   if (keyword_set(waves)) then modifier += '.waves'
   if (keyword_set(synoptic)) then modifier += '.synoptic'
-  obasefilename += modifer
+  obasefilename += modifier
 
   write_png, obasefilename + '.daily_intensity.png', intensity
   write_png, obasefilename + '.daily_enhanced_intensity.png', $
