@@ -278,7 +278,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                            extname='Corrected LOS velocity', $
                                            datminmax=[min(temp_corr_velo), $
                                                       max(temp_corr_velo)])
-    sxaddpar, extension_header, 'RESTWVL', median_rest_wavelength, ' [nm] rest wavelength', format='(F0.3)'
+    fxaddpar, extension_header, 'RESTWVL', median_rest_wavelength, $
+              ' [km/s] rest wavelength', format='(F0.3)', /null
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
     sxdelpar, extension_header, 'RESTWVL'
@@ -301,7 +302,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                              extname='Uncorrected LOS velocity', $
                                              datminmax=[min(temp_velo), $
                                                         max(temp_velo)])
-      ;sxaddpar, extension_header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
+      ;sxaddpar, extension_header, 'RESTWVL', rest, ' [km/s] rest wavelength', format='(F0.3)', /null
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(temp_velo), extension_header, /append
       ;sxdelpar, extension_header, 'RESTWVL'

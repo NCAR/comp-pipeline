@@ -289,8 +289,8 @@ pro comp_quick_invert, date_dir, wave_type, $
             format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
             format='(F0.3)'
-  sxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [nm] rest wavelength', $
-            format='(F0.3)'
+  fxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [km/s] rest wavelength', $
+            format='(F0.3)', /null
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
   sxdelpar, header, 'RESTWVL'
 
@@ -307,7 +307,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   if (add_uncorrected_velocity) then begin
     sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', format='(F0.3)'
     sxaddpar, header, 'DATAMAX', max(dop, /nan), ' maximum data value', format='(F0.3)'
-    ;sxaddpar, header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)'
+    ;sxaddpar, header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)', /null
     fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
     ;sxdelpar, header, 'RESTWVL'
   endif
