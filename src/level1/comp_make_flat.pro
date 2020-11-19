@@ -81,7 +81,7 @@ pro comp_make_flat, date_dir, error=error
   spectral_correction = make_flat_spectral_correction
 
   ; compute current transmission value
-  norm = comp_transmission(date_dir)
+  norm = degrade_diffuser ? comp_transmission(date_dir) : 84.0
 
   ; create arrays
   times = fltarr(5000)

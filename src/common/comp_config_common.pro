@@ -79,6 +79,7 @@ common comp_config, doi_1074,$
                     make_flat_destraying, $
                     make_flat_fill, $
                     make_flat_spectral_correction, $
+                    degrade_diffuser, $
                     cache_flats, $
                     averaging_max_n_waves_files, $
                     averaging_max_n_synoptic_files, $
