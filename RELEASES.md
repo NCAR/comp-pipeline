@@ -17,7 +17,7 @@
   distribute good_*.txt files
   better log messages (formatting and changing normal occurrences to lower priority)
   log epoch values used for run
-  verfify processing of past days
+  verify processing of past days
 1.3.1 [Nov 27, 2017]
   velocity calculation fixes
   fixed L2 distribution bug
