@@ -13,11 +13,11 @@
 ;   extension : in, optional, type=integer, default=0
 ;     extension of `l0_filename` to display
 ;-
-pro comp_make_gif, l0_filename, output_filename, $
-                   extension=extension, $
-                   annotation_text=annotation_text, $
-                   display_minimum=display_minimum, $
-                   display_maximum=display_maximum
+pro comp_make_l0_gif, l0_filename, output_filename, $
+                      extension=extension, $
+                      annotation_text=annotation_text, $
+                      display_minimum=display_minimum, $
+                      display_maximum=display_maximum
   compile_opt strictarr
 
   _extension = n_elements(extension) eq 0L ? 1L : extension
