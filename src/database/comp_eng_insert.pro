@@ -39,6 +39,11 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
   gbu_file = filepath(string(date, wave_type, format='(%"%s.comp.%s.gbu.log")'), $
                       subdir=[date, 'level1'], $
                       root=process_basedir)
+  if (~file_test(gbu_file, /regular)) then begin
+    mg_log, 'no GBU file, skipping', name='comp', /warn
+    goto, done
+  endif
+
   gbu = comp_read_gbu(gbu_file, count=n_gbu)
 
   for f = 0L, n_l1_files - 1L do begin
