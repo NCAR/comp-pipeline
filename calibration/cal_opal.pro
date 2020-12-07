@@ -25,8 +25,8 @@ pro cal_opal
 
   debug = 'no'       ;debug mode ('yes' or 'no')
 
-  opal_file = '100955' ; TODO: need to change to actual opal file
-  sun_file = '100955'
+  opal_file = '071107' ; opal file
+  sun_file = '100955'  ; sun data with no occulter and with ND filter
 
   ; opal_file = '130906'         ; opal data
   ; sun_file = '123928'          ; sun data with no occulter and with ND filter
