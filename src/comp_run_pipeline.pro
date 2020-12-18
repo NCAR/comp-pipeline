@@ -79,7 +79,7 @@ pro comp_run_pipeline, config_filename=config_filename
     error = 0L
     date_dir = candidate_dates[d]
     if (n_elements(raw_routing_filename) gt 0L) then begin
-      raw_basedir = comp_get_route(raw_routing_filename, date_dir, found=found)
+      raw_basedir = comp_get_route(raw_routing_filename, date_dir, 'raw', found=found)
       if (~found) then begin
         mg_log, 'no raw basedir found for %s in routing file', $
                 date_dir, $
