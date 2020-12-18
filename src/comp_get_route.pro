@@ -6,7 +6,7 @@ function comp_get_route, routing_file, date, type, found=found
 
   case strlowcase(type) of
     'raw': section = 'comp-raw'
-    'processed': section = 'comp-processed'
+    'process': section = 'comp-process'
     else: message, string(type, format='(%"invalid type: %s")')
   endcase
 
