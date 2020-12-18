@@ -238,6 +238,38 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, 
          coeffs[1] * (s[ind_1074].time - flat_test_date) + flat_test_value, $
          linestyle=1
 
+  flat_test_date = julday(7, 21, 2017)
+  flat_test_value = (21.38 + 21.55 + 22.00 + 21.62) / 4.0
+  flat_test_date_offset = -35.0
+  xyouts, flat_test_date + flat_test_date_offset, 40.0, 'Flat test', $
+          /data, alignment=1.0, charsize=0.65, font=1
+  t = 0.05
+  plots, [flat_test_date_offset * t + flat_test_date, flat_test_date + flat_test_date_offset], $
+         [(39.5 - flat_test_value) * t + flat_test_value, 39.5], $
+         color='a0a0a0'x
+  oplot, [flat_test_date], [flat_test_value], $
+         color='000000'x, psym=mg_usersym(/circle, /fill), symsize=0.75
+  
+  plots, s[ind_1074].time, $
+         coeffs[1] * (s[ind_1074].time - flat_test_date) + flat_test_value, $
+         linestyle=1
+
+  flat_test_date = julday(4, 4, 2018)
+  flat_test_value = (22.82 + 22.63 + 22.59 + 22.61) / 4.0
+  flat_test_date_offset = -40.0
+  xyouts, flat_test_date + flat_test_date_offset, 45.0, 'Flat test', $
+          /data, alignment=1.0, charsize=0.65, font=1
+  t = 0.05
+  plots, [flat_test_date_offset * t + flat_test_date, flat_test_date + flat_test_date_offset], $
+         [(44.5 - flat_test_value) * t + flat_test_value, 44.5], $
+         color='a0a0a0'x
+  oplot, [flat_test_date], [flat_test_value], $
+         color='000000'x, psym=mg_usersym(/circle, /fill), symsize=0.75
+  
+  plots, s[ind_1074].time, $
+         coeffs[1] * (s[ind_1074].time - flat_test_date) + flat_test_value, $
+         linestyle=1
+
   bad_morning_1074 = where(s[ind_1074[bad_1074]].time_of_day lt 9, n_bad_morning_1074, $
                        complement=bad_after_1074, ncomplement=n_bad_after_1074)
 
