@@ -13,8 +13,10 @@
 ;   start_date : in, optional, type=string
 ;     start date in the form "YYYYMMDD"
 ;-
-pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, $
-                           constant_normalization=constant_normalization
+pro comp_plot_flatmedians, flat_filename, dark_filename, $
+                           start_date=start_date, $
+                           constant_normalization=constant_normalization, $
+                           output_filename=output_filename
   compile_opt strictarr
 
   normalization_factor = 84.0
@@ -26,6 +28,10 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, 
                            long(strmid(start_date, 6, 2)), $
                            long(strmid(start_date, 0, 4)))
   endelse
+
+  _output_filename = n_elements(output_filename) eq 0L $
+                       ? 'flat-medians.ps' $
+                       : output_filename
 
   ; read flats
   n_lines = file_lines(flat_filename)
@@ -118,7 +124,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, 
 
   !null = label_date(date_format=['%M %D', '%Y'])
 
-  mg_psbegin, filename='flat-medians.ps', xsize=10.0, ysize=8.0, /inches, $
+  mg_psbegin, filename=_output_filename, xsize=10.0, ysize=8.0, /inches, $
               /color, /landscape, xoffset=0.0
 
   device, decomposed=1
@@ -149,7 +155,18 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, 
                julday(1, 23, 2015, 12), $
                julday(5, 22, 2015, 12), $
                julday(9, 16, 2015, 12), $
-               julday(5, 4, 2016, 12)]
+               julday(5, 4, 2016, 12), $
+               julday(6, 25, 2016, 12), $
+               julday(8, 16, 2016), $
+               julday(11, 28, 2016), $
+               julday(3, 24, 2017), $
+               ;julday(3, 27, 2017), $  ; seems like this is only KCor cleaning
+               julday(7, 14, 2017), $
+               julday(1, 29, 2018), $
+               julday(2, 26, 2018), $
+               julday(2, 28, 2018), $
+               julday(3, 16, 2018), $
+               julday(3, 28, 2018)]
   valid_cleaning_indices = where(cleanings ge jd_start_date, /null)
   cleanings = cleanings[valid_cleaning_indices]
   for c = 0L, n_elements(cleanings) - 1L do begin
@@ -289,10 +306,11 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, 
   cgLegend, symColors=['00a5ff'x, '0000ff'x, '00ff00'x, 'ff0000'x], $
             psyms=lonarr(4) + filled_square, $
             symsize=1.0, $
-            location=[0.80, 0.98], $
+            location=[0.80, 1.025], $
             titles=['1074.62 before 9 am HST', '1074.62 after 9 am HST', $
                     '1083.0 before 9 am HST', '1083.0 after 9 am HST'], $
             charsize=0.85, tt_font='Helvetica', /hardware, $
+            vspace=1.1, $
             length=0.0
 
   temp_filename = 'rockwell-temp-record.txt'
@@ -367,10 +385,17 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, start_date=start_date, 
           /data, alignment=1.0, charsize=0.65, font=1
 
   mg_psend
+  print, _output_filename, format='(%"wrote %s")'
 end
 
 
 comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
-                       /constant_normalization;, start_date='20130901'
+                       /constant_normalization, $
+                       output_filename='flat-medians.ps'
+ 
+comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
+                       /constant_normalization, $
+                       start_date='20160101', $
+                       output_filename='flat-medians-2016-2018.ps'
 
 end
