@@ -14,12 +14,14 @@
 ;     start date in the form "YYYYMMDD"
 ;-
 pro comp_plot_flatmedians, flat_filename, dark_filename, $
+                           yrange=yrange, $
                            start_date=start_date, $
                            constant_normalization=constant_normalization, $
                            output_filename=output_filename
   compile_opt strictarr
 
   normalization_factor = 84.0
+  _yrange = n_elements(yrange) eq 0L ? [0.0, 70.0] : yrange
 
   if (n_elements(start_date) eq 0L) then begin
     jd_start_date = 0.0D
@@ -119,7 +121,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
 
   ;y_range = [0.0, 1.05 * max(s.median)]
   ;y_range = [0.0, 66.0]
-  y_range = keyword_set(constant_normalization) ? [0.0, 70.0] : [0.0, 140.0]
+  y_range = keyword_set(constant_normalization) ? _yrange : [0.0, 140.0]
   print, y_range, format='(%"flat range: %0.1f - %0.1f")'
 
   !null = label_date(date_format=['%M %D', '%Y'])
@@ -258,11 +260,11 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
   flat_test_date = julday(7, 21, 2017)
   flat_test_value = (21.38 + 21.55 + 22.00 + 21.62) / 4.0
   flat_test_date_offset = -35.0
-  xyouts, flat_test_date + flat_test_date_offset, 40.0, 'Flat test', $
+  xyouts, flat_test_date + flat_test_date_offset, 39.0, 'Flat test', $
           /data, alignment=1.0, charsize=0.65, font=1
   t = 0.05
   plots, [flat_test_date_offset * t + flat_test_date, flat_test_date + flat_test_date_offset], $
-         [(39.5 - flat_test_value) * t + flat_test_value, 39.5], $
+         [(38.5 - flat_test_value) * t + flat_test_value, 38.5], $
          color='a0a0a0'x
   oplot, [flat_test_date], [flat_test_value], $
          color='000000'x, psym=mg_usersym(/circle, /fill), symsize=0.75
@@ -273,12 +275,12 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
 
   flat_test_date = julday(4, 4, 2018)
   flat_test_value = (22.82 + 22.63 + 22.59 + 22.61) / 4.0
-  flat_test_date_offset = -40.0
-  xyouts, flat_test_date + flat_test_date_offset, 45.0, 'Flat test', $
+  flat_test_date_offset = -75.0
+  xyouts, flat_test_date + flat_test_date_offset, 39.0, 'Flat test', $
           /data, alignment=1.0, charsize=0.65, font=1
   t = 0.05
   plots, [flat_test_date_offset * t + flat_test_date, flat_test_date + flat_test_date_offset], $
-         [(44.5 - flat_test_value) * t + flat_test_value, 44.5], $
+         [(38.5 - flat_test_value) * t + flat_test_value, 38.5], $
          color='a0a0a0'x
   oplot, [flat_test_date], [flat_test_value], $
          color='000000'x, psym=mg_usersym(/circle, /fill), symsize=0.75
@@ -390,10 +392,12 @@ end
 
 
 comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
+                       yrange=[0.0, 70.0], $
                        /constant_normalization, $
                        output_filename='flat-medians.ps'
  
 comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
+                       yrange=[0.0, 40.0], $
                        /constant_normalization, $
                        start_date='20160101', $
                        output_filename='flat-medians-2016-2018.ps'
