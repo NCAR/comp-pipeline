@@ -17,11 +17,16 @@
 ;-
 function comp_db_float2str, x, format=format
   compile_opt strictarr
+  on_ioerror, conversion_error
 
   if (~finite(x)) then return, 'NULL'
 
   _format = n_elements(format) eq 0L ? '%f' : format
   _format = '(%"' + _format + '")'
 
-  return, string(x, format=_format)
+  result = string(x, format=_format)
+  return, result
+
+  conversion_error:
+  mg_log, 'error converting "%s" to string', strtrim(x, 2), name='comp', /warn
 end
