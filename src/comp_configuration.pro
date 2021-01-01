@@ -42,10 +42,10 @@ pro comp_configuration, config_filename=config_filename, error=error
 
   ; processing
   raw_basedir          = config->get('raw_basedir', section='processing')
-  raw_routing_filename = config->get('raw_routing_filename', section='processing')
   date_pattern         = config->get('date_pattern', section='processing', $
                                     default='*')
   process_basedir     = config->get('process_basedir', section='processing')
+  routing_filename    = config->get('routing_filename', section='processing')
   process_wavelengths = config->get('wavelengths', section='processing', $
                                     /extract)
 

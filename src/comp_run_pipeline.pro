@@ -78,23 +78,23 @@ pro comp_run_pipeline, config_filename=config_filename
 
     error = 0L
     date_dir = candidate_dates[d]
-    if (n_elements(raw_routing_filename) gt 0L) then begin
-      raw_basedir = comp_get_route(raw_routing_filename, date_dir, 'raw', found=found)
-      if (~found) then begin
-        mg_log, 'no raw basedir found for %s in routing file', $
-                date_dir, $
-                name='comp', /critical
-        goto, done
-      endif
+
+    comp_update_configuration, date_dir
+
+    if (n_elements(raw_basedir) eq 0L) then begin
+      mg_log, 'no raw basedir specified for %s, skipping', date_dir, $
+              name='comp', /error
+      continue
     endif
 
     if (~file_test(filepath(date_dir, root=raw_basedir), /directory)) then begin
       mg_log, 'no raw base directory for %s, skipping', date_dir, $
-              name='comp', /warn
+              name='comp', /error
       continue
     endif
 
     comp_initialize, date_dir
+
     if (~dry_run) then comp_setup_loggers_date, date_dir
     if (lock_raw) then begin
       available = comp_state(date_dir, n_concurrent=n_concurrent)

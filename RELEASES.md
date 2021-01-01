@@ -84,3 +84,4 @@
   add RAWEXT FITS keyword
   combine matching extensions early in the pipeline
   add epoch value to specify a routine to repair raw data
+  routing file for raw and processed base directories

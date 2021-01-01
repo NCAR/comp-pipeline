@@ -4,9 +4,9 @@ common comp_config, doi_1074,$
                     binary_dir, $
                     hot_file, $
                     raw_basedir, $
-                    raw_routing_filename, $
                     date_pattern, $
                     process_basedir, $
+                    routing_filename, $
                     process_wavelengths, $
                     reprocess, $
                     delete_archive, $
