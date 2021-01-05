@@ -1,5 +1,6 @@
 ; docformat = 'rst'
 
+
 ;+
 ; Plot medians of flat.
 ;
@@ -258,7 +259,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
          linestyle=1
 
   flat_test_date = julday(7, 21, 2017)
-  flat_test_value = (21.38 + 21.55 + 22.00 + 21.62) / 4.0
+  flat_test_value = (21.38 + 21.55 + 22.00 + 21.62) / 4.0  ; 21.6375
   flat_test_date_offset = -35.0
   xyouts, flat_test_date + flat_test_date_offset, 39.0, 'Flat test', $
           /data, alignment=1.0, charsize=0.65, font=1
@@ -274,7 +275,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
          linestyle=1
 
   flat_test_date = julday(4, 4, 2018)
-  flat_test_value = (22.82 + 22.63 + 22.59 + 22.61) / 4.0
+  flat_test_value = (22.82 + 22.63 + 22.59 + 22.61) / 4.0  ; 22.6625
   flat_test_date_offset = -75.0
   xyouts, flat_test_date + flat_test_date_offset, 39.0, 'Flat test', $
           /data, alignment=1.0, charsize=0.65, font=1
@@ -314,6 +315,28 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
             charsize=0.85, tt_font='Helvetica', /hardware, $
             vspace=1.1, $
             length=0.0
+
+  transmission_test_dates = [julday(6, 22, 2005), $
+                             julday(12, 14, 2016), $
+                             julday(7, 21, 2017), $
+                             julday(4, 4, 2018)]
+  transmission_test_values = [84.0D, 25.8D, 21.6D, 22.7D]
+  t = s[ind_1074].time - transmission_test_dates[0]
+  for n = 1, 2 do begin
+    coeffs = poly_fit(transmission_test_dates - transmission_test_dates[0], $
+                      transmission_test_values, $
+                      n, $
+                      /double, $
+                      status=status, chisq=chisq)
+    p = poly(t, coeffs)
+    plots, t + transmission_test_dates[0], p, $
+           linestyle=2 + n, thick=2.0
+    xyouts, t[-1] + transmission_test_dates[0], p[-1], /data, $
+            string(n, format='(%"best fit n = %d")'), $
+            charsize=0.65, font=1
+  endfor
+
+  ; plot dark values and temperatures
 
   temp_filename = 'rockwell-temp-record.txt'
   n_temps = file_lines(temp_filename)
