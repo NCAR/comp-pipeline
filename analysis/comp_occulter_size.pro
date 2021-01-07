@@ -85,7 +85,9 @@ pro comp_occulter_size, start_date, end_date, process_root, $
            median(occulter_radius[ind]), $
            format='(%"id=%d: mean %0.3f, median %0.3f")'
   endfor
-
+  print, mean(field_radius), median(field_radius), $
+         format='(%"field: mean %0.3f, median %0.3f")'
+ 
   do_plot = 1B
   if (keyword_set(do_plot)) then begin
     print, 'making plot of occulter values...'
