@@ -323,11 +323,19 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
   transmission_test_values = [84.0D, 25.8D, 21.6D, 22.7D]
   t = s[ind_1074].time - transmission_test_dates[0]
   for n = 1, 2 do begin
-    coeffs = poly_fit(transmission_test_dates - transmission_test_dates[0], $
+    ; coeffs = poly_fit(transmission_test_dates - transmission_test_dates[0], $
+    ;                   transmission_test_values, $
+    ;                   n, $
+    ;                   /double, $
+    ;                   status=status, chisq=chisq)
+    coeffs = mpfitfun('comp_poly_model', $
+                      transmission_test_dates - transmission_test_dates[0], $
                       transmission_test_values, $
-                      n, $
-                      /double, $
-                      status=status, chisq=chisq)
+                      dblarr(n_elements(transmission_test_values)) + 0.1D, $
+                      n eq 1 ? [84.0, -0.015] : [84.0, -0.02, 1.5e-6], $
+                      weights=[11.0, 1.0, 1.0, 1.0], $
+                      /quiet)
+                    
     p = poly(t, coeffs)
     plots, t + transmission_test_dates[0], p, $
            linestyle=2 + n, thick=2.0
