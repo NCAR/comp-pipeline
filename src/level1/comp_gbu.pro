@@ -64,7 +64,7 @@
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_initialize,
-;   comp_configuration, comp_get_time_from_filename, comp_make_mask, fits_open,
+;   comp_configuration, comp_get_time_from_filename, comp_l1_mask, fits_open,
 ;   fits_read, fits_close, sxpar
 ;
 ; :Params:
@@ -233,7 +233,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     endif
 
     ; make mask of field-of-view
-    comp_make_mask, date_dir, header, mask
+    mask = comp_l1_mask(header)
 
     ; find standard 3 wavelengths for the wave type
     ; read line center intensity

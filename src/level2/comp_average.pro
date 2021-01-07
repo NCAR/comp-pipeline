@@ -42,7 +42,7 @@
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,
-;   comp_make_mask, comp_find_average_files, comp_find_l1_file, fits_open,
+;   comp_l2_mask, comp_find_average_files, comp_find_l1_file, fits_open,
 ;   fits_read, fits_write, fits_close, sxdelpar, sxaddpar, mg_log
 ;
 ; :Params:
@@ -287,7 +287,7 @@ pro comp_average, date_dir, wave_type, $
           mg_log, 'problem reading from %s', filename, name='comp', /error
           message, msg
         endif
-        comp_make_mask, date_dir, theader, mask
+        mask = comp_l2_mask(theader)
 
         comp_inventory_l1, fcb, wave, pol
 

@@ -25,7 +25,7 @@ pro comp_set_background, date_dir, primary_header, images_combine, headers_combi
   @comp_constants_common
 
   ; set BACKGRND for image
-  comp_make_mask, date_dir, primary_header, mask
+  mask = comp_l1_mask(primary_header)
 
   background = comp_get_component(images_combine, headers_combine, 'BKGI', 0, $
                                   /noskip, /average_wavelengths, n_wavelengths=3)

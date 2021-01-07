@@ -4,7 +4,7 @@
 ; Write a GIF file from the FITS file for CoMP.
 ;
 ; :Uses:
-;   comp_make_mask, colorbar2, sxpar
+;   colorbar2, sxpar
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -37,7 +37,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   ; not masking GIFs now
   ; mask
-;  comp_make_mask, date_dir, primary_header, mask
+;  mask = comp_l1_mask(date_dir, primary_header)
 ;  image *= mask
 
   ; exponent stretch

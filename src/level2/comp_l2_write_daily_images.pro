@@ -12,7 +12,7 @@
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_uniq,
-;   comp_make_mask, comp_aia_lct, comp_transparent_logo,
+;   comp_l2_mask, comp_aia_lct, comp_transparent_logo,
 ;   colorbar2, anytim2tai, sxpar, headfits, fitshead2struct, merge_struct,
 ;   readfits, mg_log
 ;
@@ -168,7 +168,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ; prepare and write out daily images
   mg_log, 'creating daily JPGs now...', name='comp', /info
 
-  comp_make_mask, date_dir, intensity_header, mask
+  mask = comp_l2_mask(intensity_header)
   good_ind = where(mask eq 1 $
                      and intensity gt int_min_thresh $
                      and intensity lt int_max_thresh, $

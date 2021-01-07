@@ -9,7 +9,7 @@
 ;     comp_l2_analytical, '20130514', '1074', 3
 ;
 ; :Uses:
-;   comp_constants_common, comp_config_common, comp_read_gbu, comp_make_mask,
+;   comp_constants_common, comp_config_common, comp_read_gbu, comp_l2_mask,
 ;   comp_analytic_gauss_fit, comp_intensity_enhancement,
 ;   comp_doppler_correction, comp_convert_header,
 ;   sxpar, headfits, readfits, fitshead2struct, merge_struct, writefits,
@@ -142,7 +142,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
     temp_data = dblarr(nx, ny, 3)
-    comp_make_mask, date, hdr, mask
+    mask = comp_l2_mask(hdr)
     mask = double(mask)
     bad_pixels_mask = bytarr(nx, ny)
 

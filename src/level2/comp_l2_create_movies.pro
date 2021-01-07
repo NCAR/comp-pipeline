@@ -10,7 +10,7 @@
 ;
 ; :Uses:
 ;   comp_constants_common, comp_config_common, comp_azimuth, comp_read_gbu,
-;   comp_make_mask, comp_transparent_logo, comp_aia_lct, colorbar2,
+;   comp_l2_mask, comp_transparent_logo, comp_aia_lct, colorbar2,
 ;   sxpar, headfits, fitshead2struct, merge_struct, readfits,
 ;   mg_log
 ;
@@ -113,7 +113,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ny = sxpar(ehdr, 'NAXIS2')
     endif
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
-    comp_make_mask, date_dir, hdr, mask
+    mask = comp_l2_mask(hdr)
     mask = double(mask)
 
     l2_d_file = (file_search(strmid(file_basename(gbu[ii].l1file), 0, 26) $

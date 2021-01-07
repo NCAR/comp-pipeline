@@ -9,7 +9,7 @@
 ; :Examples:
 ;   For example, call like::
 ;
-;     comp_make_mask,'20130915',header,mask
+;     mask = comp_l2_mask(header)
 ;
 ; :Uses:
 ;   comp_constants_common, comp_mask_constants_common, comp_initialize,
@@ -34,7 +34,7 @@
 ;   removed post_rotation fudge factor 11/14/14 ST
 ;   see git log for recent changes
 ;-
-pro comp_make_mask, date_dir, fits_header, mask
+function comp_l2_mask, fits_header
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
@@ -72,10 +72,10 @@ pro comp_make_mask, date_dir, fits_header, mask
     ; for new headers subtract 1 
     occulter = {x:sxpar(fits_header, 'CRPIX1') - 1.0, $
                 y:sxpar(fits_header, 'CRPIX2') - 1.0, $
-                r:sxpar(fits_header, 'ORADIUS')}
+                r:comp_occulter_radius(sxpar(header, 'OCCULTER'))}
     field = {x:sxpar(fits_header, 'FRPIX1') - 1.0, $
              y:sxpar(fits_header, 'FRPIX2') - 1.0, $
-             r:sxpar(fits_header, 'FRADIUS')}
+             r:comp_field_radius()}
     post_angle = sxpar(fits_header, 'POSTPANG')
     overlap_angle = sxpar(fits_header, 'OVRLPANG')
     p_angle = sxpar(fits_header, 'SOLAR_P0')
@@ -93,7 +93,7 @@ pro comp_make_mask, date_dir, fits_header, mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
     
     ; now the image header has the right post angle 
-      pmask = comp_post_mask(post_angle, post_width)
+    pmask = comp_post_mask(post_angle, post_width)
 
     ; overlap mask
     omask = comp_overlap_mask(field.r, overlap_angle + p_angle, $
@@ -101,6 +101,7 @@ pro comp_make_mask, date_dir, fits_header, mask
                               dy=(occulter.y - field.y))
 
     mask = dmask * field_mask * pmask * omask
-    ;mask = dmask * field_mask * omask
   endelse
+
+  return, mask
 end
