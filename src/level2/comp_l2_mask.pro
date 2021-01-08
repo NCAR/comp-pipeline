@@ -72,7 +72,7 @@ function comp_l2_mask, fits_header
     ; for new headers subtract 1 
     occulter = {x:sxpar(fits_header, 'CRPIX1') - 1.0, $
                 y:sxpar(fits_header, 'CRPIX2') - 1.0, $
-                r:comp_occulter_radius(sxpar(header, 'OCCULTER'))}
+                r:comp_occulter_radius(sxpar(fits_header, 'OCCULTER'))}
     field = {x:sxpar(fits_header, 'FRPIX1') - 1.0, $
              y:sxpar(fits_header, 'FRPIX2') - 1.0, $
              r:comp_field_radius()}
