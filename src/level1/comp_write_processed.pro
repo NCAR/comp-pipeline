@@ -185,7 +185,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
       endelse
 
       fxaddpar, header, 'BACKGRND', extension_background, $
-                ' Median of masked line center background', format='(F10.3)', $
+                ' Median of masked background', format='(F10.3)', $
                 after='ND-TRANS', /null
 
       ind = where(finite(images[*, *, i]) eq 0, n_nans)
