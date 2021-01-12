@@ -48,7 +48,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
   skip_first = flat_avg_skip_first
 
   nwaves = n_elements(uniq_waves)
-  wave_type = comp_find_wave_type(wave, /name)
+  wave_type = comp_find_wave_type(wave[0], /name)
 
   ; do not use first image at each wavelength
   wave[0] = -1   ; do not use first image
@@ -88,7 +88,10 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
               name='comp', /debug
 
       exposure = sxpar(header, 'EXPOSURE')
-      nd_filter = comp_get_nd_filter(date_dir, wave_type, header, error=nd_error)
+      nd_filter = comp_get_nd_filter(date_dir, $
+                                     wave_type, $
+                                     header, $
+                                     error=nd_error)
       if (nd_error ne 0) then begin
         mg_log, 'error reading NDFILTER, using 8', name='comp', /warn
       endif
