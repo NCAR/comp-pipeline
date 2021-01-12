@@ -24,10 +24,17 @@ function comp_find_wave_type, wavelengths, name=name
 
   regions = [center1074, center1079, center1083]
 
-  m = min(abs(mean(wavelengths) - regions), region_index)
+  m = min(abs(mean(abs(wavelengths)) - regions), region_index)
   central_wavelength = regions[region_index]
 
   return, keyword_set(name) $
             ? strtrim(long(central_wavelength), 2) $
             : central_wavelength
+end
+
+
+; main-level example program
+
+comp_initialize, '20130418'
+print, comp_find_wave_type(-1083.24, /name)
 end
