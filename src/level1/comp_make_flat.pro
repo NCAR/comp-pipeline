@@ -179,6 +179,8 @@ pro comp_make_flat, date_dir, error=error
     uniq_waves = wave[comp_uniq(wave, sort(wave))]
     nwaves = n_elements(uniq_waves)
 
+    wave_type = comp_find_wave_type(wave[0])
+
     ; perform averaging
     comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_filter, $
                    error=error
@@ -228,7 +230,7 @@ pro comp_make_flat, date_dir, error=error
               ' ND 1=.1, 2=.3, 3=.5, 4=1, 5=2, 6=3, 7=clr, 8=clr'
 
     ; should not have the ND filter in while taking a flat; if so, skip
-    if (nd_filter ne 8) then begin
+    if (nd_filter ne 8 && wave_type ne '1083') then begin
       mg_log, 'ND %d flat found in %s', nd_filter, opalfile, name='comp', /warn
       continue
     endif
