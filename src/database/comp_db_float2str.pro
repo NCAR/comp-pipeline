@@ -19,6 +19,7 @@ function comp_db_float2str, x, format=format
   compile_opt strictarr
   on_ioerror, conversion_error
 
+  if (n_elements(x) eq 0L) then return, 'NULL'
   if (~finite(x)) then return, 'NULL'
 
   _format = n_elements(format) eq 0L ? '%f' : format
