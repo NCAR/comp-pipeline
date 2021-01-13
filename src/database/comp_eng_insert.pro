@@ -105,7 +105,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     exposure = sxpar(header, 'EXPOSURE')
     ndfilter = sxpar(header, 'NDFILTER')
-    background = sxpar(header, 'BACKGRND')
+    background = fxpar(header, 'BACKGRND', /null)
 
     bodytemp = sxpar(header, 'BODYTEMP')
     basetemp = sxpar(header, 'BASETEMP')
