@@ -32,6 +32,6 @@ pro comp_set_background, date_dir, primary_header, images_combine, headers_combi
   backgrnd = median(background[where(mask eq 1.0)])
 
   sxaddpar, primary_header, 'LCBKG', backgrnd, $
-            ' Median of masked line center background', format='(F10.3)', $
+            ' Median of masked line center intensity background', format='(F10.3)', $
             after='TIME_HST'
 end
