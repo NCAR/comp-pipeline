@@ -149,7 +149,7 @@ pro comp_continuum_correction, date
           mg_log, 'offset diff %0.3f > %0.3f', $
                   abs(offset[cor_ind[f], 0] - offset[cor_ind[f], 1]), $
                   offset_limit, $
-                  name='comp', /warn
+                  name='comp', /debug
         endif
       endelse
 
