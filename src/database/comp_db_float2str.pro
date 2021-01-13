@@ -28,5 +28,5 @@ function comp_db_float2str, x, format=format
   return, result
 
   conversion_error:
-  mg_log, 'error converting "%s" to string', strtrim(x, 2), name='comp', /warn
+  mg_log, 'error converting \"%s\" to string', strtrim(x, 2), name='comp', /warn
 end
