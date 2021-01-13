@@ -33,10 +33,6 @@ function comp_get_nd_filter, date, wave_type, header, error=error
 
   if (nd_filter_present eq 0 || (nd_filter_present && ~finite(nd_filter))) then begin
       if (wave_type eq '1083') then begin
-        ; TODO: if this is a flat, need to determine likely NDFILTER value if
-        ;       not present, i.e., compare 1083 flat mean vs. 1074 flat mean
-        ;       because we know 1074 uses 8 (clear)
-        ;       if this is a science, we don't know -- use 4
         nd_filter = 4
       endif else begin
         nd_filter = 8
