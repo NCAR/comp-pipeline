@@ -176,7 +176,10 @@ pro comp_quick_invert, date_dir, wave_type, $
   u = comp_obs[*, *, 2, wave_indices[1]]
 
   zero = where(i le 0, count)
-  if (count eq 0) then mg_log, 'no zeros', name='comp', /warn
+  if (count eq 0) then begin
+    mg_log, 'no zeros for %s nm intensity [%s] (%s)', wave_type, _method, type, $
+            name='comp', /warn
+  endif
 
   ; compute azimuth and adjust for p-angle, correct azimuth for quadrants
   azimuth = comp_azimuth(u, q, radial_azimuth=radial_azimuth)
