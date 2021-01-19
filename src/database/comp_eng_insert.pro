@@ -154,7 +154,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
               {name: 'exposure', type: '%f'}, $
               {name: 'nd', type: '%d'}, $
-              {name: 'background', type: '''%s'''}, $
+              {name: 'background', type: '%s'}, $
 
               {name: 'bodytemp', type: '''%s'''}, $
               {name: 'basetemp', type: '''%s'''}, $
@@ -232,7 +232,10 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
       mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
     endif
 
-    if (n_warnings gt 0L) then comp_db_log_warnings, database=db
+    if (n_warnings gt 0L) then begin
+      comp_db_log_warnings, database=db
+      mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /warn
+    endif
   endfor
 
   done:
