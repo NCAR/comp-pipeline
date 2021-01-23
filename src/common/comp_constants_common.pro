@@ -12,7 +12,9 @@ common comp_constants, nx, ny, $
                        dispmin1074, dispmin1079, dispmin1083, $
                        dispmax1074, dispmax1079, dispmax1083, $
                        dispexp1074, dispexp1079, dispexp1083, $
-                       dispmin1074bkg, dispmax1074bkg, dispexp1074bkg, $
+                       dispmin1074bkg, dispmin1079bkg, dispmin1083bkg, $
+                       dispmax1074bkg, dispmax1079bkg, dispmax1083bkg, $
+                       dispexp1074bkg, dispexp1079bkg, dispexp1083bkg, $
                        stokes, n_stokes, $
                        debug, $
                        quality_threshold, $

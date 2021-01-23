@@ -186,9 +186,23 @@ pro comp_initialize, date_dir
 
   dispmin1074bkg = comp_initialize_readconfig('display_min_1074_bkg', $
                                               date_dir, options, type=4)
+  dispmin1079bkg = comp_initialize_readconfig('display_min_1079_bkg', $
+                                              date_dir, options, type=4)
+  dispmin1083bkg = comp_initialize_readconfig('display_min_1083_bkg', $
+                                              date_dir, options, type=4)
+
   dispmax1074bkg = comp_initialize_readconfig('display_max_1074_bkg', $
                                               date_dir, options, type=4)
+  dispmax1079bkg = comp_initialize_readconfig('display_max_1079_bkg', $
+                                              date_dir, options, type=4)
+  dispmax1083bkg = comp_initialize_readconfig('display_max_1083_bkg', $
+                                              date_dir, options, type=4)
+
   dispexp1074bkg = comp_initialize_readconfig('display_exp_1074_bkg', $
+                                              date_dir, options, type=4)
+  dispexp1079bkg = comp_initialize_readconfig('display_exp_1079_bkg', $
+                                              date_dir, options, type=4)
+  dispexp1083bkg = comp_initialize_readconfig('display_exp_1083_bkg', $
                                               date_dir, options, type=4)
 
   ; number of stokes parameters

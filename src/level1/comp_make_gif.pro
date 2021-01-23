@@ -54,14 +54,26 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
         endelse
       end
     '1079': begin
-        min = dispmin1079
-        max = dispmax1079
-        dispexp = dispexp1079
+        if (keyword_set(background)) then begin
+          min = dispmin1079bkg
+          max = dispmax1079bkg
+          dispexp = dispexp1079bkg
+        endif begin
+          min = dispmin1079
+          max = dispmax1079
+          dispexp = dispexp1079
+        endelse
       end
     '1083': begin
-        min = dispmin1083
-        max = dispmax1083
-        dispexp = dispexp1083
+        if (keyword_set(background)) then begin
+          min = dispmin1083bkg
+          max = dispmax1083bkg
+          dispexp = dispexp1083bkg
+        endif else begin
+          min = dispmin1083
+          max = dispmax1083
+          dispexp = dispexp1083
+        endelse
       end
   endcase
 
