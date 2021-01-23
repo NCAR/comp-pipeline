@@ -72,7 +72,7 @@ function comp_l2_mask, fits_header
     ; for new headers subtract 1 
     occulter = {x:sxpar(fits_header, 'CRPIX1') - 1.0, $
                 y:sxpar(fits_header, 'CRPIX2') - 1.0, $
-                r:comp_occulter_radius(sxpar(fits_header, 'OCCULTER'))}
+                r:comp_occulter_radius(sxpar(fits_header, 'OCC-ID'))}
     field = {x:sxpar(fits_header, 'FRPIX1') - 1.0, $
              y:sxpar(fits_header, 'FRPIX2') - 1.0, $
              r:comp_field_radius()}
@@ -104,4 +104,18 @@ function comp_l2_mask, fits_header
   endelse
 
   return, mask
+end
+
+
+; main-level example program
+
+date = '20170819'
+comp_initialize, date
+basename = '20170819.202136.comp.1074.iqu.3.fts.gz'
+filename = filepath(basename, root='/hao/dawn/Data/CoMP/process.reprocess-check/20170819/level1')
+fits_open, filename, fcb
+fits_read, fcb, data, header, exten_no=0, /header_only
+fits_close, fcb
+mask = comp_l2_mask(header)
+
 end
