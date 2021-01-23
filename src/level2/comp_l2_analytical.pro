@@ -143,7 +143,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
     temp_data = dblarr(nx, ny, 3)
     mask = comp_l2_mask(hdr)
-    mask = double(mask)
     bad_pixels_mask = bytarr(nx, ny)
 
     for xx = 0L, nx - 1L do begin
