@@ -651,7 +651,7 @@ pro comp_run_pipeline, config_filename=config_filename
         endif
       endfor
 
-      comp_send_notification, date_dir, body, t0, gbu_plot_filename
+      comp_send_notification, date_dir, body, t0, gbu_plot_filename, config_filename
 
       comp_l1_check_all, date_dir, body=summary_body, /no_log_message
       for w = 0L, n_elements(process_wavelengths) - 1L do begin

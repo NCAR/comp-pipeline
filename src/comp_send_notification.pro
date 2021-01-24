@@ -13,7 +13,7 @@
 ;   gbu_plot_filename : in, optional, type=string
 ;     filename of GBU plot file
 ;-
-pro comp_send_notification, date, body, t0, gbu_plot_filename
+pro comp_send_notification, date, body, t0, gbu_plot_filename, config_filename
   compile_opt strictarr
   @comp_config_common
 
@@ -34,7 +34,8 @@ pro comp_send_notification, date, body, t0, gbu_plot_filename
   if (notification_email ne '') then begin
     mg_log, 'sending email to %s', notification_email, $
             name='comp', /info
-    subject = string(date, format='(%"CoMP results for %s")')
+    flags = strmid(file_basename(config_filename, '.cfg'), 5)
+    subject = string(date, flags, format='(%"CoMP results for %s [%s]")')
     body_text = body->toArray()
 
     gbu_plot_filenames = strarr(n_elements(process_wavelengths))
