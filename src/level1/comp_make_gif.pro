@@ -58,7 +58,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
           min = dispmin1079bkg
           max = dispmax1079bkg
           dispexp = dispexp1079bkg
-        endif begin
+        endif else begin
           min = dispmin1079
           max = dispmax1079
           dispexp = dispexp1079
