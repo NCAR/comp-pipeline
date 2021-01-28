@@ -205,7 +205,7 @@ pro comp_average, date_dir, wave_type, $
     else: begin
         mg_log, 'no 5-point reference wavelengths of wave type %s', wave_type, $
                 name='comp', /error
-        return
+        goto, done
       end
   endcase
 
@@ -265,7 +265,7 @@ pro comp_average, date_dir, wave_type, $
               name='comp', /debug
 
       ; REFORM to make sure IDL doesn't drop a dimension of size 1
-      data = reform(fltarr(nx, ny, n_s_files, /nozero), $
+      data = reform(fltarr(nx, ny, n_s_files), $
                     nx, ny, n_s_files)
 
       header = !null
@@ -318,6 +318,7 @@ pro comp_average, date_dir, wave_type, $
         background_filename = comp_find_l1_file(date_dir, wave_type, $
                                                 datetime=name, $
                                                 /background)
+
         if (keyword_set(average_background_by_polarization)) then begin
           fits_open, background_filename, bkg_fcb
           fits_read, bkg_fcb, dat, bkg_header, $
@@ -327,6 +328,7 @@ pro comp_average, date_dir, wave_type, $
             mg_log, 'problem reading from %s', filename, name='comp', /error
             message, msg
           endif
+
           back[*, *, s, w] += dat * mask
           back_naverage[s, w] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[s, w] += 1
@@ -340,6 +342,7 @@ pro comp_average, date_dir, wave_type, $
             mg_log, 'problem reading from %s', filename, name='comp', /error
             message, msg
           endif
+
           back[*, *, w] += dat * mask
           back_naverage[w] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[w] += 1
@@ -400,7 +403,9 @@ pro comp_average, date_dir, wave_type, $
       endfor
 
       ; write sigma parameters to output files
-      fits_write, fcbsig, sigma, header, extname=ename
+      if (num_averaged[s, w] gt 0L) then begin
+        fits_write, fcbsig, sigma, header, extname=ename
+      endif
 
       ; find median and mean across image
       sxaddpar, header, 'NAVERAGE', naverage[s, w]
@@ -408,21 +413,25 @@ pro comp_average, date_dir, wave_type, $
       med = median(data, dimension=3)
       aver = mean(data, dimension=3, /nan)   ; use /NAN to not use masked pixels
 
-      mg_log, 'writing median...', name='comp', /debug
       ; write Stokes parameters to output files
       if (compute_median) then begin
         sxaddpar, header, 'DATAMIN', min(med, /nan), ' minimum data value', format='(F0.3)'
         sxaddpar, header, 'DATAMAX', max(med, /nan), ' maximum data value', format='(F0.3)'
 
-        fits_write, fcbmed, med, header, extname=ename
+        if (num_averaged[s, w] ne 0L) then begin
+          mg_log, 'writing median...', name='comp', /debug
+          fits_write, fcbmed, med, header, extname=ename
+        endif
       endif
 
-      mg_log, 'writing mean...', name='comp', /debug
       if (compute_mean) then begin
         sxaddpar, header, 'DATAMIN', min(aver, /nan), ' minimum data value', format='(F0.3)'
         sxaddpar, header, 'DATAMAX', max(aver, /nan), ' maximum data value', format='(F0.3)'
 
-        fits_write, fcbavg, aver, header, extname=ename
+        if (num_averaged[s, w] ne 0L) then begin
+          mg_log, 'writing mean...', name='comp', /debug
+          fits_write, fcbavg, aver, header, extname=ename
+        endif
       endif
 
       mg_log, 'finished averaging %0.2f for %s', waves[w], stokes[s], $
@@ -438,13 +447,8 @@ pro comp_average, date_dir, wave_type, $
       if (numof_stokes[s] eq 0) then continue
 
       for w = 0L, n_waves - 1L do begin
-        if (num_back_averaged[s, w] eq 0) then begin
-          mg_log, 'no background images to average for %s %0.2f', $
-                  stokes[s], waves[w], $
-                  name='comp', /warn
-        endif else begin
-          back[*, *, s, w] /= float(num_back_averaged[s, w])
-        endelse
+        if (num_back_averaged[s, w] eq 0) then continue
+        back[*, *, s, w] /= float(num_back_averaged[s, w])
 
         sxaddpar, header, 'WAVELENG', waves[w], ' [nm] Wavelength of obs'
         sxaddpar, header, 'NAVERAGE', back_naverage[s, w]
@@ -467,12 +471,8 @@ pro comp_average, date_dir, wave_type, $
     endfor
   endif else begin
     for w = 0L, n_waves - 1L do begin
-      if (num_back_averaged[w] eq 0) then begin
-        mg_log, 'no background images to average for %0.2f', waves[w], $
-                name='comp', /warn
-      endif else begin
-        back[*, *, w] /= float(num_back_averaged[w])
-      endelse
+      if (num_back_averaged[w] eq 0) then continue
+      back[*, *, w] /= float(num_back_averaged[w])
 
       sxaddpar, header, 'WAVELENG', waves[w], ' [nm] Wavelength of obs'
       sxaddpar, header, 'NAVERAGE', back_naverage[w]
@@ -531,6 +531,7 @@ pro comp_average, date_dir, wave_type, $
     mg_log, '%s', error_result, name='comp', /error
   endif
 
+  done:
   mg_log, 'done', name='comp', /info
 end
 
