@@ -130,7 +130,7 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   ; arrays for header data
   offset = bytarr(n_files)
-  back = fltarr(n_files)
+  back = fltarr(n_files) + !values.f_nan
   time = fltarr(n_files)
   img_sigma = fltarr(n_files)
   gt_threshold_count = fltarr(n_files)
@@ -223,7 +223,7 @@ pro comp_gbu, date_dir, wave_type, error=error
         if (perform_gbu) then good_files[ifile] += 4
       endif
 
-      ; reject anamolously low background images
+      ; reject anomalously low background images
       if (back[ifile] lt gbu_min_background) then begin
         mg_log, '%s: bkg %0.1f < min %0.1f', $
                 name, back[ifile], gbu_min_background, $
