@@ -126,7 +126,9 @@ end
 
 ; main-level example program
 
-comp_create_tables, config_filename=filepath('comp.latest.cfg', $
+config_basename = 'comp.latest.cfg'
+;config_basename = 'comp.reprocess-1.3.19-1.cfg'
+comp_create_tables, config_filename=filepath(config_basename, $
                                              subdir=['..', '..', 'config'], $
                                              root=mg_src_root())
 
