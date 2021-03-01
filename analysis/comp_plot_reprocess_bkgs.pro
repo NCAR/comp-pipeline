@@ -30,10 +30,15 @@ pro comp_plot_reprocess_bkgs, wave_region
   good_times = dblarr(n) + !values.f_nan
   times = dblarr(n) + !values.f_nan
   good_bkgs = fltarr(n) + !values.f_nan
+  good_sigma = fltarr(n) + !values.f_nan
   bkgs = fltarr(n) + !values.f_nan
+  sigma = fltarr(n) + !values.f_nan
   dates = dblarr(n_dirs) + !values.f_nan
   median_bkgs = fltarr(n_dirs) + !values.f_nan
+  median_sigma = fltarr(n_dirs) + !values.f_nan
   median_good_bkgs = fltarr(n_dirs) + !values.f_nan
+  median_good_sigma = fltarr(n_dirs) + !values.f_nan
+
   count = 0L
   good_count = 0L
   for d = 0L, n_dirs - 1L do begin
@@ -47,52 +52,149 @@ pro comp_plot_reprocess_bkgs, wave_region
       dates[d] = julday(date_parts[1], date_parts[2], date_parts[0])
 
       median_bkgs[d] = median(gbu.background)
+      median_sigma[d] = median(gbu.variance)
+
       jds = comp_plot_reprocess_bkgs_timeobs2jd(gbu.time_obs, times=day_times)
 
       bkgs[count:count + n_lines - 1] = gbu.background
+      sigma[count:count + n_lines - 1] = gbu.variance
       times[count:count + n_lines - 1] = jds
 
       good_indices = where(gbu.reason eq 0 and day_times lt 20.0, n_good_files)
       ;good_indices = where(day_times lt 20.0, n_good_files)
       if (n_good_files gt 0L) then begin
         median_good_bkgs[d] = median((gbu.background)[good_indices])
+        median_good_sigma[d] = median((gbu.variance)[good_indices])
         good_times[good_count:good_count + n_good_files - 1] = jds[good_indices]
         good_bkgs[good_count:good_count + n_good_files - 1] = (gbu.background)[good_indices]
+        good_sigma[good_count:good_count + n_good_files - 1] = (gbu.variance)[good_indices]
         good_count += n_good_files
       endif
       count += n_lines
     endif
   endfor
+
+  jd1 = julday(8, 1, 2013)
+  jd2 = julday(1, 1, 2016)
+
   times = times[0:count - 1]
   bkgs = bkgs[0:count - 1]
   dummy = label_date(date_format='%Y.%N.%D')
   charsize = 1.25
   yrange = [0.0, 20.0]
   xticks = 8
+  color = '000000'x
+  background = 'ffffff'x
+  annotation_color = 'a0a0a0'x
+  variance_yrange = [0.0, 3.0]
+
+  show_threshold = 0B
+
   window, xsize=1000, ysize=500, /free, title='Reprocess-check'
   plot, times, bkgs, $
-        charsize=charsize, psym=3, color='000000'x, background='ffffff'x, $
+        charsize=charsize, psym=3, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Background', yrange=yrange, $
         title=string(wave_region, format='(%"Background for all %s nm files")')
+  if (keyword_set(show_threshold)) then begin
+    oplot, dblarr(2) + jd1, !y.crange, color=annotation_color
+    oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
+  endif
+
+  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  plot, times, sigma, $
+        charsize=charsize, psym=3, color=color, background=background, $
+        xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
+        ytitle='Variance', yrange=variance_yrange, $
+        title=string(wave_region, format='(%"Variance for all %s nm files")')
+      
   window, xsize=1000, ysize=500, /free, title='Reprocess-check'
   plot, good_times, good_bkgs, $
-        charsize=charsize, psym=3, color='000000'x, background='ffffff'x, $
+        charsize=charsize, psym=3, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Background',  yrange=yrange, $
         title=string(wave_region, format='(%"Background for good %s nm files")')
+  if (keyword_set(show_threshold)) then begin
+    oplot, dblarr(2) + jd1, !y.crange, color=annotation_color
+    oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
+  endif
+
+  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  plot, good_times, good_sigma, $
+        charsize=charsize, psym=3, color=color, background=background, $
+        xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
+        ytitle='Variance',  yrange=variance_yrange, $
+        title=string(wave_region, format='(%"Variance for good %s nm files")')
+
   window, xsize=1000, ysize=500, /free, title='Reprocess-check'
   plot, dates, median_bkgs, $
-        charsize=charsize, psym=2, symsize=0.75, color='000000'x, background='ffffff'x, $
+        charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Median background',  yrange=yrange, $
         title=string(wave_region, format='(%"Median background for all %s nm files")')
+  if (keyword_set(show_threshold)) then begin
+    oplot, dblarr(2) + jd1, !y.crange, color=annotation_color
+    oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
+  endif
+
+  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  plot, dates, median_sigma, $
+        charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
+        xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
+        ytitle='Median variance',  yrange=variance_yrange, $
+        title=string(wave_region, format='(%"Median variance for all %s nm files")')
+
   window, xsize=1000, ysize=500, /free, title='Reprocess-check'
   plot, dates, median_good_bkgs, $
-        charsize=charsize, psym=2, symsize=0.75, color='000000'x, background='ffffff'x, $
+        charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Median background',  yrange=yrange, $
         title=string(wave_region, format='(%"Median background for good %s nm files")')
+  if (keyword_set(show_threshold)) then begin
+    oplot, dblarr(2) + jd1, !y.crange, color=annotation_color
+    oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
+  endif
+
+  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  plot, dates, median_good_sigma, $
+        charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
+        xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
+        ytitle='Median variance',  yrange=variance_yrange, $
+        title=string(wave_region, format='(%"Median variance for good %s nm files")')
+
+  if (keyword_set(show_threshold)) then begin
+    epoch1_indices = where(times lt jd1, n_epoch1)
+    epoch2_indices = where(times gt jd1 and times lt jd2, n_epoch2)
+    epoch3_indices = where(times gt jd2, n_epoch3)
+
+    h = histogram(bkgs[epoch1_indices], binsize=0.1, min=0.0, max=60.0, locations=locs)
+    ch = total(h, /cumulative) / total(h)
+    window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+    plot, locs, 100.0 * ch, $
+          charsize=charsize, psym=10, color=color, background=background, $
+          xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
+          ytitle='% of images marked good', $
+          title=string(label_date(0, 0, jd1, 1), format='Background threshold choice (before %s)')
+
+    h = histogram(bkgs[epoch2_indices], binsize=0.1, min=0.0, max=60.0, locations=locs)
+    ch = total(h, /cumulative) / total(h)
+    window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+    plot, locs, 100.0 * ch, $
+          charsize=charsize, psym=10, color=color, background=background, $
+          xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
+          ytitle='% of images marked good', $
+          title=string(label_date(0, 0, jd1, 1), label_date(0, 0, jd2, 1), $
+                       format='Background threshold choice (between %s and %s)')
+
+    h = histogram(bkgs[epoch3_indices], binsize=0.1, min=0.0, max=60.0, locations=locs)
+    ch = total(h, /cumulative) / total(h)
+    window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+    plot, locs, 100.0 * ch, $
+          charsize=charsize, psym=10, color=color, background=background, $
+          xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
+          ytitle='% of images marked good', $
+          title=string(label_date(0, 0, jd2, 1), format='Background threshold choice (after %s)')
+  endif
 end
 
 
