@@ -65,6 +65,8 @@ pro comp_plot_reprocess_bkgs, wave_region
       if (n_good_files gt 0L) then begin
         median_good_bkgs[d] = median((gbu.background)[good_indices])
         median_good_sigma[d] = median((gbu.variance)[good_indices])
+        ; print, date, median_good_bkgs[d], median_bkgs[d], $
+        ;        format='(%"%d: median good bkg=%0.3f, median bkg=%0.3f")'
         good_times[good_count:good_count + n_good_files - 1] = jds[good_indices]
         good_bkgs[good_count:good_count + n_good_files - 1] = (gbu.background)[good_indices]
         good_sigma[good_count:good_count + n_good_files - 1] = (gbu.variance)[good_indices]
@@ -74,7 +76,7 @@ pro comp_plot_reprocess_bkgs, wave_region
     endif
   endfor
 
-  jd1 = julday(8, 1, 2013)
+  jd1 = julday(9, 15, 2013)
   jd2 = julday(1, 1, 2016)
 
   times = times[0:count - 1]
