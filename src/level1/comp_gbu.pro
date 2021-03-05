@@ -346,7 +346,11 @@ pro comp_gbu, date_dir, wave_type, error=error
       ; neglect pixels that are masked, i.e. zero pixels
       ; neglect pixel that are below 1.0
       good = where(data[*, *, ifile] gt 1 and med gt 1, n_good)
-      if (n_good gt 0L) then img_sigma[ifile] = stddev(diff[good])
+      if (n_good gt 0L) then begin
+        img_sigma[ifile] = stddev(diff[good])
+      endif else begin
+        mg_log, 'not computing sigma for %s', filenames[ifile], name='comp', /warn
+      endelse
     endfor
 
     ; test for large sigma defind as > 2.5
