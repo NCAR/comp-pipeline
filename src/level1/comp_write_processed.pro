@@ -190,7 +190,7 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
 
       ind = where(finite(images[*, *, i]) eq 0, n_nans)
       if (n_nans gt 0L) then begin
-        mg_log, '%d NaNs in %s ext %s', $
+        mg_log, '%d NaNs in %s ext %d', $
                 n_nans, file_basename(output_filename), i + 1, $
                 name='comp', /debug
       endif
