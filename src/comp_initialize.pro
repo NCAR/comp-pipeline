@@ -118,13 +118,13 @@ pro comp_initialize, date_dir
 
   ; GBU
   gbu_max_background = comp_initialize_readconfig('gbu_max_background', $
-                                                  date_dir, options, type=4, default=16.0)
+                                                  date_dir, options, type=4, default=12.0)
   gbu_min_background = comp_initialize_readconfig('gbu_min_background', $
-                                                  date_dir, options, type=4, default=1.0)
+                                                  date_dir, options, type=4, default=2.2)
   gbu_med_background = comp_initialize_readconfig('gbu_med_background', $
                                                   date_dir, options, type=4, default=8.0)
   gbu_max_sigma = comp_initialize_readconfig('gbu_max_sigma', $
-                                             date_dir, options, type=4, default=2.5)
+                                             date_dir, options, type=4, default=1.5)
   gbu_percent_background_change = comp_initialize_readconfig('gbu_percent_background_change', $
                                                              date_dir, options, $
                                                              type=4, default=0.5)
