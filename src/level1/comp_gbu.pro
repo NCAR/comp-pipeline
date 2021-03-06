@@ -349,7 +349,8 @@ pro comp_gbu, date_dir, wave_type, error=error
       if (n_good gt 0L) then begin
         img_sigma[ifile] = stddev(diff[good])
       endif else begin
-        mg_log, 'not computing sigma for %s', filenames[ifile], name='comp', /warn
+        mg_log, 'not computing sigma for %s [%d]', filenames[ifile], ifile, name='comp', /warn
+        img_sigma[ifile] = !values.f_nan
       endelse
     endfor
 
