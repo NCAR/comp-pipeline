@@ -28,6 +28,8 @@ common comp_constants, nx, ny, $
                        gbu_background_threshold, $
                        gbu_threshold_count, $
                        gbu_offset_count, $
+                       gbu_intensity_min_threshold, $
+                       gbu_intensity_percentage, $
                        nominal_overlap_angle, $
                        overlap_angle_tolerance, $
                        post_angle_diff_tolerance, $

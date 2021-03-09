@@ -25,6 +25,7 @@
 ;     64  background image contains more than 2000 pixels with a value > 70.0
 ;    128  standard deviation of intensity image - median intensity image = NaN
 ;         or Inf
+;    256  intensity image contains more than 60% pixels with a value < 0.1
 ;
 ; Output files::
 ;
@@ -133,6 +134,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   back = fltarr(n_files) + !values.f_nan
   time = fltarr(n_files)
   img_sigma = fltarr(n_files)
+  lt_threshold_count = fltarr(n_files)
   gt_threshold_count = fltarr(n_files)
   n_waves = intarr(n_files)
   polstates = strarr(n_files)
@@ -255,6 +257,19 @@ pro comp_gbu, date_dir, wave_type, error=error
       fits_read, back_fcb, dat_back, header, exten_no=wave_indices[1] + 1, $
                  /no_abort, message=msg
       if (msg ne '') then message, msg
+
+      annulus_indices = where(mask, n_annulus_indices)
+      if (n_annulus_indices gt 0L) then begin
+        ifile_intensity = reform(data[*, *, ifile])
+        !null = where(ifile_intensity[annulus_indices] lt gbu_intensity_min_threshold, n_below)
+        lt_threshold_count[ifile] = n_below
+        if (n_below gt n_annulus_indices * gbu_intensity_percentage / 100.0) then begin
+          mg_log, '%s: %d int pixels < %0.3f', $
+                  name, n_below, gbu_intensity_min_threshold, $
+                  name='comp', /warn
+          good_files[ifile] += 256
+        endif
+      endif
 
       ; reject file if there are more than 100 background pixels with a level of
       ; > 70.0
@@ -417,9 +432,10 @@ pro comp_gbu, date_dir, wave_type, error=error
           format='(%"Median morning background: %0.2f, median background: %0.2f")'
   printf, gbu_lun, $
           'Filename', 'Quality', 'Back', 'Sigma', $
-          string(gbu_threshold_count, format='(%"#>%6.1f")'), $
+          string(gbu_intensity_min_threshold, format='(%"#<%4.1f")'), $
+          string(gbu_background_threshold, format='(%"#>%4.1f")'), $
           '#waves', 'Reason', $
-          format='(A-41, X, A7, X, A6, X, A8, 2X, A8, 2X, A6, 2X, A6)'
+          format='(A-41, X, A7, X, A6, X, A6, 2X, A6, 2X, A6, 2X, A6, 2X, A6)'
 
   for i = 0L, n_files - 1L do begin
     ; don't put nonexistent files in the GBU file
@@ -454,10 +470,11 @@ pro comp_gbu, date_dir, wave_type, error=error
               : (((gt_threshold_count[i] ge gbu_offset_count) || offset[i]) ? 'Offset' : 'Good'), $
             back[i], $
             img_sigma[i], $
+            lt_threshold_count[i], $
             gt_threshold_count[i], $
             n_waves[i], $
             good_files[i], $
-            format='(A41, X, A7, X, F6.2, X, F8.2, 2X, I8, 2X, I6, 2X, i6)'
+            format='(A41, X, A7, X, F6.2, X, F6.2, 2X, I6, 2X, I6, 2X, I6, 2X, i6)'
   endfor
 
   free_lun, lun
@@ -502,8 +519,8 @@ end
 ;         '20171202', '20171203', '20171204', '20171205', '20171206', $
 ;         '20171207', '20171208', '20171209', '20171210', '20171211', $
 ;         '20171212', '20171213', '20171214', '20171216']
-dates = ['20171001']
-config_filename = filepath('comp.mgalloy.mahi.latest.cfg', $
+dates = ['20171012']
+config_filename = filepath('comp.reprocess-check-2017.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename

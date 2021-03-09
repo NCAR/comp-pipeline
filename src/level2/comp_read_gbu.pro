@@ -64,6 +64,7 @@ function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
            quality: '', $
            background: 0.0, $
            variance: 0.0, $
+           lt_threshold: 0L, $
            gt_threshold: 0L, $
            wavelengths: 0, $
            reason: 0L}
@@ -102,7 +103,7 @@ function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
       endelse
       str.wavelengths = fix(x[4])
       str.reason = long(x[5])
-    endif else begin
+    endif else if (n_elements(x) eq 7) then begin
       str.quality = x[1]
       str.background = float(x[2])
       if (strmid(x[3], 0, 1) eq '*') then begin
@@ -113,6 +114,18 @@ function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
       str.gt_threshold = long(x[4])
       str.wavelengths = fix(x[5])
       str.reason = long(x[6])
+    endif else begin
+      str.quality = x[1]
+      str.background = float(x[2])
+      if (strmid(x[3], 0, 1) eq '*') then begin
+        str.variance = !values.f_nan
+      endif else begin
+        str.variance = float(x[3])
+      endelse
+      str.lt_threshold = long(x[4])
+      str.gt_threshold = long(x[5])
+      str.wavelengths = fix(x[6])
+      str.reason = long(x[7])
     endelse
 
     ;   ofile = base+'.FitI.'+fns('#',str.wavelengths)+'.sav'
