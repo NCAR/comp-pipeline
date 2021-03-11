@@ -12,6 +12,7 @@ pro comp_analyze_gbu, wave_region, root_dir
   n_only_lt_threshold = 0L
   check_threshold = 35.0
   check_list = list()
+  check_value = list()
   for f = 0L, n_gbu_files - 1L do begin
     print, f + 1, n_gbu_files, file_basename(gbu_files[f]), format='(%"%d/%d: %s")'
     gbu = comp_read_gbu(gbu_files[f], count=n_files)
@@ -19,7 +20,7 @@ pro comp_analyze_gbu, wave_region, root_dir
     print, n_check, format='(%"found %d border-line files to check")'
     if (n_check gt 0L) then begin
       check_list->add, (gbu.l1file)[check_indices], /extract
-      ;stop
+      check_value->add, (gbu.lt_threshold)[check_indices], /extract
     endif
     n_total_files += n_files
     if (n_files gt 0L) then begin
@@ -39,9 +40,13 @@ pro comp_analyze_gbu, wave_region, root_dir
   print, n_only_lt_threshold, format='(%"%d files only bad for < threshold")'
   print, check_list->count(), check_threshold, format='(%"%d files over %0.1f%% < 0.1 and not bad")'
   if (check_list->count() gt 0L) then begin
-    print, transpose([check_list->toArray()])
+    values = check_value->toArray()
+    ind = sort(-values)
+    for c = 0L, check_list->count() - 1L do begin
+      print, c + 1, check_list[ind[c]], check_value[ind[c]], format='(%"[%d] %s: %0.2f%%")'
+    endfor
   endif
-  obj_destroy, check_list
+  obj_destroy, [check_list, check_value]
 end
 
 
