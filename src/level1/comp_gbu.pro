@@ -134,7 +134,7 @@ pro comp_gbu, date_dir, wave_type, error=error
   back = fltarr(n_files) + !values.f_nan
   time = fltarr(n_files)
   img_sigma = fltarr(n_files)
-  lt_threshold_count = fltarr(n_files)
+  lt_threshold_percentage = fltarr(n_files)
   gt_threshold_count = fltarr(n_files)
   n_waves = intarr(n_files)
   polstates = strarr(n_files)
@@ -262,7 +262,7 @@ pro comp_gbu, date_dir, wave_type, error=error
       if (n_annulus_indices gt 0L) then begin
         ifile_intensity = reform(data[*, *, ifile])
         !null = where(ifile_intensity[annulus_indices] lt gbu_intensity_min_threshold, n_below)
-        lt_threshold_count[ifile] = n_below
+        lt_threshold_percentage[ifile] = 100.0 * n_below / n_annulus_indices
         if (n_below gt n_annulus_indices * gbu_intensity_percentage / 100.0) then begin
           mg_log, '%s: %d int pixels < %0.3f', $
                   name, n_below, gbu_intensity_min_threshold, $
@@ -432,7 +432,7 @@ pro comp_gbu, date_dir, wave_type, error=error
           format='(%"Median morning background: %0.2f, median background: %0.2f")'
   printf, gbu_lun, $
           'Filename', 'Quality', 'Back', 'Sigma', $
-          string(gbu_intensity_min_threshold, format='(%"#<%4.1f")'), $
+          string(gbu_intensity_min_threshold, format='(%"%%<%4.1f")'), $
           string(gbu_background_threshold, format='(%"#>%4.1f")'), $
           '#waves', 'Reason', $
           format='(A-41, X, A7, X, A6, X, A6, 2X, A6, 2X, A6, 2X, A6, 2X, A6)'
@@ -470,11 +470,11 @@ pro comp_gbu, date_dir, wave_type, error=error
               : (((gt_threshold_count[i] ge gbu_offset_count) || offset[i]) ? 'Offset' : 'Good'), $
             back[i], $
             img_sigma[i], $
-            lt_threshold_count[i], $
+            lt_threshold_percentage[i], $
             gt_threshold_count[i], $
             n_waves[i], $
             good_files[i], $
-            format='(A41, X, A7, X, F6.2, X, F6.2, 2X, I6, 2X, I6, 2X, I6, 2X, i6)'
+            format='(A41, X, A7, X, F6.2, X, F6.2, 2X, F6.2, 2X, I6, 2X, I6, 2X, i6)'
   endfor
 
   free_lun, lun
