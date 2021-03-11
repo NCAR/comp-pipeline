@@ -64,7 +64,7 @@ function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
            quality: '', $
            background: 0.0, $
            variance: 0.0, $
-           lt_threshold: 0L, $
+           lt_threshold: 0.0, $
            gt_threshold: 0L, $
            wavelengths: 0, $
            reason: 0L}
@@ -122,7 +122,7 @@ function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
       endif else begin
         str.variance = float(x[3])
       endelse
-      str.lt_threshold = long(x[4])
+      str.lt_threshold = float(x[4])
       str.gt_threshold = long(x[5])
       str.wavelengths = fix(x[6])
       str.reason = long(x[7])
