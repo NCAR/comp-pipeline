@@ -188,7 +188,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     if (msg ne '') then message, msg
 
     offset[ifile] = strtrim(sxpar(header, 'OCC-PNTG'), 2) eq 'OFFSET'
-    file_background = sxpar(header, 'LCBKG')
+    file_background = sxpar(header, 'BACKG3WL')
     back[ifile] = size(file_background, /type) eq 7 ? !values.f_nan : file_background
     n_waves[ifile] = sxpar(header, 'NTUNES')
   

@@ -67,8 +67,8 @@ pro comp_write_processed, images, headers, primary_header, date_dir, filename, $
                                  root=process_basedir)
 
   if (wave_type eq '1083') then begin
-    fxaddpar, primary_header, 'LCBKG', !values.f_nan, $
-              ' Median of masked line center intensity background', format='(F10.3)', $
+    fxaddpar, primary_header, 'BACKG3WL', !values.f_nan, $
+              ' median of masked background center 3 wavelen', format='(F10.3)', $
               after='TIME_HST', /null
   endif
 

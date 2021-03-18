@@ -41,7 +41,7 @@ pro comp_l1_check, date_dir, wave_type, body=body
     if (msg ne '') then message, msg
     overlap_angle = sxpar(primary_header, 'OVRLPANG')
 
-    im_background = sxpar(primary_header, 'LCBKG')
+    im_background = sxpar(primary_header, 'BACKG3WL')
     background[f] = size(im_background, /type) eq 7 ? !values.f_nan : im_background
 
     if (abs(overlap_angle - nominal_overlap_angle) gt overlap_angle_tolerance) then begin
