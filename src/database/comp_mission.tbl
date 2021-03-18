@@ -7,7 +7,7 @@ create table comp_mission (
   date            datetime not null,
 
   -- added in l1 primary header
-  mlso_url        char (24),
+  mlso_url        char (50),
   doi_url_1074    char (48),
   doi_url_1079    char (48),
   doi_url_1083    char (48),
