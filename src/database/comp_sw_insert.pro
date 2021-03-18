@@ -54,14 +54,7 @@ pro comp_sw_insert, date, $
                  status=status, error_message=error_message, $
                  sql_statement=final_sql_cmd, $
                  n_warnings=n_warnings
-    if (status ne 0L) then begin
-      mg_log, '%d, error message: %s', status, error_message, $
-              name='comp', /error
-      mg_log, 'sql_cmd: %s', final_sql_cmd, name='comp', /error
-      goto, done
-    endif
-
-    if (n_warnings gt 0L) then comp_db_log_warnings, database=db
+    if (status ne 0L) then goto, done
 
     sw_index  = db->query('select last_insert_id()')
   endif else begin

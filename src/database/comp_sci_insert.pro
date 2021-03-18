@@ -166,16 +166,6 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
                  error_message=error_message, $
                  sql_statement=final_sql_cmd, $
                  n_warnings=n_warnings
-    if (status ne 0L) then begin
-      mg_log, 'error inserting %s into comp_sci table', $
-              file_basename(science_files[f], '.gz'), $
-              name='comp', /error
-      mg_log, 'status: %d, error message: %s', status, error_message, $
-              name='comp', /error
-      mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
-    endif
-
-    if (n_warnings gt 0L) then comp_db_log_warnings, database=db
   endfor
 
   done:

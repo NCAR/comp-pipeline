@@ -219,23 +219,7 @@ pro comp_eng_insert, date, wave_type, database=db, obsday_index=obsday_index
 
                  sw_id, $
 
-                 status=status, $
-                 error_message=error_message, $
-                 sql_statement=final_sql_cmd, $
-                 n_warnings=n_warnings
-    if (status ne 0L) then begin
-      mg_log, 'error inserting %s into comp_eng table', $
-              file_basename(l1_files[f]), $
-              name='comp', /error
-      mg_log, 'status: %d, error message: %s', status, error_message, $
-              name='comp', /error
-      mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /error
-    endif
-
-    if (n_warnings gt 0L) then begin
-      comp_db_log_warnings, database=db
-      mg_log, 'SQL command: %s', final_sql_cmd, name='comp', /warn
-    endif
+                 status=status
   endfor
 
   done:
@@ -255,7 +239,7 @@ config_filename = filepath('comp.elliptic.cfg', $
 comp_initialize, date
 comp_configuration, config_filename=config_filename
 
-db = mgdbmysql()
+db = compdbmysql()
 db->connect, config_filename=database_config_filename, $
              config_section=database_config_section, $
              status=status, error_message=error_message

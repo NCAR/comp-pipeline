@@ -19,7 +19,7 @@ pro comp_update_database, date, wave_type, $
   
   ; create MySQL database interface object
   if (~obj_valid(db)) then begin
-    db = mgdbmysql()
+    db = compdbmysql()
     db->connect, config_filename=database_config_filename, $
                  config_section=database_config_section, $
                  status=status, error_message=error_message

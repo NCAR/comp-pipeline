@@ -42,7 +42,7 @@ function mlso_obsday_insert, date, $
   ;       .mysqldb. The "config_section" parameter specifies
   ;       which group of data to use.
 
-  db = mgdbmysql()
+  db = compdbmysql()
   db->connect, config_filename=config_filename, $
                config_section=config_section, $
                status=status, error_message=error_message
@@ -103,6 +103,6 @@ function mlso_obsday_insert, date, $
   endelse
 
   if (~arg_present(db)) then obj_destroy, db
-								 
-  return, obs_day_index							 
+
+  return, obs_day_index
 end

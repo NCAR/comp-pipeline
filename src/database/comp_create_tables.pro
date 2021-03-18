@@ -29,7 +29,7 @@ pro comp_create_tables, config_filename=config_filename
   endif
 
   ; create MySQL database interface object
-  db = mgdbmysql()
+  db = compdbmysql()
   db->connect, config_filename=database_config_filename, $
                config_section=database_config_section, $
                status=status, error_message=error_message
