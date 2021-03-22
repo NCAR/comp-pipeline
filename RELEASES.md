@@ -72,7 +72,7 @@
   more fixes for when no files to process in a wavelength
 1.3.18 [Mar 5, 2018]
   bug fix
-1.3.19
+2.0.0 [Mar 18, 2021]
   quality check
   update database
   level 1 summary text file
