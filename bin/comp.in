@@ -1,22 +1,36 @@
 #!/usr/bin/env python
 
 import argparse
+import configparser
 import datetime
+import fnmatch
+import glob
 import os
 import psutil
 import subprocess
 
+try:
+    import mysql
+    import mysql.connector
+    import packaging.specifiers
+    import packaging.version
+    versions_requirements = True
+except ModuleNotFoundError as e:
+    versions_requirements = False
 
-DEVNULL = open(os.devnull, 'w')
+
+DEVNULL = open(os.devnull, "w")
 PIPELINE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+DATE_FORMAT = "%Y%m%d"
 
 
 intervals = (
-    ('weeks', 604800),  # 60 * 60 * 24 * 7
-    ('days', 86400),    # 60 * 60 * 24
-    ('hrs', 3600),    # 60 * 60
-    ('mins', 60),
-    ('secs', 1),
+    ("weeks", 604800),  # 60 * 60 * 24 * 7
+    ("days", 86400),    # 60 * 60 * 24
+    ("hrs", 3600),    # 60 * 60
+    ("mins", 60),
+    ("secs", 1),
     )
 
 def display_time(seconds, granularity=2):
@@ -27,35 +41,186 @@ def display_time(seconds, granularity=2):
         if value:
             seconds -= value * count
             if value == 1:
-                name = name.rstrip('s')
+                name = name.rstrip("s")
             result.append("%d %s" % (value, name))
-    return ' '.join(result[:granularity])
+    return " ".join(result[:granularity])
 
 
 def format_timedelta(timedelta):
     return(display_time(int(timedelta.total_seconds()), granularity=len(intervals)))
 
 
-def list_processes():
+def parse_date_expr(date_expr):
+    dates = []
+
+    try:
+        for de in date_expr.split(","):
+            d = de.split("-")
+            if len(d) not in [1, 2]:
+                print(f"invalid syntax: {de}")
+                return []
+
+            if len(d) == 1:
+                date_string = d[0]
+                date = datetime.datetime.strptime(date_string, DATE_FORMAT)
+                dates.append(date.strftime(DATE_FORMAT))
+
+            if len(d) == 2:
+                date_string = d[0]
+                date = datetime.datetime.strptime(date_string, DATE_FORMAT)
+                date_string = d[1]
+                end_date = datetime.datetime.strptime(date_string, DATE_FORMAT)
+                if date > end_date:
+                    print(f"invalid date range {de}")
+                    return []
+                while date.strftime(DATE_FORMAT) != end_date.strftime(DATE_FORMAT):
+                    dates.append(date.strftime(DATE_FORMAT))
+                    date = date + datetime.timedelta(days=1)
+    except ValueError:
+        print(f"invalid date syntax: {date_string}")
+        return []
+
+    return dates
+
+
+def get_config(flags, error):
+    # construct config file filename
+    config_basename = f"comp.{flags}.cfg"
+    config_filename = os.path.join(PIPELINE_DIR, "config", config_basename)
+    if not os.path.isfile(config_filename):
+        basename = os.path.basename(config_filename)
+        error(f"configuration file does not exist: {config_filename}")
+
+    config = configparser.ConfigParser()
+    config.read(config_filename)
+
+    return(config)
+
+
+def get_login(config, error):
+    try:
+        mysql_config_filename = config.get("database", "config_filename")
+        mysql_config_section = config.get("database", "config_section")
+    except configparser.NoSectionError:
+        args.parser.error("database information not specified")
+
+    mysql_config = configparser.ConfigParser()
+    mysql_config.read(mysql_config_filename)
+
+    try:
+        host = mysql_config.get(mysql_config_section, "host")
+        user = mysql_config.get(mysql_config_section, "user")
+        password = mysql_config.get(mysql_config_section, "password")
+        port = mysql_config.get(mysql_config_section, "port")
+        database = mysql_config.get(mysql_config_section, "database")
+    except configparser.NoSectionError:
+        args.parser.error("incomplete database information")
+
+    return(host, user, password, port, database)
+
+
+def get_version(date, cursor):
+    unknown_date = 10 * "-"
+    unknown_version = 10 * "-"
+
+    year  = date[0:4]
+    month = date[4:6]
+    day   = date[6:8]
+    q = f"select * from MLSO.mlso_numfiles where obs_day='{year}-{month}-{day}';"
+    cursor.execute(q)
+    row = cursor.fetchone()
+    if row is None:
+        return(unknown_date)
+    else:
+        day_id = row[0]
+        q = f"select comp_sw_id from MLSO.comp_eng where obs_day={day_id} limit 1;"
+        cursor.execute(q)
+        row = cursor.fetchone()
+        if row is None:
+            return(unknown_date)
+        else:
+            sw_id = row[0]
+            if sw_id is None:
+                return(unknown_version)
+            else:
+                q = f"select * from MLSO.comp_sw where sw_id={sw_id};"
+                cursor.execute(q)
+                row = cursor.fetchone()
+                if row is None:
+                    return(unknown_version)
+                else:
+                    version = row[3]
+                    return(f"{version:10s}")
+
+
+def get_n_raw_files(date, config):
+    try:
+        raw_basedir = config.get("processing", "raw_basedir")
+    except configparser.NoOptionError as e:
+        routing_filename = config.get("processing", "routing_filename")
+        routing = configparser.ConfigParser()
+        routing.read(routing_filename)
+        for option in routing["comp-raw"]:
+            if fnmatch.fnmatch(date, option):
+                raw_basedir = routing.get("comp-raw", option)
+                break
+
+    raw_pathname = os.path.join(raw_basedir, date, "*.FTS*")
+
+    n = len(glob.glob(raw_pathname))
+    if n == 0:
+        return(14 * "-")
+    else:
+        return(f"{n:4d} raw files")
+
+
+def report_date(date, cursor, config):
+    version = get_version(date, cursor)
+    n_raw_files = get_n_raw_files(date, config)
+
+    print(f"{date}: {version} {n_raw_files}")
+
+
+def report(args):
+    if not versions_requirements:
+        args.parser.error("missing Python packages required for querying database")
+
+    dates = parse_date_expr(",".join(args.dates))
+    config = get_config(args.flags, args.parser.error)
+    host, user, password, port, database = get_login(config, args.parser.error)
+
+    try:
+        connection = mysql.connector.connect(host=host, user=user, password=password)
+        cursor = connection.cursor()
+        for d in dates:
+            report_date(d, cursor, config)
+    except mysql.connector.Error as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def list_processes(args):
     comp_processes = []
     for p in psutil.process_iter():
         cmdline = p.cmdline()
-        cmdline = '' if len(cmdline) == 0 else cmdline[-1]
-        if p.name() == 'idl' and cmdline.startswith('comp'):
-            comp_processes.append({'cmdline': cmdline,
-                                   'pid': p.pid,
-                                   'start_time': p.create_time()})
+        cmdline = "" if len(cmdline) == 0 else cmdline[-1]
+        if p.name() == "idl" and cmdline.startswith("comp"):
+            comp_processes.append({"cmdline": cmdline,
+                                   "pid": p.pid,
+                                   "start_time": p.create_time()})
     if len(comp_processes) == 0:
-        print('no comp processes currently running')
+        print("no comp processes currently running")
         return
 
     now = datetime.datetime.now()
 
     for p in comp_processes:
-        started = datetime.datetime.fromtimestamp(p['start_time'])
+        started = datetime.datetime.fromtimestamp(p["start_time"])
         time_running = now - started
         start_time = started.strftime("%Y-%m-%d %H:%M:%S")
-        print('[%d] (%s running %s): %s' % (p['pid'], start_time, format_timedelta(time_running), p['cmdline']))
+        print("[%d] (%s running %s): %s" % (p["pid"], start_time, format_timedelta(time_running), p["cmdline"]))
 
 
 def wait_for(process):
@@ -63,36 +228,51 @@ def wait_for(process):
         process.wait()
         return 0
     except KeyboardInterrupt:
-        print('killing process %d' % process.pid)
+        print("killing process %d" % process.pid)
         process.kill()
         return 1
 
 
-if __name__ == '__main__':
-    name = 'CoMP pipeline @VERSION@'
+def print_help(args):
+    args.parser.print_help()
+
+
+if __name__ == "__main__":
+    name = "CoMP pipeline @VERSION@"
 
     parser = argparse.ArgumentParser(description=name)
 
-    parser.add_argument('-l', '--list', action='store_true',
-                        help='set to list CoMP processes')
-
-    parser.add_argument('-f', '--flags',
-                        type=str,
-                        default='latest',
-                        help='''FLAGS section of config filename, i.e., file in
-                                config/ directory matching comp.user.machine.FLAGS.cfg
-                                will be used''')
-
-    parser.add_argument('--no-wait',
-                        action='store_true',
-                        help='set to run all dates simultaneously')
-
-    parser.add_argument('-v', '--version',
-                        action='version',
+    parser.add_argument("-v", "--version",
+                        action="version",
                         version=name)
 
-    args = parser.parse_args()
+    # show help if no sub-command given
+    parser.set_defaults(func=print_help, parser=parser)
 
-    if args.list:
-        list_processes()
-        parser.exit(status=0)
+    subparsers = parser.add_subparsers(metavar="command")
+
+    # list processes parser
+    list_parser = subparsers.add_parser("list",
+                                        help="list CoMP processes")
+    list_parser.set_defaults(func=list_processes, parser=list_parser)
+
+    flags_help = """FLAGS section of config filename, i.e., file in
+           config/ directory matching comp.user.machine.FLAGS.cfg
+           will be used"""
+    date_help = """dates to run on in the form YYYYMMDD including lists (using
+           commas) and ranges (using hyphens where end date is not
+           included)"""
+
+    # report process
+    report_parser = subparsers.add_parser("report", help="report on dates")
+    report_parser.add_argument("dates", type=str, nargs="*",
+                               help=date_help,
+                               metavar="date expression")
+    report_parser.add_argument("-f", "--flags", type=str, default="latest",
+                               help=flags_help)
+    report_parser.set_defaults(func=report, parser=report_parser)
+
+    # parse args and call appropriate sub-command
+    args = parser.parse_args()
+    args.func(args)
+
