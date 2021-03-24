@@ -81,6 +81,8 @@ pro comp_run_pipeline, config_filename=config_filename
     date_dir = candidate_dates[d]
 
     comp_update_configuration, date_dir
+    comp_initialize, date_dir
+    if (~dry_run) then comp_setup_loggers_date, date_dir, rotate=rotate_logs
 
     if (n_elements(raw_basedir) eq 0L) then begin
       mg_log, 'no raw basedir specified for %s, skipping', date_dir, $
@@ -94,9 +96,6 @@ pro comp_run_pipeline, config_filename=config_filename
       continue
     endif
 
-    comp_initialize, date_dir
-
-    if (~dry_run) then comp_setup_loggers_date, date_dir
     if (lock_raw) then begin
       available = comp_state(date_dir, n_concurrent=n_concurrent)
       if (available ne 1) then begin
@@ -116,9 +115,9 @@ pro comp_run_pipeline, config_filename=config_filename
       endelse
     endif
 
-    if (~dry_run && reprocess && rotate_logs) then begin
-      comp_setup_loggers_date, date_dir, /rotate
-    endif
+    ; if (~dry_run && reprocess && rotate_logs) then begin
+    ;   comp_setup_loggers_date, date_dir, /rotate
+    ; endif
 
     mg_log, 'starting processing for %d', date_dir, name='comp', /info
 
