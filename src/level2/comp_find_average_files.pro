@@ -151,7 +151,8 @@ function comp_find_average_files_allgood, list_filename, $
 
   ; exit if no files with the given Stokes parameter...
   if (n_stokes_files eq 0L) then begin
-    mg_log, 'found 0 all good files for %s', stokes_parameter, name='comp', /debug
+    mg_log, 'found 0 all good files for %s', strupcase(stokes_parameter), $
+            name='comp', /debug
     count = 0L
     return, !null
   endif
@@ -160,12 +161,11 @@ function comp_find_average_files_allgood, list_filename, $
   stokes_files = candidate_files[stokes_indices]
   stokes_times = times[stokes_indices]
 
-
   ; find files between each set of flats
   stokes_bins = value_locate(stokes_times, flat_times)
   
   stokes_start_indices = stokes_bins[uniq(stokes_bins)] + 1L
-  before_ind = where(stokes_start_indices lt n_elements(stokes_times) - 1L, $
+  before_ind = where(stokes_start_indices lt (n_elements(stokes_times) - 1L), $
                      ncomplement=n_after)
   if (n_after gt 0L) then stokes_start_indices = stokes_start_indices[before_ind]
   if (n_elements(stokes_start_indices) eq 1L) then begin
@@ -177,10 +177,12 @@ function comp_find_average_files_allgood, list_filename, $
 
   ; return the largest set of files for a given flat
   count = max(files_per_flat, flat_index)
+  if (count eq 0) then return, !null
+
   files = stokes_files[stokes_start_indices[flat_index]:stokes_end_indices[flat_index]]
 
   mg_log, 'found %d all good files for %s', $
-          n_elements(files), stokes_parameter, $
+          n_elements(files), strupcase(stokes_parameter), $
           name='comp', /debug
 
   return, files
@@ -309,6 +311,9 @@ function comp_find_average_files_nogap, list_filename, $
     stokes_end_indices   = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
   endelse
   files_per_flat       = stokes_end_indices - stokes_start_indices + 1L
+
+  count = max(files_per_flat)
+  if (count eq 0L) then return, !null
 
   ; loop through the flats
   for flat_index = 0L, n_elements(files_per_flat) - 1L do begin
@@ -725,8 +730,7 @@ function comp_find_average_files, date_dir, wave_type, $
       min_n_cluster_files = averaging_min_n_cluster_waves_files[min_c]
       for mci = 0L, n_elements(averaging_max_cadence_interval) - 1L do begin
         cadence_interval = averaging_max_cadence_interval[mci]
-        cadence_interval /= 60.0D * 60.0D * 24.0D
-
+        ;cadence_interval /= 60.0D * 60.0D * 24.0D
         mg_log, 'searching for at least %d I files with cadence interval %0.1f sec', $
                 min_n_cluster_files, cadence_interval, $
                 name='comp', /debug
@@ -778,13 +782,16 @@ end
 ;dates = ['20171001', '20171002', '20171003', '20171004', '20171005', $
 ;         '20171006', '20171007', '20171008', '20171009', '20171010', $
 ;         '20171011', '20171012', '20171013', '20171014']
-dates = ['20130115', '20160611']
-wave_type = '1083'
+dates = ['20121203']
+wave_type = '1079'
 
-config_filename = '../../config/comp.mgalloy.mahi.latest.cfg'
+config_filename = filepath('comp.reprocess.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
 comp_configuration, config_filename=config_filename
 
 for d = 0L, n_elements(dates) - 1L do begin
+  comp_update_configuration, dates[d]
   comp_initialize, dates[d]
 
   synoptic_i_files = comp_find_average_files(dates[d], wave_type, $
@@ -809,9 +816,6 @@ for d = 0L, n_elements(dates) - 1L do begin
     print, n_elements(waves_qu_files), format='(%"%d waves QU files")'
     print, n_elements(waves_v_files), format='(%"%d waves V files")'
   endif else print, 'no waves I files'
-
-;  print, dates[d], n_synoptic_files, n_waves_files, n_combined_files, $
-;         format='(%"---> %s: %d synoptic, %d waves, %d combined")'
 endfor
 
 end

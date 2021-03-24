@@ -87,3 +87,6 @@
   add epoch value to specify a routine to repair raw data
   routing file for raw and processed base directories
 2.0.1
+  fix for finding files to average with only a single candidate file
+  not marking a day as processed if crashed
+  adding sub-commands to comp script (list, report)
