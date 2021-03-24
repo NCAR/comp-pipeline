@@ -77,6 +77,7 @@ pro comp_run_pipeline, config_filename=config_filename
     t0 = systime(/seconds)
 
     error = 0L
+    success_with_day = 0B
     date_dir = candidate_dates[d]
 
     comp_update_configuration, date_dir
@@ -679,6 +680,8 @@ pro comp_run_pipeline, config_filename=config_filename
               name='comp', /debug
     endif
 
+    success_with_day = 1B
+
     done_with_day:
     t1 = systime(/seconds)
     mg_log, 'total running time: %s', comp_sec2str(t1 - t0), $
@@ -688,9 +691,11 @@ pro comp_run_pipeline, config_filename=config_filename
       unlocked = comp_state(date_dir, /unlock, n_concurrent=n_concurrent)
       mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $
               name='comp', /info
-      processed = comp_state(date_dir, /processed, n_concurrent=n_concurrent)
-      mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
-              name='comp', /info
+      if (success_with_day) then begin
+        processed = comp_state(date_dir, /processed, n_concurrent=n_concurrent)
+        mg_log, 'marked %s as processed', filepath(date_dir, root=raw_basedir), $
+                name='comp', /info
+      endif
     endif
   endfor
 
