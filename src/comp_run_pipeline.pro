@@ -686,6 +686,12 @@ pro comp_run_pipeline, config_filename=config_filename
     mg_log, 'total running time: %s', comp_sec2str(t1 - t0), $
             name='comp', /info
 
+    help, /files, output=output
+    for i = 1L, n_elements(output) - 1L do begin
+      filename = (strsplit(output[i], /extract))[-1]
+      mg_log, 'leaked LUN for %s', name='comp', /error
+    endfor
+
     if (lock_raw && ~dry_run) then begin
       unlocked = comp_state(date_dir, /unlock, n_concurrent=n_concurrent)
       mg_log, 'unlocked %s', filepath(date_dir, root=raw_basedir), $

@@ -88,7 +88,7 @@ pro comp_average, date_dir, wave_type, $
   if (error ne 0) then begin
     catch, /cancel
     mg_log, /last_error, name='comp'
-    return
+    goto, done
   endif
 
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
@@ -113,7 +113,7 @@ pro comp_average, date_dir, wave_type, $
             wave_type, $
             keyword_set(synoptic) ? 'synoptic' : 'waves', $
             name='comp', /warn
-    return
+    goto, done
   endif
 
   n_i_files  = n_elements(i_files)
@@ -532,6 +532,12 @@ pro comp_average, date_dir, wave_type, $
   endif
 
   done:
+  fits_close, fcb
+  fits_close, bkg_fcb
+  fits_close, fcbmed
+  fits_close, fcbavg
+  fits_close, fcbsig
+
   mg_log, 'done', name='comp', /info
 end
 
