@@ -20,7 +20,8 @@ pro comp_plot_reprocess_bkgs, wave_region
   compile_opt strictarr
   @comp_config_common
 
-  config_filename = filepath('comp.reprocess-check.cfg', $
+  flags = 'reprocess'
+  config_filename = filepath(string(flags, format='(%"comp.%s.cfg")'), $
                              subdir=['..', 'config'], $
                              root=mg_src_root())
   comp_configuration, config_filename=config_filename
@@ -43,6 +44,7 @@ pro comp_plot_reprocess_bkgs, wave_region
   good_count = 0L
   for d = 0L, n_dirs - 1L do begin
     date = file_basename(dirs[d])
+    print, d + 1, n_dirs, date, format='(%"%03d/%03d: %s")'
     gbu_basename = string(date, wave_region, format='(%"%s.comp.%s.gbu.log")')
     gbu_filename = filepath(gbu_basename, subdir='level1', root=dirs[d])
     if (file_test(gbu_filename, /regular)) then begin
@@ -92,7 +94,7 @@ pro comp_plot_reprocess_bkgs, wave_region
 
   show_threshold = 0B
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, times, bkgs, $
         charsize=charsize, psym=3, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
@@ -103,14 +105,14 @@ pro comp_plot_reprocess_bkgs, wave_region
     oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
   endif
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, times, sigma, $
         charsize=charsize, psym=3, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Variance', yrange=variance_yrange, $
         title=string(wave_region, format='(%"Variance for all %s nm files")')
       
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, good_times, good_bkgs, $
         charsize=charsize, psym=3, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
@@ -121,14 +123,14 @@ pro comp_plot_reprocess_bkgs, wave_region
     oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
   endif
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, good_times, good_sigma, $
         charsize=charsize, psym=3, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Variance',  yrange=variance_yrange, $
         title=string(wave_region, format='(%"Variance for good %s nm files")')
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, dates, median_bkgs, $
         charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
@@ -139,14 +141,14 @@ pro comp_plot_reprocess_bkgs, wave_region
     oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
   endif
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, dates, median_sigma, $
         charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
         ytitle='Median variance',  yrange=variance_yrange, $
         title=string(wave_region, format='(%"Median variance for all %s nm files")')
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, dates, median_good_bkgs, $
         charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
@@ -157,7 +159,7 @@ pro comp_plot_reprocess_bkgs, wave_region
     oplot, dblarr(2) + jd2, !y.crange, color=annotation_color
   endif
 
-  window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+  window, xsize=1000, ysize=500, /free, title=flags
   plot, dates, median_good_sigma, $
         charsize=charsize, psym=2, symsize=0.75, color=color, background=background, $
         xtickformat='label_date', xtitle='Date', xstyle=1, xticks=xticks, $
@@ -171,7 +173,7 @@ pro comp_plot_reprocess_bkgs, wave_region
 
     h = histogram(bkgs[epoch1_indices], binsize=0.1, min=0.0, max=60.0, locations=locs)
     ch = total(h, /cumulative) / total(h)
-    window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+    window, xsize=1000, ysize=500, /free, title=flags
     plot, locs, 100.0 * ch, $
           charsize=charsize, psym=10, color=color, background=background, $
           xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
@@ -180,7 +182,7 @@ pro comp_plot_reprocess_bkgs, wave_region
 
     h = histogram(bkgs[epoch2_indices], binsize=0.1, min=0.0, max=60.0, locations=locs)
     ch = total(h, /cumulative) / total(h)
-    window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+    window, xsize=1000, ysize=500, /free, title=flags
     plot, locs, 100.0 * ch, $
           charsize=charsize, psym=10, color=color, background=background, $
           xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
@@ -190,7 +192,7 @@ pro comp_plot_reprocess_bkgs, wave_region
 
     h = histogram(bkgs[epoch3_indices], binsize=0.1, min=0.0, max=60.0, locations=locs)
     ch = total(h, /cumulative) / total(h)
-    window, xsize=1000, ysize=500, /free, title='Reprocess-check'
+    window, xsize=1000, ysize=500, /free, title=flags
     plot, locs, 100.0 * ch, $
           charsize=charsize, psym=10, color=color, background=background, $
           xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
