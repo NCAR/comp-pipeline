@@ -77,18 +77,6 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
       end
   endcase
 
-  image = image ^ dispexp
-
-  n_annotation_colors = 3
-  top = 255 - n_annotation_colors
-  image = bytscl(image, min=min, max=max, top=top)
-
-  ; resize the data
-  s = size(image)
-  if (size ne s[1]) then begin
-    image = rebin(image, size, size)
-  endif
-
   ; configure the device
   original_device = !d.name
 
@@ -101,12 +89,46 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   loadct, 3, /silent, ncolors=256 - n_annotation_colors
 
+  if (keyword_set(background)) then begin
+    bad1_col = 251
+    tvlct, 255, 255, 0, bad1_ocol
+    bad2_col = 252
+    tvlct, 0, 255, 255 bad2_ocol
+  endif
+
   ocol = 253
   tvlct, 0, 200, 255, ocol
   fcol = 254
   tvlct, 0, 255, 0, fcol
   ccol = 255
   tvlct, 255, 255, 255, ccol
+
+  n_annotation_colors = 3
+  n_threshold_colors = 2
+  if (keyword_set(background)) then begin
+    top = 255 - n_annotation_colors - n_threshold_colors
+  endif else begin
+    top = 255 - n_annotation_colors
+  endelse
+
+  if (keyword_set(background)) then begin
+    over1_indices = where(image gt max, n_over1)
+    over2_indices = where(image gt gbu_background_threshold, n_over2)
+  endif
+
+  image = image ^ dispexp
+  image = bytscl(image, min=min, max=max, top=top)
+
+  if (keyword_set(background)) then begin
+    image[over1_indices] = bad1_col
+    image[over2_indices] = bad2_col
+  endif
+
+  ; resize the data
+  s = size(image)
+  if (size ne s[1]) then begin
+    image = rebin(image, size, size)
+  endif
 
   tv, image
 
