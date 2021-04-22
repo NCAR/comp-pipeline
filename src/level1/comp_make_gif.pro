@@ -93,7 +93,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     bad1_col = 251
     tvlct, 255, 255, 0, bad1_ocol
     bad2_col = 252
-    tvlct, 0, 255, 255 bad2_ocol
+    tvlct, 0, 255, 255, bad2_ocol
   endif
 
   ocol = 253
