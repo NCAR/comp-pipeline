@@ -87,6 +87,14 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
           set_pixel_depth=8, $
           set_colors=256
 
+  n_annotation_colors = 3
+  n_threshold_colors = 2
+  if (keyword_set(background)) then begin
+    top = 255 - n_annotation_colors - n_threshold_colors
+  endif else begin
+    top = 255 - n_annotation_colors
+  endelse
+
   loadct, 3, /silent, ncolors=256 - n_annotation_colors
 
   if (keyword_set(background)) then begin
@@ -102,14 +110,6 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   tvlct, 0, 255, 0, fcol
   ccol = 255
   tvlct, 255, 255, 255, ccol
-
-  n_annotation_colors = 3
-  n_threshold_colors = 2
-  if (keyword_set(background)) then begin
-    top = 255 - n_annotation_colors - n_threshold_colors
-  endif else begin
-    top = 255 - n_annotation_colors
-  endelse
 
   if (keyword_set(background)) then begin
     over1_indices = where(image gt max, n_over1)
