@@ -99,9 +99,9 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
 
   if (keyword_set(background)) then begin
     bad1_col = 251
-    tvlct, 255, 255, 0, bad1_ocol
+    tvlct, 255, 255, 0, bad1_col
     bad2_col = 252
-    tvlct, 0, 255, 255, bad2_ocol
+    tvlct, 0, 255, 255, bad2_col
   endif
 
   ocol = 253
