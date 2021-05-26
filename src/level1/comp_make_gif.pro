@@ -216,11 +216,14 @@ end
 
 ; main-level example program
 
-date = '20180103'
+date = '20130103'
 comp_initialize, date
 
-process_basedir = '/hao/mahidata1/Data/CoMP/process.new-olddist-strayplain'
-filename = filepath('20180104.023830.comp.1074.iv.5.bkg.fts.gz', $
+process_basedir = '/hao/dawn/Data/CoMP/process'
+; filename = filepath('20130103.210733.comp.1074.iqu.3.bkg.fts.gz', $
+;                     subdir=[date, 'level1'], $
+;                     root=process_basedir)
+filename = filepath('20130103.210804.comp.1074.iqu.3.bkg.fts.gz', $
                     subdir=[date, 'level1'], $
                     root=process_basedir)
 fits_open, filename, fcb
@@ -228,7 +231,7 @@ fits_read, fcb, data, primary_header, exten_no=0
 fits_read, fcb, intensity, header, exten_no=2
 fits_close, fcb
 
-comp_make_gif, date, intensity, primary_header, 'test.gif', $
+comp_make_gif, date, intensity, primary_header, '20130103.210804.comp.1074.iqu.3.bkg.gif', $
                620, 'Background', '1074', $
                /background
 

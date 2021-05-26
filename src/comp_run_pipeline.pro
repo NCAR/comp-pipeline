@@ -346,7 +346,7 @@ pro comp_run_pipeline, config_filename=config_filename
       mg_log, 'skipping GBU', name='comp', /info
     endelse
 
-    if (create_l1) then begin
+    if (create_l1 || perform_gbu) then begin
       mg_log, 'creating mp4 of bad science images', name='comp', /info
       comp_create_bad_mp4, date_dir
     endif else begin
@@ -354,7 +354,7 @@ pro comp_run_pipeline, config_filename=config_filename
     endelse
 
 
-    if (create_l1) then begin
+    if (create_l1 || perform_gbu) then begin
       for w = 0L, n_elements(process_wavelengths) - 1L do begin
         mg_log, 'plotting daily %s engineering data', process_wavelengths[w], $
                 name='comp', /info

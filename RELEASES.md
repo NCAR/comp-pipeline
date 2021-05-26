@@ -90,4 +90,6 @@
   fix for finding files to average with only a single candidate file
   not marking a day as processed if crashed
   adding sub-commands to comp script (list, report)
-2.0.2
+2.0.2 [May 26, 2021]
+  updating GBU constants per epoch
+  handle performing GBU after level 1 processing
