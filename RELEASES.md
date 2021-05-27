@@ -93,5 +93,5 @@
 2.0.2 [May 26, 2021]
   updating GBU constants per epoch
   handle performing GBU after level 1 processing
-2.0.3
-  
+2.0.3 [May 27, 2021]
+  fix for SQL syntax error
