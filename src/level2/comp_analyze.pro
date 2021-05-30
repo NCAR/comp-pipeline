@@ -94,8 +94,10 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
 
   ; copy the primary header from the mean file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0, /no_abort, message=msg
-  if (msg ne '') then message, msg
   fits_close, fcb
+  if (msg ne '') then begin
+    message, msg
+  endif
 
   ;  create wavelength scale (nm)
 
@@ -348,6 +350,7 @@ pro comp_analyze, date_dir, wave_type, synthetic=synthetic, error=error
   fits_write, fcbout, fit_guesses[*,*,9], header, extname='Crosstalk'
   fits_close, fcbout
 
+  done:
   mg_log, 'done', name='comp', /info
 end
 

@@ -326,7 +326,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   endif
 
   done:
-  ;fits_close, fcb
+  fits_close, fcb
 
   mg_log, 'done', name='comp', /info
 end

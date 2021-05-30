@@ -180,6 +180,10 @@ pro comp_average, date_dir, wave_type, $
              /no_abort, message=msg
   if (msg ne '') then begin
     mg_log, 'problem reading from %s', test_filename, name='comp', /error
+    fits_close, fcb
+    fits_close, fcbavg
+    fits_close, fcbmed
+    fits_close, fcbsig
     message, msg
   endif
   sxdelpar, primary_header, 'DATE_HST'

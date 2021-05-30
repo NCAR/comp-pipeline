@@ -71,13 +71,16 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
 
   if (~file_test(filename) || file_test(filename, /zero_length)) then begin
     mg_log, '%s does not exist', filename, name='comp', /warn
-    mg_log, 'done', name='comp', /info
-    return
+    goto, done
   endif
 
   fits_open, filename, fcb   ; open input file
   fits_read, fcb, data, header, /header_only, exten_no=0, /no_abort, message=msg
-  if (msg ne '') then message, msg
+  if (msg ne '') then begin
+    mg_log, 'problem reading %s', filename, name='comp', /error
+    fits_close, fcb
+    message, msg
+  endif
 
   mg_log, 'reading %s', file_basename(filename), name='comp', /debug
 
@@ -225,6 +228,9 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
   endif else begin
     mg_log, 'not plotting correlation because no V observed', name='comp', /info
   endelse
+
+  done:
+  fits_close, fcb
 
   mg_log, 'done', name='comp', /info
 end
