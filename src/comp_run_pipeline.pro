@@ -640,8 +640,11 @@ pro comp_run_pipeline, config_filename=config_filename
     mg_log, 'checking for leaked LUNs...', name='comp', /info
     help, /files, output=output
     for i = 1L, n_elements(output) - 1L do begin
-      filename = (strsplit(output[i], /extract))[-1]
-      mg_log, 'leaked LUN for %s', filename, name='comp', /error
+      tokens = strsplit(output[i], /extract)
+      filename = tokens[-1]
+      lun = long(tokens[0])
+      mg_log, 'leaked LUN for %s, freeing...', filename, name='comp', /error
+      free_lun, lun
     endfor
 
     if (check_l1) then begin
