@@ -95,5 +95,5 @@
   handle performing GBU after level 1 processing
 2.0.3 [May 27, 2021]
   fix for SQL syntax error
-2.0.4
+2.0.4 [June 7, 2021]
   more fixes for leaking FITS fcb LUNs
