@@ -110,7 +110,11 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; copy the primary header from the median file to the output file
   fits_read, fcb, d, primary_header, /header_only, exten_no=0, $
              /no_abort, message=msg
-  if (msg ne '') then message, msg
+  if (msg ne '') then begin
+    fits_close, fcb
+    mg_log, 'problem reading %s', file, name='comp', /error
+    message, msg
+  endif
 
   sxdelpar, primary_header, 'OBS_PLAN'
   sxdelpar, primary_header, 'OBS_ID'
@@ -121,9 +125,10 @@ pro comp_quick_invert, date_dir, wave_type, $
   nstokes = n / ntune - 1L   ; don't count BKG
 
   if (nstokes lt 3L) then begin
-    mg_log, 'only %d Stokes parameters in average file, quitting', $
-            nstokes, $
-            name='comp', /info
+    mg_log, 'only %d Stokes parameter%s in average file', $
+            nstokes, nstokes ne 1 ? 's' : '', $
+            name='comp', /warn
+    mg_log, 'quitting', name='comp', /warn
     goto, done
   endif
 
