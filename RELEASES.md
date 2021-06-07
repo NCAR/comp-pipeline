@@ -97,3 +97,4 @@
   fix for SQL syntax error
 2.0.4 [June 7, 2021]
   more fixes for leaking FITS fcb LUNs
+2.0.5
