@@ -98,3 +98,4 @@
 2.0.4 [June 7, 2021]
   more fixes for leaking FITS fcb LUNs
 2.0.5
+  fix for centering plots with only a single file
