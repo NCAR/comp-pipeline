@@ -99,3 +99,4 @@
   more fixes for leaking FITS fcb LUNs
 2.0.5
   fix for centering plots with only a single file
+  fix for incorrect NTUNES in mean/median average files for waves files
