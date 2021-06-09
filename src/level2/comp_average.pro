@@ -214,7 +214,7 @@ pro comp_average, date_dir, wave_type, $
   endcase
 
   n_waves = n_elements(waves)
-  sxaddpar, primary_header, 'NTUNES', n_waves
+  sxaddpar, primary_header, 'NTUNES', keyword_set(synoptic) ? 5 : 3
 
   comp_l2_update_version, primary_header
 
