@@ -25,7 +25,7 @@
 ;     64  background image contains more than 2000 pixels with a value > 70.0
 ;    128  standard deviation of intensity image - median intensity image = NaN
 ;         or Inf
-;    256  intensity image contains more than 60% pixels with a value < 0.1
+;    256  intensity image contains more than 50% pixels with a value < 0.1
 ;
 ; Output files::
 ;
