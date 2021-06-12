@@ -97,6 +97,6 @@
   fix for SQL syntax error
 2.0.4 [June 7, 2021]
   more fixes for leaking FITS fcb LUNs
-2.0.5
+2.0.5 [June 12, 2021]
   fix for centering plots with only a single file
   fix for incorrect NTUNES in mean/median average files for waves files
