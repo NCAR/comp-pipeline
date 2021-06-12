@@ -100,3 +100,4 @@
 2.0.5 [June 12, 2021]
   fix for centering plots with only a single file
   fix for incorrect NTUNES in mean/median average files for waves files
+2.0.6
