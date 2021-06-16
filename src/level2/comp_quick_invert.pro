@@ -227,13 +227,13 @@ pro comp_quick_invert, date_dir, wave_type, $
   dop = (dop - rest) * c / rest
 
   good_pixel_mask = (i2 gt int_min_thresh) and (i2 lt int_max_thresh) $
-                      and (i1 gt 0.01) and (i3 gt 0.01)
+                      and (i1 gt 0.05) and (i3 gt 0.05) $
+                      and (i1 lt int_max_thresh) and (i3 lt int_max_thresh)
   good_pixels = where(good_pixel_mask, complement=bad_pixels, ncomplement=n_bad_pixels)
   if (n_bad_pixels gt 0L) then begin
     dop[bad_pixels] = !values.f_nan
     corrected_dop[bad_pixels] = !values.f_nan
   endif
-
 
   ; difference between calculated peak intensity and measured is not too great
   ind = where(abs(i_cent - i2) gt 1.5 * i2, count)
