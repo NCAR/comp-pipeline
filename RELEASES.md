@@ -104,3 +104,4 @@
   adjustments to level 2 masking to make quick invert and analytical versions the same
   change display min/max for Q/U
   changing GBU threshold for sigma to 1.25
+2.0.7
