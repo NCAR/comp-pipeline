@@ -100,4 +100,7 @@
 2.0.5 [June 12, 2021]
   fix for centering plots with only a single file
   fix for incorrect NTUNES in mean/median average files for waves files
-2.0.6
+2.0.6 [June 23, 2021]
+  adjustments to level 2 masking to make quick invert and analytical versions the same
+  change display min/max for Q/U
+  changing GBU threshold for sigma to 1.25
