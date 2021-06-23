@@ -391,8 +391,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   loadct, 0, /silent
   qoi = float(stks_q) / float(intensity)
   qoi[mask_ind] = 0.
-  display_min_q = -0.2
-  display_max_q = 0.2
+  display_min_q = -0.15
+  display_max_q = 0.15
   qoi = bytscl(qoi, min=display_min_q, max=display_max_q)
   qoi[mask_ind] = 0B
   tv, qoi
@@ -428,8 +428,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   loadct, 0, /silent
   uoi = float(stks_u) / float(intensity)
   uoi[mask_ind] = 0.
-  display_min_u = -0.2
-  display_max_u = 0.2
+  display_min_u = -0.15
+  display_max_u = 0.15
   uoi = bytscl(uoi, min=display_min_u, max=display_max_u)
   uoi[mask_ind] = 0.
   tv, uoi
