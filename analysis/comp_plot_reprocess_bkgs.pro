@@ -53,8 +53,8 @@ pro comp_plot_reprocess_bkgs, wave_region
       date_parts = long(comp_decompose_date(date))
       dates[d] = julday(date_parts[1], date_parts[2], date_parts[0])
 
-      median_bkgs[d] = median(gbu.background)
-      median_sigma[d] = median(gbu.variance)
+      median_bkgs[d] = median([gbu.background])
+      median_sigma[d] = median([gbu.variance])
 
       jds = comp_plot_reprocess_bkgs_timeobs2jd(gbu.time_obs, times=day_times)
 
@@ -83,6 +83,7 @@ pro comp_plot_reprocess_bkgs, wave_region
 
   times = times[0:count - 1]
   bkgs = bkgs[0:count - 1]
+  sigma = sigma[0:count - 1]
   dummy = label_date(date_format='%Y.%N.%D')
   charsize = 1.25
   yrange = [0.0, 20.0]
@@ -92,7 +93,7 @@ pro comp_plot_reprocess_bkgs, wave_region
   annotation_color = 'a0a0a0'x
   variance_yrange = [0.0, 3.0]
 
-  show_threshold = 0B
+  show_threshold = 1B
 
   window, xsize=1000, ysize=500, /free, title=flags
   plot, times, bkgs, $
@@ -198,6 +199,16 @@ pro comp_plot_reprocess_bkgs, wave_region
           xtitle='Background threshold', xrange=[0.0, 20.0], xstyle=1, $
           ytitle='% of images marked good', $
           title=string(label_date(0, 0, jd2, 1), format='Background threshold choice (after %s)')
+
+    h = histogram(sigma, binsize=0.1, min=0.0, max=3.0, locations=locs)
+    ch = total(h, /cumulative) / total(h)
+    window, xsize=1000, ysize=500, /free, title=flags
+    plot, locs, 100.0 * ch, $
+          charsize=charsize, psym=10, color=color, background=background, $
+          xtitle='Sigma threshold', xrange=[0.0, 3.0], xstyle=1, $
+          ytitle='% of images marked good', $
+          title='Sigma threshold choice'
+
   endif
 end
 
