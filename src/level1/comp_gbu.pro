@@ -14,18 +14,19 @@
 ; `good_files` paramater can have a value between 0 and 255. The metrics for
 ; rejection and the corresponding bits set in the good_files parameter are::
 ;
-;     1   data doesn't exist on disk but is in inventory file
-;     2   3 standard wavelengths not found (not necessarily bad data)
-;     4   background > 16.0 ppm
-;     8   background anamolously low, defined as < 1 ppm  
-;     16  standard deviation of intensity image - median intensity
-;         image > 1.25 ppm
-;     32  background changes abruptly by more than 50% of the median background
-;         level
-;     64  background image contains more than 2000 pixels with a value > 70.0
-;    128  standard deviation of intensity image - median intensity image = NaN
-;         or Inf
-;    256  intensity image contains more than 50% pixels with a value < 0.1
+;      1   data doesn't exist on disk but is in inventory file
+;      2   3 standard wavelengths not found (not necessarily bad data)
+;      4   background > gbu_max_background
+;      8   background anamolously low, defined as < gbu_min_background  
+;      16  standard deviation of intentiy image - median intensity > gbu_max_sigma
+;      32  background changes abruptly by more than gbu_percent_background_change
+;          of the median background level
+;      64  background image contains more than gbu_threshold_count pixels with a
+;          value > gbu_background_threshold0
+;     128  standard deviation of intensity image - median intensity image = NaN
+;          or Inf
+;     256  intensity image in annulus contains more than gbu_intensity_percentage
+;          pixels with a value < gbu_intensity_min_threshold
 ;
 ; Output files::
 ;
