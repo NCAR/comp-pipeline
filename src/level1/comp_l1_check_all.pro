@@ -66,13 +66,13 @@ pro comp_l1_check_all, date_dir, body=body, no_log_message=no_log_message
     log_filename = filepath(date_dir + '.comp.log', root=log_dir)
 
     body->add, ''
-    body->add, '## Log message warnings'
+    body->add, '## Log message errors'
     body->add, ''
-    warning_msgs = comp_filter_log(log_filename, /warning, n_messages=n_messages)
+    error_msgs = comp_filter_log(log_filename, /error, n_messages=n_messages)
     if (n_messages eq 0L) then begin
-      body->add, 'no warning messages'
+      body->add, 'no error messages'
     endif else begin
-      body->add, warning_msgs, /extract
+      body->add, error_msgs, /extract
     endelse
 
     body->add, ''
