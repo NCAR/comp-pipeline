@@ -69,6 +69,16 @@ pro comp_db_clearday, database=db, $
           obsday_index, day[0].obs_day, $
           name='comp', /info
 
+  ; TODO: clear entries based on what will be created in the current run from
+  ; the config options:
+  ; - create_l1
+  ; - create_average
+  ; - create_quick_invert
+  ; - create_analysis
+  ; - create_daily_images
+  ; - create_movies
+  ; - create_daily_summaries
+
   ; zero CoMP fields in mlso_numfiles
   if (not keyword_set(calibration)) then begin
     mg_log, 'zeroing CoMP values for mlso_numfiles table', name='comp', /info
