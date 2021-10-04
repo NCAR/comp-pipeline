@@ -21,7 +21,7 @@
 ;   width : out
 ;     the linewidth in the same units as d_lambda
 ;   i_cent : out, optional, type=fltarr
-;     the central intensity of the gaussianin the same units as i1, i2, i3
+;     the central intensity of the gaussian in the same units as i1, i2, i3
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -32,10 +32,10 @@ pro comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, doppler_shift, width, i_cent
   a = alog(i3 / i2)
   b = alog(i1 / i2)
 
-  width = sqrt(-2. * d_lambda^2 / (a + b))
-  doppler_shift = width^2 / (4. * d_lambda) * (a - b)
+  width = sqrt(-2.0 * d_lambda^2 / (a + b))
+  doppler_shift = width^2 / (4.0 * d_lambda) * (a - b)
   i_cent = i2 * exp(doppler_shift^2 / width^2)
 
-  i_cent[where(finite(i_cent, /nan))] = 0.
-  doppler_shift[where(finite(doppler_shift, /nan))] = 0.
+  i_cent[where(finite(i_cent, /nan))] = 0.0
+  doppler_shift[where(finite(doppler_shift, /nan))] = 0.0
 end

@@ -46,8 +46,6 @@ function comp_l2_mask, fits_header
 
   if (count eq 0) then begin
     ; old keywords 
-    ; TODO: does it need to subtract 1 ?
-    ; Or does this apply only to old headers that did not have 1 added ????
     occulter = {x:sxpar(fits_header, 'CRPIX1') , $
                 y:sxpar(fits_header, 'CRPIX2'), $
                 r:((sxpar(fits_header, 'OCRAD1') $
@@ -69,7 +67,7 @@ function comp_l2_mask, fits_header
 
     mask = dmask * field_mask
   endif else begin
-    ; for new headers subtract 1 
+    ; for new headers subtract 1 to convert FITS coordinates to IDL coordinates 
     occulter = {x:sxpar(fits_header, 'CRPIX1') - 1.0, $
                 y:sxpar(fits_header, 'CRPIX2') - 1.0, $
                 r:comp_occulter_radius(sxpar(fits_header, 'OCC-ID'))}
