@@ -37,6 +37,15 @@ pro comp_reprocess, date
     mg_log, 'skipping saving old movies and images', name='comp', /info
   endelse
 
+  ; TODO: delete files based on what will be created in the current run from
+  ; the config options:
+  ; - create_l1
+  ; - create_average
+  ; - create_quick_invert
+  ; - create_analysis
+  ; - create_daily_images
+  ; - create_movies
+  ; - create_daily_summaries
   if (delete_archive) then begin
     for d = 0L, n_elements(dirs) - 1L do begin
       if (file_test(dirs[d])) then begin
