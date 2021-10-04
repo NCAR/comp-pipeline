@@ -36,13 +36,21 @@ pro comp_read_data, filename, images, headers, header0
   if (nxt le 1) then message, filename + ' contains no data'
 
   ; get the primary header
-  fits_read, filename, image0, header0, exten_no=0, /header_only, /no_abort, message=msg
-  if (msg ne '') then message, msg
+  fits_read, fcb, image0, header0, exten_no=0, /header_only, /no_abort, message=msg
+  if (msg ne '') then begin
+    fits_close, fcb
+    mg_log, 'error reading %s, closing', filename, name='comp', /warn
+    message, msg
+  endif
 
   ; loop through the extensions
   for i = 1L, nxt do begin
     fits_read, fcb, image, header, exten_no=i, /pdu, /no_abort, message=msg
-    if (msg ne '') then message, msg
+    if (msg ne '') then begin
+      fits_close, fcb
+      mg_log, 'error reading %s [ext %d], closing', filename, i, name='comp', /warn
+      message, msg
+    endif
     if (i eq 1L) then begin   ; do setup if this is the first extension...
       images = dblarr(n_elements(image[*, 0]), n_elements(image[0, *]), nxt)
       headers = strarr(n_elements(header), nxt)

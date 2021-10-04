@@ -76,7 +76,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
       if (message ne '') then begin
         mg_log, 'error reading ext %d', good[j] + 1, name='comp', /error
         error = 1
-        return
+        goto, done
       endif
 
       ; log polarization state, wavelength, and beam for this file
@@ -105,5 +105,7 @@ pro comp_flat_avg, date_dir, time, wave, uniq_waves, exposure, fcbin, flats, nd_
     endfor
     flats[*, *, i] = temporary(flats[*, *, i]) / float(count)
   endfor
+
+  done:
   fits_close, fcbin
 end

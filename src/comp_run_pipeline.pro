@@ -643,8 +643,14 @@ pro comp_run_pipeline, config_filename=config_filename
       tokens = strsplit(output[i], /extract)
       filename = tokens[-1]
       lun = long(tokens[0])
-      mg_log, 'leaked LUN for %s, freeing...', filename, name='comp', /error
-      free_lun, lun
+      if (lun gt 0L) then begin
+        mg_log, 'leaked LUN (%d) for %s, freeing...', lun, filename, $
+                name='comp', /error
+        free_lun, lun
+      endif else begin
+        mg_log, 'non-user opened LUN (%d), not freeing', lun, $
+                name='comp', /error
+      endelse
     endfor
 
     if (check_l1) then begin

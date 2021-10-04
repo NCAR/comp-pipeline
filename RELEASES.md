@@ -106,3 +106,4 @@
   changing GBU threshold for sigma to 1.25
 2.0.7
   fix for only a single image to average in COMP_AVERAGE
+  handle malformed cal files

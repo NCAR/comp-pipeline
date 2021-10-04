@@ -39,24 +39,27 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
   flats_filename = filepath(flats_basename, $
                             subdir=[date, 'level1'], $
                             root=process_basedir)
+  if (file_test(flats_filename, /regular)) then begin
+    fits_open, flats_filename, flats_fcb
 
-  fits_open, flats_filename, flats_fcb
+    n_flats = flats_fcb.nextend - 3L  ; last 3 extensions are time, wavelength, exposure
+    flats_rawnames = strarr(n_flats)
+    flats_beam = bytarr(n_flats)
+    fits_read, flats_fcb, data, flat_ext_header, exten_no=1, /header_only
+    flats_headers = strarr(n_flats, n_elements(flat_ext_header))
 
-  n_flats = flats_fcb.nextend - 3L  ; last 3 extensions are time, wavelength, exposure
-  flats_rawnames = strarr(n_flats)
-  flats_beam = bytarr(n_flats)
-  fits_read, flats_fcb, data, flat_ext_header, exten_no=1, /header_only
-  flats_headers = strarr(n_flats, n_elements(flat_ext_header))
-
-  for e = 1L, n_flats do begin
-    fits_read, flats_fcb, data, flat_ext_header, exten_no=e, /header_only
-    flats_rawnames[e - 1L] = sxpar(flat_ext_header, 'FILENAME')
-    flats_beam[e - 1L] = sxpar(flat_ext_header, 'BEAM')
-    flats_headers[e - 1L, *] = flat_ext_header
-  endfor
-  fits_close, flats_fcb
+    for e = 1L, n_flats do begin
+      fits_read, flats_fcb, data, flat_ext_header, exten_no=e, /header_only
+      flats_rawnames[e - 1L] = sxpar(flat_ext_header, 'FILENAME')
+      flats_beam[e - 1L] = sxpar(flat_ext_header, 'BEAM')
+      flats_headers[e - 1L, *] = flat_ext_header
+    endfor
+    fits_close, flats_fcb
+  endif
 
   for c = 0L, n_elements(types) - 1L do begin
+    if (~file_test(catalog_filenames[c], /regular)) then continue
+
     n_files = file_lines(catalog_filenames[c])
 
     if (n_files eq 0L) then begin
@@ -77,6 +80,15 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
     cal_basenames = strmid(files, 0, 19)
     for f = 0L, n_files - 1L do begin
+      catch, error
+      if (error ne 0L) then begin
+        help, !error_state
+        print, '''' + transpose(!error_state) + ''''
+        mg_log, '%s', strcompress(strjoin(strtrim(!error_state.msg, 2), ', ')), $
+                name='comp', /warn
+        mg_log, 'skipping %s', cal_basenames[f], name='comp', /warn
+        continue
+      endif
       filename = filepath(cal_basenames[f], subdir=date, root=raw_basedir)
 
       comp_read_data, filename, images, headers, primary_header
