@@ -116,21 +116,21 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     over2_indices = where(image gt gbu_background_threshold, n_over2)
   endif
 
-  image = image ^ dispexp
-  image = bytscl(image, min=min, max=max, top=top)
+  _image = image ^ dispexp
+  _image = bytscl(_image, min=min, max=max, top=top)
 
   if (keyword_set(background)) then begin
-    image[over1_indices] = bad1_col
-    image[over2_indices] = bad2_col
+    _image[over1_indices] = bad1_col
+    _image[over2_indices] = bad2_col
   endif
 
   ; resize the data
   s = size(image)
   if (size ne s[1]) then begin
-    image = rebin(image, size, size)
+    _image = rebin(_image, size, size)
   endif
 
-  tv, image
+  tv, _image
 
   ; locations and such
   xdim = size
