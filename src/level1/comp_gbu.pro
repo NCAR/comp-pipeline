@@ -115,6 +115,11 @@ pro comp_gbu, date_dir, wave_type, error=error
 
   ; get number of filenames in file
   all_files = string(date_dir, wave_type, format='(%"%s.comp.%s.files.txt")')
+  if (~file_test(all_files, /regular)) then begin
+    mg_log, 're-creating inventory files...', name='comp', /warn
+    comp_file_type, date_dir
+    cd, process_dir
+  endif
   n_files = file_lines(all_files)         ; get number of filenames in file
 
   if (n_files lt 1L) then begin
