@@ -20,7 +20,7 @@ pro comp_file_insert_l2type, date, wave_type, fname_type, $
 end
 
 
-pro comp_file_insert_file, file, wave_type, level_id, filetype_id, $
+pro comp_file_insert_file, file, wave_type, level_id, filetype_id, gbu, $
                            product_type=product_type, $
                            database=db, $
                            obsday_index=obsday_index
@@ -59,6 +59,7 @@ pro comp_file_insert_file, file, wave_type, level_id, filetype_id, $
             {name: 'producttype', type: '%d'}, $
             {name: 'filetype', type: '%d'}, $
             {name: 'quality', type: '%d'}, $
+            {name: 'gbu', type: '%d'}, $
             {name: 'pol_list', type: '''%s'''}, $
             {name: 'wavetype', type: '%d'}, $
             {name: 'ntunes', type: '%d'}]
@@ -74,6 +75,7 @@ pro comp_file_insert_file, file, wave_type, level_id, filetype_id, $
                producttype_id, $
                filetype_id, $
                quality, $
+               gbu, $
                pol_list, $
                long(wave_type), $
                ntunes, $
@@ -101,6 +103,13 @@ end
 ;-
 pro comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
+  @comp_config_common
+
+  gbu_basename = string(date, wave_type, format='(%"%s.comp.%s.gbu.log")')
+  gbu_filename = filepath(gbu_basename, $
+                          subdir=[date, 'level1'], $
+                          root=process_basedir)
+  gbu = comp_read_gbu(gbu_filename)
 
   l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
 
@@ -118,7 +127,18 @@ pro comp_file_insert, date, wave_type, database=db, obsday_index=obsday_index
   filetype_id = comp_get_filetype_id('fits', database=db)
 
   for f = 0L, n_l1_files - 1L do begin
-    comp_file_insert_file, l1_files[f], wave_type, level_id, filetype_id, $
+    gbu_indices = where(gbu.l1file eq file_basename(l1_files[f]), n_gbu_indices)
+    if (n_gbu_indices eq 0L) then begin
+      file_gbu = -1L
+    endif else begin
+      file_gbu = gbu[gbu_indices[0]].reason
+    endelse
+
+    comp_file_insert_file, l1_files[f], $
+                           wave_type, $
+                           level_id, $
+                           filetype_id, $
+                           file_gbu, $
                            database=db, obsday_index=obsday_index
   endfor
 

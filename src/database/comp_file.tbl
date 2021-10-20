@@ -13,6 +13,7 @@ create table comp_file (
   filetype              tinyint (2),
 
   quality               tinyint (2),
+  gbu                   smallint,
 
   pol_list              char (4),
   wavetype              smallint,
