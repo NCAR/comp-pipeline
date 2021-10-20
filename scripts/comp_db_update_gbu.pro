@@ -49,7 +49,7 @@ config_basename = 'comp.reprocess.cfg'
 config_filename = filepath(config_basename, $
                            subdir=['..', 'config'], $
                            root=mg_src_root())
-;comp_db_update_gbu, '20121201', '20180404', config_filename
-comp_db_update_gbu, '20121201', '20121202', config_filename
+comp_db_update_gbu, '20121201', '20180404', config_filename
+;comp_db_update_gbu, '20121201', '20121202', config_filename
 
 end
