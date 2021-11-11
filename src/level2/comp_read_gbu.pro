@@ -42,6 +42,13 @@
 function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
   compile_opt strictarr
 
+  if (~file_test(gbu_file, /regular)) then begin
+    count = 0L
+    mg_log, 'GBU file %s has no entries', file_basename(gbu_file), $
+            name='comp', /debug
+    return, !null
+  endif
+
   _n_header_lines = n_elements(n_header_lines) eq 0L ? 2L : n_header_lines
 
   nlines = file_lines(gbu_file)
@@ -51,8 +58,7 @@ function comp_read_gbu, gbu_file, count=count, n_header_lines=n_header_lines
   readf, unit, sarr
   free_lun, unit
 
-  mg_log, 'GBU file %s has %d entries', $
-          file_basename(gbu_file), count, $
+  mg_log, 'GBU file %s has %d entries', file_basename(gbu_file), count, $
           name='comp', /debug
 
   if (count eq 0) then return, !null
