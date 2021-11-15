@@ -108,5 +108,5 @@
   fix for only a single image to average in COMP_AVERAGE
   handle malformed cal files
   fix 1083 intensity FITS files
-2.0.8
+2.0.8 [Nov 15, 2021]
   handle no GBU file for a wave region
