@@ -111,3 +111,5 @@
 2.0.8 [Nov 15, 2021]
   handle no GBU file for a wave region
 2.0.9
+  another fix for only a simple image to average in COMP_AVERAGE
+  fix for crash in error handling in COMP_CAL_INSERT
