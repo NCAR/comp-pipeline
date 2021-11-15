@@ -82,8 +82,6 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
     for f = 0L, n_files - 1L do begin
       catch, error
       if (error ne 0L) then begin
-        help, !error_state
-        print, '''' + transpose(!error_state) + ''''
         mg_log, '%s', strcompress(strjoin(strtrim(!error_state.msg, 2), ', ')), $
                 name='comp', /warn
         mg_log, 'skipping %s', cal_basenames[f], name='comp', /warn
