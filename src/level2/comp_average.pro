@@ -415,6 +415,7 @@ pro comp_average, date_dir, wave_type, $
       sxaddpar, header, 'NAVERAGE', naverage[s, w]
 
       ; dimension 3 goes away if there is only 1 image to average
+      data = reform(data)
       if (size(data, /n_dimensions) lt 3) then begin
         med = data
         aver = data
