@@ -110,6 +110,6 @@
   fix 1083 intensity FITS files
 2.0.8 [Nov 15, 2021]
   handle no GBU file for a wave region
-2.0.9
+2.0.9 [Nov 16, 2021]
   another fix for only a simple image to average in COMP_AVERAGE
   fix for crash in error handling in COMP_CAL_INSERT
