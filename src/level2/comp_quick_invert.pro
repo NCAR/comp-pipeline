@@ -11,8 +11,8 @@
 ; FITS file contains extensions with the following images:
 ;
 ;   I - approximated by the Stokes I image nearest line center
-;   Q - approximated by the Stokes Q image rearest line center 
-;   U - approximated by the Stokes U image rearest line center
+;   Q - approximated by the Stokes Q image nearest line center
+;   U - approximated by the Stokes U image nearest line center
 ;   Linear Polarization - computed as sqrt( Q^2 + U^2)
 ;   Azimuth - computed as 0.5 atan( U / Q)
 ;   Radial Azimuth
