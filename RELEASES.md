@@ -113,3 +113,5 @@
 2.0.9 [Nov 16, 2021]
   another fix for only a simple image to average in COMP_AVERAGE
   fix for crash in error handling in COMP_CAL_INSERT
+2.0.10 [Jan 10, 2022]
+  adjusting GBU max threshold
