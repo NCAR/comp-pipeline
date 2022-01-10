@@ -77,20 +77,20 @@ pro comp_flat_centering_gif, date, filename, data, header
 end
 
 
-pro comp_flat_centering_file, date, filename
+pro comp_flat_centering_file, date, filename, center_wavelength
   compile_opt strictarr
   @comp_config_common
 
   if (~file_test(filename, /regular)) then return
 
   threshold = 0.001
-  wave_region = '1083'
+  wave_region = strtrim(long(center_wavelength), 2)
 
   fits_open, filename, fcb
   for e = 1, fcb.nextend - 3 do begin
     fits_read, fcb, data, header, exten_no=e
     wavelength = sxpar(header, 'WAVELENG')
-    if (abs(wavelength - 1083.0) lt threshold) then begin
+    if (abs(wavelength - center_wavelength) lt threshold) then begin
       gif_filename = filepath(string(date, wave_region, e, $
                                      format='(%"%s.comp.%s.flat.ext%03d.gif")'), $
                               subdir=comp_decompose_date(date), $
@@ -105,7 +105,7 @@ end
 ;+
 ; Annotate images of 1083.0 nm flats with centering info.
 ;-
-pro comp_flat_centering, start_date, end_date, config_filename=config_filename
+pro comp_flat_centering, start_date, end_date, wavelength, config_filename=config_filename
   compile_opt strictarr
   @comp_config_common
 
@@ -122,7 +122,7 @@ pro comp_flat_centering, start_date, end_date, config_filename=config_filename
     flat_filename = filepath(string(date, format='(%"%s.comp.flat.fts")'), root=l1_dir)
 
     ; create annotated image
-    comp_flat_centering_file, date, flat_filename
+    comp_flat_centering_file, date, flat_filename, wavelength
 
     date = comp_increment_date(date)
   endwhile
@@ -132,10 +132,17 @@ end
 config_basename = 'comp.reprocess.cfg'
 config_filename = filepath(config_basename, subdir=['..', 'config'], root=mg_src_root())
 
-start_date = '20121201'
-;start_date = '20180101'
-end_date = '20180410'
+; start_date = '20121201'
+; ;start_date = '20180101'
+; end_date = '20180410'
+; start_date = '20140101'
+; end_date = '20140120'
+; wavelength = 1083.0
 
-comp_flat_centering, start_date, end_date, config_filename=config_filename
+start_date = '20170101'
+end_date = '20180101'
+wavelength = 1074.62
+
+comp_flat_centering, start_date, end_date, wavelength, config_filename=config_filename
 
 end
