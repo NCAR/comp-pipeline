@@ -44,11 +44,12 @@ pro comp_plot_reprocess_bkgs, wave_region
   good_count = 0L
   for d = 0L, n_dirs - 1L do begin
     date = file_basename(dirs[d])
-    print, d + 1, n_dirs, date, format='(%"%03d/%03d: %s")'
+    print, d + 1, n_dirs, date, format='(%"%04d/%04d: %s")'
     gbu_basename = string(date, wave_region, format='(%"%s.comp.%s.gbu.log")')
     gbu_filename = filepath(gbu_basename, subdir='level1', root=dirs[d])
     if (file_test(gbu_filename, /regular)) then begin
       gbu = comp_read_gbu(gbu_filename, count=n_lines)
+      if (n_lines eq 0L) then continue
 
       date_parts = long(comp_decompose_date(date))
       dates[d] = julday(date_parts[1], date_parts[2], date_parts[0])
