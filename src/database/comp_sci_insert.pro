@@ -21,43 +21,39 @@
 pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
   compile_opt strictarr
   @comp_mask_constants_common
+  @comp_config_common
 
-  ; define annulus
+  ; define full annulus
   min_radius = 1.05
   max_radius = 1.3
   n_radius_steps = 7L   ; every 0.05
   radii = (max_radius - min_radius) / (n_radius_steps - 1L) * findgen(n_radius_steps) $
             + min_radius
 
-  ; find L1 files
-  l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
-  bkg_files = comp_find_l1_file(date, wave_type, /all, count=n_bkg_files, /background)
-
-  if (n_l1_files gt 0L) then begin
-    mg_log, 'inserting %d rows into %s nm comp_sci table...', $
-            n_l1_files, wave_type, $
-            name='comp', /info
-  endif else begin
-    mg_log, 'no L1 files to insert into %s nm comp_sci table', $
-            wave_type, $
-            name='comp', /info
-    goto, done
-  endelse
-
-  produce_continuum = n_bkg_files gt 0L
-
-  ; just choosing the 20th L1 file right now (or the last file, if less than 20
-  ; L1 files)
-  science_files = l1_files[(n_l1_files < 20L) - 1L]
-  if (produce_continuum) then science_bkg_files = bkg_files[(n_l1_files < 20L) - 1L]
+  filename_fmt = '(%"%s.comp.%s.mean.synoptic.fts.gz")'
+  science_files = filepath(string(date, wave_type, format=filename_fmt), $
+                           subdir=[date, 'level2'], $
+                           root=process_basedir)
   n_science_files = n_elements(science_files)
 
   ; loop through science files
   for f = 0L, n_science_files - 1L do begin
+    if (file_test(science_files[f], /regular)) then begin
+      mg_log, 'inserting %s into comp_sci table', file_basename(science_files[f]), $
+              name='comp', /info
+    endif else begin
+      mg_log, 'skipping %s', science_files[f], name='comp', /warn
+      continue
+    endelse
+
     fits_open, science_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
-    fits_close, fcb
     if (msg ne '') then message, msg
+
+    fits_read, fcb, intensity_image, intensity_header, exten_no=3
+    fits_read, fcb, continuum_image, continuum_header, exten_no=fcb.nextend - 2L
+
+    fits_close, fcb
 
     date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                      sxpar(primary_header, 'TIME-OBS'), $
@@ -79,30 +75,12 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
     cx = sxpar(primary_header, 'CRPIX1') - 1.0   ; convert from FITS convention to
     cy = sxpar(primary_header, 'CRPIX2') - 1.0   ; IDL convention
 
-    comp_extract_intensity_cube, science_files[f], $
-                                 images=intensity_images, $
-                                 pol_state='I'
-    if (produce_continuum) then begin
-      comp_extract_intensity_cube, science_bkg_files[f], $
-                                   images=continuum_images, $
-                                   /background, $
-                                   pol_state='I'
-    endif
-
-    intensity_image = mean(intensity_images, dimension=3)
-    if (produce_continuum) then continuum_image = mean(continuum_images, dimension=3)
-
     intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
                                            cx=cx, cy=cy, $
                                            standard_deviation=intensity_stddev)
-    if (produce_continuum) then begin
-      continuum = comp_extract_radial_values(continuum_image, radii, sun_pixels, $
-                                             cx=cx, cy=cy, $
-                                             standard_deviation=continuum_stddev)
-    endif else begin
-      continuum = fltarr(n_radius_steps)
-      continuum_stddev = fltarr(n_radius_steps)
-    endelse
+    continuum = comp_extract_radial_values(continuum_image, radii, sun_pixels, $
+                                           cx=cx, cy=cy, $
+                                           standard_deviation=continuum_stddev)
 
     east_intensity = comp_extract_radial_values(intensity_image, radii, sun_pixels, $
                                                 limb='east', $
@@ -115,19 +93,22 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 
     r11_intensity = comp_annulus_gridmeans(intensity_image, 1.1, sun_pixels, $
                                            nbins=720, width=0.02)
-    if (produce_continuum) then begin
-      r11_continuum = comp_annulus_gridmeans(continuum_image, 1.1, sun_pixels, $
-                                             nbins=720, width=0.02)
-    endif else begin
-      r11_continuum = fltarr(720)
-    endelse
+    r11_continuum = comp_annulus_gridmeans(continuum_image, 1.1, sun_pixels, $
+                                           nbins=720, width=0.02)
     r12_intensity = comp_annulus_gridmeans(intensity_image, 1.2, sun_pixels, $
                                            nbins=720, width=0.02)
+
+    r110_intensity_mean = comp_annulus_mean(intensity_image, 1.08, 1.13, sun_pixels)
+    r110_background_mean = comp_annulus_mean(continuum_image, 1.08, 1.13, sun_pixels)
 
     ; insert into comp_sci table
     fields = [{name: 'file_name', type: '''%s'''}, $
               {name: 'date_obs', type: '''%s'''}, $
               {name: 'obs_day', type: '%d'}, $
+              {name: 'wavetype', type: '%s'}, $
+
+              {name: 'r110_intensity_mean', type: '%8.4f'}, $
+              {name: 'r110_background_mean', type: '%8.4f'}, $
 
               {name: 'intensity', type: '''%s'''}, $
               {name: 'intensity_stddev', type: '''%s'''}, $
@@ -148,6 +129,10 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
                  file_basename(science_files[f], '.gz'), $
                  date_obs, $
                  obsday_index, $
+                 wave_type, $
+
+                 r110_intensity_mean, $
+                 r110_background_mean, $
 
                  db->escape_string(intensity), $
                  db->escape_string(intensity_stddev), $
@@ -173,19 +158,27 @@ pro comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
 end
 
 ; main-level example program
+@comp_config_common
 
-wave_type = '1083'
+wave_type = '1074'
+date = '20180101'
 
-date = '20170213'
-config_filename = filepath('comp.elliptic.cfg', $
+config_filename = filepath('comp.latest.cfg', $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_initialize, date
 comp_configuration, config_filename=config_filename
+comp_update_configuration, date
 
-l1_files = comp_find_l1_file(date, wave_type, /all, count=n_l1_files)
-bkg_files = comp_find_l1_file(date, wave_type, /all, count=n_bkg_files, /background)
-help, l1_files, n_l1_files
-help, bkg_files, n_bkg_files
+obsday_index = mlso_obsday_insert(date, $
+                                  database_config_filename, $
+                                  database_config_section, $
+                                  database=db, $
+                                  status=status, $
+                                  log_name='comp')
+
+comp_sci_insert, date, wave_type, database=db, obsday_index=obsday_index
+
+obj_destroy, db
 
 end
