@@ -4,6 +4,8 @@
 ; Perform a polarimetric transformation from geographic to heliographic
 ; coordinates on Q and U.
 ;
+; Equation 6 from https://ned.ipac.caltech.edu/level5/Kosowsky/Kosowsky2.html
+;
 ; :Params:
 ;   q : in, required, type=fltarr
 ;     Stokes Q
