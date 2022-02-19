@@ -115,5 +115,5 @@
   fix for crash in error handling in COMP_CAL_INSERT
 2.0.10 [Jan 10, 2022]
   adjusting GBU max threshold
-2.0.11
+2.0.11 [Feb 18, 2022]
   adding r110_intensity_mean and r110_background_mean to comp_sci table
