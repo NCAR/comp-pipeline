@@ -86,7 +86,7 @@ pro comp_plot_reprocess_bkgs, wave_region
   bkgs = bkgs[0:count - 1]
   sigma = sigma[0:count - 1]
 
-  write_text_files = 1B
+  write_text_files = 0B
   if (keyword_set(write_text_files)) then begin
     openw, lun, string(wave_region, format='comp.%s.bkg.sigma.txt'), /get_lun
     printf, lun, transpose([[times], [bkgs], [sigma]]), $
