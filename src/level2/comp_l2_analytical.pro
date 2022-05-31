@@ -157,8 +157,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
           if (profile[1] gt int_min_thresh $
               && profile[1] lt int_max_thresh $
-              && profile[0] gt 0.05 $
-              && profile[2] gt 0.05 $
+              && profile[0] gt int_min_thresh $
+              && profile[2] gt int_min_thresh $
               && profile[0] lt int_max_thresh $
               && profile[2] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
@@ -189,6 +189,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_int[where(mask eq 0)] = 0D
     int_prep = i2
     int_prep[where(mask eq 0)] = 0D
+    ; TODO: use whatever is in intensity extension for dynamics file for this
+    ; value
     int_enh = comp_intensity_enhancement(int_prep, headfits(gbu[ii].l1file))
     int_enh[where(mask eq 0)] = 0D
     thresh_unmasked = where(mask eq 1 $

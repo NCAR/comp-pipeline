@@ -167,8 +167,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     if (qu_files[ii] eq 1) then begin
       qoi = stks_q / intensity
       qoi[unmasked] = 0.
-      display_min_q = -0.15
-      display_max_q = 0.15
+      display_min_q = -0.1
+      display_max_q = 0.1
       qoi = bytscl(qoi, min=display_min_q, max=display_max_q)
       qoi[unmasked] = 0.
       tv, qoi
@@ -205,8 +205,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     if (qu_files[ii] eq 1) then begin
       uoi = stks_u / intensity
       uoi[unmasked] = 0.
-      display_min_u = -0.15
-      display_max_u = 0.15
+      display_min_u = -0.1
+      display_max_u = 0.1
       uoi = bytscl(uoi, min=display_min_u, max=display_max_u)
       uoi[unmasked] = 0.
       tv, uoi

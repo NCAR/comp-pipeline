@@ -193,6 +193,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   azimuth[zero] = 0.0
   radial_azimuth[zero] = -999.0
 
+  q[zero] = !values.f_nan
+  u[zero] = !values.f_nan
+
   ; compute linear polarization
   l = sqrt(q^2 + u^2)
 
@@ -227,7 +230,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   dop = (dop - rest) * c / rest
 
   good_pixel_mask = (i2 gt int_min_thresh) and (i2 lt int_max_thresh) $
-                      and (i1 gt 0.05) and (i3 gt 0.05) $
+                      and (i1 gt int_min_thresh) and (i3 gt int_min_thresh) $
                       and (i1 lt int_max_thresh) and (i3 lt int_max_thresh)
   good_pixels = where(good_pixel_mask, complement=bad_pixels, ncomplement=n_bad_pixels)
   if (n_bad_pixels gt 0L) then begin
