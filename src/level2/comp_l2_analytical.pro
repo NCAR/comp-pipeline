@@ -106,7 +106,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     i1 = double(readfits(gbu[ii].l1file, exten_no=wave_ind[0] + 1, /silent, ehdr1))
     i2 = double(readfits(gbu[ii].l1file, exten_no=wave_ind[1] + 1, /silent, ehdr2))
     i3 = double(readfits(gbu[ii].l1file, exten_no=wave_ind[2] + 1, /silent, ehdr3))
-    
+
     if (ii eq 0) then begin
       wavel = [sxpar(ehdr1, 'WAVELENG'), $
                sxpar(ehdr2, 'WAVELENG'), $
@@ -241,6 +241,16 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       temp_corr_velo = temp_velo
     endelse
 
+    ; intensity for polarization
+    averaged_intensity = (i1 + i2 + i3) / 2.0
+    averaged_intensity[where(mask eq 0)] = 0.0D
+    averaged_intensity[thresh_masked]    = 0.0D
+
+    averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
+                                                             headfits(gbu[ii].l1file))
+    averaged_enhanced_intensity[where(mask eq 0)] = 0.0D
+    averaged_enhanced_intensity[thresh_masked] = 0.0D
+
     ;=== write out FITS files ===
     mg_log, 'write out FITS %d/%d @ %s', ii + 1, nt, wave_type, name='comp', /info
 
@@ -329,21 +339,21 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Intensity', $
-                                             datminmax=[min(temp_int), $
-                                                        max(temp_int)])
+                                             datminmax=[min(averaged_intensity), $
+                                                        max(averaged_intensity)])
       sxdelpar, extension_header, 'SIMPLE'
-      writefits, outfilename, float(temp_int), extension_header, /append
+      writefits, outfilename, float(averaged_intensity), extension_header, /append
 
       ; enhanced intensity
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Enhanced Intensity', $
-                                             datminmax=long([min(int_enh), $
-                                                             max(int_enh)]))
+                                             datminmax=long([min(averaged_enhanced_intensity), $
+                                                             max(averaged_enhanced_intensity)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
-      writefits, outfilename, int_enh, extension_header, /append
+      writefits, outfilename, averaged_enhanced_intensity, extension_header, /append
 
       ; Stokes Q
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
