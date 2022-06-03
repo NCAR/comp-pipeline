@@ -117,4 +117,6 @@
   adjusting GBU max threshold
 2.0.11 [Feb 18, 2022]
   adding r110_intensity_mean and r110_background_mean to comp_sci table
-2.0.12
+2.0.12 [Jun 3, 2022]
+  intensity in polarization level 2 file is now sum of middle 3 wavelengths / 2
+  added ERESTWVL and WRESTWVL FITS keywords for velocity in dynamics file
