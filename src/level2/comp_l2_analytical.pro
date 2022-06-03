@@ -232,13 +232,29 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     endif
 
     ; find median of non-CME finite dop -> "real rest wavelength"
+    x = lindgen(nx)
+    x = rebin(reform(x, nx, 1), nx, ny)
     good_dop_ind = where(finite(temp_velo) and abs(temp_velo) lt 80.0, n_good_dop)
     if (n_good_dop gt 0L) then begin
       median_rest_wavelength = median(temp_velo[good_dop_ind])
       temp_corr_velo = temp_velo - median_rest_wavelength
+      good_east_dop_ind = where(finite(temp_velo) $
+                                  and abs(temp_velo) lt 80.0 $
+                                  and x lt (nx - 1.0) / 2.0, n_good_east_dop)
+      good_west_dop_ind = where(finite(temp_velo) $
+                                and abs(temp_velo) lt 80.0 $
+                                and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+      if (n_good_east_dop gt 0L) then begin
+        east_median_rest_wavelength = median(temp_velo[good_east_dop_ind])
+      endif else east_median_rest_wavelength = !values.f_nan
+      if (n_good_west_dop gt 0L) then begin
+        west_median_rest_wavelength = median(temp_velo[good_west_dop_ind])
+      endif else wast_median_rest_wavelength = !values.f_nan
     endif else begin
       median_rest_wavelength = !values.f_nan
       temp_corr_velo = temp_velo
+      east_median_rest_wavelength = !values.f_nan
+      west_median_rest_wavelength = !values.f_nan
     endelse
 
     ; intensity for polarization
@@ -291,9 +307,16 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                       max(temp_corr_velo)])
     fxaddpar, extension_header, 'RESTWVL', median_rest_wavelength, $
               ' [km/s] rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'ERESTWVL', east_median_rest_wavelength, $
+              ' [km/s] east rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'WRESTWVL', west_median_rest_wavelength, $
+              ' [km/s] west rest wavelength', format='(F0.3)', /null
+              
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
     sxdelpar, extension_header, 'RESTWVL'
+    sxdelpar, extension_header, 'ERESTWVL'
+    sxdelpar, extension_header, 'WRESTWVL'
 
     ; line width
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
@@ -313,10 +336,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                              extname='Uncorrected LOS velocity', $
                                              datminmax=[min(temp_velo), $
                                                         max(temp_velo)])
-      ;sxaddpar, extension_header, 'RESTWVL', rest, ' [km/s] rest wavelength', format='(F0.3)', /null
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(temp_velo), extension_header, /append
-      ;sxdelpar, extension_header, 'RESTWVL'
     endif
 
     zip_cmd = string(outfilename, format='(%"gzip -f %s")')
