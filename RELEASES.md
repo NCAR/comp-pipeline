@@ -120,3 +120,7 @@
 2.0.12 [Jun 3, 2022]
   intensity in polarization level 2 file is now sum of middle 3 wavelengths / 2
   added ERESTWVL and WRESTWVL FITS keywords for velocity in dynamics file
+2.0.13 [Jun 15, 2022]
+  change occulter overmasking from 1 pixel to 2 pixels, field stop from 2
+    pixels to 3
+  overmask field stop an additional 2 pixels for GBU calculations

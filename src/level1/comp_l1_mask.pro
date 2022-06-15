@@ -26,6 +26,11 @@
 ;   mask : out, optional, type="fltarr(1024, 1024)"
 ;     mask image
 ;
+; :Keywords:
+;   field_extra_overmask : in, optional, type=float, default=0.0
+;     amount, in pixels, to overmask on the field stop, in addition to the
+;     epoch defined overmask amount
+;
 ; :Author:
 ;   MLSO Software Team
 ;
@@ -34,10 +39,12 @@
 ;   removed post_rotation fudge factor 11/14/14 ST
 ;   see git log for recent changes
 ;-
-function comp_l1_mask, fits_header
+function comp_l1_mask, fits_header, field_extra_overmask=field_extra_overmask
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
+
+  _field_extra_overmask = n_elements(field_extra_overmask) eq 0L ? 0.0 : field_extra_overmask
 
   ; get parameters from FITS header
 
@@ -65,7 +72,8 @@ function comp_l1_mask, fits_header
     dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
+    field_mask = comp_field_mask(field.r + field_offset + field_extra_overmask, $
+                                 xcen=field.x, ycen=field.y)
 
     mask = dmask * field_mask
   endif else begin
@@ -86,7 +94,8 @@ function comp_l1_mask, fits_header
     dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
+    field_mask = comp_field_mask(field.r + field_offset + field_extra_overmask, $
+                                 xcen=field.x, ycen=field.y)
   
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14

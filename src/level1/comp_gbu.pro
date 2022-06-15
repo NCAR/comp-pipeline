@@ -241,7 +241,7 @@ pro comp_gbu, date_dir, wave_type, error=error
     endif
 
     ; make mask of field-of-view
-    mask = comp_l1_mask(header)
+    mask = comp_l1_mask(header, field_extra_overmask=2.0)
 
     ; find standard 3 wavelengths for the wave type
     ; read line center intensity
