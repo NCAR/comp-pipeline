@@ -1,34 +1,48 @@
 ; docformat = 'rst'
 
-pro comp_intensity_timeseries, wave_region, process_basedir
+pro comp_intensity_timeseries, wave_region, process_basedir, average=average
   compile_opt strictarr
   @comp_mask_constants_common
 
-  intensity_filename = string(wave_region, format='%s-intensities.txt')
-  background_filename = string(wave_region, format='%s-backgrounds.txt')
+  if (n_elements(average) gt 0L) then begin
+    intensity_filename = string(wave_region, average, format='%s-%s-intensities.txt')
+    background_filename = string(wave_region, average, format='%s-%s-backgrounds.txt')
+    subdir = 'level2'
+    glob = string(wave_region, average, format='????????.comp.%s.%s.synoptic.fts.gz')
+  endif else begin
+    intensity_filename = string(wave_region, format='%s-%sintensities.txt')
+    background_filename = string(wave_region, format='%s-%sbackgrounds.txt')
+    subdir = 'level1'
+    glob = string(wave_region, format='????????.??????.comp.%s.*.*.fts.gz')
+  endelse
 
   openw, intensity_lun, intensity_filename, /get_lun
   openw, background_lun, background_filename, /get_lun
 
   dates = file_basename(file_search(filepath('????????', root=process_basedir)))
+  print, n_elements(dates), format='Found %d dates'
   for d = 0L, n_elements(dates) - 1L do begin
     comp_initialize, dates[d]
 
-    l1_files = file_search(filepath(string(wave_region, format='????????.??????.comp.%s.*.*.fts.gz'), $
-                           subdir=[dates[d], 'level1'], $
-                           root=process_basedir), count=n_l1_files)
+    full_glob = filepath(glob, $
+                         subdir=[dates[d], subdir], $
+                         root=process_basedir)
+    print, full_glob
+    files = file_search(full_glob, $
+                        count=n_files)
                            
-    for f = 0L, n_l1_files - 1L do begin
-      basename = file_basename(l1_files[f])
+    for f = 0L, n_files - 1L do begin
+      basename = file_basename(files[f])
+      print, basename
       tokens = strsplit(basename, '.', /extract)
       lun = strpos(basename, 'bkg') ge 0 ? background_lun : intensity_lun
 
-      primary_header = headfits(l1_files[f])
+      primary_header = headfits(files[f])
       date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
                        sxpar(primary_header, 'TIME-OBS'), $
                        format='(%"%sT%s")')
       date_obs = comp_normalize_datetime(date_obs)
-      
+
       year   = long(strmid(date_obs,  0, 4))
       month  = long(strmid(date_obs,  5, 2))
       day    = long(strmid(date_obs,  8, 2))
@@ -42,8 +56,8 @@ pro comp_intensity_timeseries, wave_region, process_basedir
       sun_pixels = rsun / plate_scale
 
       ; find center wavelength I extension
-      n_waves = long(tokens[5])
-      im = readfits(l1_files[f], header, exten_no=n_waves / 2 + 1L, /silent)
+      n_waves = n_elements(average) gt 0L ? 5 : long(tokens[5])
+      im = readfits(files[f], header, exten_no=n_waves / 2 + 1L, /silent)
 
       heights = [1.10, 1.15, 1.20, 1.25]
       means = dblarr(n_elements(heights))
@@ -70,8 +84,11 @@ end
 process_basedir = '/hao/dawn/Data/CoMP/process'
 
 wave_regions = ['1074', '1079']
+methods = ['mean', 'median']
 for w = 0L, n_elements(wave_regions) - 1L do begin
-  comp_intensity_timeseries, wave_regions[w], process_basedir
+  for m = 0L, n_elements(methods) - 1L do begin
+    comp_intensity_timeseries, wave_regions[w], process_basedir, average=methods[m]
+  endfor
 endfor
 
 end

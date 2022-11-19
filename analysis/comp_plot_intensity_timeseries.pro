@@ -30,9 +30,11 @@ end
 
 ; main-level example program
 
-comp_plot_intensity_timeseries, '1074-intensities.txt'
+comp_plot_intensity_timeseries, '1074-mean-intensities.txt'
+comp_plot_intensity_timeseries, '1074-median-intensities.txt'
+comp_plot_intensity_timeseries, '1079-mean-intensities.txt'
+comp_plot_intensity_timeseries, '1079-median-intensities.txt'
 ; comp_plot_intensity_timeseries, '1074-backgrounds.txt', /background
-comp_plot_intensity_timeseries, '1079-intensities.txt'
 ; comp_plot_intensity_timeseries, '1079-backgrounds.txt', /background
 
 end
