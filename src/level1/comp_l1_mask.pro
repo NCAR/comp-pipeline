@@ -72,7 +72,7 @@ function comp_l1_mask, fits_header, field_extra_overmask=field_extra_overmask
     dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset + field_extra_overmask, $
+    field_mask = comp_field_mask(field.r + field_offset + _field_extra_overmask, $
                                  xcen=field.x, ycen=field.y)
 
     mask = dmask * field_mask
@@ -94,7 +94,7 @@ function comp_l1_mask, fits_header, field_extra_overmask=field_extra_overmask
     dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset + field_extra_overmask, $
+    field_mask = comp_field_mask(field.r + field_offset + _field_extra_overmask, $
                                  xcen=field.x, ycen=field.y)
   
     ; post mask
