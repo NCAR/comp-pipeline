@@ -95,7 +95,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
     top = 255 - n_annotation_colors
   endelse
 
-  loadct, 3, /silent, ncolors=256 - n_annotation_colors
+  loadct, 0, /silent, ncolors=256 - n_annotation_colors
 
   if (keyword_set(background)) then begin
     bad1_col = 251
