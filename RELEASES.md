@@ -127,3 +127,4 @@
 2.0.14 [Jun 15, 2022]
   fix for bad 2.0.13 release
 2.0.15
+  new display min/max values
