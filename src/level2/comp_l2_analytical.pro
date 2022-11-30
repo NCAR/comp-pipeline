@@ -152,13 +152,13 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           profile = double([reform(i1[xx, yy]), $
                             reform(i2[xx, yy]), $
                             reform(i3[xx, yy])])
-          sub_bad = where(profile le 0, n_bad)
-          if (n_bad gt 0L) then profile[sub_bad] = 0.005D
+          ; sub_bad = where(profile le 0, n_bad)
+          ; if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
           if (profile[1] gt int_min_thresh $
               && profile[1] lt int_max_thresh $
-              && profile[0] gt int_min_thresh $
-              && profile[2] gt int_min_thresh $
+              && profile[0] gt 0.1 $
+              && profile[2] gt 0.1 $
               && profile[0] lt int_max_thresh $
               && profile[2] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
@@ -177,7 +177,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           endif else begin
             temp_data[xx, yy, 0] = i_cent
             temp_data[xx, yy, 1] = rest + doppler_shift
-            temp_data[xx, yy, 2] = width / sqrt(2.)
+            temp_data[xx, yy, 2] = width / sqrt(2.0)
           endelse
         endif
       endfor
