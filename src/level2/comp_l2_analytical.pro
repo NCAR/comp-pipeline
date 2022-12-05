@@ -249,7 +249,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       endif else east_median_rest_wavelength = !values.f_nan
       if (n_good_west_dop gt 0L) then begin
         west_median_rest_wavelength = median(temp_velo[good_west_dop_ind])
-      endif else wast_median_rest_wavelength = !values.f_nan
+      endif else west_median_rest_wavelength = !values.f_nan
     endif else begin
       median_rest_wavelength = !values.f_nan
       temp_corr_velo = temp_velo
