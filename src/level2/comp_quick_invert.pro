@@ -250,9 +250,25 @@ pro comp_quick_invert, date_dir, wave_type, $
   if (n_good_dop gt 0L) then begin
     median_rest_wavelength = median(dop[good_dop_ind])
     corrected_dop = dop - median_rest_wavelength
+
+    good_east_dop_ind = where(finite(corrected_dop) $
+                                and abs(corrected_dop) lt 80.0 $
+                                and x lt (nx - 1.0) / 2.0, n_good_east_dop)
+    good_west_dop_ind = where(finite(corrected_dop) $
+                              and abs(corrected_dop) lt 80.0 $
+                              and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+    if (n_good_east_dop gt 0L) then begin
+      east_median_rest_wavelength = median(corrected_dop[good_east_dop_ind])
+    endif else east_median_rest_wavelength = !values.f_nan
+    if (n_good_west_dop gt 0L) then begin
+      west_median_rest_wavelength = median(corrected_dop[good_west_dop_ind])
+    endif else west_median_rest_wavelength = !values.f_nan
   endif else begin
     median_rest_wavelength = !values.f_nan
     corrected_dop = dop
+
+    east_median_rest_wavelength = !values.f_nan
+    west_median_rest_wavelength = !values.f_nan
   endelse
 
   ; write fit parameters to output file
@@ -302,6 +318,10 @@ pro comp_quick_invert, date_dir, wave_type, $
             format='(F0.3)'
   fxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [km/s] rest wavelength', $
             format='(F0.3)', /null
+  fxaddpar, extension_header, 'ERESTWVL', east_median_rest_wavelength, $
+            ' [km/s] east rest wavelength', format='(F0.3)', /null
+  fxaddpar, extension_header, 'WRESTWVL', west_median_rest_wavelength, $
+            ' [km/s] west rest wavelength', format='(F0.3)', /null
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
   sxdelpar, header, 'RESTWVL'
 
