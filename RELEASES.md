@@ -128,3 +128,5 @@
   fix for bad 2.0.13 release
 2.0.15
   new display min/max values
+  add {E,W}RESTWVL to quick invert files
+  add option to just output level 1 GIFs

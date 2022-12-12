@@ -128,7 +128,7 @@ pro comp_extract_intensity, date_dir, wave_type, error=error, background=backgro
                    wave_type, background=background
 
     ; output a line center intensity FITS file for 1083
-    if (wave_type eq '1083') then begin
+    if (wave_type eq '1083' && create_l1) then begin
       output_filename = string(strmid(file_basename(files[f]), 0, 15), wave_type, $
                                format='(%"%s.comp.%s.intensity.fts")')
       fits_open, output_filename, fcb, /write

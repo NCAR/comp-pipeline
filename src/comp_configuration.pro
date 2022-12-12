@@ -103,6 +103,8 @@ pro comp_configuration, config_filename=config_filename, error=error
                                     /boolean, default=0B)
   create_l1           = config->get('create_l1', section='actions', $
                                     /boolean, default=1B)
+  create_l1_gifs      = config->get('create_l1_gifs', section='actions', $
+                                    /boolean, default=1B)
   perform_gbu         = config->get('perform_gbu', section='actions', $
                                     /boolean, default=create_l1)
   check_l1            = config->get('check_l1', section='actions', $
