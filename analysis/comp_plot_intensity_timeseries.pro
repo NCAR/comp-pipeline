@@ -10,7 +10,7 @@ pro comp_plot_intensity_timeseries, filename, background=background
   free_lun, lun
 
   jds = reform(data[0, *])
-  heights = [1.10, 1.15, 1.20, 1.25]
+  heights = [1.08, 1.10, 1.15, 1.20, 1.25]
   window, xsize=1000, ysize=1200, title=filename, /free
   !null = label_date(date_format='%Y-%N')
   !p.multi = [0, 1, n_elements(heights)]

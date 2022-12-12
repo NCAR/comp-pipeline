@@ -49,7 +49,7 @@ pro comp_intensity_timeseries, wave_region, process_basedir, average=average
       hour   = long(strmid(date_obs, 11, 2))
       minute = long(strmid(date_obs, 14, 2))
       second = long(strmid(date_obs, 17, 2))
-      
+
       fhour = hour + minute / 60.0 + second / 60.0 / 60.0
       sun, year, month, day, fhour, sd=rsun, pa=pangle, la=bangle
 
@@ -59,7 +59,7 @@ pro comp_intensity_timeseries, wave_region, process_basedir, average=average
       n_waves = n_elements(average) gt 0L ? 5 : long(tokens[5])
       im = readfits(files[f], header, exten_no=n_waves / 2 + 1L, /silent)
 
-      heights = [1.10, 1.15, 1.20, 1.25]
+      heights = [1.08, 1.10, 1.15, 1.20, 1.25]
       means = dblarr(n_elements(heights))
       for h = 0L, n_elements(heights) - 1L do begin
         means[h] = comp_annulus_mean(im, $
