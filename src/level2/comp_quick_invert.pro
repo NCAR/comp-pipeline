@@ -246,6 +246,8 @@ pro comp_quick_invert, date_dir, wave_type, $
   endif
 
   ; find median of non-CME finite dop -> "real rest wavelength"
+  x = lindgen(nx)
+  x = rebin(reform(x, nx, 1), nx, ny)
   good_dop_ind = where(finite(dop) and abs(dop) lt 80.0, n_good_dop)
   if (n_good_dop gt 0L) then begin
     median_rest_wavelength = median(dop[good_dop_ind])
