@@ -130,3 +130,4 @@
   new display min/max values
   add {E,W}RESTWVL to quick invert files
   add option to just output level 1 GIFs
+2.0.16
