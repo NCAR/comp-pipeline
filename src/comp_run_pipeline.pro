@@ -90,7 +90,7 @@ pro comp_run_pipeline, config_filename=config_filename
       continue
     endif
 
-    if (~file_test(filepath(date_dir, root=raw_basedir), /directory)) then begin
+    if (keyword_set(create_l1) && ~file_test(filepath(date_dir, root=raw_basedir), /directory)) then begin
       mg_log, 'no raw base directory for %s, skipping', date_dir, $
               name='comp', /error
       continue
