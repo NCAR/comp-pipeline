@@ -22,9 +22,11 @@ pro comp_apply_offsensor_mask, images, offsensor_mask, filename=filename
   if (save_offsensor_mask && n_elements(filename) gt 0L) then begin
     offsensor_basename = file_basename(filename, '.FTS') + '.offsensor.sav'
     date = strmid(offsensor_basename, 0, 8)
-    offsensor_filename = filepath(offsensor_basename, $
-                                  subdir=comp_decompose_date(date), $
-                                  root=engineering_dir)
+    eng_dir = filepath('', $
+                       subdir=comp_decompose_date(date), $
+                       root=engineering_dir)
+    if (~file_test(eng_dir, /directory)) then file_mkdir, eng_dir
+    offsensor_filename = filepath(offsensor_basename, root=eng_dir)
     save, offsensor_mask, filename=offsensor_filename
   endif
 
