@@ -131,3 +131,6 @@
   add {E,W}RESTWVL to quick invert files
   add option to just output level 1 GIFs
 2.0.16
+  handle engineering directory that hasn't been created yet
+  add ucomp cat subcommand
+  fix to handle up to 21 unique wavelengths in COMP_FILE_TYPE
