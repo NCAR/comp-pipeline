@@ -81,7 +81,14 @@ function comp_get_component, images, headers, polstate, beam, wave, $
     checki = where(check1 and waves eq wave[i], counti)
 
     if (counti lt 1) then begin
-      message, 'no image at specified polarization/beam/wave'
+      ind = where(check1, count)
+      mg_log, '%d pol state/beam matches', count, name='comp', /error
+      for m = 0L, count - 1L do begin
+        mg_log, 'index %d: pol state: %s, beam: %d, wave: %0.2f', $
+                ind[m], polstates[ind[m]], beams[ind[m]], waves[ind[m]], name='comp', /debug
+      endfor
+      message, string(polstate, beam, wave, $
+                      format='(%"no image at specified polarization/beam/wave (%s/%d/%0.2f)")')
     endif
 
     imagei = images[*, *, checki]
