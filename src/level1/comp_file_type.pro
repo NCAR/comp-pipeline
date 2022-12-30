@@ -172,8 +172,8 @@ pro comp_file_type, date_dir
     mg_log, '%s%s   %7.1f     %5.0f ms   %4d Data   %3d Dark   %3d Opal %s%s%s', $
             files[i], l1_filename, regions[ireg], expose, $
             ndata, ndark, nopal, str_cover, $
-            string(uniq_waves, format='(20f9.2)'), $
-            string(uniq_pols, format='(20(2x,a))'), $
+            string(uniq_waves, format='(21f9.2)'), $
+            string(uniq_pols, format='(21(2x,a))'), $
             name='comp', /debug
 
     printf, luns[ifile], files[i], l1_filename, expose, ndata, ndark, nopal, str_cover, $
