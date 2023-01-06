@@ -54,7 +54,7 @@ pro comp_l1_process_file, filename, date_dir, wave_type
 
   comp_demodulate, images, headers, images_demod, headers_demod
 
-  mg_log, 'n images: %d', n_elements(images[0, 0, *]), name='comp', /debug
+  mg_log, 'n images: %d', n_elements(images_demod[0, 0, *]), name='comp', /debug
 
   if (demodulated_output) then begin
     comp_write_intermediate, header0, images_demod, headers_demod, $

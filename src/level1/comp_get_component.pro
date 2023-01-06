@@ -87,6 +87,11 @@ function comp_get_component, images, headers, polstate, beam, wave, $
         mg_log, 'index %d: pol state: %s, beam: %d, wave: %0.2f', $
                 ind[m], polstates[ind[m]], beams[ind[m]], waves[ind[m]], name='comp', /debug
       endfor
+      for e = 0L, n_elements(waves) - 1L do begin
+        mg_log, 'ext %d, pol state: %s, beam: %d, wave: %0.2f', $
+                e + 1L, polstates[e], beams[e], waves[e], $
+                name='comp', /debug
+      endfor
       message, string(polstate, beam, wave, $
                       format='(%"no image at specified polarization/beam/wave (%s/%d/%0.2f)")')
     endif
