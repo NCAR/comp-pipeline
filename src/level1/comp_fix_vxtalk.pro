@@ -43,6 +43,20 @@ pro comp_fix_vxtalk, wave_type, date_dir, vimages, vheaders, filename
                           filename=filename
   comp_demodulate, quimages, quheaders, quimages_demod, quheaders_demod
 
+  comp_inventory_header, quheaders, qubeams, quwaves, qupols
+  uniq_waves = uniq(waves, sort(waves))
+  uniq_quwaves = uniq(quwaves, sort(quwaves))
+  if (n_elements(uniq_waves) ne n_elements(uniq_quwaves)) then begin
+    mg_log, 'QU and V files have differing number of wavelengths, skipping', $
+            name='comp', /warn
+    return
+  endif
+  if (total(abs(uniq_waves - uniq_quwaves), /preserve_type) gt 0.01) then begin
+    mg_log, 'QU and V files have differing wavelengths, skipping', $
+            name='comp', /warn
+    return
+  endif
+
   ; apply the estimated crosstalk correction to vimages (both on-band and
   ; continuum)
   nimg = n_elements(vimages[0, 0, *])
