@@ -423,7 +423,7 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
 end
 
 
-comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
+comp_plot_flatmedians, 'flat-medians-combined.csv', 'dark-medians-combined.csv', $
                        yrange=[0.0, 70.0], $
                        /constant_normalization, $
                        output_filename='flat-medians.ps'

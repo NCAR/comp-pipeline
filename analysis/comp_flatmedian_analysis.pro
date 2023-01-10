@@ -158,11 +158,11 @@ pro comp_flatmedian_analysis, process_dir, flat_output_filename, dark_output_fil
 end
 
 ;process_dir = '/hao/mahidata1/Data/CoMP/process.flats'
-process_dir = '/hao/mahidata1/Data/CoMP/process'
+process_dir = '/hao/dawn/Data/CoMP/process'
 comp_flatmedian_analysis, process_dir, $
-                          'flat-medians-2.csv', $
-                          'dark-medians-2.csv', $
-                          start_date='20170918', $
-                          end_date='20180620'
+                          'flat-medians-2012.csv', $
+                          'dark-medians-2012.csv', $
+                          start_date='20120101', $
+                          end_date='20121201'
 
 end
