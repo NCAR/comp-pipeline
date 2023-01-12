@@ -105,7 +105,7 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   endif
 
   ocol = 253
-  tvlct, 0, 200, 255, ocol
+  tvlct, 255, 0, 0, ocol
   fcol = 254
   tvlct, 0, 255, 0, fcol
   ccol = 255
@@ -182,22 +182,21 @@ pro comp_make_gif, date_dir, image, primary_header, filename, size, label, $
   plots, x, y, /device, color=ocol, thick=2
   plots, [oxcenter], [oycenter], /device, color=ocol, psym=1
 
+  fradius = sxpar(primary_header, 'FRADIUS')
+  fxcenter = sxpar(primary_header, 'FRPIX1') - 1.0
+  fycenter = sxpar(primary_header, 'FRPIX2') - 1.0
+
+  ; field center and outline
+  x = fradius * cos(theta) + fxcenter
+  y = fradius * sin(theta) + fycenter
+  plots, x, y, /device, color=fcol, thick=1
+  plots, [fxcenter], [fycenter], /device, color=fcol, psym=1
+
+  ; post
+  r = (oradius + fradius) / 2.0
+
   if (keyword_set(background)) then begin
-    fradius = sxpar(primary_header, 'FRADIUS')
-    fxcenter = sxpar(primary_header, 'FRPIX1') - 1.0
-    fycenter = sxpar(primary_header, 'FRPIX2') - 1.0
-
     post_angle = sxpar(primary_header, 'POSTPANG')
-    p_angle = sxpar(primary_header, 'SOLAR_P0')
-
-    ; field center and outline
-    x = fradius * cos(theta) + fxcenter
-    y = fradius * sin(theta) + fycenter
-    plots, x, y, /device, color=fcol, thick=1
-    plots, [fxcenter], [fycenter], /device, color=fcol, psym=1
-
-    ; post
-    r = (oradius + fradius) / 2.0
 
     ; convert from position angle (0 degrees up) to mathematical convention
     ; in radians
@@ -231,6 +230,8 @@ fits_read, fcb, data, primary_header, exten_no=0
 fits_read, fcb, intensity, header, exten_no=2
 fits_close, fcb
 
+comp_make_gif, date, intensity, primary_header, '20130103.210804.comp.1074.iqu.3.gif', $
+               620, 'Intensity', '1074'
 comp_make_gif, date, intensity, primary_header, '20130103.210804.comp.1074.iqu.3.bkg.gif', $
                620, 'Background', '1074', $
                /background
