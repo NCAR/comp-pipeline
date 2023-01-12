@@ -187,12 +187,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ; convert line width to [km/s], mask data
     temp_int = reform(temp_data[*, *, 0])
     temp_int[where(mask eq 0)] = 0D
-    int_prep = i2
-    int_prep[where(mask eq 0)] = 0D
+
     ; TODO: use whatever is in intensity extension for dynamics file for this
     ; value
-    int_enh = comp_intensity_enhancement(int_prep, headfits(gbu[ii].l1file))
+    int_enh = comp_intensity_enhancement(i2, headfits(gbu[ii].l1file))
     int_enh[where(mask eq 0)] = 0D
+
     thresh_unmasked = where(mask eq 1 $
                               and temp_int gt int_min_thresh $
                               and temp_int lt int_max_thresh, $
@@ -259,11 +259,13 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     ; intensity for polarization
     averaged_intensity = (i1 + i2 + i3) / 2.0
-    averaged_intensity[where(mask eq 0)] = 0.0D
-    averaged_intensity[thresh_masked]    = 0.0D
 
     averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
                                                              headfits(gbu[ii].l1file))
+
+    averaged_intensity[where(mask eq 0)] = 0.0D
+    averaged_intensity[thresh_masked]    = 0.0D
+
     averaged_enhanced_intensity[where(mask eq 0)] = 0.0D
     averaged_enhanced_intensity[thresh_masked] = 0.0D
 
