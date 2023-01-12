@@ -59,9 +59,33 @@ function comp_intensity_enhancement, data, hdr, status=status, error_msg=error_m
   lfit = mpfitfun('comp_expfit', lx1, ly1, err, start, /nan, /quiet, $
                   errmsg=error_msg, status=status)
   limb = bytscl(data / comp_expfit(r, lfit), min=0, max=4)
-  mlimb = unsharp_mask(limb, amount=5)
+  mlimb = unsharp_mask(limb, radius=3.0, amount=4.0, threshold=0.05)
 
   fitim = mlimb * (r ge r_inner - 1)
 
   return, fitim
 end
+
+
+; main-level example program
+
+date = '20130103'
+comp_initialize, date
+
+process_basedir = '/hao/dawn/Data/CoMP/process'
+filename = filepath('20130103.comp.1074.quick_invert.mean.synoptic.fts.gz', $
+                    subdir=[date, 'level2'], $
+                    root=process_basedir)
+fits_open, filename, fcb
+fits_read, fcb, data, primary_header, exten_no=0
+fits_read, fcb, intensity, header, exten_no=1
+fits_close, fcb
+
+enhanced_intensity = comp_intensity_enhancement(intensity, header, $
+                                                status=status, $
+                                                error_msg=error_msg)
+
+write_png, '20130103.comp.1074.enhanced_intensity.png', enhanced_intensity
+
+end
+
