@@ -300,17 +300,17 @@ function comp_find_average_files_nogap, list_filename, $
 
   ; find files between each set of flats
   stokes_bins = value_locate(stokes_times, flat_times)
-  
+
   stokes_start_indices   = stokes_bins[uniq(stokes_bins)] + 1L
   before_ind = where(stokes_start_indices lt n_elements(stokes_times) - 1L, $
                      ncomplement=n_after)
   if (n_after gt 0L) then stokes_start_indices = stokes_start_indices[before_ind]
   if (n_elements(stokes_start_indices) eq 1L) then begin
-    stokes_end_indices   = n_elements(stokes_times) - 1L
+    stokes_end_indices = n_elements(stokes_times) - 1L
   endif else begin
-    stokes_end_indices   = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
+    stokes_end_indices = [stokes_start_indices[1:-1], n_elements(stokes_times)] - 1L
   endelse
-  files_per_flat       = stokes_end_indices - stokes_start_indices + 1L
+  files_per_flat = stokes_end_indices - stokes_start_indices + 1L
 
   count = max(files_per_flat)
   if (count eq 0L) then return, !null
