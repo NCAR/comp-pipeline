@@ -182,7 +182,8 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   zero = where(i le 0, count)
   if (count eq 0) then begin
-    mg_log, 'no zeros for %s nm intensity [%s] (%s)', wave_type, _method, type, $
+    mg_log, 'no values less than 0 for %s nm intensity [%s] (%s)', $
+            wave_type, _method, type, $
             name='comp', /warn
   endif
 
