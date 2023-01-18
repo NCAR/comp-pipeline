@@ -219,20 +219,30 @@ date = '20130103'
 comp_initialize, date
 
 process_basedir = '/hao/dawn/Data/CoMP/process'
-; filename = filepath('20130103.210733.comp.1074.iqu.3.bkg.fts.gz', $
-;                     subdir=[date, 'level1'], $
-;                     root=process_basedir)
-filename = filepath('20130103.210804.comp.1074.iqu.3.bkg.fts.gz', $
-                    subdir=[date, 'level1'], $
-                    root=process_basedir)
-fits_open, filename, fcb
-fits_read, fcb, data, primary_header, exten_no=0
-fits_read, fcb, intensity, header, exten_no=2
-fits_close, fcb
 
-comp_make_gif, date, intensity, primary_header, '20130103.210804.comp.1074.iqu.3.gif', $
+bkg_basename = '20130103.210804.comp.1074.iqu.3.bkg.fts.gz'
+bkg_filename = filepath(bkg_basename, $
+                        subdir=[date, 'level1'], $
+                        root=process_basedir)
+
+int_basename = '20130103.210804.comp.1074.iqu.3.fts.gz'
+int_filename = filepath(int_basename, $
+                        subdir=[date, 'level1'], $
+                        root=process_basedir)
+
+fits_open, bkg_filename, bkg_fcb
+fits_read, bkg_fcb, dummy, bkg_primary_header, exten_no=0
+fits_read, bkg_fcb, bkg, header, exten_no=2
+fits_close, bkg_fcb
+
+fits_open, int_filename, int_fcb
+fits_read, int_fcb, dummy, int_primary_header, exten_no=0
+fits_read, int_fcb, intensity, header, exten_no=2
+fits_close, int_fcb
+
+comp_make_gif, date, intensity, int_primary_header, '20130103.210804.comp.1074.iqu.3.gif', $
                620, 'Intensity', '1074'
-comp_make_gif, date, intensity, primary_header, '20130103.210804.comp.1074.iqu.3.bkg.gif', $
+comp_make_gif, date, bkg, bkg_primary_header, '20130103.210804.comp.1074.iqu.3.bkg.gif', $
                620, 'Background', '1074', $
                /background
 
