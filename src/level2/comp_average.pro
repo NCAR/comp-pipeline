@@ -176,7 +176,7 @@ pro comp_average, date_dir, wave_type, $
   fits_open, test_filename, fcb
 
   ; read the primary header to use for the output
-  fits_read, fcb, d, primary_header, /header_only, exten_no=0, $
+  fits_read, fcb, d, average_primary_header, /header_only, exten_no=0, $
              /no_abort, message=msg
   if (msg ne '') then begin
     mg_log, 'problem reading from %s', test_filename, name='comp', /error
@@ -186,21 +186,21 @@ pro comp_average, date_dir, wave_type, $
     fits_close, fcbsig
     message, msg
   endif
-  sxdelpar, primary_header, 'DATE_HST'
-  sxdelpar, primary_header, 'TIME_HST'
-  sxdelpar, primary_header, 'METHOD'
-  sxaddpar, primary_header, 'LEVEL   ', 'L2'
+  sxdelpar, average_primary_header, 'DATE_HST'
+  sxdelpar, average_primary_header, 'TIME_HST'
+  sxdelpar, average_primary_header, 'METHOD'
+  sxaddpar, average_primary_header, 'LEVEL   ', 'L2'
   fits_close, fcb
 
-  sxaddpar, primary_header, 'DATE-OBS', date_str, $
+  sxaddpar, average_primary_header, 'DATE-OBS', date_str, $
             ' [UTC] Averaging mid-point DATE: CCYY-MM-DD', after='TIMESYS'
-  sxaddpar, primary_header, 'TIME-OBS', time_str, $
+  sxaddpar, average_primary_header, 'TIME-OBS', time_str, $
             ' [UTC] Averaging mid-point TIME: HH:MM:SS', after='DATE-OBS'
-  sxaddpar, primary_header, 'DURATION', 24. * 60. * duration, $
+  sxaddpar, average_primary_header, 'DURATION', 24.0 * 60.0 * duration, $
             ' [minutes] Averaging duration', after='TIME-OBS', format='(f8.3)'
 
-  sxdelpar, primary_header, 'OBS_PLAN'
-  sxdelpar, primary_header, 'OBS_ID'
+  sxdelpar, average_primary_header, 'OBS_PLAN'
+  sxdelpar, average_primary_header, 'OBS_ID'
 
   ; use given 5-pt wavelengths
   case wave_type of
@@ -214,13 +214,39 @@ pro comp_average, date_dir, wave_type, $
   endcase
 
   n_waves = n_elements(waves)
-  sxaddpar, primary_header, 'NTUNES', keyword_set(synoptic) ? 5 : 3
+  sxaddpar, average_primary_header, 'NTUNES', keyword_set(synoptic) ? 5 : 3
 
-  comp_l2_update_version, primary_header
+  keywords_to_average = ['IXCNTER1', 'IYCNTER1', 'IRADIUS1', $
+                         'IXCNTER2', 'IYCNTER2', 'IRADIUS2', $
+                         'OXCNTRU1', 'OYCNTRU1', 'ORADU1', $
+                         'OXCNTRU2', 'OYCNTRU2', 'ORADUS2', $
+                         'FRADIUS', 'FRPIX1', 'FRPIX2']
+  average_keyword_values = fltarr(n_elements(keywords_to_average), n_i_files)
+  for f = 0L, n_i_files - 1L do begin
+    fits_open, filepath(i_files[f], root=l1_process_dir), fcb
+    fits_read, fcb, d, theader, /header_only, exten_no=0, $
+               /no_abort, message=msg
+    if (msg ne '') then begin
+      mg_log, 'problem reading from %s', filename, name='comp', /error
+      message, msg
+    endif
 
-  if (compute_median) then fits_write, fcbmed, 0, primary_header
-  if (compute_mean) then fits_write, fcbavg, 0, primary_header
-  fits_write, fcbsig, 0, primary_header
+    for k = 0L, n_elements(keywords_to_average) - 1L do begin
+      average_keyword_values[k, f] = sxpar(theader, keywords_to_average[k])
+    endfor
+    fits_close, fcb
+  endfor
+
+  average_keyword_values = median(average_keyword_values, dimension=2)
+  for k = 0L, n_elements(keywords_to_average) - 1L do begin
+    sxaddpar, average_primary_header, keywords_to_average[k], average_keyword_values[k]
+  endfor
+
+  comp_l2_update_version, average_primary_header
+
+  if (compute_median) then fits_write, fcbmed, 0, average_primary_header
+  if (compute_mean) then fits_write, fcbavg, 0, average_primary_header
+  fits_write, fcbsig, 0, average_primary_header
 
   mg_log, '%s', strjoin(strtrim(waves, 2), ', '), name='comp', /debug
 
