@@ -27,13 +27,11 @@ pro comp_intensity_timeseries, wave_region, process_basedir, average=average
     full_glob = filepath(glob, $
                          subdir=[dates[d], subdir], $
                          root=process_basedir)
-    print, full_glob
     files = file_search(full_glob, $
                         count=n_files)
                            
     for f = 0L, n_files - 1L do begin
       basename = file_basename(files[f])
-      print, basename
       tokens = strsplit(basename, '.', /extract)
       lun = strpos(basename, 'bkg') ge 0 ? background_lun : intensity_lun
 
@@ -71,7 +69,7 @@ pro comp_intensity_timeseries, wave_region, process_basedir, average=average
       jd = julday(month, day, year, hour, minute, second)
       height_format = strarr(n_elements(heights)) + '%0.3f'
       printf, lun, jd, means, format='%0.8f ' + strjoin(height_format, ' ')
-      print, strmid(basename, 0, 15), means, format='%s ' + strjoin(height_format, ' ')
+      print, basename, means, format='%s ' + strjoin(height_format, ' ')
     endfor
   endfor
 
