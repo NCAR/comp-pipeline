@@ -221,7 +221,7 @@ pro comp_average, date_dir, wave_type, $
                          'OXCNTRU1', 'OYCNTRU1', 'ORADU1', $
                          'OXCNTRU2', 'OYCNTRU2', 'ORADUS2', $
                          'FRADIUS', 'FRPIX1', 'FRPIX2']
-  average_keyword_values = fltarr(n_elements(keywords_to_average), n_i_files)
+  keyword_values = fltarr(n_elements(keywords_to_average), n_i_files)
   for f = 0L, n_i_files - 1L do begin
     fits_open, filepath(i_files[f], root=l1_process_dir), fcb
     fits_read, fcb, d, theader, /header_only, exten_no=0, $
@@ -232,13 +232,18 @@ pro comp_average, date_dir, wave_type, $
     endif
 
     for k = 0L, n_elements(keywords_to_average) - 1L do begin
-      average_keyword_values[k, f] = sxpar(theader, keywords_to_average[k])
+      keyword_values[k, f] = sxpar(theader, keywords_to_average[k])
     endfor
     fits_close, fcb
   endfor
 
-  average_keyword_values = median(average_keyword_values, dimension=2)
+  average_keyword_values = median(keyword_values, dimension=2)
   for k = 0L, n_elements(keywords_to_average) - 1L do begin
+    !null = where(abs(keyword_values[k, *] - average_keyword_values[k]) gt 0.2 * average_keyword_values[k], $
+                  n_outliers)
+    mg_log, '%d files differ by > 20% for %s', $
+            n_outliers, keywords_to_average[k], $
+            name='comp', /warn
     sxaddpar, average_primary_header, keywords_to_average[k], average_keyword_values[k]
   endfor
 
