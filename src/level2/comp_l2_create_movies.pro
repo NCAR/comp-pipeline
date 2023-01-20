@@ -220,15 +220,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
               charsize=1, /device, color=255
 
       ; display HAO logo
-      tvlct, rtemp, gtemp, btemp, /get
-      tvlct, rhao, ghao, bhao
-      tv, haologo
-      tvlct, rtemp, gtemp, btemp
+      ; tvlct, rtemp, gtemp, btemp, /get
+      ; tvlct, rhao, ghao, bhao
+      ; tv, haologo
+      ; tvlct, rtemp, gtemp, btemp
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+              charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
-      backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-      tv, nsflogo, true=3, 619 - 134, 0
+      ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+      ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+      ; tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -258,15 +260,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
               charsize=1, /device, color=255
 
       ; display HAO logo
-      tvlct, rtemp, gtemp, btemp, /get
-      tvlct, rhao, ghao, bhao
-      tv, haologo
-      tvlct, rtemp, gtemp, btemp
+      ; tvlct, rtemp, gtemp, btemp, /get
+      ; tvlct, rhao, ghao, bhao
+      ; tv, haologo
+      ; tvlct, rtemp, gtemp, btemp
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+              charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
-      backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-      tv, nsflogo, true=3, 619 - 134, 0
+      ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+      ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+      ; tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -295,15 +299,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
             charsize=1, /device, color=255
 
     ; display HAO logo
-    tvlct, rtemp, gtemp, btemp, /get
-    tvlct, rhao, ghao, bhao
-    tv, haologo
-    tvlct, rtemp, gtemp, btemp
+    ; tvlct, rtemp, gtemp, btemp, /get
+    ; tvlct, rhao, ghao, bhao
+    ; tv, haologo
+    ; tvlct, rtemp, gtemp, btemp
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+            charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
-    backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-    tv, nsflogo, true=3, 619-134, 0
+    ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+    ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+    ; tv, nsflogo, true=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -336,15 +342,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
             charsize=1, /device, color=255
 
     ; display HAO logo
-    tvlct, rtemp, gtemp, btemp, /get
-    tvlct, rhao, ghao, bhao
-    tv, haologo
-    tvlct, rtemp, gtemp, btemp
+    ; tvlct, rtemp, gtemp, btemp, /get
+    ; tvlct, rhao, ghao, bhao
+    ; tv, haologo
+    ; tvlct, rtemp, gtemp, btemp
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+            charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
-    backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-    tv, nsflogo, true=3, 619-134, 0
+    ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+    ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+    ; tv, nsflogo, true=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -367,15 +375,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
             charsize=1, /device, color=255
 
     ; display HAO logo
-    tvlct, rtemp, gtemp, btemp, /get
-    tvlct, rhao, ghao, bhao
-    tv, haologo
-    tvlct, rtemp, gtemp, btemp
+    ; tvlct, rtemp, gtemp, btemp, /get
+    ; tvlct, rhao, ghao, bhao
+    ; tv, haologo
+    ; tvlct, rtemp, gtemp, btemp
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+            charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
-    backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-    tv, nsflogo, true=3, 619 - 134, 0
+    ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+    ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+    ; tv, nsflogo, true=3, 619 - 134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -408,15 +418,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
             charsize=1, /device, color=255
 
     ; display HAO logo
-    tvlct, rtemp, gtemp, btemp, /get
-    tvlct, rhao, ghao, bhao
-    tv, haologo
-    tvlct, rtemp, gtemp, btemp
+    ; tvlct, rtemp, gtemp, btemp, /get
+    ; tvlct, rhao, ghao, bhao
+    ; tv, haologo
+    ; tvlct, rtemp, gtemp, btemp
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+            charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
-    backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-    nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-    tv, nsflogo, true=3, 619-134, 0
+    ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+    ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+    ; tv, nsflogo, true=3, 619-134, 0
 
     ; display N-W
     backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
@@ -461,15 +473,17 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
               charsize=1, /device, color=255
 
       ; display HAO logo
-      tvlct, rtemp, gtemp, btemp, /get
-      tvlct, rhao, ghao, bhao
-      tv, haologo
-      tvlct, rtemp, gtemp, btemp
+      ; tvlct, rtemp, gtemp, btemp, /get
+      ; tvlct, rhao, ghao, bhao
+      ; tv, haologo
+      ; tvlct, rtemp, gtemp, btemp
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
+              charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
-      backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
-      nsflogo   = comp_transparent_logo(nsfimage, backgnd)
-      tv, nsflogo, true=3, 619 - 134, 0
+      ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
+      ; nsflogo   = comp_transparent_logo(nsfimage, backgnd)
+      ; tv, nsflogo, true=3, 619 - 134, 0
 
       ; display N-W
       backgnd  = tvrd(4, 555, nwimsize[0], nwimsize[1], true=3)
