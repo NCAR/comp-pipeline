@@ -241,9 +241,11 @@ pro comp_average, date_dir, wave_type, $
   for k = 0L, n_elements(keywords_to_average) - 1L do begin
     !null = where(abs(keyword_values[k, *] - average_keyword_values[k]) gt 0.2 * average_keyword_values[k], $
                   n_outliers)
-    mg_log, '%d files differ by > 20% for %s', $
-            n_outliers, keywords_to_average[k], $
-            name='comp', /warn
+    if (n_outliers gt 0L) then begin
+      mg_log, '%d files differ by > 20%% for %s', $
+              n_outliers, keywords_to_average[k], $
+              name='comp', /warn
+    endif
     sxaddpar, average_primary_header, keywords_to_average[k], average_keyword_values[k]
   endfor
 
