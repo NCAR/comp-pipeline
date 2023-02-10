@@ -162,22 +162,17 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
               && profile[0] lt int_max_thresh $
               && profile[2] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
+            temp_data[xx, yy, 0] = i_cent
+            temp_data[xx, yy, 1] = rest + doppler_shift
+            temp_data[xx, yy, 2] = width / sqrt(2.0)
           endif else begin
             bad_pixels_mask[xx, yy] = 1B
             i_cent        = 0D
             doppler_shift = 0D
             width         = 0D
-          endelse
-
-          if (abs(i_cent - profile[1]) gt 1.5 * profile[1]) then begin
-            bad_pixels_mask[xx, yy] = 1B
-            temp_data[xx, yy, 0] = 0D
-            temp_data[xx, yy, 1] = 0D
-            temp_data[xx, yy, 2] = 0D
-          endif else begin
-            temp_data[xx, yy, 0] = i_cent
-            temp_data[xx, yy, 1] = rest + doppler_shift
-            temp_data[xx, yy, 2] = width / sqrt(2.0)
+            temp_data[xx, yy, 0] = 0.0D
+            temp_data[xx, yy, 1] = 0.0D
+            temp_data[xx, yy, 2] = 0.0D
           endelse
         endif
       endfor
@@ -220,6 +215,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     ; convert temp_velo from wavelength to velocity
     temp_velo = (temp_velo - rest) * c / rest
+    temp_velo[where(bad_pixels_mask gt 0, /null)] = 0.0D
 
     temp_int[thresh_masked]        = 0D
     temp_corr_velo[thresh_masked]  = 0D
@@ -234,31 +230,54 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ; find median of non-CME finite dop -> "real rest wavelength"
     x = lindgen(nx)
     x = rebin(reform(x, nx, 1), nx, ny)
-    good_dop_ind = where(finite(temp_velo) and abs(temp_velo) lt 80.0, n_good_dop)
-    if (n_good_dop gt 0L) then begin
-      median_rest_wavelength = median(temp_velo[good_dop_ind])
-      temp_corr_velo = temp_velo - median_rest_wavelength
+    rest_wavelength_dop_ind = where(finite(temp_velo) $
+                          and line_width gt 15.0 $
+                          and abs(temp_velo) lt 30.0, n_rest_wavelength_dop, /null)
+    good_dop_ind = where(finite(temp_velo) $
+                          and line_width gt 15.0 $
+                          and abs(temp_velo) lt 80.0, n_good_dop, /null)
+    if (n_rest_wavelength_dop gt 0L) then begin
+      median_rest_wavelength = median(temp_velo[rest_wavelength_dop_ind])
+      mean_rest_wavelength = mean(temp_velo[rest_wavelength_dop_ind])
+
+      ; TODO: use fit to correct instead of below
+      temp_corr_velo[good_dop_ind] = temp_velo[good_dop_ind] - median_rest_wavelength
+
       good_east_dop_ind = where(finite(temp_velo) $
-                                  and abs(temp_velo) lt 80.0 $
+                                  and line_width gt 15.0 $
+                                  and abs(temp_velo) lt 30.0 $
                                   and x lt (nx - 1.0) / 2.0, n_good_east_dop)
       good_west_dop_ind = where(finite(temp_velo) $
-                                and abs(temp_velo) lt 80.0 $
+                                and line_width gt 15.0 $
+                                and abs(temp_velo) lt 30.0 $
                                 and x gt (nx - 1.0) / 2.0, n_good_west_dop)
       if (n_good_east_dop gt 0L) then begin
         east_median_rest_wavelength = median(temp_velo[good_east_dop_ind])
-      endif else east_median_rest_wavelength = !values.f_nan
+        east_mean_rest_wavelength = mean(temp_velo[good_east_dop_ind])
+      endif else begin
+        east_median_rest_wavelength = !values.f_nan
+        east_mean_rest_wavelength = !values.f_nan
+      endelse
+
       if (n_good_west_dop gt 0L) then begin
         west_median_rest_wavelength = median(temp_velo[good_west_dop_ind])
-      endif else west_median_rest_wavelength = !values.f_nan
+        west_mean_rest_wavelength = mean(temp_velo[good_west_dop_ind])
+      endif else begin
+        west_median_rest_wavelength = !values.f_nan
+        west_mean_rest_wavelength = !values.f_nan
+      endelse
     endif else begin
       median_rest_wavelength = !values.f_nan
+      mean_rest_wavelength = !values.f_nan
       temp_corr_velo = temp_velo
       east_median_rest_wavelength = !values.f_nan
+      east_mean_rest_wavelength = !values.f_nan
       west_median_rest_wavelength = !values.f_nan
+      west_mean_rest_wavelength = !values.f_nan
     endelse
 
     ; intensity for polarization
-    averaged_intensity = (i1 + i2 + i3) / 2.0
+    averaged_intensity = 0.3 * i1 + 0.7 * i2 + 0.3 * i3
 
     averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
                                                              headfits(gbu[ii].l1file))
@@ -307,13 +326,19 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                            extname='Corrected LOS velocity', $
                                            datminmax=[min(temp_corr_velo), $
                                                       max(temp_corr_velo)])
-    fxaddpar, extension_header, 'RESTWVL', median_rest_wavelength, $
-              ' [km/s] rest wavelength', format='(F0.3)', /null
-    fxaddpar, extension_header, 'ERESTWVL', east_median_rest_wavelength, $
-              ' [km/s] east rest wavelength', format='(F0.3)', /null
-    fxaddpar, extension_header, 'WRESTWVL', west_median_rest_wavelength, $
-              ' [km/s] west rest wavelength', format='(F0.3)', /null
-              
+    fxaddpar, extension_header, 'RSTWVL', median_rest_wavelength, $
+              ' [km/s] median rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'RSTWVL2', mean_rest_wavelength, $
+               ' [km/s] mean rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'ERSTWVL', east_median_rest_wavelength, $
+              ' [km/s] median east rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'ERSTWVL2', east_mean_rest_wavelength, $
+              ' [km/s] mean east rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'WRSTWVL', west_median_rest_wavelength, $
+              ' [km/s] median west rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'WRSTWVL2', west_mean_rest_wavelength, $
+              ' [km/s] mean west rest wavelength', format='(F0.3)', /null
+
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
     sxdelpar, extension_header, 'RESTWVL'
