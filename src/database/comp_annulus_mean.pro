@@ -17,7 +17,8 @@
 ;   sun_pixels : in, required, type=float
 ;     number of pixels corresponding to a solar radius
 ;-
-function comp_annulus_mean, image, inner_radius, outer_radius, sun_pixels
+function comp_annulus_mean, image, inner_radius, outer_radius, sun_pixels, $
+                            median=median
   compile_opt strictarr
 
   dims = size(image, /dimensions)
@@ -30,5 +31,9 @@ function comp_annulus_mean, image, inner_radius, outer_radius, sun_pixels
                           n_annulus)
 
 
-  return, n_annulus eq 0L ? !null : mean(image[annulus_indices], /nan)
+  return, n_annulus eq 0L $
+            ? !null $
+            : (keyword_set(median) $
+              ? median(image[annulus_indices]) $
+              : mean(image[annulus_indices], /nan))
 end
