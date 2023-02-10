@@ -44,6 +44,10 @@ function comp_l2_mask, fits_header
   ; look for new keyword
   fradius = sxpar(fits_header, 'FRADIUS', count=count)
 
+  occulter_id = sxpar(fits_header, 'OCC-ID')
+  occulter_index = where(occulter_ids eq occulter_id)
+  occulter_radius = occulter_radii[occulter_index[0]]
+
   if (count eq 0) then begin
     ; old keywords 
     occulter = {x:sxpar(fits_header, 'CRPIX1') , $
@@ -60,7 +64,7 @@ function comp_l2_mask, fits_header
     ; create the mask from individual masks
 
     ; occulter mask
-    dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
+    dmask = comp_disk_mask(occulter_radius + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
     field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
@@ -81,7 +85,7 @@ function comp_l2_mask, fits_header
     ; create the mask from individual masks
 
     ; occulter mask
-    dmask = comp_disk_mask(occulter.r + occulter_offset, xcen=occulter.x, ycen=occulter.y)
+    dmask = comp_disk_mask(occulter_radius + occulter_offset, xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
     field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)

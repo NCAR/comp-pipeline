@@ -215,6 +215,11 @@ pro comp_initialize, date_dir
   stokes = comp_initialize_readconfig('stokes', date_dir, options, /extract)
   n_stokes = n_elements(stokes)
 
+  occulter_ids = comp_initialize_readconfig('occulter_ids', date_dir, options, $
+                                            /extract)
+  occulter_radii = comp_initialize_readconfig('occulter_radii', date_dir, options, $
+                                              /extract, type=4)
+
   ; distortion coefficients
   distortion_coeffs = comp_initialize_readconfig('distortion_coeffs', $
                                                  date_dir, options, $
