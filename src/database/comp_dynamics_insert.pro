@@ -21,8 +21,9 @@
 pro comp_dynamics_insert, date, wave_type, $
                           database=db, obsday_index=obsday_index
   compile_opt strictarr
+  @comp_config_common
 
-  basename = string(date, wave_type, format='(%"%s.comp.%s.dynamics.fts*")')
+  basename = string(wave_type, format='(%"*.comp.%s.dynamics.fts*")')
   dynamics_files = file_search(filepath(basename, $
                                         subdir=[date, 'level2'], $
                                         root=process_basedir), $
@@ -39,8 +40,22 @@ pro comp_dynamics_insert, date, wave_type, $
     goto, done
   endelse
 
-  ; loop through dynamics files
+  ; get dynamics product type from mlso_producttype
+  producttype = comp_get_producttype_id('dynamics', database=db)
+
+  ; get file type from mlso_filetype
+  filetype = comp_get_filetype_id('fits', database=db)
+
+  ; get level from comp_level
+  level = comp_get_level_id('L2', database=db)
+
+  quality = 100
+
+  ; loop through dynamics files to insert into comp_dynamics and comp_img
   for f = 0L, n_dynamics_files - 1L do begin
+    mg_log, '%d/%d: inserting %s', $
+            f + 1, n_dynamics_files, file_basename(dynamics_files[f]), $
+            name='comp', /debug
     fits_open, dynamics_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
     fits_read, fcb, intensity, intensity_header, exten_no=1, /no_abort, message=msg
@@ -76,9 +91,92 @@ pro comp_dynamics_insert, date, wave_type, $
                  doppler_min, $
                  doppler_max, $
 
-                 status=status
+                 status=status, $
+                 error_message=error_message, $
+                 sql_statement=sql_query
+    if (status ne 0L) then begin
+      mg_log, 'comp_file status: %d', status, name='comp', /warn
+      mg_log, 'error: %s', error_message, name='comp', /warn
+      mg_log, 'sql_query: %s', sql_query, name='comp', /warn
+    endif
+
+    carrington_rotation = sxpar(primary_header, 'CARR_ROT')
+    pol_list = strtrim(sxpar(primary_header, 'POL_LIST'), 2)
+
+    ; insert into comp_file table
+    fields = [{name: 'file_name', type: '''%s'''}, $
+              {name: 'date_obs', type: '''%s'''}, $
+              {name: 'obs_day', type: '%d'}, $
+    
+              {name: 'carrington_rotation', type: '%d'}, $
+              {name: 'level', type: '%d'}, $
+              {name: 'producttype', type: '%d'}, $
+              {name: 'filetype', type: '%d'}, $
+              {name: 'quality', type: '%d'}, $
+              {name: 'pol_list', type: '''%s'''}, $
+              {name: 'wavetype', type: '''%s'''}];, $
+              ;{name: 'ntunes', type: '%d'}]
+    sql_cmd = string(strjoin(fields.name, ', '), $
+                     strjoin(fields.type, ', '), $
+                     format='(%"insert into comp_file (%s) values (%s)")')
+
+    db->execute, sql_cmd, $
+                 file_basename(dynamics_files[f], '.gz'), $
+                 date_obs, $
+                 obsday_index, $
+
+                 carrington_rotation, $
+                 level, $
+                 producttype, $
+                 filetype, $
+                 quality, $
+                 pol_list, $
+                 wave_type, $
+                 ;ntunes, $
+
+                 status=status, $
+                 error_message=error_message, $
+                 sql_statement=sql_query
+    if (status ne 0L) then begin
+      mg_log, 'comp_file status: %d', status, name='comp', /warn
+      mg_log, 'error: %s', error_message, name='comp', /warn
+      mg_log, 'sql_query: %s', sql_query, name='comp', /warn
+    endif
   endfor
 
   done:
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+@comp_config_common
+
+date = '20180101'
+
+comp_initialize, date
+config_filename = filepath('comp.db.cfg', $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+
+; get database connection
+db = compdbmysql()
+db->connect, config_filename=database_config_filename, $
+             config_section=database_config_section, $
+             status=status, error_message=error_message
+
+; get obs day index
+obsday_index = mlso_obsday_insert(date, database_config_filename, database_config_section, $
+                                  database=db, status=status)
+
+print, date, obsday_index, format='Obsday index for %s is %d'
+
+comp_dynamics_insert, date, '1074', $
+                      database=db, obsday_index=obsday_index
+comp_dynamics_insert, date, '1079', $
+                      database=db, obsday_index=obsday_index
+
+obj_destroy, db
+
 end
