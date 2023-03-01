@@ -1,7 +1,8 @@
 ; docformat = 'rst'
 
 ;+
-; Update comp_dynamics table with results of pipeline run for the given day.
+; Update comp_dynamics and comp_file tables with results of pipeline run for
+; the given day.
 ;
 ; :Params:
 ;   date : in, required, type=string
@@ -64,8 +65,8 @@ pro comp_dynamics_insert, date, wave_type, $
     if (msg ne '') then message, msg
 
     date_obs = string(sxpar(primary_header, 'DATE-OBS'), $
-                     sxpar(primary_header, 'TIME-OBS'), $
-                     format='(%"%sT%s")')
+                      sxpar(primary_header, 'TIME-OBS'), $
+                      format='(%"%sT%s")')
     date_obs = comp_normalize_datetime(date_obs)
 
     intensity_max = max(intensity)
@@ -107,7 +108,7 @@ pro comp_dynamics_insert, date, wave_type, $
     fields = [{name: 'file_name', type: '''%s'''}, $
               {name: 'date_obs', type: '''%s'''}, $
               {name: 'obs_day', type: '%d'}, $
-    
+
               {name: 'carrington_rotation', type: '%d'}, $
               {name: 'level', type: '%d'}, $
               {name: 'producttype', type: '%d'}, $
