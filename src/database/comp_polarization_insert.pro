@@ -51,8 +51,7 @@ pro comp_polarization_insert, date, wave_type, $
 
   quality = 100
 
-  ; loop through polarization files to insert into comp_polarization and
-  ; comp_img
+  ; loop through polarization files to insert into comp_img
   for f = 0L, n_polarization_files - 1L do begin
     mg_log, '%d/%d: inserting %s', $
             f + 1, n_polarization_files, file_basename(polarization_files[f]), $
