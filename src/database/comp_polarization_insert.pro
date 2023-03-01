@@ -58,8 +58,6 @@ pro comp_polarization_insert, date, wave_type, $
             name='comp', /debug
     fits_open, polarization_files[f], fcb
     fits_read, fcb, data, primary_header, exten_no=0, /no_abort, message=msg
-    fits_read, fcb, intensity, intensity_header, exten_no=1, /no_abort, message=msg
-    fits_read, fcb, velocity, velocity_header, exten_no=3, /no_abort, message=msg
     fits_close, fcb
     if (msg ne '') then message, msg
 
