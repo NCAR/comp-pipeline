@@ -45,6 +45,10 @@ pro comp_update_database, date, wave_type, $
                             database=db, obsday_index=obsday_index
   comp_quick_invert_insert, date, wave_type, $
                             database=db, obsday_index=obsday_index
+  comp_average_insert, date, wave_type, 'mean', $
+                       database=db, obsday_index=obsday_index
+  comp_average_insert, date, wave_type, 'median', $
+                        database=db, obsday_index=obsday_index
 
   ; close database connection
   if (~arg_present(db)) then obj_destroy, db
