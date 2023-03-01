@@ -41,6 +41,10 @@ pro comp_update_database, date, wave_type, $
                    database=db, obsday_index=obsday_index
   comp_dynamics_insert, date, wave_type, $
                         database=db, obsday_index=obsday_index
+  comp_polarization_insert, date, wave_type, $
+                            database=db, obsday_index=obsday_index
+  comp_quick_invert_insert, date, wave_type, $
+                            database=db, obsday_index=obsday_index
 
   ; close database connection
   if (~arg_present(db)) then obj_destroy, db
