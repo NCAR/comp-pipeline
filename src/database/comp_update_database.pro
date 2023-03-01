@@ -16,7 +16,7 @@ pro comp_update_database, date, wave_type, $
                           database=db, obsday_index=obsday_index
   compile_opt strictarr
   @comp_config_common
-  
+
   ; create MySQL database interface object
   if (~obj_valid(db)) then begin
     db = compdbmysql()
