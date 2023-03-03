@@ -42,8 +42,8 @@
 ;
 ; :Uses:
 ;   comp_config_common, comp_constants_common, comp_inventory_l2, comp_uniq,
-;   comp_l2_mask, comp_find_average_files, comp_find_l1_file, fits_open,
-;   fits_read, fits_write, fits_close, sxdelpar, sxaddpar, mg_log
+;   comp_find_average_files, comp_find_l1_file, fits_open, fits_read,
+;   fits_write, fits_close, sxdelpar, sxaddpar, mg_log
 ;
 ; :Params:
 ;   date_dir : in, required, type=string
@@ -324,7 +324,6 @@ pro comp_average, date_dir, wave_type, $
           mg_log, 'problem reading from %s', filename, name='comp', /error
           message, msg
         endif
-        mask = comp_l2_mask(theader)
 
         comp_inventory_l1, fcb, wave, pol
 
@@ -341,12 +340,6 @@ pro comp_average, date_dir, wave_type, $
         endif
         naverage[s, w] += sxpar(header, 'NAVERAGE')
 
-        ; put NaNs for masked out pixels, so averaging doesn't include a
-        ; bunch of 0's
-        bad_ind = where(mask eq 0.0, n_bad)
-        if (n_bad gt 0L) then mask[bad_ind] = !values.f_nan
-
-        data[*, *, f] = dat * mask
         if (num_averaged[s, w] eq 0) then average_times[0, s, w] = strmid(name, 9, 6)
         num_averaged[s, w] += 1
         average_times[1, s, w] = strmid(name, 9, 6)
@@ -366,7 +359,6 @@ pro comp_average, date_dir, wave_type, $
             message, msg
           endif
 
-          back[*, *, s, w] += dat * mask
           back_naverage[s, w] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[s, w] += 1
           fits_close, bkg_fcb
@@ -380,7 +372,6 @@ pro comp_average, date_dir, wave_type, $
             message, msg
           endif
 
-          back[*, *, w] += dat * mask
           back_naverage[w] += sxpar(bkg_header, 'NAVERAGE')
           num_back_averaged[w] += 1
           fits_close, bkg_fcb
