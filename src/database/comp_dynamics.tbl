@@ -10,5 +10,10 @@ create table comp_dynamics (
   doppler_min              float (14, 7),
   doppler_max              float (14, 7),
 
+  doppler_mean             float (14, 7),
+  doppler_east_median      float (14, 7),
+  dopper_west_median       float (14, 7),
+  doppler_median           float (14, 7),
+
   foreign key (obs_day) references mlso_numfiles(day_id)
 )

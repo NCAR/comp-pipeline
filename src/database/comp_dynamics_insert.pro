@@ -69,8 +69,22 @@ pro comp_dynamics_insert, date, wave_type, $
                       format='(%"%sT%s")')
     date_obs = comp_normalize_datetime(date_obs)
 
-    intensity_max = max(intensity)
-    doppler_min = min(velocity, max=doppler_max)
+    dims = size(velocity, /dimensions)
+    mask = comp_l2_mask(primary_header)
+    mask_indices = where(mask, /null)
+
+    intensity_max = max(intensity[mask_indices])
+    doppler_min = min(velocity[mask_indices], max=doppler_max)
+    doppler_mean = mean(velocity[mask_indices])
+    doppler_median = median(velocity[mask_indices])
+
+    x = rebin(findgen(dims[0]), dims[0], dims[1])
+    x_center = (dims[0] - 1.0) / 2.0
+    east_indices = where(mask and x lt x_center, /null)
+    west_indices = where(mask and x gt x_center, /null)
+
+    doppler_east_median = median(velocity[east_indices])
+    doppler_west_median = median(velocity[west_indices])
 
     ; insert into comp_dynamics table
     fields = [{name: 'file_name', type: '''%s'''}, $
@@ -79,7 +93,12 @@ pro comp_dynamics_insert, date, wave_type, $
 
               {name: 'intensity_max', type: '%f'}, $
               {name: 'doppler_min', type: '%f'}, $
-              {name: 'doppler_max', type: '%f'}]
+              {name: 'doppler_max', type: '%f'}, $
+
+              {name: 'doppler_mean', type: '%f'}, $
+              {name: 'doppler_east_median', type: '%f'}, $
+              {name: 'doppler_west_median', type: '%f'}, $
+              {name: 'doppler_median', type: '%f'}]
     sql_cmd = string(strjoin(fields.name, ', '), $
                      strjoin(fields.type, ', '), $
                      format='(%"insert into comp_dynamics (%s) values (%s)")')
@@ -91,6 +110,11 @@ pro comp_dynamics_insert, date, wave_type, $
                  intensity_max, $
                  doppler_min, $
                  doppler_max, $
+
+                 doppler_mean, $
+                 doppler_east_median, $
+                 doppler_west_median, $
+                 doppler_median, $
 
                  status=status, $
                  error_message=error_message, $
