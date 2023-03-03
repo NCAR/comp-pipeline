@@ -125,6 +125,9 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   fits_read, dynamics_quick_invert_fcb, intensity, intensity_header, exten_no=1, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
+  fits_read, dynamics_quick_invert_fcb, enhanced_intensity, enhanced_intensity_header, exten_no=2, $
+             /no_abort, message=msg
+  if (msg ne '') then message, msg
   fits_read, dynamics_quick_invert_fcb, velocity, velocity_header, exten_no=6, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
@@ -156,14 +159,6 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   if (msg ne '') then message, msg
 
   fits_close, polarization_quick_invert_fcb
-
-  ; create enhanced intensity
-  enhanced_intensity = comp_intensity_enhancement(intensity, intensity_header, $
-                                                  status=status, error_msg=error_msg)
-  if (status le 0L) then begin
-    mg_log, 'error creating enhanced intensity', name='comp', /warn
-    mg_log, error_msg, name='comp', /warn
-  endif
 
   ; prepare and write out daily images
   mg_log, 'creating daily JPGs now...', name='comp', /info
