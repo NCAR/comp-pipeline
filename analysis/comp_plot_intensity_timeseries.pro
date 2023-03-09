@@ -5,7 +5,7 @@ pro comp_plot_intensity_timeseries, filename, background=background
 
   print, file_basename(filename), format='plotting %s...'
 
-  heights = [1.08, 1.10, 1.15, 1.20, 1.25]
+  heights = [1.06, 1.08, 1.10, 1.15, 1.20, 1.25]
 
   n_lines = file_lines(filename)
   openr, lun, filename, /get_lun
@@ -14,7 +14,7 @@ pro comp_plot_intensity_timeseries, filename, background=background
   free_lun, lun
 
   jds = reform(data[0, *])
-  window, xsize=1000, ysize=1200, title=filename, /free
+  window, xsize=1000, ysize=240L*n_elements(heights), title=filename, /free
   !null = label_date(date_format='%Y-%N')
   !p.multi = [0, 1, n_elements(heights)]
   for h = 0L, n_elements(heights) - 1L do begin
@@ -23,7 +23,7 @@ pro comp_plot_intensity_timeseries, filename, background=background
                        heights[h], $
                        format='%s at %0.2f Rsun'), $
           xstyle=1, xtickformat='label_date', xticks=10, $
-          ystyle=1, yrange=[0.0, keyword_set(background) ? 50.0 : 7.0], $
+          ystyle=1, yrange=[0.0, keyword_set(background) ? 30.0 : 7.0], $
           psym=6, symsize=0.25, $
           charsize=2.0
   endfor
@@ -37,7 +37,9 @@ comp_plot_intensity_timeseries, '1074-mean-intensities.txt'
 comp_plot_intensity_timeseries, '1074-median-intensities.txt'
 comp_plot_intensity_timeseries, '1079-mean-intensities.txt'
 comp_plot_intensity_timeseries, '1079-median-intensities.txt'
-; comp_plot_intensity_timeseries, '1074-backgrounds.txt', /background
-; comp_plot_intensity_timeseries, '1079-backgrounds.txt', /background
+comp_plot_intensity_timeseries, '1074-mean-backgrounds.txt', /background
+comp_plot_intensity_timeseries, '1079-mean-backgrounds.txt', /background
+comp_plot_intensity_timeseries, '1074-median-backgrounds.txt', /background
+comp_plot_intensity_timeseries, '1079-median-backgrounds.txt', /background
 
 end

@@ -6,11 +6,11 @@ pro comp_quick_invert_restwvl, wave_region, process_basedir
   nx = 620L
   ny = 620L
 
-  output_filename = string(wave_region, format='%s-restwvl.txt')
+  output_filename = string(wave_region, format='%s-restwvl-2012.txt')
   openw, lun, output_filename, /get_lun
 
   glob = string(wave_region, format='????????.comp.%s.quick_invert.mean.synoptic.fts.gz')
-  dates = file_basename(file_search(filepath('????????', root=process_basedir)))
+  dates = file_basename(file_search(filepath('2012????', root=process_basedir)))
   print, n_elements(dates), format='Found %d dates'
   for d = 0L, n_elements(dates) - 1L do begin
     comp_initialize, dates[d]

@@ -182,14 +182,16 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
   endfor
 
   ; annotations
-  annotation_dates = [julday(8, 27, 2013), $
+  annotation_dates = [julday(12, 9, 2012), $
+                      julday(8, 27, 2013), $
                       julday(1, 15, 2014, 12), $
                       julday(4, 29, 2014, 12), $
                       julday(10, 19, 2014, 12), $
                       julday(12, 17, 2014, 12)]
   valid_annotation_indices = where(annotation_dates ge jd_start_date, /null)
   annotation_dates = annotation_dates[valid_annotation_indices]
-  annotations = ['CoMP!Crestarted after!CMK4/CHIP removed', $
+  annotations = ['optics/throughput changed', $
+                 'CoMP!Crestarted after!CMK4/CHIP removed', $
                  'CoMP warmed', $
                  'turned off!Ccamerato conserve LN2', $
                  'turned off!Ccamera to conserve LN2', $
@@ -423,15 +425,15 @@ pro comp_plot_flatmedians, flat_filename, dark_filename, $
 end
 
 
-comp_plot_flatmedians, 'flat-medians-combined.csv', 'dark-medians-combined.csv', $
+comp_plot_flatmedians, 'flat-medians-corrected.csv', 'dark-medians-corrected.csv', $
                        yrange=[0.0, 70.0], $
                        /constant_normalization, $
-                       output_filename='flat-medians.ps'
+                       output_filename='flat-medians-corrected.ps'
  
-comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
-                       yrange=[0.0, 40.0], $
-                       /constant_normalization, $
-                       start_date='20160101', $
-                       output_filename='flat-medians-2016-2018.ps'
+; comp_plot_flatmedians, 'flat-medians.csv', 'dark-medians.csv', $
+;                        yrange=[0.0, 40.0], $
+;                        /constant_normalization, $
+;                        start_date='20160101', $
+;                        output_filename='flat-medians-2016-2018.ps'
 
 end
