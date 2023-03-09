@@ -327,6 +327,8 @@ pro comp_quick_invert, date_dir, wave_type, $
             ' [km/s] west rest wavelength', format='(F0.3)', /null
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
   sxdelpar, header, 'RESTWVL'
+  sxdelpar, header, 'ERESTWVL'
+  sxdelpar, header, 'WRESTWVL'
 
   sxaddpar, header, 'DATAMIN', min(width, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(width, /nan), ' maximum data value', format='(F0.3)'
@@ -339,11 +341,20 @@ pro comp_quick_invert, date_dir, wave_type, $
   fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
 
   if (add_uncorrected_velocity) then begin
-    sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', format='(F0.3)'
-    sxaddpar, header, 'DATAMAX', max(dop, /nan), ' maximum data value', format='(F0.3)'
-    ;sxaddpar, header, 'RESTWVL', rest, ' [nm] rest wavelength', format='(F0.3)', /null
+    sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', $
+              format='(F0.3)'
+    sxaddpar, header, 'DATAMAX', max(dop, /nan), ' maximum data value', $
+              format='(F0.3)'
+    fxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [km/s] rest wavelength', $
+              format='(F0.3)', /null
+    fxaddpar, extension_header, 'ERESTWVL', east_median_rest_wavelength, $
+              ' [km/s] east rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'WRESTWVL', west_median_rest_wavelength, $
+              ' [km/s] west rest wavelength', format='(F0.3)', /null
     fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
-    ;sxdelpar, header, 'RESTWVL'
+    sxdelpar, header, 'RESTWVL'
+    sxdelpar, header, 'ERESTWVL'
+    sxdelpar, header, 'WRESTWVL'
   endif
 
   fits_close, fcbout
