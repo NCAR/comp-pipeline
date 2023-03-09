@@ -144,3 +144,5 @@
   use 0.3-0.7-0.3 weighting scheme for integrated intensity in polarization
     files
   add level 2 files to database
+  add uncorrected dopppler velocity and peak intensity to quick inverts
+  use epoch given constant value for level 2 radius value in masking
