@@ -434,6 +434,27 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(lin_pol), extension_header, /append
 
+      ; Azimuth
+      azimuth = comp_azimuth(stks_u, stks_q, radial_azimuth=radial_azimuth)
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
+                                             /exten,$
+                                             extname='Azimuth', $
+                                             datminmax=[min(azimuth), $
+                                                        max(azimuth)])
+      sxdelpar, extension_header, 'SIMPLE'
+      writefits, outfilename, float(azimuth), extension_header, /append
+
+      ; Radial azimuth
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
+                                             /exten,$
+                                             extname='Radial azimuth', $
+                                             datminmax=[min(radial_azimuth), $
+                                                        max(radial_azimuth)])
+      sxdelpar, extension_header, 'SIMPLE'
+      writefits, outfilename, float(radial_azimuth), extension_header, /append
+
       zip_cmd = string(outfilename, format='(%"gzip -f %s")')
       spawn, zip_cmd, result, error_result, exit_status=status
       if (status ne 0L) then begin
