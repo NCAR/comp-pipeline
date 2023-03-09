@@ -206,14 +206,14 @@ pro comp_quick_invert, date_dir, wave_type, $
   i3 = comp_obs[*, *, 0L, wave_indices[2]]
   d_lambda = abs(wave[wave_indices[1]] - wave[wave_indices[0]])
 
-  comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, i_cent
+  comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, peak_intensity
   dop += rest
 
   ; TODO: should this be divided by sqrt(2.0) to give sigma?
   width *= c / wave[wave_indices[1]]
 
   pre_corr = dblarr(nx, ny, 2)
-  pre_corr[*, *, 0] = i_cent
+  pre_corr[*, *, 0] = peak_intensity
   pre_corr[*, *, 1] = dop
 
   ; TODO: not using this corrected_dop right now
@@ -240,7 +240,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   endif
 
   ; difference between calculated peak intensity and measured is not too great
-  ind = where(abs(i_cent - i2) gt 1.5 * i2, count)
+  ind = where(abs(peak_intensity - i2) gt 1.5 * i2, count)
   if (count gt 0L) then begin
     dop[ind] = !values.f_nan
     corrected_dop[ind] = !values.f_nan
@@ -291,6 +291,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
+
   sxaddpar, header, 'DATAMIN', min(i, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(i, /nan), ' maximum data value', format='(F0.3)'
   fits_write, fcbout, i, header, extname='I'
@@ -356,6 +357,10 @@ pro comp_quick_invert, date_dir, wave_type, $
     sxdelpar, header, 'ERESTWVL'
     sxdelpar, header, 'WRESTWVL'
   endif
+
+  sxaddpar, header, 'DATAMIN', min(peak_intensity, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(peak_intensity, /nan), ' maximum data value', format='(F0.3)'
+  fits_write, fcbout, peak_intensity, header, extname='Peak Intensity'
 
   fits_close, fcbout
 
