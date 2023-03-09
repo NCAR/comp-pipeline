@@ -135,6 +135,7 @@
   add ucomp cat subcommand
   fix to handle up to 21 unique wavelengths in COMP_FILE_TYPE
   only fix V crosstalk if it can be done for all wavelengths
+2.0.17
   add azimuth and radial azimuth to polarization file
   shift azimuth color table to black (radial field) is 0 and green (tangential
     field) -90 and +90
@@ -144,5 +145,5 @@
   use 0.3-0.7-0.3 weighting scheme for integrated intensity in polarization
     files
   add level 2 files to database
-  add uncorrected dopppler velocity and peak intensity to quick inverts
+  add uncorrected doppler velocity and peak intensity to quick inverts
   use epoch given constant value for level 2 radius value in masking
