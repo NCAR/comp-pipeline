@@ -231,10 +231,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     x = lindgen(nx)
     x = rebin(reform(x, nx, 1), nx, ny)
     rest_wavelength_dop_ind = where(finite(temp_velo) $
-                          and line_width gt 15.0 $
+                          and temp_line_width gt 15.0 $
                           and abs(temp_velo) lt 30.0, n_rest_wavelength_dop, /null)
     good_dop_ind = where(finite(temp_velo) $
-                          and line_width gt 15.0 $
+                          and temp_line_width gt 15.0 $
                           and abs(temp_velo) lt 80.0, n_good_dop, /null)
     if (n_rest_wavelength_dop gt 0L) then begin
       median_rest_wavelength = median(temp_velo[rest_wavelength_dop_ind])
@@ -244,11 +244,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       temp_corr_velo[good_dop_ind] = temp_velo[good_dop_ind] - median_rest_wavelength
 
       good_east_dop_ind = where(finite(temp_velo) $
-                                  and line_width gt 15.0 $
+                                  and temp_line_width gt 15.0 $
                                   and abs(temp_velo) lt 30.0 $
                                   and x lt (nx - 1.0) / 2.0, n_good_east_dop)
       good_west_dop_ind = where(finite(temp_velo) $
-                                and line_width gt 15.0 $
+                                and temp_line_width gt 15.0 $
                                 and abs(temp_velo) lt 30.0 $
                                 and x gt (nx - 1.0) / 2.0, n_good_west_dop)
       if (n_good_east_dop gt 0L) then begin

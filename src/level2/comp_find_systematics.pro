@@ -143,11 +143,15 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
                           /buffer)
   endfor
 
-  histogram_plot->save, filepath(file_dir + '.his.gif', root=eng_dir), $
-                        /landscape, xmargin=1.0, ymargin=0.0, $
-                        width=19.0
-  histogram_plot->close
-  mg_log, 'wrote histogram plot', name='comp', /info
+  if (obj_valid(histogram_plot)) then begin
+    histogram_plot->save, filepath(file_dir + '.his.gif', root=eng_dir), $
+                          /landscape, xmargin=1.0, ymargin=0.0, $
+                          width=19.0
+    histogram_plot->close
+    mg_log, 'wrote histogram plot', name='comp', /info
+  endif else begin
+    mg_log, 'no nonzero images to plot', name='comp', /warn
+  endelse
 
   ; plot images
 

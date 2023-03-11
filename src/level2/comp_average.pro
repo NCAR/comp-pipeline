@@ -340,6 +340,8 @@ pro comp_average, date_dir, wave_type, $
         endif
         naverage[s, w] += sxpar(header, 'NAVERAGE')
 
+        data[*, *, f] = dat
+
         if (num_averaged[s, w] eq 0) then average_times[0, s, w] = strmid(name, 9, 6)
         num_averaged[s, w] += 1
         average_times[1, s, w] = strmid(name, 9, 6)

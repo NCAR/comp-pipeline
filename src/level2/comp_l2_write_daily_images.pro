@@ -125,9 +125,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   fits_read, dynamics_quick_invert_fcb, intensity, intensity_header, exten_no=1, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
-  fits_read, dynamics_quick_invert_fcb, enhanced_intensity, enhanced_intensity_header, exten_no=2, $
-             /no_abort, message=msg
-  if (msg ne '') then message, msg
+  enhanced_intensity = comp_intensity_enhancement(intensity, intensity_header)
   fits_read, dynamics_quick_invert_fcb, velocity, velocity_header, exten_no=6, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
@@ -172,6 +170,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   p   = sqrt(stks_q^2. + stks_u^2.)
   poi = float(p) / float(intensity)
 
+  enhanced_intensity[mask_ind] = 0.0
   stks_q[mask_ind] = 0.0
   stks_u[mask_ind] = 0.0
   azimuth[mask_ind] = 0.0
