@@ -93,7 +93,8 @@ pro comp_write_epochs, date_dir
   printf, lun, 'filt_temp_tolerance', filt_temp_tolerance, $
           format='(%"%-30s : %0.2f")'
 
-  printf, lun, 'int_min_thresh', int_min_thresh, format='(%"%-30s : %0.2f")'
+  printf, lun, 'int_min_1074_thresh', int_min_1074_thresh, format='(%"%-30s : %0.2f")'
+  printf, lun, 'int_min_1079_thresh', int_min_1079_thresh, format='(%"%-30s : %0.2f")'
   printf, lun, 'int_max_thresh', int_max_thresh, format='(%"%-30s : %0.2f")'
   printf, lun, 'diff_thresh', diff_thresh, format='(%"%-30s : %0.2f")'
 

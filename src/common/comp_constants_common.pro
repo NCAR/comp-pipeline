@@ -40,7 +40,7 @@ common comp_constants, nx, ny, $
                        nominal_filt_temp, $
                        background_limit, $
                        min_flat_median_offset, $
-                       int_min_thresh, int_max_thresh, $
+                       int_min_1074_thresh, int_min_1079_thresh, int_max_thresh, $
                        diff_thresh, $
                        i_to_q_xtalk, $
                        i_to_u_xtalk, $

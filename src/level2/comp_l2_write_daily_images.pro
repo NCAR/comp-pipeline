@@ -46,6 +46,24 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
+  case wave_type of
+    '1074': begin
+        display_min_i = display_min_1074
+        display_max_i = display_max_1074
+        int_min_thresh = int_min_1074_thresh
+      end
+    '1079': begin
+        display_min_i = display_min_1079
+        display_max_i = display_max_1079
+        int_min_thresh = int_min_1079_thresh
+      end
+    '1083': begin
+        display_min_i = display_min_1083
+        display_max_i = display_max_1083
+        int_min_thresh = int_min_1079_thresh
+      end
+  endcase
+
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
@@ -122,6 +140,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
 
   fits_open, dynamics_quick_invert_filename, dynamics_quick_invert_fcb
 
+  fits_read, dynamics_quick_invert_fcb, dummy, dynamics_primary_header, exten_no=0
+
   fits_read, dynamics_quick_invert_fcb, intensity, intensity_header, exten_no=1, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
@@ -136,6 +156,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   fits_close, dynamics_quick_invert_fcb
 
   fits_open, polarization_quick_invert_filename, polarization_quick_invert_fcb
+
+  fits_read, polarization_quick_invert_fcb, dummy, polarization_primary_header, exten_no=0
 
   fits_read, polarization_quick_invert_fcb, stks_q, stks_q_header, exten_no=2, $
              /no_abort, message=msg
@@ -158,6 +180,9 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
 
   fits_close, polarization_quick_invert_fcb
 
+  dynamics_time = sxpar(dynamics_primary_header, 'TIME-OBS')
+  polarization_time = sxpar(polarization_primary_header, 'TIME-OBS')
+
   ; prepare and write out daily images
   mg_log, 'creating daily JPGs now...', name='comp', /info
 
@@ -170,7 +195,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   p   = sqrt(stks_q^2. + stks_u^2.)
   poi = float(p) / float(intensity)
 
-  enhanced_intensity[mask_ind] = 0.0
+  ; mask intensity and enhanced intensity only by geometry
+  intensity *= mask
+  enhanced_intensity *= mask
+
+  ; mask Q, U, azimuth, linear polarization, and line width by geometry and
+  ; by the intensity thresholds
   stks_q[mask_ind] = 0.0
   stks_u[mask_ind] = 0.0
   azimuth[mask_ind] = 0.0
@@ -226,12 +256,6 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ; plot intensity and enhanced intensity
   comp_aia_lct, wave=193, /load
   int = sqrt(intensity)
-  display_min_i = 0.3
-  case wave_type of
-    '1074': display_max_i = 3.0
-    '1079': display_max_i = 2.0
-    else: display_max_i = 3.0
-  endcase
   int = bytscl(int, min=display_min_i, max=display_max_i)
   tv, int, 4 * 5, 4 * 165
   tv, enhanced_intensity, 4 * 165, 4 * 165
@@ -359,9 +383,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
-            + '-' + strmid(date_dir,6,2), chars=1, /device, color=255
+            + '-' + strmid(date_dir,6,2), $
+          alignment=1.0, chars=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, polarization_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -397,10 +424,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 66, 4 * 78, 'Q/I', chars=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, polarization_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -436,10 +465,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, polarization_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -472,10 +503,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, dynamics_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -506,10 +539,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, dynamics_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -539,10 +574,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir,6 , 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, dynamics_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -578,10 +615,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, dynamics_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -616,10 +655,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   xyouts, 4 * 48, 4 * 78, 'Azimuth', charsize=6, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, dynamics_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get
@@ -653,21 +694,24 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tvlct, 0B, 0B, 0B, 254L   ; bad values are black
   tvlct, 255B, 255B, 255B, 255L   ; annotation color is white
   bad_ind = where(radial_azimuth lt -90, n_bad_ind)
-  rad_azi = bytscl(radial_azimuth, min=-90.0, max=90.0, top=ncolors - 1)
+  radial_display_max = 50.0
+  rad_azi = bytscl(radial_azimuth, min=-radial_display_max, max=radial_display_max, top=ncolors - 1)
   if (n_bad_ind gt 0L) then rad_azi[bad_ind] = 254B
   if (n_mask_ind gt 0L) then rad_azi[mask_ind] = 254B
   tv, rad_azi
   colorbar2, position=colbarpos, charsize=1.25, title='Radial Azimuth [degrees]',$
-             range=[-90, 90], font=-1, divisions=6, color=255, ncolors=ncolors
+             range=[-radial_display_max, radial_display_max], font=-1, divisions=6, color=255, ncolors=ncolors
   loadct, 0, /silent
   xyouts, 620 / 2, 4 * 78, 'Radial Azimuth', charsize=6, /device, color=255, $
           alignment=0.5, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
-  xyouts, 4 * 131, 4 * 151.5, $
+  xyouts, 620 - 4.0, 4 * 151.5, $
           strmid(date_dir, 0, 4) + '-' + strmid(date_dir, 4, 2) $
             + '-' + strmid(date_dir, 6, 2), $
-          charsize=1, /device, color=255
+          alignment=1.0, charsize=1, /device, color=255
+  xyouts, 620 - 4.0, 4 * 151.5 - 16.0, polarization_time, $
+          alignment=1.0, charsize=1.0, /device, color=255
 
   ; display HAO logo
   ;tvlct, rtemp, gtemp, btemp, /get

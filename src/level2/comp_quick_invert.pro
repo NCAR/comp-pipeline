@@ -163,9 +163,18 @@ pro comp_quick_invert, date_dir, wave_type, $
   sxaddpar, primary_header, 'N_EXT', 8, /savecomment
 
   case wave_type of
-    '1074': rest = double(center1074)
-    '1079': rest = double(center1079)
-    '1083': rest = double(center1083)
+    '1074': begin
+        rest = double(center1074)
+        int_min_thresh = int_min_1074_thresh
+      end
+    '1079': begin
+        rest = double(center1079)
+        int_min_thresh = int_min_1079_thresh
+      end
+    '1083': begin
+        rest = double(center1083)
+        int_min_thresh = int_min_1079_thresh
+      end
   endcase
   c = 299792.458D
 
@@ -252,6 +261,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   good_dop_ind = where(finite(dop) and abs(dop) lt 80.0, n_good_dop)
   if (n_good_dop gt 0L) then begin
     median_rest_wavelength = median(dop[good_dop_ind])
+    mean_rest_wavelength = mean(dop[good_dop_ind])
     corrected_dop = dop - median_rest_wavelength
 
     good_east_dop_ind = where(finite(corrected_dop) $
@@ -266,12 +276,43 @@ pro comp_quick_invert, date_dir, wave_type, $
     if (n_good_west_dop gt 0L) then begin
       west_median_rest_wavelength = median(corrected_dop[good_west_dop_ind])
     endif else west_median_rest_wavelength = !values.f_nan
+
+    p_angle = sxpar(primary_header, 'SOLAR_P0')
+    device_corrected_dop = rot(corrected_dop, - p_angle)
+
+    good_east_dop_ind = where(finite(device_temp_velo) $
+                                and device_corrected_dop gt 80.0 $
+                                and x lt (nx - 1.0) / 2.0, n_good_east_dop)
+    good_west_dop_ind = where(finite(device_temp_velo) $
+                              and device_corrected_dop gt 80.0 $
+                              and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+    if (n_good_east_dop gt 0L) then begin
+      device_east_median_rest_wavelength = median(device_temp_velo[good_east_dop_ind])
+      device_east_mean_rest_wavelength = mean(device_temp_velo[good_east_dop_ind])
+    endif else begin
+      device_east_median_rest_wavelength = !values.f_nan
+      device_east_mean_rest_wavelength = !values.f_nan
+    endelse
+
+    if (n_good_west_dop gt 0L) then begin
+      device_west_median_rest_wavelength = median(device_temp_velo[good_west_dop_ind])
+      device_west_mean_rest_wavelength = mean(device_temp_velo[good_west_dop_ind])
+    endif else begin
+      device_west_median_rest_wavelength = !values.f_nan
+      device_west_mean_rest_wavelength = !values.f_nan
+    endelse
   endif else begin
     median_rest_wavelength = !values.f_nan
+    mean_rest_wavelength = !values.f_nan
     corrected_dop = dop
 
     east_median_rest_wavelength = !values.f_nan
     west_median_rest_wavelength = !values.f_nan
+
+    device_west_median_rest_wavelength = !values.f_nan
+    device_west_mean_rest_wavelength = !values.f_nan
+    device_east_median_rest_wavelength = !values.f_nan
+    device_east_mean_rest_wavelength = !values.f_nan
   endelse
 
   ; write fit parameters to output file
@@ -320,16 +361,30 @@ pro comp_quick_invert, date_dir, wave_type, $
             format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
             format='(F0.3)'
-  fxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [km/s] rest wavelength', $
+  fxaddpar, header, 'RSTWVL', median_rest_wavelength, ' [km/s] median rest wavelength', $
             format='(F0.3)', /null
-  fxaddpar, extension_header, 'ERESTWVL', east_median_rest_wavelength, $
+  fxaddpar, header, 'RSTWVL2', mean_rest_wavelength, ' [km/s] mean rest wavelength', $
+            format='(F0.3)', /null
+  fxaddpar, extension_header, 'ERSTWVL', east_median_rest_wavelength, $
             ' [km/s] east rest wavelength', format='(F0.3)', /null
-  fxaddpar, extension_header, 'WRESTWVL', west_median_rest_wavelength, $
+  fxaddpar, extension_header, 'WRSTWVL', west_median_rest_wavelength, $
             ' [km/s] west rest wavelength', format='(F0.3)', /null
+  fxaddpar, extension_header, 'ERSTWVL2', east_mean_rest_wavelength, $
+            ' [km/s] east rest wavelength', format='(F0.3)', /null
+  fxaddpar, extension_header, 'WRSTWVL2', west_mean_rest_wavelength, $
+            ' [km/s] west rest wavelength', format='(F0.3)', /null
+  fxaddpar, extension_header, 'ERSTWVLD', device_east_median_rest_wavelength, $
+            ' [km/s] east (in device coords) rest wavelength', format='(F0.3)', /null
+  fxaddpar, extension_header, 'WRSTWVLD', device_west_median_rest_wavelength, $
+            ' [km/s] west (in device coords) rest wavelength', format='(F0.3)', /null
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
   sxdelpar, header, 'RESTWVL'
-  sxdelpar, header, 'ERESTWVL'
-  sxdelpar, header, 'WRESTWVL'
+  sxdelpar, header, 'ERSTWVL'
+  sxdelpar, header, 'WRSTWVL'
+  sxdelpar, header, 'ERSTWVL2'
+  sxdelpar, header, 'WRSTWVL2'
+  sxdelpar, header, 'ERSTWVLD'
+  sxdelpar, header, 'WRSTWVLD'
 
   sxaddpar, header, 'DATAMIN', min(width, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(width, /nan), ' maximum data value', format='(F0.3)'

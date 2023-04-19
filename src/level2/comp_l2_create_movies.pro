@@ -459,12 +459,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       tvlct, 255B, 255B, 255B, 255L   ; annotation color is white
 
       bad_aziind = where(radial_azimuth lt -90, n_bad_aziind)
-      rad_azi = bytscl(radial_azimuth, min=-90.0, max=90.0, top=ncolors - 1)
+      radial_display_max = 50.0
+      rad_azi = bytscl(radial_azimuth, min=-radial_display_max, max=radial_display_max, top=ncolors - 1)
       if (n_bad_aziind gt 0L) then rad_azi[bad_aziind] = 254
       rad_azi[unmasked] = 254
       tv, rad_azi
       colorbar2, position=colbarpos, charsize=1.25, title='Radial azimuth [degrees]', $
-                 range=[-90, 90], font=-1, divisions=6, color=255, ncolors=253
+                 range=[-radial_display_max, radial_display_max], font=-1, divisions=6, color=255, ncolors=253
       loadct, 0, /silent
       xyouts, 620.0 / 2.0, 4 * 78, 'Radial Azimuth', $
               charsize=6, /device, color=255, alignment=0.5, font=1

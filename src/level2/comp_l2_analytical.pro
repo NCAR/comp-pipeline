@@ -48,9 +48,18 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   wave = wave_type
 
   case wave_type of
-    '1074': rest = double(center1074)
-    '1079': rest = double(center1079)
-    '1083': rest = double(center1083)
+    '1074': begin
+        rest = double(center1074)
+        int_min_thresh = int_min_1074_thresh
+      end
+    '1079': begin
+        rest = double(center1079)
+        int_min_thresh = int_min_1079_thresh
+      end
+    '1083': begin
+        rest = double(center1083)
+        int_min_thresh = int_min_1079_thresh
+      end
   endcase
   c = 299792.458D
 
@@ -266,25 +275,62 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
         west_median_rest_wavelength = !values.f_nan
         west_mean_rest_wavelength = !values.f_nan
       endelse
+
+      p_angle = sxpar(hdr, 'SOLAR_P0')
+      device_temp_velo = rot(temp_velo, - p_angle)
+      device_temp_line_width = rot(temp_line_width, - p_angle)
+
+      good_east_dop_ind = where(finite(device_temp_velo) $
+                                  and device_temp_line_width gt 15.0 $
+                                  and abs(device_temp_velo) lt 30.0 $
+                                  and x lt (nx - 1.0) / 2.0, n_good_east_dop)
+      good_west_dop_ind = where(finite(device_temp_velo) $
+                                and device_temp_line_width gt 15.0 $
+                                and abs(device_temp_velo) lt 30.0 $
+                                and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+      if (n_good_east_dop gt 0L) then begin
+        device_east_median_rest_wavelength = median(device_temp_velo[good_east_dop_ind])
+        device_east_mean_rest_wavelength = mean(device_temp_velo[good_east_dop_ind])
+      endif else begin
+        device_east_median_rest_wavelength = !values.f_nan
+        device_east_mean_rest_wavelength = !values.f_nan
+      endelse
+
+      if (n_good_west_dop gt 0L) then begin
+        device_west_median_rest_wavelength = median(device_temp_velo[good_west_dop_ind])
+        device_west_mean_rest_wavelength = mean(device_temp_velo[good_west_dop_ind])
+      endif else begin
+        device_west_median_rest_wavelength = !values.f_nan
+        device_west_mean_rest_wavelength = !values.f_nan
+      endelse
     endif else begin
       median_rest_wavelength = !values.f_nan
       mean_rest_wavelength = !values.f_nan
       temp_corr_velo = temp_velo
+
       east_median_rest_wavelength = !values.f_nan
       east_mean_rest_wavelength = !values.f_nan
       west_median_rest_wavelength = !values.f_nan
       west_mean_rest_wavelength = !values.f_nan
+
+      device_west_median_rest_wavelength = !values.f_nan
+      device_west_mean_rest_wavelength = !values.f_nan
+      device_east_median_rest_wavelength = !values.f_nan
+      device_east_mean_rest_wavelength = !values.f_nan
     endelse
 
     ; intensity for polarization
     averaged_intensity = 0.3 * i1 + 0.7 * i2 + 0.3 * i3
+    negative_wings_indices = where(i1 le 0.0 or i3 lt 0.0, /null)
 
     averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
                                                              headfits(gbu[ii].l1file))
 
+    averaged_intensity[negative_wings_indices] = 0.0D
     averaged_intensity[where(mask eq 0)] = 0.0D
     averaged_intensity[thresh_masked]    = 0.0D
 
+    averaged_enhanced_intensity[negative_wings_indices] = 0.0D
     averaged_enhanced_intensity[where(mask eq 0)] = 0.0D
     averaged_enhanced_intensity[thresh_masked] = 0.0D
 
@@ -338,12 +384,20 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
               ' [km/s] median west rest wavelength', format='(F0.3)', /null
     fxaddpar, extension_header, 'WRSTWVL2', west_mean_rest_wavelength, $
               ' [km/s] mean west rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'ERSTWVLD', device_east_median_rest_wavelength, $
+              ' [km/s] median east (in device coords) rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'WRSTWVLD', device_west_median_rest_wavelength, $
+            ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
 
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
-    sxdelpar, extension_header, 'RESTWVL'
-    sxdelpar, extension_header, 'ERESTWVL'
-    sxdelpar, extension_header, 'WRESTWVL'
+    sxdelpar, extension_header, 'RSTWVL'
+    sxdelpar, extension_header, 'ERSTWVL'
+    sxdelpar, extension_header, 'WRSTWVL'
+    sxdelpar, extension_header, 'ERSTWVL2'
+    sxdelpar, extension_header, 'WRSTWVL2'
+    sxdelpar, extension_header, 'ERSTWVLD'
+    sxdelpar, extension_header, 'WRSTWVLD'
 
     ; line width
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $

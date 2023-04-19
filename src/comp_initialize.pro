@@ -145,7 +145,8 @@ pro comp_initialize, date_dir
                                                         type=4, default=60.0)
 
   ; millionths of solar disk intensity
-  int_min_thresh  = comp_initialize_readconfig('int_min_thresh', date_dir, options, type=4)
+  int_min_1074_thresh  = comp_initialize_readconfig('int_min_1074_thresh', date_dir, options, type=4)
+  int_min_1079_thresh  = comp_initialize_readconfig('int_min_1079_thresh', date_dir, options, type=4)
   int_max_thresh  = comp_initialize_readconfig('int_max_thresh', date_dir, options, type=4)
 
   ; difference between measured and calculated line center intensity

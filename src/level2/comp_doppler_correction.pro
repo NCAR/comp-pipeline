@@ -47,9 +47,18 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
 
   ; TODO: use rest wavelength from continuum correction
   case wave_type of
-   '1074': rest = double(center1074)
-   '1079': rest = double(center1079)
-   '1083': rest = double(center1083)
+   '1074': begin
+       rest = double(center1074)
+       int_min_thresh = int_min_1074_thresh
+     end
+   '1079': begin
+       rest = double(center1079)
+       int_min_thresh = int_min_1079_thresh
+     end
+   '1083': begin
+       rest = double(center1083)
+       int_min_thresh = int_min_1079_thresh
+     end
   endcase
   c = 299792.458D
 

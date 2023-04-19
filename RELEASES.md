@@ -147,3 +147,8 @@
   add level 2 files to database
   add uncorrected doppler velocity and peak intensity to quick inverts
   use epoch given constant value for level 2 radius value in masking
+  change radial azimuth display min/max to +/- 50.0
+  decrease display min for intensity to 0.0
+  make intensity threshold based on wave region and move to epochs file for all uses
+  mask integrated intensity for negative wing values
+  create a device east/west rest wavelength FITS keyword value
