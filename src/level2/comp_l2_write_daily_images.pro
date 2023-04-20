@@ -48,18 +48,18 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
 
   case wave_type of
     '1074': begin
-        display_min_i = display_min_1074
-        display_max_i = display_max_1074
+        display_min_i = dispmin1074
+        display_max_i = dispmax1074
         int_min_thresh = int_min_1074_thresh
       end
     '1079': begin
-        display_min_i = display_min_1079
-        display_max_i = display_max_1079
+        display_min_i = dispmin1079
+        display_max_i = dispmax1079
         int_min_thresh = int_min_1079_thresh
       end
     '1083': begin
-        display_min_i = display_min_1083
-        display_max_i = display_max_1083
+        display_min_1083 = dispmin1083
+        display_max_i = dispmax1083
         int_min_thresh = int_min_1079_thresh
       end
   endcase
