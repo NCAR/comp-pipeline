@@ -287,16 +287,16 @@ pro comp_quick_invert, date_dir, wave_type, $
                               and device_corrected_dop gt 80.0 $
                               and x gt (nx - 1.0) / 2.0, n_good_west_dop)
     if (n_good_east_dop gt 0L) then begin
-      device_east_median_rest_wavelength = median(device_temp_velo[good_east_dop_ind])
-      device_east_mean_rest_wavelength = mean(device_temp_velo[good_east_dop_ind])
+      device_east_median_rest_wavelength = median(device_corrected_dop[good_east_dop_ind])
+      device_east_mean_rest_wavelength = mean(device_corrected_dop[good_east_dop_ind])
     endif else begin
       device_east_median_rest_wavelength = !values.f_nan
       device_east_mean_rest_wavelength = !values.f_nan
     endelse
 
     if (n_good_west_dop gt 0L) then begin
-      device_west_median_rest_wavelength = median(device_temp_velo[good_west_dop_ind])
-      device_west_mean_rest_wavelength = mean(device_temp_velo[good_west_dop_ind])
+      device_west_median_rest_wavelength = median(device_corrected_dop[good_west_dop_ind])
+      device_west_mean_rest_wavelength = mean(device_corrected_dop[good_west_dop_ind])
     endif else begin
       device_west_median_rest_wavelength = !values.f_nan
       device_west_mean_rest_wavelength = !values.f_nan
