@@ -280,10 +280,10 @@ pro comp_quick_invert, date_dir, wave_type, $
     p_angle = sxpar(primary_header, 'SOLAR_P0')
     device_corrected_dop = rot(corrected_dop, - p_angle)
 
-    good_east_dop_ind = where(finite(device_temp_velo) $
+    good_east_dop_ind = where(finite(device_corrected_dop) $
                                 and device_corrected_dop gt 80.0 $
                                 and x lt (nx - 1.0) / 2.0, n_good_east_dop)
-    good_west_dop_ind = where(finite(device_temp_velo) $
+    good_west_dop_ind = where(finite(device_corrected_dop) $
                               and device_corrected_dop gt 80.0 $
                               and x gt (nx - 1.0) / 2.0, n_good_west_dop)
     if (n_good_east_dop gt 0L) then begin
