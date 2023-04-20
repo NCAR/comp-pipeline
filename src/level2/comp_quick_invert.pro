@@ -366,19 +366,20 @@ pro comp_quick_invert, date_dir, wave_type, $
   fxaddpar, header, 'RSTWVL2', mean_rest_wavelength, ' [km/s] mean rest wavelength', $
             format='(F0.3)', /null
   fxaddpar, extension_header, 'ERSTWVL', east_median_rest_wavelength, $
-            ' [km/s] east rest wavelength', format='(F0.3)', /null
+            ' [km/s] median east rest wavelength', format='(F0.3)', /null
   fxaddpar, extension_header, 'WRSTWVL', west_median_rest_wavelength, $
-            ' [km/s] west rest wavelength', format='(F0.3)', /null
+            ' [km/s] median west rest wavelength', format='(F0.3)', /null
   fxaddpar, extension_header, 'ERSTWVL2', east_mean_rest_wavelength, $
-            ' [km/s] east rest wavelength', format='(F0.3)', /null
+            ' [km/s] mean east rest wavelength', format='(F0.3)', /null
   fxaddpar, extension_header, 'WRSTWVL2', west_mean_rest_wavelength, $
-            ' [km/s] west rest wavelength', format='(F0.3)', /null
+            ' [km/s] mean west rest wavelength', format='(F0.3)', /null
   fxaddpar, extension_header, 'ERSTWVLD', device_east_median_rest_wavelength, $
-            ' [km/s] east (in device coords) rest wavelength', format='(F0.3)', /null
+            ' [km/s] median east (in device coords) rest wavelength', format='(F0.3)', /null
   fxaddpar, extension_header, 'WRSTWVLD', device_west_median_rest_wavelength, $
-            ' [km/s] west (in device coords) rest wavelength', format='(F0.3)', /null
+            ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
-  sxdelpar, header, 'RESTWVL'
+  sxdelpar, header, 'RSTWVL'
+  sxdelpar, header, 'RSTWVL2'
   sxdelpar, header, 'ERSTWVL'
   sxdelpar, header, 'WRSTWVL'
   sxdelpar, header, 'ERSTWVL2'

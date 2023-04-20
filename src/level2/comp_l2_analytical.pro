@@ -387,7 +387,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     fxaddpar, extension_header, 'ERSTWVLD', device_east_median_rest_wavelength, $
               ' [km/s] median east (in device coords) rest wavelength', format='(F0.3)', /null
     fxaddpar, extension_header, 'WRSTWVLD', device_west_median_rest_wavelength, $
-            ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
+              ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
 
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
