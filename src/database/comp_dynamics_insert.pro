@@ -97,10 +97,10 @@ pro comp_dynamics_insert, date, wave_type, $
               {name: 'doppler_mean', type: '%f'}, $
               {name: 'doppler_east_median', type: '%f'}, $
               {name: 'doppler_west_median', type: '%f'}, $
-              {name: 'doppler_median', type: '%f'},
-              {name: 'doppler_east_mean', type: '%f'},
-              {name: 'doppler_west_mean', type: '%f'},
-              {name: 'doppler_device_east_median', type: '%f'},
+              {name: 'doppler_median', type: '%f'}, $
+              {name: 'doppler_east_mean', type: '%f'}, $
+              {name: 'doppler_west_mean', type: '%f'}, $
+              {name: 'doppler_device_east_median', type: '%f'}, $
               {name: 'doppler_device_west_median', type: '%f'}]
     sql_cmd = string(strjoin(fields.name, ', '), $
                      strjoin(fields.type, ', '), $
