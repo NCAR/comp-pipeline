@@ -39,6 +39,24 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
 
   mg_log, 'wave_type: %s', wave_type, name='comp', /info
 
+  case wave_type of
+    '1074': begin
+        display_min_i = dispmin1074
+        display_max_i = dispmax1074
+        int_min_thresh = int_min_1074_thresh
+      end
+    '1079': begin
+        display_min_i = dispmin1079
+        display_max_i = dispmax1079
+        int_min_thresh = int_min_1079_thresh
+      end
+    '1083': begin
+        display_min_i = dispmin1083
+        display_max_i = dispmax1083
+        int_min_thresh = int_min_1079_thresh
+      end
+  endcase
+
   l1_process_dir = filepath('', subdir=[date_dir, 'level1'], root=process_basedir)
   l2_process_dir = filepath('', subdir=[date_dir, 'level2'], root=process_basedir)
   cd, l2_process_dir
@@ -323,12 +341,6 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; plot intensity
     comp_aia_lct, wave=193, /load
     int = sqrt(intensity)
-    display_min_i = 0.3
-    case wave_type of
-      '1074': display_max_i = 3.0
-      '1079': display_max_i = 2.0
-      else: display_max_i = 4.0
-    endcase
     int = bytscl(int, min=display_min_i, max=display_max_i)
     if (n_undef_velocity gt 0L) then int[undef_velocity_ind] = 0
     tv, int

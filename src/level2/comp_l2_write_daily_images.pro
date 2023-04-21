@@ -58,7 +58,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
         int_min_thresh = int_min_1079_thresh
       end
     '1083': begin
-        display_min_1083 = dispmin1083
+        display_min_i = dispmin1083
         display_max_i = dispmax1083
         int_min_thresh = int_min_1079_thresh
       end
