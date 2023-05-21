@@ -166,8 +166,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
           if (profile[1] gt int_min_thresh $
               && profile[1] lt int_max_thresh $
-              && profile[0] gt 0.1 $
-              && profile[2] gt 0.1 $
+              && profile[0] gt 0.0 $
+              && profile[2] gt 0.0 $
               && profile[0] lt int_max_thresh $
               && profile[2] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
@@ -321,18 +321,18 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     ; intensity for polarization
     averaged_intensity = 0.3 * i1 + 0.7 * i2 + 0.3 * i3
-    negative_wings_indices = where(i1 le 0.0 or i3 lt 0.0, /null)
+    negative_wings_indices = where((i1 le 0.0) or (i2 le 0.1) or (i3 le 0.0), /null)
 
     averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
                                                              headfits(gbu[ii].l1file))
 
     averaged_intensity[negative_wings_indices] = 0.0D
     averaged_intensity[where(mask eq 0)] = 0.0D
-    averaged_intensity[thresh_masked]    = 0.0D
+    ; averaged_intensity[thresh_masked]    = 0.0D
 
     averaged_enhanced_intensity[negative_wings_indices] = 0.0D
     averaged_enhanced_intensity[where(mask eq 0)] = 0.0D
-    averaged_enhanced_intensity[thresh_masked] = 0.0D
+    ; averaged_enhanced_intensity[thresh_masked] = 0.0D
 
     ;=== write out FITS files ===
     mg_log, 'write out FITS %d/%d @ %s', ii + 1, nt, wave_type, name='comp', /info
