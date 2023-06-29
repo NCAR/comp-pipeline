@@ -155,8 +155,18 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       continue
     endif
 
-    intensity = readfits(l2_d_file, ext=1, /silent)   ; Intensity
-    int_enh   = readfits(l2_d_file, ext=2, /silent)   ; Enhanced Intensity
+    ; intensity integrated over center three wavelengths
+    integrated_intensity = readfits(l2_p_file, ext=1, /silent)
+
+    ; center line intensity
+    fits_open, gbu[ii].l1file, fcb
+    fits_read, fcb, !null, intensity_header, exten_no=0
+    center_intensity_extension = sxpar(intensity_header, 'NTUNES') / 2L + 1L
+    fits_read, fcb, intensity, exten_no=center_intensity_extension
+    fits_close, fcb
+
+    int_enh = comp_intensity_enhancement(intensity, intensity_header)
+
     velocity  = readfits(l2_d_file, ext=3, /silent)   ; corrected LOS velocity
     width     = readfits(l2_d_file, ext=4, /silent)   ; Line Width
     if (qu_files[ii] eq 1) then begin
@@ -178,12 +188,13 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_mask = mask
     masked = where(comp_mask eq 1 $
                      and intensity gt int_min_thresh $
-                     and intensity lt int_max_thresh, complement=unmasked)
+                     and intensity lt int_max_thresh, $
+                   complement=unmasked)
 
     ; plot Q/I in b/w
     loadct, 0, /silent
     if (qu_files[ii] eq 1) then begin
-      qoi = stks_q / intensity
+      qoi = stks_q / integrated_intensity
       qoi[unmasked] = 0.
       display_min_q = -0.1
       display_max_q = 0.1
@@ -223,7 +234,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; plot U/I in b/w
     loadct, 0, /silent
     if (qu_files[ii] eq 1) then begin
-      uoi = stks_u / intensity
+      uoi = stks_u / integrated_intensity
       uoi[unmasked] = 0.
       display_min_u = -0.1
       display_max_u = 0.1
@@ -264,7 +275,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     loadct, 0, /silent
     if (qu_files[ii] eq 1) then begin
       ++p_counter
-      poi = ltot / intensity
+      poi = ltot / integrated_intensity
       poi[unmasked] = 0
       poi = alog10(poi)
       poi = bytscl(poi, min=-2.3, max=-0.3, /nan)
