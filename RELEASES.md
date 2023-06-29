@@ -152,3 +152,5 @@
   make intensity threshold based on wave region and move to epochs file for all uses
   mask integrated intensity for negative wing values
   create a device east/west rest wavelength FITS keyword value
+  adjustments to threshold masking in level 2 products
+  use integrated intensity to normalize Q, U, and L in daily movies

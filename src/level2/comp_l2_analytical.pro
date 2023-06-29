@@ -129,22 +129,22 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     endif
 
     if (qu_files[ii] eq 1) then begin
-      stks_q = 0.5D * double(readfits(gbu[ii].l1file, $
+      stks_q = 0.3D * double(readfits(gbu[ii].l1file, $
                                       exten_no=n_points[ii] + wave_ind[0] + 1, $
-                                      /silent) $
-                               + readfits(gbu[ii].l1file, $
+                                      /silent)) $
+                 + 0.7D * double(readfits(gbu[ii].l1file, $
                                           exten_no=n_points[ii] + wave_ind[1] + 1, $
-                                          /silent) $
-                               + readfits(gbu[ii].l1file, $
+                                          /silent)) $
+                 + 0.3D * double(readfits(gbu[ii].l1file, $
                                           exten_no=n_points[ii] + wave_ind[2] + 1, $
                                           /silent))
-      stks_u = 0.5D * double(readfits(gbu[ii].l1file, $
+      stks_u = 0.3D * double(readfits(gbu[ii].l1file, $
                                       exten_no=2 * n_points[ii] + wave_ind[0] + 1, $
-                                      /silent) $
-                               + readfits(gbu[ii].l1file, $
+                                      /silent)) $
+                 + 0.7D * double(readfits(gbu[ii].l1file, $
                                           exten_no=2 * n_points[ii] + wave_ind[1] + 1, $
-                                          /silent) $
-                               + readfits(gbu[ii].l1file, $
+                                          /silent)) $
+                 + 0.3D * double(readfits(gbu[ii].l1file, $
                                           exten_no=2 * n_points[ii] + wave_ind[2] + 1, $
                                           /silent))
     endif
@@ -165,11 +165,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
           ; if (n_bad gt 0L) then profile[sub_bad] = 0.005D
 
           if (profile[1] gt int_min_thresh $
-              && profile[1] lt int_max_thresh $
-              && profile[0] gt 0.0 $
-              && profile[2] gt 0.0 $
-              && profile[0] lt int_max_thresh $
-              && profile[2] lt int_max_thresh) then begin
+                && profile[1] lt int_max_thresh $
+                && profile[0] gt 0.05 $
+                && profile[2] gt 0.05 $
+                && profile[0] lt int_max_thresh $
+                && profile[2] lt int_max_thresh) then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
             temp_data[xx, yy, 0] = i_cent
             temp_data[xx, yy, 1] = rest + doppler_shift
@@ -198,11 +198,15 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     int_enh[where(mask eq 0)] = 0D
 
     thresh_unmasked = where(mask eq 1 $
-                              and temp_int gt int_min_thresh $
-                              and temp_int lt int_max_thresh, $
+                              and i2 gt int_min_thresh $
+                              and i2 lt int_max_thresh $
+                              and i1 gt 0.05 $
+                              and i3 gt 0.05 $
+                              and i1 lt int_max_thresh $
+                              and i3 lt int_max_thresh, $
                             complement=thresh_masked)
     temp_velo = temp_data[*, *, 1]
-    temp_velo[thresh_masked] = 0D
+    temp_velo[thresh_masked] = 0.0D
 
     pre_corr = dblarr(nx, ny, 2)
     pre_corr[*, *, 0] = temp_int
@@ -213,7 +217,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
               name='comp', /warn
     endif
     temp_corr_velo = reform(post_corr[*, *, 1])
-    temp_line_width = sqrt(2.) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
+    temp_line_width = sqrt(2.0) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
 
     bad_pixels = where(bad_pixels_mask, n_bad_pixels)
     if (n_bad_pixels gt 0L) then begin
@@ -226,25 +230,27 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_velo = (temp_velo - rest) * c / rest
     temp_velo[where(bad_pixels_mask gt 0, /null)] = 0.0D
 
-    temp_int[thresh_masked]        = 0D
-    temp_corr_velo[thresh_masked]  = 0D
-    temp_line_width[thresh_masked] = 0D
+    temp_int[thresh_masked]        = 0.0D
+    temp_corr_velo[thresh_masked]  = 0.0D
+    temp_line_width[thresh_masked] = 0.0D
     int_enh[thresh_masked]         = 0.0D
 
     if (qu_files[ii] eq 1) then begin
-      stks_q[thresh_masked] = 0D
-      stks_u[thresh_masked] = 0D
+      stks_q[thresh_masked] = 0.0D
+      stks_u[thresh_masked] = 0.0D
     endif
 
     ; find median of non-CME finite dop -> "real rest wavelength"
     x = lindgen(nx)
     x = rebin(reform(x, nx, 1), nx, ny)
     rest_wavelength_dop_ind = where(finite(temp_velo) $
-                          and temp_line_width gt 15.0 $
-                          and abs(temp_velo) lt 30.0, n_rest_wavelength_dop, /null)
+                                      and temp_line_width gt 15.0 $
+                                      and temp_line_width lt 60.0 $
+                                      and abs(temp_velo) lt 30.0, n_rest_wavelength_dop, /null)
     good_dop_ind = where(finite(temp_velo) $
-                          and temp_line_width gt 15.0 $
-                          and abs(temp_velo) lt 80.0, n_good_dop, /null)
+                           and temp_line_width gt 15.0 $
+                           and temp_line_width lt 60.0 $
+                           and abs(temp_velo) lt 80.0, n_good_dop, /null)
     if (n_rest_wavelength_dop gt 0L) then begin
       median_rest_wavelength = median(temp_velo[rest_wavelength_dop_ind])
       mean_rest_wavelength = mean(temp_velo[rest_wavelength_dop_ind])
@@ -254,10 +260,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
       good_east_dop_ind = where(finite(temp_velo) $
                                   and temp_line_width gt 15.0 $
+                                  and temp_line_width lt 60.0 $
                                   and abs(temp_velo) lt 30.0 $
                                   and x lt (nx - 1.0) / 2.0, n_good_east_dop)
       good_west_dop_ind = where(finite(temp_velo) $
                                 and temp_line_width gt 15.0 $
+                                and temp_line_width lt 60.0 $
                                 and abs(temp_velo) lt 30.0 $
                                 and x gt (nx - 1.0) / 2.0, n_good_west_dop)
       if (n_good_east_dop gt 0L) then begin
@@ -282,10 +290,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
       good_east_dop_ind = where(finite(device_temp_velo) $
                                   and device_temp_line_width gt 15.0 $
+                                  and device_temp_line_width lt 60.0 $
                                   and abs(device_temp_velo) lt 30.0 $
                                   and x lt (nx - 1.0) / 2.0, n_good_east_dop)
       good_west_dop_ind = where(finite(device_temp_velo) $
                                 and device_temp_line_width gt 15.0 $
+                                and device_temp_line_width lt 60.0 $
                                 and abs(device_temp_velo) lt 30.0 $
                                 and x gt (nx - 1.0) / 2.0, n_good_west_dop)
       if (n_good_east_dop gt 0L) then begin
