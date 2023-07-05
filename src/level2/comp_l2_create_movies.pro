@@ -116,6 +116,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
   nwimage  = transpose(nwimage, [1, 2, 0])
   nwimsize = size(nwimage[*, *, 0:2], /dimensions)
 
+  title_charsize = 3.0
+
   p_counter = 0
 
   for ii = 0L, nt - 1L do begin
@@ -150,13 +152,16 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     if (file_test(l2_p_file)) then begin
       mg_log, '%s', l2_p_file, name='comp', /debug
     endif else if (qu_files[ii] eq 1) then begin
+      ; level 1 files with QU should have a corresponding polarization file
       mg_log, 'polarization file not found: %s', file_basename(gbu[ii].l1file), $
               name='comp', /warn
       continue
     endif
 
     ; intensity integrated over center three wavelengths
-    integrated_intensity = readfits(l2_p_file, ext=1, /silent)
+    if (qu_files[ii] eq 1) then begin
+      integrated_intensity = readfits(l2_p_file, ext=1, /silent)
+    endif
 
     ; center line intensity
     fits_open, gbu[ii].l1file, fcb
@@ -203,7 +208,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       tv, qoi
       colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
                  range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.3)'
-      xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=6, /device, color=255, font=1
+      xyouts, 310.0, 4 * 78, 'Q/I', charsize=title_charsize, /device, $
+              alignment=0.5, color=255, font=1
 
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
@@ -215,8 +221,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ; tvlct, rhao, ghao, bhao
       ; tv, haologo
       ; tvlct, rtemp, gtemp, btemp
-      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-              charsize=1.0, /device, color=255
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
       ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -243,7 +248,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       tv, uoi
       colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
                  range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.3)'
-      xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255
+      xyouts, 310, 4 * 78, 'U/I', charsize=title_charsize, /device, $
+              alignment=0.5, color=255, font=1
 
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
@@ -255,8 +261,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ; tvlct, rhao, ghao, bhao
       ; tv, haologo
       ; tvlct, rtemp, gtemp, btemp
-      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-              charsize=1.0, /device, color=255
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
       ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -283,7 +288,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       tv, poi
       colorbar2, position=colbarpos, charsize=1.25, title='log(L!Itot !N/I)', $
                  range=[-2.3, -0.3], font=-1, divisions=4, format='(F5.1)'
-      xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
+      xyouts, 310.0, 4 * 78, 'L!I tot !N/I', charsize=title_charsize, /device, $
+              alignment=0.5, color=255, font=1
 
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
@@ -295,8 +301,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ; tvlct, rhao, ghao, bhao
       ; tv, haologo
       ; tvlct, rtemp, gtemp, btemp
-      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-              charsize=1.0, /device, color=255
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
       ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -321,8 +326,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $
                range=[-10, 10], font=-1, divisions=10, color=255, ncolors=253
     loadct, 0, /silent
-    xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255, font=1
-    xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255, font=1
+    xyouts, 310.0, 4 * 78, 'Doppler Velocity', charsize=title_charsize, /device, $
+            alignment=0.5, color=255, font=1
 
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, chars=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
@@ -334,8 +339,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; tvlct, rhao, ghao, bhao
     ; tv, haologo
     ; tvlct, rtemp, gtemp, btemp
-    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-            charsize=1.0, /device, color=255
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
     ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -358,7 +362,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
                range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
     loadct, 0, /silent
-    xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255, font=1
+    xyouts, 310.0, 4 * 78, 'Intensity', charsize=title_charsize, /device, $
+            alignment=0.5, color=255, font=1
 
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, $
             charsize=1, /device, color=255
@@ -371,8 +376,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; tvlct, rhao, ghao, bhao
     ; tv, haologo
     ; tvlct, rtemp, gtemp, btemp
-    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-            charsize=1.0, /device, color=255
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
     ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -390,8 +394,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     comp_aia_lct, wave=193, /load
     tv, int_enh
     loadct, 0, /silent
-    xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255, font=1
-    xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255, font=1
+    xyouts, 310.0, 4 * 68, 'Enhanced Intensity', charsize=title_charsize, /device, $
+            alignment=0.5, color=255, font=1
 
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, $
             charsize=1, /device, color=255
@@ -404,8 +408,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; tvlct, rhao, ghao, bhao
     ; tv, haologo
     ; tvlct, rtemp, gtemp, btemp
-    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-            charsize=1.0, /device, color=255
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
     ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -435,7 +438,8 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     colorbar2, position=colbarpos, chars=1.25, title='line width [km/s]', $
                range=[25,55], font=-1, divisions=3, color=255, ncolors=254
     loadct, 0, /silent
-    xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255, font=1
+    xyouts, 310.0, 4 * 78, 'Line Width', charsize=title_charsize, /device, $
+            alignment=0.5, color=255, font=1
 
     xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
     xyouts, 4 * 109, 4 * 151.5, $
@@ -447,8 +451,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
     ; tvlct, rhao, ghao, bhao
     ; tv, haologo
     ; tvlct, rtemp, gtemp, btemp
-    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-            charsize=1.0, /device, color=255
+    xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
     ; display NSF/NCAR logo
     ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -491,7 +494,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
                  range=[-radial_display_max, radial_display_max], font=-1, divisions=6, color=255, ncolors=253
       loadct, 0, /silent
       xyouts, 620.0 / 2.0, 4 * 78, 'Radial Azimuth', $
-              charsize=6, /device, color=255, alignment=0.5, font=1
+              charsize=title_charsize, /device, color=255, alignment=0.5, font=1
 
       xyouts, 4 * 1, 4 * 151.5, 'CoMP ' + wave_type, charsize=1, /device, color=255
       xyouts, 4 * 109, 4 * 151.5, $
@@ -503,8 +506,7 @@ pro comp_l2_create_movies, date_dir, wave_type, nwl=nwl
       ; tvlct, rhao, ghao, bhao
       ; tv, haologo
       ; tvlct, rtemp, gtemp, btemp
-      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-              charsize=1.0, /device, color=255
+      xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
       ; display NSF/NCAR logo
       ; backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)

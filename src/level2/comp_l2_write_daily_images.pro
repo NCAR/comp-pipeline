@@ -238,12 +238,15 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
 
   undef_velocity_ind = where(finite(velocity) ne 1, n_undef_velocity)
 
+  gap = 20.0
+  im_size = 620.0
+
   ; plot L_tot/I in b/w
   loadct, 0, /silent
   poi = alog10(poi)
   poi = bytscl(poi, min=-2.3, max=-0.3, /nan)
   if (n_undef_velocity gt 0) then poi[undef_velocity_ind] = 0.
-  tv, poi, 4 * 5, 4 * 5
+  tv, poi, gap, gap
 
   ; plot doppler velocity
   restore, filepath('my_doppler_ct.sav', root=mg_src_root())
@@ -251,14 +254,14 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   vel = bytscl(velocity, min=-10, max=10, top=253)
   vel[mask_ind] = 254
   if (n_undef_velocity gt 0L) then vel[undef_velocity_ind] = 254
-  tv, vel, 4 * 165, 4 * 5
+  tv, vel, im_size + 2 * gap, gap
 
   ; plot intensity and enhanced intensity
   comp_aia_lct, wave=193, /load
   int = sqrt(intensity)
   int = bytscl(int, min=display_min_i, max=display_max_i)
-  tv, int, 4 * 5, 4 * 165
-  tv, enhanced_intensity, 4 * 165, 4 * 165
+  tv, int, gap, im_size + 2 * gap
+  tv, enhanced_intensity, im_size + 2 * gap, im_size + 2 * gap
 
   ; plot line width
   loadct, 4, /silent
@@ -268,22 +271,22 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tvlct, rgb
   width = bytscl(width, min=25, max=55, top=254)
   if (n_undef_velocity gt 0) then width[undef_velocity_ind] = 254
-  tv, width, 4 * 325, 4 * 5
+  tv, width, 2 * im_size + 3 * gap, gap
+
+  title_charsize = 3.0
 
   ; print image info
   loadct, 0, /silent
-  xyouts, 4 * 53, 4 * 238, 'Intensity', charsize=6, /device, color=255, font=1
-  xyouts, 4 * 46 + 4 * 160, 4 * 245, 'Enhanced', charsize=6, /device, $
-          color=255, font=1
-  xyouts, 4 * 53 + 4 * 160, 4 * 228, 'Intensity', charsize=6, /device, $
-          color=255, font=1
-  xyouts, 4 * 66, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
-  xyouts, 4 * 53 + 4 * 160., 4 * 97, 'Doppler', charsize=6, /device, $
-          color=255, font=1
-  xyouts, 4 * 53.5 + 4 * 160, 4 * 78, 'Velocity', charsize=6, /device, $
-          color=255, font=1
-  xyouts, 4 * 43.5 + 8 * 160, 4 * 78, 'Line Width', charsize=6, /device, $
-          color=255, font=1
+  xyouts, gap + im_size / 2.0, 4 * 238, 'Intensity', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
+  xyouts, 2 * gap + 1.5 * im_size, 4 * 228, 'Enhanced Intensity', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
+  xyouts, gap + im_size / 2.0, 4 * 78, 'L!I tot !N/I', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
+  xyouts, 2 * gap + 1.5 * im_size, 4 * 78, 'Doppler Velocity', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
+  xyouts, 3 * gap + 2.5 * im_size, 4 * 78, 'Line Width', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
 
   ; print info panel
   xyouts, 4 * 355, 4 * 140 + 4 * 160, 'MLSO/CoMP', charsize=6, /device, color=0, font=1
@@ -395,8 +398,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -421,7 +423,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tv, qoi
   colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
              range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.2)'
-  xyouts, 4 * 66, 4 * 78, 'Q/I', chars=6, /device, color=255, font=1
+  xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=title_charsize, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -436,8 +438,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -462,7 +463,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tv, uoi
   colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
              range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.2)'
-  xyouts, 4 * 67, 4 * 78, 'U/I', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 67, 4 * 78, 'U/I', charsize=title_charsize, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -477,8 +478,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -499,8 +499,10 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   colorbar2, position=colbarpos, charsize=1.25, title='LOS velocity [km/s]', $
              range=[-10, 10], font=-1, divisions=10, color=255, ncolors=253
   loadct, 0, /silent
-  xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=6, /device, color=255, font=1
-  xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 48, 4 * 97, 'Doppler', charsize=title_charsize, /device, $
+          color=255, font=1
+  xyouts, 4 * 48.5, 4 * 78, 'Velocity', charsize=title_charsize, /device, $
+          color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -515,8 +517,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -536,7 +537,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
              range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
   loadct, 0, /silent
-  xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 48, 4 * 78, 'Intensity', charsize=title_charsize, /device, $
+          color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -551,8 +553,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -570,8 +571,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   comp_aia_lct, wave=193, /load
   tv, enhanced_intensity
   loadct, 0, /silent
-  xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=6, /device, color=255, font=1
-  xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 40, 4 * 85, 'Enhanced', charsize=title_charsize, /device, color=255, font=1
+  xyouts, 4 * 48, 4 * 68, 'Intensity', charsize=title_charsize, /device, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -586,8 +587,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -612,7 +612,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   colorbar2, position=colbarpos, charsize=1.25, title='line width [km/s]',$
              range=[25, 55], font=-1, divisions=3, color=255, ncolors=254
   loadct, 0, /silent
-  xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 38, 4 * 78, 'Line Width', charsize=title_charsize, /device, $
+          color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -627,8 +628,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -652,7 +652,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   colorbar2, position=colbarpos, charsize=1.25, title='Azimuth [degrees]',$
              range=[0, 180], font=-1, divisions=6, color=255, ncolors=254
   loadct, 0, /silent
-  xyouts, 4 * 48, 4 * 78, 'Azimuth', charsize=6, /device, color=255, font=1
+  xyouts, 4 * 48, 4 * 78, 'Azimuth', charsize=title_charsize, /device, $
+          color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -667,8 +668,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
@@ -702,8 +702,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   colorbar2, position=colbarpos, charsize=1.25, title='Radial Azimuth [degrees]',$
              range=[-radial_display_max, radial_display_max], font=-1, divisions=6, color=255, ncolors=ncolors
   loadct, 0, /silent
-  xyouts, 620 / 2, 4 * 78, 'Radial Azimuth', charsize=6, /device, color=255, $
-          alignment=0.5, font=1
+  xyouts, 620 / 2, 4 * 78, 'Radial Azimuth', charsize=title_charsize, /device, $
+          color=255, alignment=0.5, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -718,8 +718,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ;tvlct, rhao, ghao, bhao
   ;tv, haologo
   ;tvlct, rtemp, gtemp, btemp
-  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', $
-          charsize=1.0, /device, color=255
+  xyouts, 4 * 1, 4 * 1, 'NSF NCAR/HAO', charsize=1.0, /device, color=255
 
   ; display NSF/NCAR logo
   ;backgnd   = tvrd(619 - 134, 0, nsfimsize[0], nsfimsize[1], true=3)
