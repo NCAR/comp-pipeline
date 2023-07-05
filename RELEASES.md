@@ -154,3 +154,5 @@
   create a device east/west rest wavelength FITS keyword value
   adjustments to threshold masking in level 2 products
   use integrated intensity to normalize Q, U, and L in daily movies
+  should handle inserting cal files into database when no flats for the day
+  cleaning up annotations on daily images/movies
