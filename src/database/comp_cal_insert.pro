@@ -43,10 +43,12 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
     fits_open, flats_filename, flats_fcb
 
     n_flats = flats_fcb.nextend - 3L  ; last 3 extensions are time, wavelength, exposure
-    flats_rawnames = strarr(n_flats)
-    flats_beam = bytarr(n_flats)
-    fits_read, flats_fcb, data, flat_ext_header, exten_no=1, /header_only
-    flats_headers = strarr(n_flats, n_elements(flat_ext_header))
+    if (n_flats gt 0L) then begin
+      flats_rawnames = strarr(n_flats)
+      flats_beam = bytarr(n_flats)
+      fits_read, flats_fcb, data, flat_ext_header, exten_no=1, /header_only
+      flats_headers = strarr(n_flats, n_elements(flat_ext_header))
+    endif
 
     for e = 1L, n_flats do begin
       fits_read, flats_fcb, data, flat_ext_header, exten_no=e, /header_only
@@ -122,22 +124,37 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
       ; get centering information
       ext_indices = where(flats_rawnames eq cal_basenames[f], count)
+      if (count gt 0L) then begin
+        fheader = reform(flats_headers[ext_indices[0], *])  ; just using 1st match
 
-      fheader = reform(flats_headers[ext_indices[0], *])  ; just using 1st match
+        xcenter1 = sxpar(fheader, 'OXCNTER1')
+        ycenter1 = sxpar(fheader, 'OYCNTER1')
+        radius1 = sxpar(fheader, 'ORADIUS1')
+        xcenter2 = sxpar(fheader, 'OXCNTER2')
+        ycenter2 = sxpar(fheader, 'OYCNTER2')
+        radius2 = sxpar(fheader, 'ORADIUS2')
 
-      xcenter1 = sxpar(fheader, 'OXCNTER1')
-      ycenter1 = sxpar(fheader, 'OYCNTER1')
-      radius1 = sxpar(fheader, 'ORADIUS1')
-      xcenter2 = sxpar(fheader, 'OXCNTER2')
-      ycenter2 = sxpar(fheader, 'OYCNTER2')
-      radius2 = sxpar(fheader, 'ORADIUS2')
+        uncor_xcenter1 = sxpar(fheader, 'OXCNTRU1')
+        uncor_ycenter1 = sxpar(fheader, 'OYCNTRU1')
+        uncor_radius1 = sxpar(fheader, 'ORADU1')
+        uncor_xcenter2 = sxpar(fheader, 'OXCNTRU2')
+        uncor_ycenter2 = sxpar(fheader, 'OYCNTRU2')
+        uncor_radius2 = sxpar(fheader, 'ORADU2')
+      endif else begin
+        xcenter1 = !values.f_nan
+        ycenter1 = !values.f_nan
+        radius1 = !values.f_nan
+        xcenter2 = !values.f_nan
+        ycenter2 = !values.f_nan
+        radius2 = !values.f_nan
 
-      uncor_xcenter1 = sxpar(fheader, 'OXCNTRU1')
-      uncor_ycenter1 = sxpar(fheader, 'OYCNTRU1')
-      uncor_radius1 = sxpar(fheader, 'ORADU1')
-      uncor_xcenter2 = sxpar(fheader, 'OXCNTRU2')
-      uncor_ycenter2 = sxpar(fheader, 'OYCNTRU2')
-      uncor_radius2 = sxpar(fheader, 'ORADU2')
+        uncor_xcenter1 = !values.f_nan
+        uncor_ycenter1 = !values.f_nan
+        uncor_radius1 = !values.f_nan
+        uncor_xcenter2 = !values.f_nan
+        uncor_ycenter2 = !values.f_nan
+        uncor_radius2 = !values.f_nan
+      endelse
 
       ; compute medians of dark corrected annulus
       if (cover eq 1 && opal eq 1) then begin
@@ -166,8 +183,13 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
         minus_image = mean(images[*, *, minus_flat_indices], dimension=3)
         plus_image = mean(images[*, *, plus_flat_indices], dimension=3)
 
-        mask1 = comp_mask_1024_1(fheader, margin=0.0)
-        mask2 = comp_mask_1024_2(fheader, margin=0.0)
+        if (n_elements(fheader) gt 0L) then begin
+          mask1 = comp_mask_1024_1(fheader, margin=0.0)
+          mask2 = comp_mask_1024_2(fheader, margin=0.0)
+        endif else begin
+          mask1 = bytarr(1024, 1024) + 1B
+          mask2 = bytarr(1024, 1024) + 1B
+        endelse
 
         mask1_indices = where(mask1, count)
         mask2_indices = where(mask2, count)
@@ -177,7 +199,6 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
 
         median_int_continuum_beam1 = median(plus_image[mask1_indices])
         median_int_linecenter_beam1 = median(plus_image[mask2_indices])
-
       endif else begin   ; is not useful for darks
         median_int_continuum_beam0 = 0.0
         median_int_linecenter_beam0 = 0.0
@@ -199,19 +220,19 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
                 {name: 'cover', type: '%d'}, $
                 {name: 'opal', type: '%d'}, $
 
-                {name: 'xcenter1', type: '%f'}, $
-                {name: 'ycenter1', type: '%f'}, $
-                {name: 'radius1', type: '%f'}, $
-                {name: 'xcenter2', type: '%f'}, $
-                {name: 'ycenter2', type: '%f'}, $
-                {name: 'radius2', type: '%f'}, $
+                {name: 'xcenter1', type: '%s'}, $
+                {name: 'ycenter1', type: '%s'}, $
+                {name: 'radius1', type: '%s'}, $
+                {name: 'xcenter2', type: '%s'}, $
+                {name: 'ycenter2', type: '%s'}, $
+                {name: 'radius2', type: '%s'}, $
 
-                {name: 'uncor_xcenter1', type: '%f'}, $
-                {name: 'uncor_ycenter1', type: '%f'}, $
-                {name: 'uncor_radius1', type: '%f'}, $
-                {name: 'uncor_xcenter2', type: '%f'}, $
-                {name: 'uncor_ycenter2', type: '%f'}, $
-                {name: 'uncor_radius2', type: '%f'}, $
+                {name: 'uncor_xcenter1', type: '%s'}, $
+                {name: 'uncor_ycenter1', type: '%s'}, $
+                {name: 'uncor_radius1', type: '%s'}, $
+                {name: 'uncor_xcenter2', type: '%s'}, $
+                {name: 'uncor_ycenter2', type: '%s'}, $
+                {name: 'uncor_radius2', type: '%s'}, $
 
                 {name: 'median_int_continuum_beam0', type: '%f'}, $
                 {name: 'median_int_linecenter_beam0', type: '%f'}, $
@@ -237,19 +258,19 @@ pro comp_cal_insert, date, database=db, obsday_index=obsday_index
                    cover, $
                    opal, $
 
-                   xcenter1, $
-                   ycenter1, $
-                   radius1, $
-                   xcenter2, $
-                   ycenter2, $
-                   radius2, $
+                   comp_db_float2str(xcenter1), $
+                   comp_db_float2str(ycenter1), $
+                   comp_db_float2str(radius1), $
+                   comp_db_float2str(xcenter2), $
+                   comp_db_float2str(ycenter2), $
+                   comp_db_float2str(radius2), $
 
-                   uncor_xcenter1, $
-                   uncor_ycenter1, $
-                   uncor_radius1, $
-                   uncor_xcenter2, $
-                   uncor_ycenter2, $
-                   uncor_radius2, $
+                   comp_db_float2str(uncor_xcenter1), $
+                   comp_db_float2str(uncor_ycenter1), $
+                   comp_db_float2str(uncor_radius1), $
+                   comp_db_float2str(uncor_xcenter2), $
+                   comp_db_float2str(uncor_ycenter2), $
+                   comp_db_float2str(uncor_radius2), $
 
                    median_int_continuum_beam0, $
                    median_int_linecenter_beam0, $
