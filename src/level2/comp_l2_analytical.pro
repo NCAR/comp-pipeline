@@ -100,6 +100,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   endfor
 
   for ii = 0L, nt - 1L do begin
+    basename = file_basename(gbu[ii].l1file)
     fits_open, gbu[ii].l1file, fcb
     comp_inventory, fcb, beam, wave, error=error
     if (error gt 0L) then begin
@@ -345,11 +346,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ; averaged_enhanced_intensity[thresh_masked] = 0.0D
 
     ;=== write out FITS files ===
-    mg_log, 'write out FITS %d/%d @ %s', ii + 1, nt, wave_type, name='comp', /info
+    mg_log, 'write out dynamics FITS %d/%d @ %s', ii + 1, nt, wave_type, $
+            name='comp', /info
 
     ;=== dynamics package ===
     primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-    outfilename = filepath(strmid(file_basename(gbu[ii].l1file), 0, 26) $
+    outfilename = filepath(strmid(basename, 0, 26) $
                              + 'dynamics.fts', $
                            root=l2_process_dir)
     writefits, outfilename, blank, primary_header
@@ -441,9 +443,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     ;=== polarization package ===
     if (qu_files[ii] eq 1) then begin
+      mg_log, 'write out polarization FITS %d/%d @ %s', ii + 1, nt, wave_type, $
+              name='comp', /info
+
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
-      outfilename = strmid(file_basename(gbu[ii].l1file), 0, 26) $
-                      + 'polarization.fts'
+      outfilename = strmid(basename, 0, 26) + 'polarization.fts'
       writefits, outfilename, blank, primary_header
 
       ; intensity
