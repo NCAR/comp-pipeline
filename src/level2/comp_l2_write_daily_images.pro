@@ -383,7 +383,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tv, poi
   colorbar2, position=colbarpos, charsize=1.25, title='log(L!Itot !N/I)', $
              range=[-2.3, -0.3], font=-1, divisions=4, format='(F5.1)'
-  xyouts, 4 * 62, 4 * 78, 'L!I tot !N/I', charsize=6, /device, color=255, font=1
+  xyouts, 310.0, 4 * 78, 'L!I tot !N/I', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -413,7 +414,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tv, qoi
   colorbar2, position=colbarpos, charsize=1.25, title='Q/I', $
              range=[display_min_q, display_max_q], font=-1, divisions=4, format='(F6.2)'
-  xyouts, 4 * 66, 4 * 78, 'Q/I', charsize=title_charsize, /device, color=255, font=1
+  xyouts, 310.0, 4 * 78, 'Q/I', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
@@ -443,7 +445,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tv, uoi
   colorbar2, position=colbarpos, charsize=1.25, title='U/I', $
              range=[display_min_u, display_max_u], font=-1, divisions=4, format='(F6.2)'
-  xyouts, 4 * 67, 4 * 78, 'U/I', charsize=title_charsize, /device, color=255, font=1
+  xyouts, 310.0, 4 * 78, 'U/I', charsize=title_charsize, /device, $
+          alignment=0.5, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255
   xyouts, 620 - 4.0, 4 * 151.5, $
