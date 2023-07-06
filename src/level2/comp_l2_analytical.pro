@@ -346,7 +346,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ; averaged_enhanced_intensity[thresh_masked] = 0.0D
 
     ;=== write out FITS files ===
-    mg_log, 'write out dynamics FITS %d/%d @ %s', ii + 1, nt, wave_type, $
+    mg_log, '%d/%d @ %s: dynamics FITS', ii + 1, nt, wave_type, $
             name='comp', /info
 
     ;=== dynamics package ===
@@ -443,7 +443,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     ;=== polarization package ===
     if (qu_files[ii] eq 1) then begin
-      mg_log, 'write out polarization FITS %d/%d @ %s', ii + 1, nt, wave_type, $
+      mg_log, '%d/%d @ %s: polarization FITS', ii + 1, nt, wave_type, $
               name='comp', /info
 
       primary_header = comp_convert_header(headfits(gbu[ii].l1file))
