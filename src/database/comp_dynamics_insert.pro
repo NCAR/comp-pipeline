@@ -73,8 +73,8 @@ pro comp_dynamics_insert, date, wave_type, $
     mask = comp_l2_mask(primary_header)
     mask_indices = where(mask, /null)
 
-    intensity_max = max(intensity[mask_indices])
-    doppler_min = min(velocity[mask_indices], max=doppler_max)
+    intensity_max = max(intensity[mask_indices], /nan)
+    doppler_min = min(velocity[mask_indices], max=doppler_max, /nan)
 
     doppler_mean = sxpar(velocity_header, 'RSTWVL')
     doppler_east_median = sxpar(velocity_header, 'ERSTWVL')
