@@ -90,9 +90,9 @@ pro comp_dynamics_insert, date, wave_type, $
               {name: 'date_obs', type: '''%s'''}, $
               {name: 'obs_day', type: '%d'}, $
 
-              {name: 'intensity_max', type: '%f'}, $
-              {name: 'doppler_min', type: '%f'}, $
-              {name: 'doppler_max', type: '%f'}, $
+              {name: 'intensity_max', type: '%s'}, $
+              {name: 'doppler_min', type: '%s'}, $
+              {name: 'doppler_max', type: '%s'}, $
 
               {name: 'doppler_mean', type: '%f'}, $
               {name: 'doppler_east_median', type: '%f'}, $
@@ -110,9 +110,9 @@ pro comp_dynamics_insert, date, wave_type, $
                  date_obs, $
                  obsday_index, $
 
-                 intensity_max, $
-                 doppler_min, $
-                 doppler_max, $
+                 comp_db_float2str(intensity_max, format='%f', valid_range=[-1.0e6, 1.0e6]), $
+                 comp_db_float2str(doppler_min, format='%f', valid_range=[-1.0e6, 1.0e6]), $
+                 comp_db_float2str(doppler_max, format='%f', valid_range=[-1.0e6, 1.0e6]), $
 
                  doppler_mean, $
                  doppler_east_median, $
