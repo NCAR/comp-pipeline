@@ -239,10 +239,16 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; convert doppler from wavelength to velocity
   dop = (dop - rest) * c / rest
 
-  good_pixel_mask = (i2 gt int_min_thresh) and (i2 lt int_max_thresh) $
-                      and (i1 gt 0.1) and (i3 gt 0.1) $
-                      and (i1 lt int_max_thresh) and (i3 lt int_max_thresh)
-  good_pixels = where(good_pixel_mask, complement=bad_pixels, ncomplement=n_bad_pixels)
+  ; TODO: geometric mask?
+  good_pixel_mask = (i2 gt int_min_thresh) $
+                      and (i2 lt int_max_thresh) $
+                      and (i1 gt 0.05) $
+                      and (i3 gt 0.05) $
+                      and (i1 lt int_max_thresh) $
+                      and (i3 lt int_max_thresh)
+  good_pixels = where(good_pixel_mask, $
+                      complement=bad_pixels, $
+                      ncomplement=n_bad_pixels)
   if (n_bad_pixels gt 0L) then begin
     dop[bad_pixels] = !values.f_nan
     corrected_dop[bad_pixels] = !values.f_nan
@@ -258,45 +264,74 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; find median of non-CME finite dop -> "real rest wavelength"
   x = lindgen(nx)
   x = rebin(reform(x, nx, 1), nx, ny)
-  good_dop_ind = where(finite(dop) and abs(dop) lt 80.0, n_good_dop)
-  if (n_good_dop gt 0L) then begin
-    median_rest_wavelength = median(dop[good_dop_ind])
-    mean_rest_wavelength = mean(dop[good_dop_ind])
+  rest_wavelength_dop_ind = where(finite(dop) $
+                                    and width gt 15.0 $
+                                    and width lt 60.0 $
+                                    and abs(dop) lt 30.0, n_rest_wavelength_dop, /null)
+  good_dop_ind = where(finite(dop) $
+                         and width gt 15.0 $
+                         and width lt 60.0 $
+                         and abs(dop) lt 80.0, n_good_dop, /null)
+
+  if (n_rest_wavelength_dop gt 0L) then begin
+    median_rest_wavelength = median(dop[rest_wavelength_dop_ind])
+    mean_rest_wavelength = mean(dop[rest_wavelength_dop_ind])
+
+    ; TODO: use fit to correct instead of below
     corrected_dop = dop - median_rest_wavelength
 
-    good_east_dop_ind = where(finite(corrected_dop) $
-                                and abs(corrected_dop) lt 80.0 $
+    good_east_dop_ind = where(finite(dop) $
+                                and width gt 15.0 $
+                                and width lt 60.0 $
+                                and abs(dop) lt 30.0 $
                                 and x lt (nx - 1.0) / 2.0, n_good_east_dop)
-    good_west_dop_ind = where(finite(corrected_dop) $
-                              and abs(corrected_dop) lt 80.0 $
-                              and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+    good_west_dop_ind = where(finite(dop) $
+                                and width gt 15.0 $
+                                and width lt 60.0 $
+                                and abs(dop) lt 30.0 $
+                                and x gt (nx - 1.0) / 2.0, n_good_west_dop)
     if (n_good_east_dop gt 0L) then begin
-      east_median_rest_wavelength = median(corrected_dop[good_east_dop_ind])
-    endif else east_median_rest_wavelength = !values.f_nan
+      east_median_rest_wavelength = median(dop[good_east_dop_ind])
+      east_mean_rest_wavelength = mean(dop[good_east_dop_ind])
+    endif else begin
+      east_median_rest_wavelength = !values.f_nan
+      east_mean_rest_wavelength = !values.f_nan
+    endelse
+
     if (n_good_west_dop gt 0L) then begin
-      west_median_rest_wavelength = median(corrected_dop[good_west_dop_ind])
-    endif else west_median_rest_wavelength = !values.f_nan
+      west_median_rest_wavelength = median(dop[good_west_dop_ind])
+      west_mean_rest_wavelength = mean(dop[good_west_dop_ind])
+    endif else begin
+      west_median_rest_wavelength = !values.f_nan
+      west_mean_rest_wavelength = !values.f_nan
+    endelse
 
     p_angle = sxpar(primary_header, 'SOLAR_P0')
-    device_corrected_dop = rot(corrected_dop, - p_angle)
+    device_dop = rot(dop, - p_angle)
+    device_temp_line_width = rot(width, - p_angle)
 
-    good_east_dop_ind = where(finite(device_corrected_dop) $
-                                and device_corrected_dop gt 80.0 $
+    good_east_dop_ind = where(finite(device_dop) $
+                                and device_temp_line_width gt 15.0 $
+                                and device_temp_line_width lt 60.0 $
+                                and abs(device_dop) lt 30.0 $
                                 and x lt (nx - 1.0) / 2.0, n_good_east_dop)
-    good_west_dop_ind = where(finite(device_corrected_dop) $
-                              and device_corrected_dop gt 80.0 $
-                              and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+    good_west_dop_ind = where(finite(device_dop) $
+                                and device_temp_line_width gt 15.0 $
+                                and device_temp_line_width lt 60.0 $
+                                and abs(device_dop) lt 30.0 $
+                                and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+
     if (n_good_east_dop gt 0L) then begin
-      device_east_median_rest_wavelength = median(device_corrected_dop[good_east_dop_ind])
-      device_east_mean_rest_wavelength = mean(device_corrected_dop[good_east_dop_ind])
+      device_east_median_rest_wavelength = median(device_dop[good_east_dop_ind])
+      device_east_mean_rest_wavelength = mean(device_dop[good_east_dop_ind])
     endif else begin
       device_east_median_rest_wavelength = !values.f_nan
       device_east_mean_rest_wavelength = !values.f_nan
     endelse
 
     if (n_good_west_dop gt 0L) then begin
-      device_west_median_rest_wavelength = median(device_corrected_dop[good_west_dop_ind])
-      device_west_mean_rest_wavelength = mean(device_corrected_dop[good_west_dop_ind])
+      device_west_median_rest_wavelength = median(device_dop[good_west_dop_ind])
+      device_west_mean_rest_wavelength = mean(device_dop[good_west_dop_ind])
     endif else begin
       device_west_median_rest_wavelength = !values.f_nan
       device_west_mean_rest_wavelength = !values.f_nan
@@ -307,7 +342,9 @@ pro comp_quick_invert, date_dir, wave_type, $
     corrected_dop = dop
 
     east_median_rest_wavelength = !values.f_nan
+    east_mean_rest_wavelength = !values.f_nan
     west_median_rest_wavelength = !values.f_nan
+    west_mean_rest_wavelength = !values.f_nan
 
     device_west_median_rest_wavelength = !values.f_nan
     device_west_mean_rest_wavelength = !values.f_nan
@@ -361,23 +398,26 @@ pro comp_quick_invert, date_dir, wave_type, $
             format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
             format='(F0.3)'
-  fxaddpar, header, 'RSTWVL', median_rest_wavelength, ' [km/s] median rest wavelength', $
-            format='(F0.3)', /null
-  fxaddpar, header, 'RSTWVL2', mean_rest_wavelength, ' [km/s] mean rest wavelength', $
-            format='(F0.3)', /null
-  fxaddpar, extension_header, 'ERSTWVL', east_median_rest_wavelength, $
+  
+  fxaddpar, header, 'RSTWVL', median_rest_wavelength, $
+            ' [km/s] median rest wavelength', format='(F0.3)', /null
+  fxaddpar, header, 'RSTWVL2', mean_rest_wavelength, $
+            ' [km/s] mean rest wavelength', format='(F0.3)', /null
+  fxaddpar, header, 'ERSTWVL', east_median_rest_wavelength, $
             ' [km/s] median east rest wavelength', format='(F0.3)', /null
-  fxaddpar, extension_header, 'WRSTWVL', west_median_rest_wavelength, $
-            ' [km/s] median west rest wavelength', format='(F0.3)', /null
-  fxaddpar, extension_header, 'ERSTWVL2', east_mean_rest_wavelength, $
+  fxaddpar, header, 'ERSTWVL2', east_mean_rest_wavelength, $
             ' [km/s] mean east rest wavelength', format='(F0.3)', /null
-  fxaddpar, extension_header, 'WRSTWVL2', west_mean_rest_wavelength, $
+  fxaddpar, header, 'WRSTWVL', west_median_rest_wavelength, $
+            ' [km/s] median west rest wavelength', format='(F0.3)', /null
+  fxaddpar, header, 'WRSTWVL2', west_mean_rest_wavelength, $
             ' [km/s] mean west rest wavelength', format='(F0.3)', /null
-  fxaddpar, extension_header, 'ERSTWVLD', device_east_median_rest_wavelength, $
+  fxaddpar, header, 'ERSTWVLD', device_east_median_rest_wavelength, $
             ' [km/s] median east (in device coords) rest wavelength', format='(F0.3)', /null
-  fxaddpar, extension_header, 'WRSTWVLD', device_west_median_rest_wavelength, $
+  fxaddpar, header, 'WRSTWVLD', device_west_median_rest_wavelength, $
             ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
+
   fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
+
   sxdelpar, header, 'RSTWVL'
   sxdelpar, header, 'RSTWVL2'
   sxdelpar, header, 'ERSTWVL'
@@ -404,9 +444,9 @@ pro comp_quick_invert, date_dir, wave_type, $
               format='(F0.3)'
     fxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [km/s] rest wavelength', $
               format='(F0.3)', /null
-    fxaddpar, extension_header, 'ERESTWVL', east_median_rest_wavelength, $
+    fxaddpar, header, 'ERESTWVL', east_median_rest_wavelength, $
               ' [km/s] east rest wavelength', format='(F0.3)', /null
-    fxaddpar, extension_header, 'WRESTWVL', west_median_rest_wavelength, $
+    fxaddpar, header, 'WRESTWVL', west_median_rest_wavelength, $
               ' [km/s] west rest wavelength', format='(F0.3)', /null
     fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
     sxdelpar, header, 'RESTWVL'
