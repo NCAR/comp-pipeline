@@ -174,23 +174,29 @@ end
 ; main-level example program
 
 ;wave_types = ['1074', '1079', '1083']
-wave_types = ['1074']
+wave_types = ['1074', '1079']
+;wave_types = ['1074']
 ;root = '/export/data1/Data/CoMP/process.overlap'
-root = '/hao/mahidata1/Data/CoMP/process'
 ;root = '/export/data1/Data/CoMP/raw'
+root = '/hao/dawn/Data/CoMP/process'
+
+month = '201201'
+month_start = month + '01'
+month_end = month + '31'
 
 for w = 0L, n_elements(wave_types) - 1L do begin
-  results = comp_extract_headertags(root, 'OVRLPANG', $
-                                    start_date='20160717', end_date='20170122', $
+  results = comp_extract_headertags(root, 'BACKG3WL', $
+;                                    start_date='20120101', end_date='20140101', $
+                                    start_date=month_start, end_date=month_end, $
                                     wave_type=wave_types[w], $
 ;                                  start_date='20140601', end_date='20151231', $
 ;                                  start_date='20140806', end_date='20140807', $
                                     /interactive)
 
   if (n_elements(results) gt 0L) then begin
-    write_csv, 'ovrlpang-process-' + wave_types[w] + '.csv', $
-               results.date, results.dt, results.ovrlpang, $
-               header=['date', 'datetime', 'OVRLPANG']
+    write_csv, 'comp.background.' + wave_types[w] + '.' + month + '.csv', $
+               results.date, results.dt, results.backg3wl, $
+               header=['date', 'datetime', 'BACKG3WL']
   endif
 endfor
 
