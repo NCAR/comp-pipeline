@@ -293,13 +293,13 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                   and device_temp_line_width gt 15.0 $
                                   and device_temp_line_width lt 60.0 $
                                   and abs(device_temp_velo) lt 30.0 $
-                                  and x lt (nx - 1.0) / 2.0, n_good_east_dop)
+                                  and x lt (nx - 1.0) / 2.0, n_good_device_east_dop)
       good_west_dop_ind = where(finite(device_temp_velo) $
                                 and device_temp_line_width gt 15.0 $
                                 and device_temp_line_width lt 60.0 $
                                 and abs(device_temp_velo) lt 30.0 $
-                                and x gt (nx - 1.0) / 2.0, n_good_west_dop)
-      if (n_good_east_dop gt 0L) then begin
+                                and x gt (nx - 1.0) / 2.0, n_good_device_west_dop)
+      if (n_good_device_east_dop gt 0L) then begin
         device_east_median_rest_wavelength = median(device_temp_velo[good_east_dop_ind])
         device_east_mean_rest_wavelength = mean(device_temp_velo[good_east_dop_ind])
       endif else begin
@@ -307,7 +307,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
         device_east_mean_rest_wavelength = !values.f_nan
       endelse
 
-      if (n_good_west_dop gt 0L) then begin
+      if (n_good_device_west_dop gt 0L) then begin
         device_west_median_rest_wavelength = median(device_temp_velo[good_west_dop_ind])
         device_west_mean_rest_wavelength = mean(device_temp_velo[good_west_dop_ind])
       endif else begin
@@ -389,17 +389,29 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     fxaddpar, extension_header, 'RSTWVL2', mean_rest_wavelength, $
                ' [km/s] mean rest wavelength', format='(F0.3)', /null
     fxaddpar, extension_header, 'ERSTWVL', east_median_rest_wavelength, $
-              ' [km/s] median east rest wavelength', format='(F0.3)', /null
+              string(n_good_east_dop, $
+                     format=' [km/s] median east rest wavelength (%d pts)'), $
+              format='(F0.3)', /null
     fxaddpar, extension_header, 'ERSTWVL2', east_mean_rest_wavelength, $
-              ' [km/s] mean east rest wavelength', format='(F0.3)', /null
+              string(n_good_east_dop, $
+                     format=' [km/s] mean east rest wavelength (%d pts)'), $
+              format='(F0.3)', /null
     fxaddpar, extension_header, 'WRSTWVL', west_median_rest_wavelength, $
-              ' [km/s] median west rest wavelength', format='(F0.3)', /null
+              string(n_good_west_dop, $
+                     format=' [km/s] median west rest wavelength (%d pts)'), $
+              format='(F0.3)', /null
     fxaddpar, extension_header, 'WRSTWVL2', west_mean_rest_wavelength, $
-              ' [km/s] mean west rest wavelength', format='(F0.3)', /null
+              string(n_good_west_dop, $
+                     format=' [km/s] mean west rest wavelength (%d pts)'), $
+              format='(F0.3)', /null
     fxaddpar, extension_header, 'ERSTWVLD', device_east_median_rest_wavelength, $
-              ' [km/s] median east (in device coords) rest wavelength', format='(F0.3)', /null
+              string(n_good_device_east_dop, $
+                     format=' [km/s] median east rest wvlng (%d pts) dev coord'), $
+              format='(F0.3)', /null
     fxaddpar, extension_header, 'WRSTWVLD', device_west_median_rest_wavelength, $
-              ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
+              string(n_good_device_west_dop, $
+                     format=' [km/s] median west rest wvlng (%d pts) dev coord'), $
+              format='(F0.3)', /null
 
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
