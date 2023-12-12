@@ -145,10 +145,10 @@ pro comp_extract_restw, output_basename_format, $
                        and line_width gt 15.0 and line_width lt 50.0, $
                      n_west)
 
-        doppler_shift_2  = 0.5 * (median(doppler_shift[east]) + median(doppler_shift[west]))
-        velocity_2       = 0.5 * (median(velocity[east]) + median(velocity[west]))
-        line_width_2     = 0.5 * (median(line_width[east]) + median(line_width[west]))
-        peak_intensity_2 = 0.5 * (median(peak_intensity[east]) + median(peak_intensity[west]))
+        doppler_shift_2  = mean([median(doppler_shift[east]), median(doppler_shift[west])], /nan)
+        velocity_2       = mean([median(velocity[east]), median(velocity[west])], /nan)
+        line_width_2     = mean([median(line_width[east]), median(line_width[west])], /nan)
+        peak_intensity_2 = mean([median(peak_intensity[east]),  median(peak_intensity[west])], /nan)
 
 
         ; east/west COMP method 2 - higher intensity thresholds
@@ -164,10 +164,10 @@ pro comp_extract_restw, output_basename_format, $
                         and line_width gt 15.0 and line_width lt 50.0, $
                       n_west)
 
-        doppler_shift_22  = 0.5 * (median(doppler_shift[east2]) + median(doppler_shift[west2]))
-        velocity_22       = 0.5 * (median(velocity[east2]) + median(velocity[west2]))
-        line_width_22     = 0.5 * (median(line_width[east2]) + median(line_width[west2]))
-        peak_intensity_22 = 0.5 * (median(peak_intensity[east2]) + median(peak_intensity[west2]))
+        doppler_shift_22  = mean([median(doppler_shift[east2]), median(doppler_shift[west2])], /nan)
+        velocity_22       = mean([median(velocity[east2]), median(velocity[west2])], /nan)
+        line_width_22     = mean([median(line_width[east2]), median(line_width[west2])], /nan)
+        peak_intensity_22 = mean([median(peak_intensity[east2]), median(peak_intensity[west2])], /nan)
 
         ; east/west COMP method but in detector frame
 
@@ -209,10 +209,10 @@ pro comp_extract_restw, output_basename_format, $
                               and device_line_width gt 15.0 and device_line_width lt 50.0, $
                             n_west)
 
-        doppler_shift_3 = 0.5 * (median(device_doppler_shift[device_east]) + median(device_doppler_shift[device_west]))
-        velocity_3 = 0.5 * (median(device_velocity[device_east]) + median(device_velocity[device_west]))
-        line_width_3 = 0.5 * (median(device_line_width[device_east]) + median(device_line_width[device_west]))
-        peak_intensity_3 = 0.5 * (median(device_peak_intensity[device_east]) + median(device_peak_intensity[device_west]))
+        doppler_shift_3  = mean([median(device_doppler_shift[device_east]),  median(device_doppler_shift[device_west])], /nan)
+        velocity_3       = mean([median(device_velocity[device_east]),  median(device_velocity[device_west])], /nan)
+        line_width_3     = mean([median(device_line_width[device_east]), median(device_line_width[device_west])], /nan)
+        peak_intensity_3 = mean([median(device_peak_intensity[device_east]), median(device_peak_intensity[device_west])], /nan)
 
         ; MUST SAVE ALL QUANTITIES SO WE CAN PLOT THEM A FUNCTION OF TIME
         ; CODE FROM MIKE'S UCOMP ROUTINE     - MIKE:PLEASE CHECK THIS
@@ -259,7 +259,7 @@ waves = [1074.50D, 1074.62D, 1074.74D]
 rest_wave = 1074.62D     ; change for 1079
 nominal_center = 1074.70D ; change for 1079
 
-start_date = '20120101'
+start_date = '20121201'
 end_date = '20180407'
 
 output_basename_format = 'comp.restwvl.%s.txt'
