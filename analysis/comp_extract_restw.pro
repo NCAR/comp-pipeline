@@ -145,10 +145,10 @@ pro comp_extract_restw, output_basename_format, $
                        and line_width gt 15.0 and line_width lt 50.0, $
                      n_west)
 
-        doppler_shift_2  = mean([median(doppler_shift[east]), median(doppler_shift[west])], /nan)
-        velocity_2       = mean([median(velocity[east]), median(velocity[west])], /nan)
-        line_width_2     = mean([median(line_width[east]), median(line_width[west])], /nan)
-        peak_intensity_2 = mean([median(peak_intensity[east]),  median(peak_intensity[west])], /nan)
+        doppler_shift_2  = mean([median([doppler_shift[east]]), median([doppler_shift[west]])], /nan)
+        velocity_2       = mean([median([velocity[east]]), median([velocity[west]])], /nan)
+        line_width_2     = mean([median([line_width[east]]), median([line_width[west]])], /nan)
+        peak_intensity_2 = mean([median([peak_intensity[east]]),  median([peak_intensity[west]])], /nan)
 
 
         ; east/west COMP method 2 - higher intensity thresholds
@@ -164,10 +164,10 @@ pro comp_extract_restw, output_basename_format, $
                         and line_width gt 15.0 and line_width lt 50.0, $
                       n_west)
 
-        doppler_shift_22  = mean([median(doppler_shift[east2]), median(doppler_shift[west2])], /nan)
-        velocity_22       = mean([median(velocity[east2]), median(velocity[west2])], /nan)
-        line_width_22     = mean([median(line_width[east2]), median(line_width[west2])], /nan)
-        peak_intensity_22 = mean([median(peak_intensity[east2]), median(peak_intensity[west2])], /nan)
+        doppler_shift_22  = mean([median([doppler_shift[east2]]), median([doppler_shift[west2]])], /nan)
+        velocity_22       = mean([median([velocity[east2]]), median([velocity[west2]])], /nan)
+        line_width_22     = mean([median([line_width[east2]]), median([line_width[west2]])], /nan)
+        peak_intensity_22 = mean([median([peak_intensity[east2]]), median([peak_intensity[west2]])], /nan)
 
         ; east/west COMP method but in detector frame
 
@@ -209,10 +209,10 @@ pro comp_extract_restw, output_basename_format, $
                               and device_line_width gt 15.0 and device_line_width lt 50.0, $
                             n_west)
 
-        doppler_shift_3  = mean([median(device_doppler_shift[device_east]),  median(device_doppler_shift[device_west])], /nan)
-        velocity_3       = mean([median(device_velocity[device_east]),  median(device_velocity[device_west])], /nan)
-        line_width_3     = mean([median(device_line_width[device_east]), median(device_line_width[device_west])], /nan)
-        peak_intensity_3 = mean([median(device_peak_intensity[device_east]), median(device_peak_intensity[device_west])], /nan)
+        doppler_shift_3  = mean([median([device_doppler_shift[device_east]]),  median([device_doppler_shift[device_west]])], /nan)
+        velocity_3       = mean([median([device_velocity[device_east]]),  median([device_velocity[device_west]])], /nan)
+        line_width_3     = mean([median([device_line_width[device_east]]), median([device_line_width[device_west]])], /nan)
+        peak_intensity_3 = mean([median([device_peak_intensity[device_east]]), median([device_peak_intensity[device_west]])], /nan)
 
         ; MUST SAVE ALL QUANTITIES SO WE CAN PLOT THEM A FUNCTION OF TIME
         ; CODE FROM MIKE'S UCOMP ROUTINE     - MIKE:PLEASE CHECK THIS
@@ -221,13 +221,15 @@ pro comp_extract_restw, output_basename_format, $
           doppler_shift_1, velocity_1, line_width_1, peak_intensity_1, $
           doppler_shift_2, velocity_2, line_width_2, peak_intensity_2, $
           doppler_shift_22, velocity_22, line_width_22, peak_intensity_22, $
-          doppler_shift_3, velocity_3, line_width_3, peak_intensity_3
-        print, date
-        print, doppler_shift_0, velocity_0, line_width_0, peak_intensity_0
-        print, doppler_shift_1, velocity_1, line_width_1, peak_intensity_1
-        print, doppler_shift_2, velocity_2, line_width_2, peak_intensity_2
-        print, doppler_shift_22, velocity_22, line_width_22, peak_intensity_22
-        print, doppler_shift_3, velocity_3, line_width_3, peak_intensity_3
+          doppler_shift_3, velocity_3, line_width_3, peak_intensity_3, $
+          format='(A, 20(", ", F0.5))'
+        print, date, $
+          doppler_shift_0, velocity_0, line_width_0, peak_intensity_0, $
+          doppler_shift_1, velocity_1, line_width_1, peak_intensity_1, $
+          doppler_shift_2, velocity_2, line_width_2, peak_intensity_2, $
+          doppler_shift_22, velocity_22, line_width_22, peak_intensity_22, $
+          doppler_shift_3, velocity_3, line_width_3, peak_intensity_3, $
+          format='(A, 20(", ", F0.5))'
       endif else begin
         print, filename, format='file does not exist: %s'
       endelse
