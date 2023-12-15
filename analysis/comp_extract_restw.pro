@@ -122,7 +122,7 @@ pro comp_extract_restw, output_basename_format, $
         ; old COMP method - entire fov 
         all = where(mask gt 0 and velocity ne 0 and abs(velocity) lt 30 $
                       and intensity[*,*,0] gt 0.2 and intensity[*,*,1] gt 1 and intensity[*,*,2] gt 0.2 $
-                      and intensity[*,*,0] lt 60   and intensity[*,*,1] lt 60 and intensity[*,*,2] lt 60 $
+                      and intensity[*,*,0] lt 60 and intensity[*,*,1] lt 60 and intensity[*,*,2] lt 60 $
                       and line_width gt 15.0 and line_width lt 50.0, $
                     n_all) ; this is sigma not W - 50km/s correspond to non-thermal velocity of ~70km/s
 
