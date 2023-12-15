@@ -25,16 +25,7 @@ pro comp_plot_rest_wavelength, filename, column
   free_lun, lun
 
   xrange = [jds[0], jds[-1]]
-  xtickv = mg_tick_locator(xrange, /months)
-  n_ticks = n_elements(xtickv)
-  max_ticks = 12L < 60L
-  if (n_ticks gt max_ticks) then begin
-    spacing = ceil(float(n_ticks) / max_ticks)
-    xtickv = xtickv[0:*:spacing]
-    n_tick_intervals = n_elements(xtickv) - 1L
-  endif else spacing = 1L
-
-  xminor = spacing
+  xtickv = mg_tick_locator(xrange, max_ticks=12L, /months, minor=xminor)
 
   !null = label_date(date_format='%Y-%m')
   window, xsize=1000, ysize=350, $
@@ -43,7 +34,7 @@ pro comp_plot_rest_wavelength, filename, column
         psym=4, symsize=0.6, $
         title=names[column], $
         xstyle=1, xrange=xrange, xtitle='Dates', $
-        xtickv=xtickv, xticks=n_tick_intervals, xminor=xminor, $
+        xtickv=xtickv, xticks=n_elements(xtickv) - 1L, xminor=xminor, $
         xtickformat='label_date', $
         ytitle='Rest wavelength [nm]'
 end
