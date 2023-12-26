@@ -88,6 +88,9 @@ pro comp_configuration, config_filename=config_filename, error=error
   demodulated_output          = config->get('demodulated_output', $
                                             section='engineering', $
                                             /boolean, default=0B)
+  crosstalk_corrected_output  = config->get('crosstalk_corrected_output', $
+                                            section='engineering', $
+                                            /boolean, default=0B)
   eng_flat_gifs               = config->get('flat_gifs', $
                                             section='engineering', $
                                             /boolean, default=0B)

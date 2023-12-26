@@ -24,6 +24,7 @@ common comp_config, doi_1074,$
                     centering_diagnostics, $
                     flat_corrected_output, $
                     demodulated_output, $
+                    crosstalk_corrected_output, $
                     eng_flat_gifs, $
                     save_stray_light_fit, $
                     stray_light_max_degree, $

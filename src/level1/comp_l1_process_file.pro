@@ -79,6 +79,12 @@ pro comp_l1_process_file, filename, date_dir, wave_type
     endif
   endif
 
+  if (crosstalk_corrected_output) then begin
+    comp_write_intermediate, header0, images_demod, headers_demod, $
+                             wave_type, date_dir, $
+                             filename, 'crosstalk'
+  endif
+
   ; split the foreground (on-band) and background (continuum) beams into
   ; separate images, and subtract the backgrounds from the foregrounds. Store
   ; each into its own set of images with updated headers.
