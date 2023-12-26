@@ -36,15 +36,6 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
   compile_opt strictarr
   @comp_constants_common
 
-  ; TODO: detoma suggestions:
-  ; - [ ] replace 1974.62nm with Steve rest wavelength or a default based
-  ;       on Steve's rest wavelength 
-  ; - [ ] add to the header the min, max and rms of the peak wavelength distribution
-  ; - [ ] add the median peak wavelength for the east and west limb
-  ; - [ ] see if we can avoid Hui fit to diverge at the edges
-  ; - [x] save both the non-corrected and corrected velocity
-
-
   ; TODO: use rest wavelength from continuum correction
   case wave_type of
    '1074': begin
@@ -60,7 +51,7 @@ pro comp_doppler_correction, fit_arr_in, fit_arr_out, wave_type, ewtrend, $
        int_min_thresh = int_min_1079_thresh
      end
   endcase
-  c = 299792.458D
+  c = 299792.458D   ; km/s
 
   ; TODO: find E and W limb medians inside mask (over occulted by 10 pixels on
   ; the outside and 5 pixels from the occulter)
