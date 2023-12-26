@@ -15,15 +15,6 @@
 ;                                       of the input images where wwww is the
 ;                                       wave_type
 ;
-; :Todo:
-;   - replace all the loops and statistics with the moment() function, 
-;  which has the dimension parameter. See comp_find_systematics for an example
-; (LS)
-;
-;   - modify routine to optionally input coaligned .ca files (ST)
-;
-;   - modify routine to optionally input and output compressed files (ST)
-;
 ; :Examples:
 ;   For example, calling it like::
 ;
@@ -382,13 +373,6 @@ pro comp_average, date_dir, wave_type, $
         fits_close, fcb
       endfor
 
-      ; TODO: create primary_header, headers and back_headers
-
-      ; TODO: comp_update_polarimetric_correction, primary_header, data, headers
-
-      ; TODO: may have to reform back to be (x, y, n_images) and then back
-      ; TODO: comp_update_polarimetric_correction, primary_header, back, back_headers
-
       sxaddpar, header, 'LEVEL   ', 'L2'
       ename = stokes[s] + ', ' + string(format='(f7.2)', waves[w])
 
@@ -426,8 +410,6 @@ pro comp_average, date_dir, wave_type, $
           xbar = sumx / n_s_files
           var = (sumx2 - 2.0 * xbar * sumx + n_s_files * xbar^2) / (n_s_files - 1.0)
 
-          ; TODO: ?
-          ;sigma[x, y] = sqrt(var) / sm
           sigma[x, y] = sqrt(var)
         endfor
       endfor
