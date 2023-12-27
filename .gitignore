@@ -3,6 +3,8 @@
 /api-userdocs
 /config/comp.*.cfg
 /ROUTINES
-/analysis/flat-medians.ps
-/analysis/flat-medians-2016-2018.ps
+/analysis/*.ps
+/analysis/*.csv
+/analysis/*.txt
+/analysis/*.gif
 .nova
