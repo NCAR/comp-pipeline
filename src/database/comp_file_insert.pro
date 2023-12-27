@@ -48,7 +48,8 @@ pro comp_file_insert_file, file, wave_type, level_id, filetype_id, gbu, $
     producttype_id = comp_get_producttype_id(product_type, database=db)
   endelse
 
-  ; TODO: what is quality?
+  ; we don't have a good overall measure of quality, just setting quality to
+  ; 75 for all files that pass the original quality check
   quality = 75
 
   fields = [{name: 'file_name', type: '''%s'''}, $
