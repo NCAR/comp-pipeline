@@ -251,18 +251,24 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; convert doppler from wavelength to velocity
   dop = (dop - rest) * c / rest
 
-  good_pixel_mask = (i2 gt int_min_thresh) $
-                      and (i2 lt int_max_thresh) $
-                      and (i1 gt 0.05) $
-                      and (i3 gt 0.05) $
-                      and (i1 lt int_max_thresh) $
-                      and (i3 lt int_max_thresh)
-  good_pixels = where(good_pixel_mask, $
-                      complement=bad_pixels, $
-                      ncomplement=n_bad_pixels)
-  if (n_bad_pixels gt 0L) then begin
-    dop[bad_pixels] = !values.f_nan
-    corrected_dop[bad_pixels] = !values.f_nan
+  good_vel_indices = where(mask gt 0 $
+                             and temp_velo ne 0 $
+                             and abs(temp_velo) lt 100 $
+                             and i1 gt 0.1 $
+                             and i2 gt int_min_thresh $
+                             and i3 gt 0.1 $
+                             and i1 lt 60.0 $
+                             and i2 lt 60.0 $
+                             and i3 lt 60.0 $
+                             and line_fwhm gt 22.0 $
+                             and line_fwhm lt 102.0, $
+                           ngood, $
+                           ncomplement=n_bad_vel_pixels, $
+                           complement=bad_vel_indices, $
+                           /null)
+  if (n_bad_vel_pixels gt 0L) then begin
+    dop[bad_vel_indices] = !values.f_nan
+    corrected_dop[bad_vel_indices] = !values.f_nan
   endif
 
   ; difference between calculated peak intensity and measured is not too great

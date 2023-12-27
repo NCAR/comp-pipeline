@@ -224,16 +224,31 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_corr_velo = reform(post_corr[*, *, 1])
     temp_line_width = sqrt(2.0) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
 
-    bad_pixels = where(bad_pixels_mask, n_bad_pixels)
-    if (n_bad_pixels gt 0L) then begin
-      temp_velo[bad_pixels] = 0.0D
-      temp_corr_velo[bad_pixels] = 0.0D
-      temp_line_width[bad_pixels] = 0.0D
-    endif
+    good_vel_indices = where(mask gt 0 $
+                               and temp_velo ne 0 $
+                               and abs(temp_velo) lt 100 $
+                               and i1 gt 0.1 $
+                               and i2 gt int_min_thresh $
+                               and i3 gt 0.1 $
+                               and i1 lt 60.0 $
+                               and i2 lt 60.0 $
+                               and i3 lt 60.0 $
+                               and line_fwhm gt 22.0 $
+                               and line_fwhm lt 102.0, $
+                             ngood, $
+                             ncomplement=n_bad_vel_pixels, $
+                             complement=bad_vel_indices, $
+                             /null)
 
     ; convert temp_velo from wavelength to velocity
     temp_velo = (temp_velo - rest) * c / rest
-    temp_velo[where(bad_pixels_mask gt 0, /null)] = 0.0D
+
+    bad_pixels = where(bad_pixels_mask, n_bad_pixels)
+    if (n_bad_vel_pixels gt 0L) then begin
+      temp_velo[bad_vel_indices] = 0.0D
+      temp_corr_velo[bad_vel_indices] = 0.0D
+      temp_line_width[bad_vel_indices] = 0.0D
+    endif
 
     ;temp_int[thresh_masked]        = 0.0D
     temp_corr_velo[thresh_masked]  = 0.0D
