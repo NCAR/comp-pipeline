@@ -218,6 +218,19 @@ pro comp_quick_invert, date_dir, wave_type, $
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, peak_intensity
   dop += rest
 
+  good_pol_indices = where(mask gt 0 $
+                             and i1 gt 0.05 $
+                             and i2 gt 0.25 $
+                             and i3 gt 0.05 $
+                             and i1 lt 60.0 $
+                             and i2 lt 60.0 $
+                             and i3 lt 60.0, complement=bad_pol_indices, /null)
+
+  q[bad_pol_indices]       = 0.0
+  u[bad_pol_indices]       = 0.0
+  l[bad_pol_indices]       = 0.0
+  azimuth[bad_pol_indices] = 0.0
+
   ; TODO: should this be divided by sqrt(2.0) to give sigma?
   width *= c / wave[wave_indices[1]]
 

@@ -240,9 +240,19 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_line_width[thresh_masked] = 0.0D
     ;int_enh[thresh_masked]         = 0.0D
 
+    good_pol_indices = where(mask gt 0 $
+                               and i1 gt 0.05 $
+                               and i2 gt 0.25 $
+                               and i3 gt 0.05 $
+                               and i1 lt 60.0 $
+                               and i2 lt 60.0 $
+                               and i3 lt 60.0, complement=bad_pol_indices, /null)
+
     if (qu_files[ii] eq 1) then begin
-      stks_q[thresh_masked] = 0.0D
-      stks_u[thresh_masked] = 0.0D
+      azimuth = comp_azimuth(stks_u, stks_q, radial_azimuth=radial_azimuth)
+      stks_q[bad_pol_indices] = 0.0D
+      stks_u[bad_pol_indices] = 0.0D
+      azimuth[bad_pol_indices] = 0.0
     endif
 
     ; find median of non-CME finite dop -> "real rest wavelength"
@@ -529,7 +539,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       writefits, outfilename, float(lin_pol), extension_header, /append
 
       ; Azimuth
-      azimuth = comp_azimuth(stks_u, stks_q, radial_azimuth=radial_azimuth)
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten,$
