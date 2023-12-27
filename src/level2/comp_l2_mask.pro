@@ -26,6 +26,10 @@
 ;   mask : out, optional, type="fltarr(1024, 1024)"
 ;     mask image
 ;
+; :Keywords:
+;   no_post : in, optional, type=boolean
+;     set to not mask the post
+;
 ; :Author:
 ;   MLSO Software Team
 ;
@@ -34,7 +38,7 @@
 ;   removed post_rotation fudge factor 11/14/14 ST
 ;   see git log for recent changes
 ;-
-function comp_l2_mask, fits_header
+function comp_l2_mask, fits_header, no_post=no_post
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
@@ -94,8 +98,12 @@ function comp_l2_mask, fits_header
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
     ; pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
     
-    ; now the image header has the right post angle 
-    pmask = comp_post_mask(post_angle, post_width)
+    ; now the image header has the right post angle
+    if (keyword_set(no_post)) then begin
+      pmask = comp_post_mask(post_angle, post_width)
+    endif else begin
+      pmask = dmask * 0B + 1B
+    endelse
 
     ; overlap mask
     omask = comp_overlap_mask(field.r, overlap_angle + p_angle, $
