@@ -56,6 +56,7 @@ pro comp_combine_beams, images, headers, date_dir, $
   @comp_constants_common
   @comp_config_common
   @comp_check_common
+  @comp_diagnostics_common
 
   comp_inventory_header, headers, beam, wave, pol, type, expose, $
                          cover, cal_pol, cal_ret
@@ -126,6 +127,16 @@ pro comp_combine_beams, images, headers, date_dir, $
                           image_geometry=image_geometry, $
                           uncorrected_geometry=uncorrected_geometry, $
                           offsensor_mask=offsensor_mask_minus
+
+      temporary_intermediate_product = 0B
+      if (temporary_intermediate_product) then begin
+        dt = strmid(file_basename(current_l1_filename), 0, 15)
+        basename = string(dt, i, j, format='%s.comp.pre-combine.p%d.w%d.sav')
+        filename = filepath(basename, $
+                            subdir=comp_decompose_date(date_dir), $
+                            root=engineering_dir)
+        save, fgplus, fgminus, filename=filename
+      endif
 
       offsensor_mask and= offsensor_mask_plus and offsensor_mask_minus
 
