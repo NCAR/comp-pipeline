@@ -35,6 +35,7 @@ pro comp_plot_rest_wavelength, filename, column
         title=names[column], $
         xstyle=1, xrange=xrange, xtitle='Dates', $
         xtickv=xtickv, xticks=n_elements(xtickv) - 1L, xminor=xminor, $
+        ystyle=1, yrange=[-8.0, -2.0], $
         xtickformat='label_date', $
         ytitle='Rest wavelength [nm]'
 end
@@ -42,7 +43,7 @@ end
 
 ; main-level example program
 
-filename = 'comp.restwvl.synoptic.txt'
+filename = 'comp.restwvl.median.synoptic.txt'
 
 comp_plot_rest_wavelength, filename, 2
 comp_plot_rest_wavelength, filename, 6

@@ -1,5 +1,5 @@
 
-pro comp_extract_restw, output_basename_format, $
+pro comp_extract_restw, output_basename_format, method, $
                         program, wave_region, waves, rest_wave, nominal_center, $
                         start_date, end_date
   compile_opt strictarr
@@ -25,7 +25,7 @@ pro comp_extract_restw, output_basename_format, $
 
   ; FROM MIKE'S UCOMP CODE - MODIFIED TO WORK ON COMP DIRECTORIES -- PLEASE
   ; CHECK IT
-  output_filename = string(program, format=output_basename_format)
+  output_filename = string(method, program, format=output_basename_format)
   openw, lun, output_filename, /get_lun
 
   date = start_date
@@ -99,7 +99,11 @@ pro comp_extract_restw, output_basename_format, $
           y = fltarr(3)
           for w = 0, 2 do begin
             temp_intensity = intensity[*, *, w]
-            y[w] = 0.5 * (median(temp_intensity[east]) + median(temp_intensity[west]))
+            if (method eq 'mean') then begin
+              y[w] = 0.5 * (mean(temp_intensity[east], /nan) + mean(temp_intensity[west], /nan))
+            endif else begin
+              y[w] = 0.5 * (median(temp_intensity[east]) + median(temp_intensity[west]))
+            endelse
           endfor
 
           ; fit only one gaussian
@@ -126,11 +130,17 @@ pro comp_extract_restw, output_basename_format, $
                       and line_width gt 15.0 and line_width lt 50.0, $
                     n_all) ; this is sigma not W - 50km/s correspond to non-thermal velocity of ~70km/s
 
-
-        doppler_shift_1 = median(doppler_shift[all])
-        velocity_1 = median(velocity[all])
-        line_width_1 = median(line_width[all])
-        peak_intensity_1 = median(peak_intensity[all])
+        if (method eq 'mean') then begin
+          doppler_shift_1  = mean(doppler_shift[all], /nan)
+          velocity_1       = mean(velocity[all], /nan)
+          line_width_1     = mean(line_width[all], /nan)
+          peak_intensity_1 = mean(peak_intensity[all], /nan)
+        endif else begin
+          doppler_shift_1  = median(doppler_shift[all])
+          velocity_1       = median(velocity[all])
+          line_width_1     = median(line_width[all])
+          peak_intensity_1 = median(peak_intensity[all])
+        endelse
 
         ; east/west COMP method - low intensity thresholds
         east = where(mask gt 0 and velocity ne 0 and abs(velocity) lt 30 and x lt 0.0  $
@@ -145,11 +155,17 @@ pro comp_extract_restw, output_basename_format, $
                        and line_width gt 15.0 and line_width lt 50.0, $
                      n_west)
 
-        doppler_shift_2  = mean([median([doppler_shift[east]]), median([doppler_shift[west]])], /nan)
-        velocity_2       = mean([median([velocity[east]]), median([velocity[west]])], /nan)
-        line_width_2     = mean([median([line_width[east]]), median([line_width[west]])], /nan)
-        peak_intensity_2 = mean([median([peak_intensity[east]]),  median([peak_intensity[west]])], /nan)
-
+        if (method eq 'mean') then begin
+          doppler_shift_2  = mean([mean([doppler_shift[east]], /nan), mean([doppler_shift[west]], /nan)], /nan)
+          velocity_2       = mean([mean([velocity[east]], /nan), mean([velocity[west]], /nan)], /nan)
+          line_width_2     = mean([mean([line_width[east]], /nan), mean([line_width[west]], /nan)], /nan)
+          peak_intensity_2 = mean([mean([peak_intensity[east]], /nan),  mean([peak_intensity[west]], /nan)], /nan)
+        endif else begin
+          doppler_shift_2  = mean([median([doppler_shift[east]]), median([doppler_shift[west]])], /nan)
+          velocity_2       = mean([median([velocity[east]]), median([velocity[west]])], /nan)
+          line_width_2     = mean([median([line_width[east]]), median([line_width[west]])], /nan)
+          peak_intensity_2 = mean([median([peak_intensity[east]]),  median([peak_intensity[west]])], /nan)
+        endelse
 
         ; east/west COMP method 2 - higher intensity thresholds
         east2 = where(mask gt 0 and velocity ne 0 and abs(velocity) lt 30 and x lt 0.0  $
@@ -164,10 +180,17 @@ pro comp_extract_restw, output_basename_format, $
                         and line_width gt 15.0 and line_width lt 50.0, $
                       n_west)
 
-        doppler_shift_22  = mean([median([doppler_shift[east2]]), median([doppler_shift[west2]])], /nan)
-        velocity_22       = mean([median([velocity[east2]]), median([velocity[west2]])], /nan)
-        line_width_22     = mean([median([line_width[east2]]), median([line_width[west2]])], /nan)
-        peak_intensity_22 = mean([median([peak_intensity[east2]]), median([peak_intensity[west2]])], /nan)
+        if (method eq 'mean') then begin
+          doppler_shift_22  = mean([mean([doppler_shift[east2]], /nan), mean([doppler_shift[west2]], /nan)], /nan)
+          velocity_22       = mean([mean([velocity[east2]], /nan), mean([velocity[west2]], /nan)], /nan)
+          line_width_22     = mean([mean([line_width[east2]], /nan), mean([line_width[west2]], /nan)], /nan)
+          peak_intensity_22 = mean([mean([peak_intensity[east2]], /nan), mean([peak_intensity[west2]], /nan)], /nan)
+        endif else begin
+          doppler_shift_22  = mean([median([doppler_shift[east2]]), median([doppler_shift[west2]])], /nan)
+          velocity_22       = mean([median([velocity[east2]]), median([velocity[west2]])], /nan)
+          line_width_22     = mean([median([line_width[east2]]), median([line_width[west2]])], /nan)
+          peak_intensity_22 = mean([median([peak_intensity[east2]]), median([peak_intensity[west2]])], /nan)
+        endelse
 
         ; east/west COMP method but in detector frame
 
@@ -209,10 +232,17 @@ pro comp_extract_restw, output_basename_format, $
                               and device_line_width gt 15.0 and device_line_width lt 50.0, $
                             n_west)
 
-        doppler_shift_3  = mean([median([device_doppler_shift[device_east]]),  median([device_doppler_shift[device_west]])], /nan)
-        velocity_3       = mean([median([device_velocity[device_east]]),  median([device_velocity[device_west]])], /nan)
-        line_width_3     = mean([median([device_line_width[device_east]]), median([device_line_width[device_west]])], /nan)
-        peak_intensity_3 = mean([median([device_peak_intensity[device_east]]), median([device_peak_intensity[device_west]])], /nan)
+        if (method eq 'mean') then begin
+          doppler_shift_3  = mean([mean([device_doppler_shift[device_east]], /nan),  mean([device_doppler_shift[device_west]], /nan)], /nan)
+          velocity_3       = mean([mean([device_velocity[device_east]], /nan),  mean([device_velocity[device_west]], /nan)], /nan)
+          line_width_3     = mean([mean([device_line_width[device_east]], /nan), mean([device_line_width[device_west]], /nan)], /nan)
+          peak_intensity_3 = mean([mean([device_peak_intensity[device_east]], /nan), mean([device_peak_intensity[device_west]], /nan)], /nan)
+        endif else begin
+          doppler_shift_3  = mean([median([device_doppler_shift[device_east]]),  median([device_doppler_shift[device_west]])], /nan)
+          velocity_3       = mean([median([device_velocity[device_east]]),  median([device_velocity[device_west]])], /nan)
+          line_width_3     = mean([median([device_line_width[device_east]]), median([device_line_width[device_west]])], /nan)
+          peak_intensity_3 = mean([median([device_peak_intensity[device_east]]), median([device_peak_intensity[device_west]])], /nan)
+        endelse
 
         ; MUST SAVE ALL QUANTITIES SO WE CAN PLOT THEM A FUNCTION OF TIME
         ; CODE FROM MIKE'S UCOMP ROUTINE     - MIKE:PLEASE CHECK THIS
@@ -264,9 +294,10 @@ nominal_center = 1074.70D ; change for 1079
 start_date = '20121201'
 end_date = '20180407'
 
-output_basename_format = 'comp.restwvl.%s.txt'
+method = 'mean'
+output_basename_format = 'comp.restwvl.%s.%s.txt'
 
-comp_extract_restw, output_basename_format, $
+comp_extract_restw, output_basename_format, method, $
                     program, wave_region, waves, rest_wave, nominal_center, $
                     start_date, end_date
 
