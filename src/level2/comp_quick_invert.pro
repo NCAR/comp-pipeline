@@ -225,7 +225,6 @@ pro comp_quick_invert, date_dir, wave_type, $
   pre_corr[*, *, 0] = peak_intensity
   pre_corr[*, *, 1] = dop
 
-  ; TODO: not using this corrected_dop right now
   comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend, $
                            rest_wavelength=rest_wavelength
   if (abs(temptrend) gt 0.01) then begin
@@ -239,7 +238,6 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; convert doppler from wavelength to velocity
   dop = (dop - rest) * c / rest
 
-  ; TODO: geometric mask?
   good_pixel_mask = (i2 gt int_min_thresh) $
                       and (i2 lt int_max_thresh) $
                       and (i1 gt 0.05) $
@@ -261,14 +259,21 @@ pro comp_quick_invert, date_dir, wave_type, $
     corrected_dop[ind] = !values.f_nan
   endif
 
+  ; TODO: use a fixed occulter radius size for the day, not one that various
+  ; from image to image
+  mask = comp_l2_mask(primary_header)
+  no_post_mask = comp_l2_mask(primary_header, /no_post)
+
   ; find median of non-CME finite dop -> "real rest wavelength"
   x = lindgen(nx)
   x = rebin(reform(x, nx, 1), nx, ny)
-  rest_wavelength_dop_ind = where(finite(dop) $
+  rest_wavelength_dop_ind = where(mask $
+                                    and finite(dop) $
                                     and width gt 15.0 $
                                     and width lt 60.0 $
                                     and abs(dop) lt 30.0, n_rest_wavelength_dop, /null)
-  good_dop_ind = where(finite(dop) $
+  good_dop_ind = where(mask $
+                         and finite(dop) $
                          and width gt 15.0 $
                          and width lt 60.0 $
                          and abs(dop) lt 80.0, n_good_dop, /null)
@@ -280,12 +285,14 @@ pro comp_quick_invert, date_dir, wave_type, $
     ; TODO: use fit to correct instead of below
     corrected_dop = dop - median_rest_wavelength
 
-    good_east_dop_ind = where(finite(dop) $
+    good_east_dop_ind = where(mask $
+                                and finite(dop) $
                                 and width gt 15.0 $
                                 and width lt 60.0 $
                                 and abs(dop) lt 30.0 $
                                 and x lt (nx - 1.0) / 2.0, n_good_east_dop)
-    good_west_dop_ind = where(finite(dop) $
+    good_west_dop_ind = where(mask $
+                                and finite(dop) $
                                 and width gt 15.0 $
                                 and width lt 60.0 $
                                 and abs(dop) lt 30.0 $
@@ -310,12 +317,14 @@ pro comp_quick_invert, date_dir, wave_type, $
     device_dop = rot(dop, - p_angle)
     device_temp_line_width = rot(width, - p_angle)
 
-    good_east_dop_ind = where(finite(device_dop) $
+    good_east_dop_ind = where(no_post_mask $
+                                and finite(device_dop) $
                                 and device_temp_line_width gt 15.0 $
                                 and device_temp_line_width lt 60.0 $
                                 and abs(device_dop) lt 30.0 $
                                 and x lt (nx - 1.0) / 2.0, n_good_east_dop)
-    good_west_dop_ind = where(finite(device_dop) $
+    good_west_dop_ind = where(no_post_mask $
+                                and finite(device_dop) $
                                 and device_temp_line_width gt 15.0 $
                                 and device_temp_line_width lt 60.0 $
                                 and abs(device_dop) lt 30.0 $
@@ -351,6 +360,17 @@ pro comp_quick_invert, date_dir, wave_type, $
     device_east_median_rest_wavelength = !values.f_nan
     device_east_mean_rest_wavelength = !values.f_nan
   endelse
+
+  ; apply geometric mask to all quantities in FITS file
+  i[where(mask eq 0, /null)]              = !values.f_nan
+  q[where(mask eq 0, /null)]              = !values.f_nan
+  u[where(mask eq 0, /null)]              = !values.f_nan
+  l[where(mask eq 0, /null)]              = !values.f_nan
+  azimuth[where(mask eq 0, /null)]        = !values.f_nan
+  corrected_dop[where(mask eq 0, /null)]  = !values.f_nan
+  radial_azimuth[where(mask eq 0, /null)] = !values.f_nan
+  dop[where(mask eq 0, /null)]            = !values.f_nan
+  peak_intensity[where(mask eq 0, /null)] = !values.f_nan
 
   ; write fit parameters to output file
 

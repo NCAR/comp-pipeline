@@ -152,6 +152,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
     temp_data = dblarr(nx, ny, 3)
+
+    ; TODO: use a fixed occulter radius size for the day, not one that various
+    ; from image to image
     mask = comp_l2_mask(hdr)
     bad_pixels_mask = bytarr(nx, ny)
 
@@ -193,9 +196,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_int = reform(temp_data[*, *, 0])
     temp_int[where(mask eq 0)] = 0D
 
-    ; TODO: use whatever is in intensity extension for dynamics file for this
-    ; value
     int_enh = comp_intensity_enhancement(i2, headfits(gbu[ii].l1file))
+    ; TODO: use temp_int as input for enhanced intensity for dynamics file to
+    ; be consistent?
+    ;int_enh = comp_intensity_enhancement(temp_int, headfits(gbu[ii].l1file))
     int_enh[where(mask eq 0)] = 0D
 
     thresh_unmasked = where(mask eq 1 $
@@ -231,10 +235,10 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_velo = (temp_velo - rest) * c / rest
     temp_velo[where(bad_pixels_mask gt 0, /null)] = 0.0D
 
-    temp_int[thresh_masked]        = 0.0D
+    ;temp_int[thresh_masked]        = 0.0D
     temp_corr_velo[thresh_masked]  = 0.0D
     temp_line_width[thresh_masked] = 0.0D
-    int_enh[thresh_masked]         = 0.0D
+    ;int_enh[thresh_masked]         = 0.0D
 
     if (qu_files[ii] eq 1) then begin
       stks_q[thresh_masked] = 0.0D
@@ -244,11 +248,13 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ; find median of non-CME finite dop -> "real rest wavelength"
     x = lindgen(nx)
     x = rebin(reform(x, nx, 1), nx, ny)
-    rest_wavelength_dop_ind = where(finite(temp_velo) $
+    rest_wavelength_dop_ind = where(mask $
+                                      and temp_velo ne 0.0 $
                                       and temp_line_width gt 15.0 $
                                       and temp_line_width lt 60.0 $
                                       and abs(temp_velo) lt 30.0, n_rest_wavelength_dop, /null)
-    good_dop_ind = where(finite(temp_velo) $
+    good_dop_ind = where(mask $
+                           and temp_velo ne 0.0 $
                            and temp_line_width gt 15.0 $
                            and temp_line_width lt 60.0 $
                            and abs(temp_velo) lt 80.0, n_good_dop, /null)
@@ -259,16 +265,18 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       ; TODO: use fit to correct instead of below
       temp_corr_velo[good_dop_ind] = temp_velo[good_dop_ind] - median_rest_wavelength
 
-      good_east_dop_ind = where(finite(temp_velo) $
+      good_east_dop_ind = where(mask $
+                                  and temp_velo ne 0.0 $
                                   and temp_line_width gt 15.0 $
                                   and temp_line_width lt 60.0 $
                                   and abs(temp_velo) lt 30.0 $
                                   and x lt (nx - 1.0) / 2.0, n_good_east_dop)
-      good_west_dop_ind = where(finite(temp_velo) $
-                                and temp_line_width gt 15.0 $
-                                and temp_line_width lt 60.0 $
-                                and abs(temp_velo) lt 30.0 $
-                                and x gt (nx - 1.0) / 2.0, n_good_west_dop)
+      good_west_dop_ind = where(mask $
+                                  and temp_velo ne 0.0 $
+                                  and temp_line_width gt 15.0 $
+                                  and temp_line_width lt 60.0 $
+                                  and abs(temp_velo) lt 30.0 $
+                                  and x gt (nx - 1.0) / 2.0, n_good_west_dop)
       if (n_good_east_dop gt 0L) then begin
         east_median_rest_wavelength = median(temp_velo[good_east_dop_ind])
         east_mean_rest_wavelength = mean(temp_velo[good_east_dop_ind])
@@ -289,16 +297,21 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       device_temp_velo = rot(temp_velo, - p_angle)
       device_temp_line_width = rot(temp_line_width, - p_angle)
 
-      good_east_dop_ind = where(finite(device_temp_velo) $
+      ; level 2 mask without the post in it
+      no_post_mask = comp_l2_mask(hdr, /no_post)
+
+      good_east_dop_ind = where(no_post_mask $
+                                  and device_temp_velo ne 0.0 $
                                   and device_temp_line_width gt 15.0 $
                                   and device_temp_line_width lt 60.0 $
                                   and abs(device_temp_velo) lt 30.0 $
                                   and x lt (nx - 1.0) / 2.0, n_good_device_east_dop)
-      good_west_dop_ind = where(finite(device_temp_velo) $
-                                and device_temp_line_width gt 15.0 $
-                                and device_temp_line_width lt 60.0 $
-                                and abs(device_temp_velo) lt 30.0 $
-                                and x gt (nx - 1.0) / 2.0, n_good_device_west_dop)
+      good_west_dop_ind = where(no_post_mask $
+                                  and device_temp_velo ne 0.0 $
+                                  and device_temp_line_width gt 15.0 $
+                                  and device_temp_line_width lt 60.0 $
+                                  and abs(device_temp_velo) lt 30.0 $
+                                  and x gt (nx - 1.0) / 2.0, n_good_device_west_dop)
       if (n_good_device_east_dop gt 0L) then begin
         device_east_median_rest_wavelength = median(device_temp_velo[good_east_dop_ind])
         device_east_mean_rest_wavelength = mean(device_temp_velo[good_east_dop_ind])
@@ -337,11 +350,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
                                                              headfits(gbu[ii].l1file))
 
-    averaged_intensity[negative_wings_indices] = 0.0D
+    ;averaged_intensity[negative_wings_indices] = 0.0D
     averaged_intensity[where(mask eq 0)] = 0.0D
     ; averaged_intensity[thresh_masked]    = 0.0D
 
-    averaged_enhanced_intensity[negative_wings_indices] = 0.0D
+    ;averaged_enhanced_intensity[negative_wings_indices] = 0.0D
     averaged_enhanced_intensity[where(mask eq 0)] = 0.0D
     ; averaged_enhanced_intensity[thresh_masked] = 0.0D
 
@@ -481,7 +494,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                              max(averaged_enhanced_intensity)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
-      writefits, outfilename, averaged_enhanced_intensity, extension_header, /append
+      writefits, outfilename, averaged_enhanced_intensity, extension_header, $
+                 /append
 
       ; Stokes Q
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
