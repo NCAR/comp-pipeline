@@ -260,15 +260,16 @@ pro comp_quick_invert, date_dir, wave_type, $
                              and i1 lt 60.0 $
                              and i2 lt 60.0 $
                              and i3 lt 60.0 $
-                             and line_fwhm gt 22.0 $
-                             and line_fwhm lt 102.0, $
+                             and width gt 22.0 $
+                             and width lt 102.0, $
                            ngood, $
                            ncomplement=n_bad_vel_pixels, $
                            complement=bad_vel_indices, $
                            /null)
   if (n_bad_vel_pixels gt 0L) then begin
-    dop[bad_vel_indices] = !values.f_nan
+    dop[bad_vel_indices]           = !values.f_nan
     corrected_dop[bad_vel_indices] = !values.f_nan
+    width[bad_vel_indices]         = !values.f_nan
   endif
 
   ; difference between calculated peak intensity and measured is not too great

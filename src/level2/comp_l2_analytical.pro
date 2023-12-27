@@ -233,8 +233,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                and i1 lt 60.0 $
                                and i2 lt 60.0 $
                                and i3 lt 60.0 $
-                               and line_fwhm gt 22.0 $
-                               and line_fwhm lt 102.0, $
+                               and temp_line_width gt 22.0 $
+                               and temp_line_width lt 102.0, $
                              ngood, $
                              ncomplement=n_bad_vel_pixels, $
                              complement=bad_vel_indices, $
