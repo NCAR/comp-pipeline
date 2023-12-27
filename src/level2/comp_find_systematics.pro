@@ -105,8 +105,6 @@ pro comp_find_systematics, date_dir, wave_type, file_type, error=error, synoptic
   for i = 0L, ndat - 1L do begin
     mg_log, 'histogram for extension %d/%d', i + 1, ndat, name='comp', /debug
     d = dat[*, *, i]
-    ; TODO: why the next line? It modifies dat, which is not used again until
-    ; next plot?
     if (i gt nwave * 3 - 1) then begin   ; if ext is V data
       dat[*, *, i] += dat[*, *, i - nwave] * 0.185
     endif
