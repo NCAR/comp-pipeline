@@ -283,6 +283,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                            and temp_line_width gt 15.0 $
                            and temp_line_width lt 60.0 $
                            and abs(temp_velo) lt 80.0, n_good_dop, /null)
+
     if (n_rest_wavelength_dop gt 0L) then begin
       median_rest_wavelength = median(temp_velo[rest_wavelength_dop_ind])
       mean_rest_wavelength = mean(temp_velo[rest_wavelength_dop_ind])
@@ -353,6 +354,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
         device_west_mean_rest_wavelength = !values.f_nan
       endelse
     endif else begin
+      n_good_east_dop = 0L
+      n_good_west_dop = 0L
+      n_good_device_east_dop = 0L
+      n_good_device_west_dop = 0L
+
       median_rest_wavelength = !values.f_nan
       mean_rest_wavelength = !values.f_nan
       temp_corr_velo = temp_velo

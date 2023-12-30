@@ -218,6 +218,11 @@ pro comp_quick_invert, date_dir, wave_type, $
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, peak_intensity
   dop += rest
 
+  ; TODO: use a fixed occulter radius size for the day, not one that various
+  ; from image to image
+  mask = comp_l2_mask(primary_header)
+  no_post_mask = comp_l2_mask(primary_header, /no_post)
+
   good_pol_indices = where(mask gt 0 $
                              and i1 gt 0.05 $
                              and i2 gt 0.25 $
@@ -252,8 +257,8 @@ pro comp_quick_invert, date_dir, wave_type, $
   dop = (dop - rest) * c / rest
 
   good_vel_indices = where(mask gt 0 $
-                             and temp_velo ne 0 $
-                             and abs(temp_velo) lt 100 $
+                             and dop ne 0 $
+                             and abs(dop) lt 100 $
                              and i1 gt 0.1 $
                              and i2 gt int_min_thresh $
                              and i3 gt 0.1 $
@@ -278,11 +283,6 @@ pro comp_quick_invert, date_dir, wave_type, $
     dop[ind] = !values.f_nan
     corrected_dop[ind] = !values.f_nan
   endif
-
-  ; TODO: use a fixed occulter radius size for the day, not one that various
-  ; from image to image
-  mask = comp_l2_mask(primary_header)
-  no_post_mask = comp_l2_mask(primary_header, /no_post)
 
   ; find median of non-CME finite dop -> "real rest wavelength"
   x = lindgen(nx)
