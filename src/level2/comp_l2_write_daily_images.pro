@@ -270,8 +270,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   rgb[255, *] = 255
   tvlct, rgb
   ; 25-55 in previous units, 42-92 in FWHM
-  width_fwhm = bytscl(width_fwhm, min=42, max=92, top=254)
-  if (n_undef_velocity gt 0) then width[undef_velocity_ind] = 254
+  line_width_range = [42, 92]
+  width_fwhm = bytscl(width_fwhm, $
+                      min=line_width_range[0], $
+                      max=line_width_range[1], $
+                      top=254)
+  if (n_undef_velocity gt 0) then width_fwhm[undef_velocity_ind] = 254
   tv, width_fwhm, 2 * im_size + 3 * gap, gap
 
   title_charsize = 3.0
@@ -350,7 +354,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   rgb[255, *] = 255
   tvlct, rgb
   colorbar2, position=[0.753, 0.17, 0.753 + 0.158, 0.17 + 0.015], $
-             charsize=1.25, title='line width (FWHM) [km/s]', range=[25, 55], $
+             charsize=1.25, title='line width (FWHM) [km/s]', range=line_width_range, $
              font=-1, divisions=3, color=255, ncolors=254
   restore, filepath('my_doppler_ct.sav', root=mg_src_root())
   tvlct, r, g, b
@@ -552,7 +556,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tv, width_fwhm
 
   colorbar2, position=colbarpos, charsize=1.25, title='line width (FWHM) [km/s]',$
-             range=[25, 55], font=-1, divisions=3, color=255, ncolors=254
+             range=line_width_range, font=-1, divisions=3, color=255, ncolors=254
   loadct, 0, /silent
   xyouts, 310.0, 4 * 78, 'Line Width (FWHM)', charsize=title_charsize, /device, $
           alignment=0.5, color=255, font=1
