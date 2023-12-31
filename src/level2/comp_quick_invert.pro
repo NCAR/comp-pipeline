@@ -467,9 +467,10 @@ pro comp_quick_invert, date_dir, wave_type, $
   sxdelpar, header, 'ERSTWVLD'
   sxdelpar, header, 'WRSTWVLD'
 
-  sxaddpar, header, 'DATAMIN', min(width, /nan), ' minimum data value', format='(F0.3)'
-  sxaddpar, header, 'DATAMAX', max(width, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, width, header, extname='Line Width'
+  width_fwhm = width * fwhm_factor
+  sxaddpar, header, 'DATAMIN', min(width_fwhm, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(width_fwhm, /nan), ' maximum data value', format='(F0.3)'
+  fits_write, fcbout, width_fwhm, header, extname='Line Width (FWHM)'
 
   sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' minimum data value', $
             format='(F0.3)'

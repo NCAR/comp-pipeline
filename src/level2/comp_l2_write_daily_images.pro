@@ -149,7 +149,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   fits_read, dynamics_quick_invert_fcb, velocity, velocity_header, exten_no=6, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
-  fits_read, dynamics_quick_invert_fcb, width, width_header, exten_no=7, $
+  fits_read, dynamics_quick_invert_fcb, width_fwhm, width_header, exten_no=7, $
              /no_abort, message=msg
   if (msg ne '') then message, msg
 
@@ -206,7 +206,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   azimuth[mask_ind] = 0.0
   poi[mask_ind] = 0.0
   ;velocity[mask_ind] = 0.0
-  width[mask_ind] = 0.0
+  width_fwhm[mask_ind] = 0.0
 
   ; get some info
   all_files = file_basename(file_search(filepath(date_dir + '.*.comp.' + wave_type $
@@ -269,9 +269,10 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   rgb[254, *] = 0
   rgb[255, *] = 255
   tvlct, rgb
-  width = bytscl(width, min=25, max=55, top=254)
+  ; 25-55 in previous units, 42-92 in FWHM
+  width_fwhm = bytscl(width_fwhm, min=42, max=92, top=254)
   if (n_undef_velocity gt 0) then width[undef_velocity_ind] = 254
-  tv, width, 2 * im_size + 3 * gap, gap
+  tv, width_fwhm, 2 * im_size + 3 * gap, gap
 
   title_charsize = 3.0
 
@@ -285,7 +286,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
           alignment=0.5, color=255, font=1
   xyouts, 2 * gap + 1.5 * im_size, 4 * 78, 'Doppler Velocity', charsize=title_charsize, /device, $
           alignment=0.5, color=255, font=1
-  xyouts, 3 * gap + 2.5 * im_size, 4 * 78, 'Line Width', charsize=title_charsize, /device, $
+  xyouts, 3 * gap + 2.5 * im_size, 4 * 78, 'Line Width (FWHM)', charsize=title_charsize, /device, $
           alignment=0.5, color=255, font=1
 
   ; print info panel
@@ -349,7 +350,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   rgb[255, *] = 255
   tvlct, rgb
   colorbar2, position=[0.753, 0.17, 0.753 + 0.158, 0.17 + 0.015], $
-             charsize=1.25, title='line width [km/s]', range=[25, 55], $
+             charsize=1.25, title='line width (FWHM) [km/s]', range=[25, 55], $
              font=-1, divisions=3, color=255, ncolors=254
   restore, filepath('my_doppler_ct.sav', root=mg_src_root())
   tvlct, r, g, b
@@ -548,12 +549,12 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   rgb[254, *] = 0
   rgb[255, *] = 255
   tvlct, rgb
-  tv, width
+  tv, width_fwhm
 
-  colorbar2, position=colbarpos, charsize=1.25, title='line width [km/s]',$
+  colorbar2, position=colbarpos, charsize=1.25, title='line width (FWHM) [km/s]',$
              range=[25, 55], font=-1, divisions=3, color=255, ncolors=254
   loadct, 0, /silent
-  xyouts, 310.0, 4 * 78, 'Line Width', charsize=title_charsize, /device, $
+  xyouts, 310.0, 4 * 78, 'Line Width (FWHM)', charsize=title_charsize, /device, $
           alignment=0.5, color=255, font=1
 
   xyouts, 4 * 1, 4 * 151.5, 'MLSO CoMP ' + wave_type, charsize=1, /device, color=255

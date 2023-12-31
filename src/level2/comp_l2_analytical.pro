@@ -468,14 +468,15 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     sxdelpar, extension_header, 'WRSTWVLD'
 
     ; line width
+    temp_line_width_fwhm = temp_line_width * fwhm_factor
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
-                                           extname='Line Width', $
-                                           datminmax=[min(temp_line_width), $
-                                                      max(temp_line_width)])
+                                           extname='Line Width (FWHM)', $
+                                           datminmax=[min(temp_line_width_fwhm), $
+                                                      max(temp_line_width_fwhm)])
     sxdelpar, extension_header, 'SIMPLE'
-    writefits, outfilename, float(temp_line_width), extension_header, /append
+    writefits, outfilename, float(temp_line_width_fwhm), extension_header, /append
 
     if (add_uncorrected_velocity) then begin
       ; uncorrected LOS velocity
