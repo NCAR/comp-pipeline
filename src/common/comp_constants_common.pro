@@ -2,6 +2,7 @@ common comp_constants, nx, ny, $
                        distortion_coeffs, $
                        distortion_coeffs_file, $
                        wavefwhm, $
+                       fwhm_factor, $
                        center1074, center1079, center1083, $
                        offset_1074, offset_1079, offset_1083, $
                        wavelengths_3pt_1074, $

@@ -229,6 +229,7 @@ pro comp_initialize, date_dir
                                                       date_dir, options)
 
   wavefwhm = comp_initialize_readconfig('wavefwhm', date_dir, options, type=4)
+  fwhm_factor = comp_initialize_readconfig('fwhm_factor', date_dir, options, type=4)
 
   ; parse the date_dir to find the Julian date to use to switch era of constants
   year  = fix(strmid(date_dir, 0, 4))
