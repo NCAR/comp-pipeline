@@ -47,9 +47,6 @@ pro comp_l1_process_file, filename, date_dir, wave_type
                              filename, 'flatcor'
   endif
 
-  ; TODO: do uncorrected_images need to be demodulated and corrected for
-  ; crosstalk?
-
   mg_log, 'n images: %d', n_elements(images[0, 0, *]), name='comp', /debug
 
   comp_demodulate, images, headers, images_demod, headers_demod

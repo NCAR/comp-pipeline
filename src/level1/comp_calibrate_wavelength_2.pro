@@ -295,8 +295,8 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
       bfit2 = poly(w, c)
       mg_log, 'chisq back2: %f', chisq_back2, name='comp', /debug
 
-      ; TODO: plot data and fit to continuum was originally here
-  
+      ; note: plot data and fit to continuum was originally here
+
       ; divide data by fit
       original_obs1 = obs1
       original_obs2 = obs2
@@ -403,7 +403,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
 
       correction_factors[iflat, *] = spec_on
 
-      ; TODO: next round of plots was originally here
+      ; note: next round of plots was originally here
 
       shift_sol = interpolate(solar_spec, $
                               dindgen(nlambda) + p2[0] / dlam, $

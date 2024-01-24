@@ -57,9 +57,6 @@ function comp_image_geometry, images, headers, date_dir, $
     '1083': center_wavelength = center1083
   endcase
 
-  ; TODO: use FLATEXT in header to give the appropriate flat/header for this
-  ; image
-
   ; get the time in the format preferred by read_flats
   time = comp_extract_time(headers, day, month, year, hours, mins, secs)
   comp_read_flats, date_dir, wave, beam, time, flat, flat_header, flat_waves, $

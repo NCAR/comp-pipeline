@@ -99,7 +99,6 @@ pro comp_make_header, image, header, date_dir, $
     else:
   endcase
 
-  ; TODO: should check that exposure is 250.0 ms, might not work if not
   uncorrected_occulter_guess1 = comp_find_flat_initial_guess(uncorrected_flat1)
   uncorrected_occulter_guess2 = comp_find_flat_initial_guess(uncorrected_flat2)
   corrected_occulter_guess1   = comp_find_flat_initial_guess(flat1)

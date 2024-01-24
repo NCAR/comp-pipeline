@@ -5,7 +5,7 @@
 ; image.
 ;
 ; :Todo:
-;   field masking is in undestorted coordinates, so isn't a good fit for this
+;   field masking is in undistorted coordinates, so isn't a good fit for this
 ;
 ; :Params:
 ;   image_full : in, required, type="fltarr(1024, 1024)"

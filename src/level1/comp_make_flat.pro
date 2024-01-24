@@ -140,7 +140,7 @@ pro comp_make_flat, date_dir, error=error
     opalfile = ''
     readf, opal_lun, opalfile, format='(a19)'
 
-    ; TODO: remove when done
+    ; record the filename of the current flat for reporting later
     current_flatname = opalfile
 
     ; open flat file and average images at each wavelength

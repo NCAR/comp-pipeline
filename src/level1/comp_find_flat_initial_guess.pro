@@ -19,7 +19,8 @@ function comp_find_flat_initial_guess, flat
   compile_opt strictarr
   @comp_constants_common
 
-  ; TODO: this threshold should be a function of time and exposure
+  ; TODO: this threshold should be a function of wave_type (this might be an
+  ; issue for 1083, but not 1074 or 1079)
   threshold = 250.0
 
   ; mask flat into various in/out of annuli connected regions
@@ -35,7 +36,7 @@ function comp_find_flat_initial_guess, flat
   center = reform(mean(xy, dimension=2))
 
   ; initial guess for the center of the image
-  
+
   return, center 
 
 end

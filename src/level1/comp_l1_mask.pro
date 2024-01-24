@@ -53,8 +53,6 @@ function comp_l1_mask, fits_header, field_extra_overmask=field_extra_overmask
 
   if (count eq 0) then begin
     ; old keywords 
-    ; TODO: does it need to subtract 1 ?
-    ; Or does this apply only to old headers that did not have 1 added ????
     occulter = {x:sxpar(fits_header, 'CRPIX1') , $
                 y:sxpar(fits_header, 'CRPIX2'), $
                 r:((sxpar(fits_header, 'OCRAD1') $

@@ -154,16 +154,16 @@ pro comp_continuum_correction, date
       endelse
 
       images[f] /= correction
-      ; TODO: get final keyword names and comments
+
       h = headers[f]
       sxaddpar, h, 'CONTCORR', correction, $
                 ' continuum emission corr. to flat, eg, H2O vapor', $
                 format='(F0.4)'
       sxaddpar, h, 'CONTOFF1', offset1, $
-                ' wavelength offset for beam 1', $
+                ' [nm] wavelength offset for beam 1', $
                 format='(F0.4)'
       sxaddpar, h, 'CONTOFF2', offset2, $
-                ' wavelength offset for beam 2', $
+                ' [nm] wavelength offset for beam 2', $
                 format='(F0.4)'
       headers[f] = h
 
@@ -175,13 +175,14 @@ pro comp_continuum_correction, date
   not_found_indices = where(found_correction eq 0B, n_not_found)
   for f = 0L, n_not_found - 1L do begin
     h = headers[not_found_indices[f]]
-    sxaddpar, h, 'CONTCORR', 1.0, ' continuum emission corr. to flat, eg, H2O vapor', $
+    sxaddpar, h, 'CONTCORR', 1.0, $
+              ' continuum emission corr. to flat, eg, H2O vapor', $
               format='(F0.4)'
     sxaddpar, h, 'CONTOFF1', 0.0, $
-              ' wavelength offset for beam 1', $
+              ' [nm] wavelength offset for beam 1', $
               format='(F0.4)'
     sxaddpar, h, 'CONTOFF2', 0.0, $
-              ' wavelength offset for beam 2', $
+              ' [nm] wavelength offset for beam 2', $
               format='(F0.4)'
     headers[not_found_indices[f]] = h
   endfor
