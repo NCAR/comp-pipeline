@@ -19,9 +19,11 @@ function comp_find_flat_initial_guess, flat
   compile_opt strictarr
   @comp_constants_common
 
-  ; TODO: this threshold should be a function of wave_type (this might be an
-  ; issue for 1083, but not 1074 or 1079)
-  threshold = 250.0
+  ; threshold of 250.0 works well for 250.0 ms data for 1074 nm and 1079 nm
+  ; in 2012 and later
+  ; threshold = 250.0
+
+  threshold = 20.0 * median(flat)
 
   ; mask flat into various in/out of annuli connected regions
   lr = label_region(flat lt threshold)
