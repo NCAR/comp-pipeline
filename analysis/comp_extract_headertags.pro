@@ -174,27 +174,24 @@ end
 ; main-level example program
 
 ;wave_types = ['1074', '1079', '1083']
-wave_types = ['1074', '1079']
-;wave_types = ['1074']
+;wave_types = ['1074', '1079']
+wave_types = ['1074']
 ;root = '/export/data1/Data/CoMP/process.overlap'
 ;root = '/export/data1/Data/CoMP/raw'
 root = '/hao/dawn/Data/CoMP/process'
 
-month = '201201'
-month_start = month + '01'
-month_end = month + '31'
+start_date = '20140101'
+end_date = '20180407'
 
 for w = 0L, n_elements(wave_types) - 1L do begin
   results = comp_extract_headertags(root, 'BACKG3WL', $
-;                                    start_date='20120101', end_date='20140101', $
-                                    start_date=month_start, end_date=month_end, $
+                                    start_date=start_date, $
+                                    end_date=end_date, $
                                     wave_type=wave_types[w], $
-;                                  start_date='20140601', end_date='20151231', $
-;                                  start_date='20140806', end_date='20140807', $
                                     /interactive)
 
   if (n_elements(results) gt 0L) then begin
-    write_csv, 'comp.background.' + wave_types[w] + '.' + month + '.csv', $
+    write_csv, 'comp.background.' + wave_types[w] + '.'  + '.csv', $
                results.date, results.dt, results.backg3wl, $
                header=['date', 'datetime', 'BACKG3WL']
   endif
