@@ -205,7 +205,11 @@ pro comp_make_flat, date_dir, error=error
     image = comp_fix_hot(image, hot=hot, adjacent=adjacent)
 
     ; make FITS extension header for the images with masking parameters included
-    comp_make_header, image, header, date_dir, $
+    occulter_id = sxpar(header_opal, 'OCC-ID')
+    occulter_index = where(occulter_ids eq occulter_id)
+    occulter_radius_guess = occulter_radii[occulter_index[0]]
+
+    comp_make_header, image, header, date_dir, occulter_radius_guess, $
                       uncorrected_occulter1, uncorrected_field1, uncorrected_post_angle1, $
                       uncorrected_occulter2, uncorrected_field2, uncorrected_post_angle2, $
                       error=header_error

@@ -221,6 +221,11 @@ pro comp_initialize, date_dir
   occulter_radii = comp_initialize_readconfig('occulter_radii', date_dir, options, $
                                               /extract, type=4)
 
+  field_radius_guess = comp_initialize_readconfig('field_radius_guess', $
+                                                  date_dir, $
+                                                  options, $
+                                                  type=4)
+
   ; distortion coefficients
   distortion_coeffs = comp_initialize_readconfig('distortion_coeffs', $
                                                  date_dir, options, $

@@ -5,6 +5,7 @@ common mask_constants, post_rotation, $
                        occulter_offset, $
                        field_offset, $
                        field_overlap, $
+                       field_radius_guess, $
                        plate_scale, $
                        occulter_ids, $
                        occulter_radii
