@@ -153,8 +153,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     if (ii gt 0) then index = merge_struct(index, fitshead2struct(hdr))
     temp_data = dblarr(nx, ny, 3)
 
-    ; TODO: use a fixed occulter radius size for the day, not one that various
-    ; from image to image
     mask = comp_l2_mask(hdr)
     bad_pixels_mask = bytarr(nx, ny)
 
@@ -197,9 +195,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_int[where(mask eq 0)] = 0D
 
     int_enh = comp_intensity_enhancement(i2, headfits(gbu[ii].l1file))
-    ; TODO: use temp_int as input for enhanced intensity for dynamics file to
-    ; be consistent?
-    ;int_enh = comp_intensity_enhancement(temp_int, headfits(gbu[ii].l1file))
     int_enh[where(mask eq 0)] = 0D
 
     thresh_unmasked = where(mask eq 1 $
@@ -522,12 +517,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Enhanced Intensity', $
-                                             datminmax=long([min(averaged_enhanced_intensity), $
-                                                             max(averaged_enhanced_intensity)]))
+                                             datminmax=long([min(int_enh), $
+                                                             max(int_enh)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
-      writefits, outfilename, averaged_enhanced_intensity, extension_header, $
-                 /append
+      writefits, outfilename, int_enh, extension_header, /append
 
       ; Stokes Q
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $

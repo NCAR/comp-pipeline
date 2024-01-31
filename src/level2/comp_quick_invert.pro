@@ -218,8 +218,6 @@ pro comp_quick_invert, date_dir, wave_type, $
   comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, peak_intensity
   dop += rest
 
-  ; TODO: use a fixed occulter radius size for the day, not one that various
-  ; from image to image
   mask = comp_l2_mask(primary_header)
   no_post_mask = comp_l2_mask(primary_header, /no_post)
 
