@@ -61,7 +61,7 @@ pro comp_demodulate, rawimages, rawheaders, images, headers
       ; form I and Q, U, or V and put them in the appropriate places in the
       ; image and header arrays:
       for k = 0L, nw - 1L do begin
-        ; TODO: this code assumes NAVERAGE is the same for ipheads and impheads
+        ; this code assumes NAVERAGE is the same for ipheads and imheads
         naverage = sxpar(ipheads[*, k], 'NAVERAGE') + sxpar(imheads[*, k], 'NAVERAGE')
 
         headertemp = comp_combine_headers([[ipheads[*, k]], [imheads[*, k]]], [0, 1])
