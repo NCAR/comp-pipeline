@@ -152,6 +152,11 @@ pro comp_initialize, date_dir
   ; difference between measured and calculated line center intensity
   diff_thresh = comp_initialize_readconfig('diff_thresh', date_dir, options, type=4)
 
+  nominal_1074 = comp_initialize_readconfig('nominal_1074', date_dir, options, $
+                                            type=4)
+  nominal_1079 = comp_initialize_readconfig('nominal_1079', date_dir, options, $
+                                            type=4)
+
   ; line center wavelengths
   center1074 = comp_initialize_readconfig('center_1074', date_dir, options, type=4)
   center1079 = comp_initialize_readconfig('center_1079', date_dir, options, type=4)

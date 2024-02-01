@@ -165,14 +165,17 @@ pro comp_quick_invert, date_dir, wave_type, $
   case wave_type of
     '1074': begin
         rest = double(center1074)
+        nominal = double(nominal_1074)
         int_min_thresh = int_min_1074_thresh
       end
     '1079': begin
         rest = double(center1079)
+        nominal = double(nominal_1079)
         int_min_thresh = int_min_1079_thresh
       end
     '1083': begin
         rest = double(center1083)
+        nominal = double(center1083)
         int_min_thresh = int_min_1079_thresh
       end
   endcase
@@ -252,7 +255,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   corrected_dop[zero] = !values.f_nan
 
   ; convert doppler from wavelength to velocity
-  dop = (dop - rest) * c / rest
+  dop = (dop - rest) * c / nominal
 
   good_vel_indices = where(mask gt 0 $
                              and dop ne 0 $

@@ -50,14 +50,17 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
   case wave_type of
     '1074': begin
         rest = double(center1074)
+        nominal = double(nominal_1074)
         int_min_thresh = int_min_1074_thresh
       end
     '1079': begin
         rest = double(center1079)
+        nominal = double(nominal_1074)
         int_min_thresh = int_min_1079_thresh
       end
     '1083': begin
         rest = double(center1083)
+        nominal = double(center1083)
         int_min_thresh = int_min_1079_thresh
       end
   endcase
@@ -123,7 +126,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                sxpar(ehdr3, 'WAVELENG')]
       index = fitshead2struct(hdr)
       d_lambda = double(mean(deriv(wavel)))
-      vpix = (d_lambda / rest) * c    ; km/s/pix
+      vpix = (d_lambda / nominal) * c    ; km/s/pix
       nx = (size(i1))[1]
       ny = (size(i1))[2]
       nz = (size(i1))[3] + 3
@@ -236,7 +239,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                              /null)
 
     ; convert temp_velo from wavelength to velocity
-    temp_velo = (temp_velo - rest) * c / rest
+    temp_velo = (temp_velo - rest) * c / nominal
 
     bad_pixels = where(bad_pixels_mask, n_bad_pixels)
     if (n_bad_vel_pixels gt 0L) then begin
