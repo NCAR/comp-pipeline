@@ -257,6 +257,14 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; convert doppler from wavelength to velocity
   dop = (dop - rest) * c / nominal
 
+  ; this is now the main rest wavelength calculation, we can remove all other
+  ; calculations when we verify we like this one
+  rest_wavelength = comp_compute_rest_wavelength(primary_header, $
+                                                 dop, $
+                                                 [[[i1]], [[i2]], [[i3]]], $
+                                                 width)
+  corrected_dop = dop - rest_wavelength
+
   good_vel_indices = where(mask gt 0 $
                              and dop ne 0 $
                              and abs(dop) lt 100 $
@@ -302,9 +310,6 @@ pro comp_quick_invert, date_dir, wave_type, $
   if (n_rest_wavelength_dop gt 0L) then begin
     median_rest_wavelength = median(dop[rest_wavelength_dop_ind])
     mean_rest_wavelength = mean(dop[rest_wavelength_dop_ind])
-
-    ; TODO: use fit to correct instead of below
-    corrected_dop = dop - median_rest_wavelength
 
     good_east_dop_ind = where(mask $
                                 and finite(dop) $
@@ -439,11 +444,13 @@ pro comp_quick_invert, date_dir, wave_type, $
             format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
             format='(F0.3)'
-  
-  fxaddpar, header, 'RSTWVL', median_rest_wavelength, $
-            ' [km/s] median rest wavelength', format='(F0.3)', /null
+
+  fxaddpar, header, 'RSTWVL', rest_wavelength, $
+            ' [km/s] rest wavelength', format='(F0.3)', /null
   fxaddpar, header, 'RSTWVL2', mean_rest_wavelength, $
             ' [km/s] mean rest wavelength', format='(F0.3)', /null
+  fxaddpar, header, 'RSTWVL3', median_rest_wavelength, $
+            ' [km/s] median rest wavelength', format='(F0.3)', /null
   fxaddpar, header, 'ERSTWVL', east_median_rest_wavelength, $
             ' [km/s] median east rest wavelength', format='(F0.3)', /null
   fxaddpar, header, 'ERSTWVL2', east_mean_rest_wavelength, $
@@ -461,6 +468,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxdelpar, header, 'RSTWVL'
   sxdelpar, header, 'RSTWVL2'
+  sxdelpar, header, 'RSTWVL3'
   sxdelpar, header, 'ERSTWVL'
   sxdelpar, header, 'WRSTWVL'
   sxdelpar, header, 'ERSTWVL2'

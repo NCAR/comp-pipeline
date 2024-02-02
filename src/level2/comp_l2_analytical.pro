@@ -268,6 +268,16 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       azimuth[bad_pol_indices] = 0.0
     endif
 
+    ; this is now the main rest wavelength calculation, we can remove all other
+    ; calculations when we verify we like this one
+    rest_wavelength = comp_compute_rest_wavelength(hdr, $
+                                                   temp_velo, $
+                                                   [[[i1]], [[i2]], [[i3]]], $
+                                                   temp_line_width, $
+                                                   indices=velocity_indices)
+    temp_corr_velo[velocity_indices] $
+      = temp_velo[velocity_indices] - rest_wavelength
+
     ; find median of non-CME finite dop -> "real rest wavelength"
     x = lindgen(nx)
     x = rebin(reform(x, nx, 1), nx, ny)
@@ -285,9 +295,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     if (n_rest_wavelength_dop gt 0L) then begin
       median_rest_wavelength = median(temp_velo[rest_wavelength_dop_ind])
       mean_rest_wavelength = mean(temp_velo[rest_wavelength_dop_ind])
-
-      ; TODO: use fit to correct instead of below
-      temp_corr_velo[good_dop_ind] = temp_velo[good_dop_ind] - median_rest_wavelength
 
       good_east_dop_ind = where(mask $
                                   and temp_velo ne 0.0 $
@@ -426,10 +433,12 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                            extname='Corrected LOS velocity', $
                                            datminmax=[min(temp_corr_velo), $
                                                       max(temp_corr_velo)])
-    fxaddpar, extension_header, 'RSTWVL', median_rest_wavelength, $
-              ' [km/s] median rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'RSTWVL', rest_wavelength, $
+              ' [km/s] rest wavelength', format='(F0.3)', /null
     fxaddpar, extension_header, 'RSTWVL2', mean_rest_wavelength, $
                ' [km/s] mean rest wavelength', format='(F0.3)', /null
+    fxaddpar, extension_header, 'RSTWVL3', median_rest_wavelength, $
+              ' [km/s] median rest wavelength', format='(F0.3)', /null
     fxaddpar, extension_header, 'ERSTWVL', east_median_rest_wavelength, $
               string(n_good_east_dop, $
                      format=' [km/s] median east rest wavelength (%d pts)'), $
@@ -458,6 +467,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_corr_velo), extension_header, /append
     sxdelpar, extension_header, 'RSTWVL'
+    sxdelpar, extension_header, 'RSTWVL2'
+    sxdelpar, extension_header, 'RSTWVL3'
     sxdelpar, extension_header, 'ERSTWVL'
     sxdelpar, extension_header, 'WRSTWVL'
     sxdelpar, extension_header, 'ERSTWVL2'
