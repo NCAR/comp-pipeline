@@ -57,6 +57,7 @@ pro comp_make_header, image, header, date_dir, $
   @comp_constants_common
   @comp_config_common
   @comp_diagnostics_common
+  @comp_mask_constants_common
 
   ; set to add other occulter radius (R-2) to headers, both distortion
   ; corrected and not
