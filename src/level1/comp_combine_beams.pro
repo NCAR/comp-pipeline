@@ -135,7 +135,7 @@ pro comp_combine_beams, images, headers, date_dir, $
         filename = filepath(basename, $
                             subdir=comp_decompose_date(date_dir), $
                             root=engineering_dir)
-        save, fgplus, fgminus, filename=filename
+        save, fgplus, fgminus, bgplus, bgminus, filename=filename
       endif
 
       offsensor_mask and= offsensor_mask_plus and offsensor_mask_minus
