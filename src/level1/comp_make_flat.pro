@@ -45,6 +45,7 @@ pro comp_make_flat, date_dir, error=error
   @comp_flats_common
   @comp_diagnostics_common
   @comp_check_common
+  @comp_mask_constants_common
 
   debug = 0
 
