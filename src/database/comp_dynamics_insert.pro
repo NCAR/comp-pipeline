@@ -69,21 +69,20 @@ pro comp_dynamics_insert, date, wave_type, $
                       format='(%"%sT%s")')
     date_obs = comp_normalize_datetime(date_obs)
 
-    dims = size(velocity, /dimensions)
     mask = comp_l2_mask(primary_header)
     mask_indices = where(mask, /null)
 
     intensity_max = max(intensity[mask_indices], /nan)
     doppler_min = min(velocity[mask_indices], max=doppler_max, /nan)
 
-    doppler_mean = sxpar(velocity_header, 'RSTWVL')
-    doppler_east_median = sxpar(velocity_header, 'ERSTWVL')
-    doppler_west_median = sxpar(velocity_header, 'WRSTWVL')
-    doppler_median = sxpar(velocity_header, 'RSTWVL2')
-    doppler_east_mean = sxpar(velocity_header, 'ERSTWVL2')
-    doppler_west_mean = sxpar(velocity_header, 'WRSTWVL2')
-    doppler_device_east_median = sxpar(velocity_header, 'ERSTWVLD')
-    doppler_device_west_median = sxpar(velocity_header, 'WRSTWVLD')
+    doppler_mean = sxpar(velocity_header, 'RSTWVL', /nan)
+    doppler_east_median = sxpar(velocity_header, 'ERSTWVL', /nan)
+    doppler_west_median = sxpar(velocity_header, 'WRSTWVL', /nan)
+    doppler_median = sxpar(velocity_header, 'RSTWVL2', /nan)
+    doppler_east_mean = sxpar(velocity_header, 'ERSTWVL2', /nan)
+    doppler_west_mean = sxpar(velocity_header, 'WRSTWVL2', /nan)
+    doppler_device_east_median = sxpar(velocity_header, 'ERSTWVLD', /nan)
+    doppler_device_west_median = sxpar(velocity_header, 'WRSTWVLD', /nan)
 
     ; insert into comp_dynamics table
     fields = [{name: 'file_name', type: '''%s'''}, $
@@ -94,14 +93,14 @@ pro comp_dynamics_insert, date, wave_type, $
               {name: 'doppler_min', type: '%s'}, $
               {name: 'doppler_max', type: '%s'}, $
 
-              {name: 'doppler_mean', type: '%f'}, $
-              {name: 'doppler_east_median', type: '%f'}, $
-              {name: 'doppler_west_median', type: '%f'}, $
-              {name: 'doppler_median', type: '%f'}, $
-              {name: 'doppler_east_mean', type: '%f'}, $
-              {name: 'doppler_west_mean', type: '%f'}, $
-              {name: 'doppler_device_east_median', type: '%f'}, $
-              {name: 'doppler_device_west_median', type: '%f'}]
+              {name: 'doppler_mean', type: '%s'}, $
+              {name: 'doppler_east_median', type: '%s'}, $
+              {name: 'doppler_west_median', type: '%s'}, $
+              {name: 'doppler_median', type: '%s'}, $
+              {name: 'doppler_east_mean', type: '%s'}, $
+              {name: 'doppler_west_mean', type: '%s'}, $
+              {name: 'doppler_device_east_median', type: '%s'}, $
+              {name: 'doppler_device_west_median', type: '%s'}]
     sql_cmd = string(strjoin(fields.name, ', '), $
                      strjoin(fields.type, ', '), $
                      format='(%"insert into comp_dynamics (%s) values (%s)")')
@@ -114,14 +113,14 @@ pro comp_dynamics_insert, date, wave_type, $
                  comp_db_float2str(doppler_min, format='%f', valid_range=[-1.0e6, 1.0e6]), $
                  comp_db_float2str(doppler_max, format='%f', valid_range=[-1.0e6, 1.0e6]), $
 
-                 doppler_mean, $
-                 doppler_east_median, $
-                 doppler_west_median, $
-                 doppler_median, $
-                 doppler_east_mean, $
-                 doppler_west_mean, $
-                 doppler_device_east_median, $
-                 doppler_device_west_median, $
+                 comp_db_float2str(doppler_mean, format='%f'), $
+                 comp_db_float2str(doppler_east_median, format='%f'), $
+                 comp_db_float2str(doppler_west_median, format='%f'), $
+                 comp_db_float2str(doppler_median, format='%f'), $
+                 comp_db_float2str(doppler_east_mean, format='%f'), $
+                 comp_db_float2str(doppler_west_mean, format='%f'), $
+                 comp_db_float2str(doppler_device_east_median, format='%f'), $
+                 comp_db_float2str(doppler_device_west_median, format='%f'), $
 
                  status=status, $
                  error_message=error_message, $
