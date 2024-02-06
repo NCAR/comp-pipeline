@@ -262,7 +262,8 @@ pro comp_quick_invert, date_dir, wave_type, $
   rest_wavelength = comp_compute_rest_wavelength(primary_header, $
                                                  dop, $
                                                  [[[i1]], [[i2]], [[i3]]], $
-                                                 width)
+                                                 width, $
+                                                 method='median')
   corrected_dop = dop - rest_wavelength
 
   good_vel_indices = where(mask gt 0 $
