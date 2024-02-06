@@ -24,8 +24,11 @@ function comp_compute_rest_wavelength, primary_header, $
                                        velocity, $
                                        intensity, $
                                        line_width, $
+                                       method=method, $
                                        indices=indices
   compile_opt strictarr
+
+  _method = n_elements(method) eq 0L ? 'median' : method
 
   mask = comp_l2_mask(primary_header)
 
@@ -52,10 +55,18 @@ function comp_compute_rest_wavelength, primary_header, $
   east = where(threshold_condition and x lt 0.0, n_east, /null)
   west = where(threshold_condition and x gt 0.0, n_west, /null)
 
-  if (method eq 'mean') then begin
+  if (n_east eq 0L && n_west eq 0L) then return, !values.f_nan
+
+  if (_method eq 'mean') then begin
+    if (n_east eq 0L) then return, mean([velocity[west]], /nan)
+    if (n_west eq 0L) then return, mean([velocity[east]], /nan)
+
     rest_velocity = mean([mean([velocity[east]], /nan), $
                           mean([velocity[west]], /nan)], /nan)
   endif else begin
+    if (n_east eq 0L) then return, median([velocity[west]])
+    if (n_west eq 0L) then return, median([velocity[east]])
+
     rest_velocity = mean([median([velocity[east]]), $
                           median([velocity[west]])], /nan)
   endelse
