@@ -274,9 +274,11 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                    temp_velo, $
                                                    [[[i1]], [[i2]], [[i3]]], $
                                                    temp_line_width, $
-                                                   indices=velocity_indices)
-    temp_corr_velo[velocity_indices] $
-      = temp_velo[velocity_indices] - rest_wavelength
+                                                   method='median', $
+                                                   indices=vel_indices)
+    if (n_elements(vel_indices) gt 0L) then begin
+      temp_corr_velo[vel_indices] = temp_velo[vel_indices] - rest_wavelength
+    endif
 
     ; find median of non-CME finite dop -> "real rest wavelength"
     x = lindgen(nx)
