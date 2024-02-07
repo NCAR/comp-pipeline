@@ -1,5 +1,13 @@
 ; main-level example program
 
+;+
+; Create the "IQUV all" images for dates that have already had their level 1
+; processing complete.
+;
+; :Keywords:
+;   config_filename, in, required, type=string
+;     configuration filename to use
+;-
 pro comp_create_iquv_all_images, config_filename=config_filename
   compile_opt strictarr
   @comp_config_common
@@ -37,10 +45,10 @@ pro comp_create_iquv_all_images, config_filename=config_filename
     endfor
   endfor
 
-
-
-
+  done:
+  mg_log, /quit
 end
+
 
 ; main-level example program
 
