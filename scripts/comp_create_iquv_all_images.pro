@@ -37,7 +37,7 @@ pro comp_create_iquv_all_images, config_filename=config_filename
       l1_filenames = comp_find_l1_file(date, process_wavelengths[w], $
                                        /all, $
                                        count=n_l1_files)
-      for f = 0L, n_elements(l1_filenames) - 1L do begin
+      for f = 0L, n_l1_files - 1L do begin
         comp_write_all_iquv_image, date, $
                                    process_wavelengths[w], $
                                    l1_filenames[f]
