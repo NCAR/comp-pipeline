@@ -302,6 +302,17 @@ pro comp_run_pipeline, config_filename=config_filename
           mg_log, 'error with extracting intensity, stopping day', name='comp', /error
           goto, done_with_day
         endif
+
+        if (~dry_run) then begin
+          l1_filenames = comp_find_l1_file(date_dir, process_wavelengths[w], $
+                                           /all, $
+                                           count=n_l1_files)
+          for f = 0L, n_l1_files - 1L do begin
+            comp_write_all_iquv_image, date_dir, $
+                                       process_wavelengths[w], $
+                                       l1_filenames[f]
+          endfor
+        endif
       endfor
       mg_log, 'memory usage: %0.1fM', $
               (memory(/highwater) - start_memory) / 1024. / 1024., $
