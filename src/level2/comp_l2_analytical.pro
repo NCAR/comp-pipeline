@@ -411,7 +411,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
-                                           extname='Intensity', $
+                                           extname='Peak intensity', $
                                            datminmax=[min(temp_int), $
                                                       max(temp_int)])
     sxdelpar, extension_header, 'SIMPLE'
@@ -483,11 +483,21 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
-                                           extname='Line Width (FWHM)', $
+                                           extname='Line width (FWHM)', $
                                            datminmax=[min(temp_line_width_fwhm), $
                                                       max(temp_line_width_fwhm)])
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(temp_line_width_fwhm), extension_header, /append
+
+    ; center wavelength intensity
+    extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                    exten=wave_ind[1] + 1), $
+                                           /exten, $
+                                           extname='Center wavelength intensity', $
+                                           datminmax=[min(i2), $
+                                                      max(i2)])
+    sxdelpar, extension_header, 'SIMPLE'
+    writefits, outfilename, float(i2), extension_header, /append
 
     if (add_uncorrected_velocity) then begin
       ; uncorrected LOS velocity
@@ -522,7 +532,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
-                                             extname='Intensity', $
+                                             extname='Weighted average intensity', $
                                              datminmax=[min(averaged_intensity), $
                                                         max(averaged_intensity)])
       sxdelpar, extension_header, 'SIMPLE'
@@ -543,7 +553,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten,$
-                                             extname='Integrated Stokes Q', $
+                                             extname='Weighted average Q', $
                                              datminmax=[min(stks_q), $
                                                         max(stks_q)])
       sxdelpar, extension_header, 'SIMPLE'
@@ -553,7 +563,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
-                                             extname='Integrated Stokes U', $
+                                             extname='Weighted average U', $
                                              datminmax=[min(stks_u), $
                                                         max(stks_u)])
       sxdelpar, extension_header, 'SIMPLE'
@@ -564,7 +574,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten,$
-                                             extname='Total Linear Polarization', $
+                                             extname='Weighted average L', $
                                              datminmax=[min(lin_pol), $
                                                         max(lin_pol)])
       sxdelpar, extension_header, 'SIMPLE'
@@ -589,6 +599,16 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                         max(radial_azimuth)])
       sxdelpar, extension_header, 'SIMPLE'
       writefits, outfilename, float(radial_azimuth), extension_header, /append
+
+      ; center wavelength intensity
+      extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
+                                                      exten=wave_ind[1] + 1), $
+                                             /exten, $
+                                             extname='Center wavelength intensity', $
+                                             datminmax=[min(i2), $
+                                                        max(i2)])
+      sxdelpar, extension_header, 'SIMPLE'
+      writefits, outfilename, float(i2), extension_header, /append
 
       zip_cmd = string(outfilename, format='(%"gzip -f %s")')
       spawn, zip_cmd, result, error_result, exit_status=status

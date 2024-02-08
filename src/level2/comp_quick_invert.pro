@@ -419,20 +419,20 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxaddpar, header, 'DATAMIN', min(i, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(i, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, i, header, extname='I'
+  fits_write, fcbout, i, header, extname='Center wavelength intensity'
 
   sxaddpar, header, 'DATAMIN', min(q, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(q, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, q, header, extname='Q'
+  fits_write, fcbout, q, header, extname='Center wavelength Q'
 
   sxaddpar, header, 'DATAMIN', min(u, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(u, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, u, header, extname='U'
+  fits_write, fcbout, u, header, extname='Center wavelength U'
 
   sxdelpar, header, 'COMMENT'
   sxaddpar, header, 'DATAMIN', min(l, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(l, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, l, header, extname='Linear Polarization'
+  fits_write, fcbout, l, header, extname='Linear polarization'
 
   sxaddpar, header, 'COMMENT', $
             'Azimuth is measured positive counter-clockwise from the horizontal.'
@@ -465,7 +465,7 @@ pro comp_quick_invert, date_dir, wave_type, $
   fxaddpar, header, 'WRSTWVLD', device_west_median_rest_wavelength, $
             ' [km/s] median west (in device coords) rest wavelength', format='(F0.3)', /null
 
-  fits_write, fcbout, corrected_dop, header, extname='Doppler Velocity'
+  fits_write, fcbout, corrected_dop, header, extname='Corrected LOS velocity'
 
   sxdelpar, header, 'RSTWVL'
   sxdelpar, header, 'RSTWVL2'
@@ -480,13 +480,13 @@ pro comp_quick_invert, date_dir, wave_type, $
   width_fwhm = width * fwhm_factor
   sxaddpar, header, 'DATAMIN', min(width_fwhm, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(width_fwhm, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, width_fwhm, header, extname='Line Width (FWHM)'
+  fits_write, fcbout, width_fwhm, header, extname='Line width (FWHM)'
 
   sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' minimum data value', $
             format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(radial_azimuth, /nan), ' maximum data value', $
             format='(F0.3)'
-  fits_write, fcbout, radial_azimuth, header, extname='Radial Azimuth'
+  fits_write, fcbout, radial_azimuth, header, extname='Radial azimuth'
 
   if (add_uncorrected_velocity) then begin
     sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', $
@@ -507,7 +507,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxaddpar, header, 'DATAMIN', min(peak_intensity, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(peak_intensity, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, peak_intensity, header, extname='Peak Intensity'
+  fits_write, fcbout, peak_intensity, header, extname='Peak intensity'
 
   fits_close, fcbout
 
