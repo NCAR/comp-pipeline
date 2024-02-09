@@ -168,7 +168,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                             reform(i3[xx, yy])])
           ; sub_bad = where(profile le 0, n_bad)
           ; if (n_bad gt 0L) then profile[sub_bad] = 0.005D
-
           if (profile[1] gt int_min_thresh $
                 && profile[1] lt int_max_thresh $
                 && profile[0] gt 0.05 $
@@ -222,6 +221,9 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     temp_corr_velo = reform(post_corr[*, *, 1])
     temp_line_width = sqrt(2.0) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
 
+    ; convert temp_velo from wavelength to velocity
+    temp_velo = (temp_velo - rest) * c / nominal
+
     good_vel_indices = where(mask gt 0 $
                                and temp_velo ne 0 $
                                and abs(temp_velo) lt 100 $
@@ -238,8 +240,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                              complement=bad_vel_indices, $
                              /null)
 
-    ; convert temp_velo from wavelength to velocity
-    temp_velo = (temp_velo - rest) * c / nominal
 
     bad_pixels = where(bad_pixels_mask, n_bad_pixels)
     if (n_bad_vel_pixels gt 0L) then begin
@@ -622,4 +622,23 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
   skip:
   mg_log, 'done', name='comp', /info
+end
+
+
+; main-level example program
+
+date = '20120517'
+wave_type = '1074'
+
+config_basename = 'comp.intermediate.cfg'
+config_filename = filepath(config_basename, $
+                           subdir=['..', '..', 'config'], $
+                           root=mg_src_root())
+comp_configuration, config_filename=config_filename
+
+comp_update_configuration, date
+comp_initialize, date
+
+comp_l2_analytical, date, wave_type, nwl=3
+
 end
