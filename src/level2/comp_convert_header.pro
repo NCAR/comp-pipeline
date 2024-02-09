@@ -47,8 +47,8 @@ function comp_convert_header, in_header, $
 
     sxaddpar, out_header, 'XTENSION', 'IMAGE', 'extension type', before='BITPIX'
     sxaddpar, out_header, 'EXTNAME',  extname, before='BITPIX'
-    sxaddpar, out_header, 'DATAMIN',  datminmax[0], ' minimum data value', format='(F0.3)'
-    sxaddpar, out_header, 'DATAMAX',  datminmax[1], ' maximum data value', format='(F0.3)'
+    sxaddpar, out_header, 'DATAMIN',  datminmax[0], ' minimum data value', format='(F0.3)', /null
+    sxaddpar, out_header, 'DATAMAX',  datminmax[1], ' maximum data value', format='(F0.3)', /null
   endif else begin
     rtags = ['NTUNES', 'TNELNGTH', 'TUNEDLAY', 'H_D$OCCULT', 'V_D$OCCULT', $
              'FOCUS', 'COVER', 'POLANGLE', 'POLARIZR', 'OPAL', 'RETARDER', $
