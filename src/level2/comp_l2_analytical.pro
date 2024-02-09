@@ -627,18 +627,26 @@ end
 
 ; main-level example program
 
-date = '20120517'
-wave_type = '1074'
+;dates = ['20120517']
+dates = ['20110103', '20110309', '20110521', '20110701', '20110904', $
+         '20111107', '20110203', '20110401', '20110622', '20110801', $
+         '20111016', '20111201']
+wave_types = ['1074', '1079']
 
-config_basename = 'comp.intermediate.cfg'
+;config_basename = 'comp.intermediate.cfg'
+config_basename = 'comp.reprocess-check-2011.cfg'
 config_filename = filepath(config_basename, $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 comp_configuration, config_filename=config_filename
 
-comp_update_configuration, date
-comp_initialize, date
+for d = 0L, n_elements(dates) - 1L do begin
+  comp_update_configuration, dates[d]
+  comp_initialize, dates[d]
 
-comp_l2_analytical, date, wave_type, nwl=3
+  for w = 0L, n_elements(wave_types) - 1L do begin
+    comp_l2_analytical, dates[d], wave_types[w], nwl=3
+  endfor
+endfor
 
 end
