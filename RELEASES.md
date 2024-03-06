@@ -229,8 +229,9 @@
 - decrease display min for intensity to 0.0
 - make intensity threshold based on wave region and move to epochs file for all uses
 - mask integrated intensity for negative wing values
-- create a device east/west rest wavelength FITS keyword value
+- improve rest wavelength calculation
 - adjustments to threshold masking in level 2 products
 - use integrated intensity to normalize Q, U, and L in daily movies
 - should handle inserting cal files into database when no flats for the day
 - cleaning up annotations on daily images/movies
+- produce IQUV quicklook images for all wavelengths in a level 1 file
