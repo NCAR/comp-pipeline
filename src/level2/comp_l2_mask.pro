@@ -29,6 +29,12 @@
 ; :Keywords:
 ;   no_post : in, optional, type=boolean
 ;     set to not mask the post
+;   occulter_offset : in, optional, type=float, default=epoch value
+;     set to override the occulter offset value set in the epoch file; this is
+;     the amount to overmask the occculter
+;   field_offset : in, optional, type=float, default=epoch value
+;     set to override the field offset value set in the epoch file; this is
+;     the amount to overmask the field stop
 ;
 ; :Author:
 ;   MLSO Software Team
@@ -38,10 +44,19 @@
 ;   removed post_rotation fudge factor 11/14/14 ST
 ;   see git log for recent changes
 ;-
-function comp_l2_mask, fits_header, no_post=no_post
+function comp_l2_mask, fits_header, no_post=no_post, $
+                       occulter_offset=override_occulter_offset, $
+                       field_offset=override_field_offset
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
+
+  use_occulter_offset = n_elements(override_occulter_offset) gt 0L $
+                          ? override_occulter_offset
+                          : occulter_offset
+  use_field_offset = n_elements(override_field_offset) gt 0L $
+                       ? override_field_offset
+                       : field_offset
 
   ; get parameters from FITS header
 
@@ -68,10 +83,12 @@ function comp_l2_mask, fits_header, no_post=no_post
     ; create the mask from individual masks
 
     ; occulter mask
-    dmask = comp_disk_mask(occulter_radius + occulter_offset, xcen=occulter.x, ycen=occulter.y)
+    dmask = comp_disk_mask(occulter_radius + use_occulter_offset, $
+                           xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
+    field_mask = comp_field_mask(field.r + use_field_offset, $
+                                 xcen=field.x, ycen=field.y)
 
     mask = dmask * field_mask
   endif else begin
@@ -89,10 +106,12 @@ function comp_l2_mask, fits_header, no_post=no_post
     ; create the mask from individual masks
 
     ; occulter mask
-    dmask = comp_disk_mask(occulter_radius + occulter_offset, xcen=occulter.x, ycen=occulter.y)
+    dmask = comp_disk_mask(occulter_radius + use_occulter_offset, $
+                           xcen=occulter.x, ycen=occulter.y)
 
     ; field mask
-    field_mask = comp_field_mask(field.r + field_offset, xcen=field.x, ycen=field.y)
+    field_mask = comp_field_mask(field.r + use_field_offset, $
+                                 xcen=field.x, ycen=field.y)
   
     ; post mask
     ; pmask = comp_post_mask(post_angle + 180. - p_angle - post_rotation, 32.0)      ST 11/14/14
