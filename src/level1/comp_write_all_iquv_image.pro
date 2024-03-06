@@ -215,26 +215,35 @@ end
 
 @comp_config_common
 
-date = '20110309'
-wave_region = '1074'
-;l1_basename = '20110310.021831.comp.1074.iv.5.fts.gz'
+wave_types = ['1074', '1079']
 
-config_basename = 'comp.reprocess-check-2011.cfg'
+config_basename = 'comp.reprocess-check-2012.cfg'
 config_filename = filepath(config_basename, $
                            subdir=['..', '..', 'config'], $
                            root=mg_src_root())
 
 comp_configuration, config_filename=config_filename
-comp_initialize, date
 
-l1_basename = '*.comp.1074.*.{3,5}.fts.gz'
-l1_filename = filepath(l1_basename, $
-                       subdir=[date, 'level1'], $
-                       root=process_basedir)
-l1_filenames = file_search(l1_filename)
+dates = comp_expand_date_expr(date_pattern, count=n_dates)
 
-for f = 0L, n_elements(l1_filenames) - 1L do begin
-  comp_write_all_iquv_image, date, wave_region, l1_filenames[f]
+for d = 0L, n_dates - 1L do begin
+  print, dates[d], format='### Processing %s'
+
+  comp_update_configuration, dates[d]
+  comp_initialize, dates[d]
+
+  for w = 0L, n_elements(wave_types) - 1L do begin
+    l1_basename = string(wave_types[w], $
+                         format='*.comp.%s.i*.{3,5,7,9,11,21}.fts.gz')
+    l1_filename = filepath(l1_basename, $
+                           subdir=[dates[d], 'level1'], $
+                           root=process_basedir)
+    l1_filenames = file_search(l1_filename, count=n_l1_filenames)
+
+    for f = 0L, n_l1_filenames - 1L do begin
+      comp_write_all_iquv_image, dates[d], wave_types[w], l1_filenames[f]
+    endfor
+  endfor
 endfor
 
 end
