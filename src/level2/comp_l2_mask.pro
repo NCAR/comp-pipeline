@@ -1,4 +1,4 @@
-; docformat = 'rst'
+ ; docformat = 'rst'
 
 ;+
 ; Create a mask for CoMP images in the 620x620 spatial resolution. Include the
@@ -42,20 +42,25 @@
 ; :History:
 ;   added comments 10/23/14 ST
 ;   removed post_rotation fudge factor 11/14/14 ST
-;   see git log for recent changes
+;   see git log for other changes
+;   MG  added option for occulter_offset and field-offset 03/2024
+;   GdT fixed bugs in no_post option 03/2023 
+;   GdT added option for using occulter radius in header - needed for rest wavelength computation 03/2024
 ;-
 function comp_l2_mask, fits_header, no_post=no_post, $
+                       image_occulter_radius=image_occulter_radius, $
                        occulter_offset=override_occulter_offset, $
                        field_offset=override_field_offset
+  
   compile_opt strictarr
   @comp_constants_common
   @comp_mask_constants_common
 
   use_occulter_offset = n_elements(override_occulter_offset) gt 0L $
-                          ? override_occulter_offset
+                          ? override_occulter_offset $
                           : occulter_offset
   use_field_offset = n_elements(override_field_offset) gt 0L $
-                       ? override_field_offset
+                       ? override_field_offset $
                        : field_offset
 
   ; get parameters from FITS header
@@ -63,10 +68,18 @@ function comp_l2_mask, fits_header, no_post=no_post, $
   ; look for new keyword
   fradius = sxpar(fits_header, 'FRADIUS', count=count)
 
-  occulter_id = sxpar(fits_header, 'OCC-ID')
-  occulter_index = where(occulter_ids eq occulter_id)
-  occulter_radius = occulter_radii[occulter_index[0]]
+; if img_occulter_radius is set, use the occulter radius recorded in the header
+; if not set, uses the average value of the occulter radius 
+ 
+    if  (not keyword_set(image_occulter_radius)) then begin
+      occulter_id = sxpar(fits_header, 'OCC-ID')
+      occulter_index = where(occulter_ids eq occulter_id)
+      occulter_radius = occulter_radii[occulter_index[0]]
+   endif else begin
+      occulter_radius =sxpar(fits_header, 'ORADIUS')
+   endelse
 
+  
   if (count eq 0) then begin
     ; old keywords 
     occulter = {x:sxpar(fits_header, 'CRPIX1') , $
@@ -118,7 +131,7 @@ function comp_l2_mask, fits_header, no_post=no_post, $
     ; pmask = comp_post_mask(post_angle + 180. - p_angle, post_width)
     
     ; now the image header has the right post angle
-    if (keyword_set(no_post)) then begin
+    if (not keyword_set(no_post)) then begin
       pmask = comp_post_mask(post_angle, post_width)
     endif else begin
       pmask = dmask * 0B + 1B
