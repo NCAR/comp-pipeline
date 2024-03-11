@@ -620,7 +620,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tvlct, 0B, 0B, 0B, 254L   ; bad values are black
   tvlct, 255B, 255B, 255B, 255L   ; annotation color is white
   bad_ind = where(radial_azimuth lt -90, n_bad_ind)
-  radial_display_max = 50.0
+  radial_display_max = 90.0
   rad_azi = bytscl(radial_azimuth, min=-radial_display_max, max=radial_display_max, top=ncolors - 1)
   if (n_bad_ind gt 0L) then rad_azi[bad_ind] = 254B
   if (n_mask_ind gt 0L) then rad_azi[mask_ind] = 254B
