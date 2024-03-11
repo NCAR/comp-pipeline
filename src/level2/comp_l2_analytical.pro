@@ -126,7 +126,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                sxpar(ehdr3, 'WAVELENG')]
       index = fitshead2struct(hdr)
       d_lambda = double(mean(deriv(wavel)))
-      vpix = (d_lambda / nominal) * c    ; km/s/pix
       nx = (size(i1))[1]
       ny = (size(i1))[2]
       nz = (size(i1))[3] + 3
@@ -161,141 +160,147 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     for xx = 0L, nx - 1L do begin
       for yy = 0L, ny - 1L do begin
-        if (mask[xx, yy] eq 1) then begin
+        IF (mask[xx, yy] eq 1) THEN BEGIN
           ; compute analytical gaussfit
           profile = double([reform(i1[xx, yy]), $
                             reform(i2[xx, yy]), $
                             reform(i3[xx, yy])])
-          ; sub_bad = where(profile le 0, n_bad)
-          ; if (n_bad gt 0L) then profile[sub_bad] = 0.005D
-          if (profile[1] gt int_min_thresh $
-                && profile[1] lt int_max_thresh $
-                && profile[0] gt 0.05 $
-                && profile[2] gt 0.05 $
-                && profile[0] lt int_max_thresh $
-                && profile[2] lt int_max_thresh) then begin
+         if min(profile) gt 0 then begin
             comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
             temp_data[xx, yy, 0] = i_cent
-            temp_data[xx, yy, 1] = rest + doppler_shift
-            temp_data[xx, yy, 2] = width / sqrt(2.0)
-          endif else begin
-            bad_pixels_mask[xx, yy] = 1B
-            i_cent        = 0D
-            doppler_shift = 0D
-            width         = 0D
+            temp_data[xx, yy, 1] = doppler_shift  
+            temp_data[xx, yy, 2] = width 
+            ; if gaussian fits cannot be performed update mask of bad pixels
+            if doppler_shift eq 0 and width eq 0 and i_cent eq 0 then bad_pixels_mask[xx, yy] = 1B   ; bad_pixels_mask has 1 where gausssian fit could not be done
+         endif else begin
+            bad_pixels_mask[xx, yy] = 1B    ; bad_pixels_mask has 1 where pixels have negative intensity
             temp_data[xx, yy, 0] = 0.0D
             temp_data[xx, yy, 1] = 0.0D
             temp_data[xx, yy, 2] = 0.0D
-          endelse
-        endif
+         endelse
+      ENDIF ELSE BEGIN
+            bad_pixels_mask[xx, yy] = 1B    ; bad_pixels_mask has 1 where mask has zero
+            temp_data[xx, yy, 0] = 0.0D
+            temp_data[xx, yy, 1] = 0.0D
+            temp_data[xx, yy, 2] = 0.0D
+      ENDELSE    
       endfor
     endfor
 
-    ; create enhance intensity image,
-    ; convert line width to [km/s], mask data
-    temp_int = reform(temp_data[*, *, 0])
-    temp_int[where(mask eq 0)] = 0D
+    ; define peak intensity and enhanced intensity image and apply minimal masking 
+    temp_peak_int = reform(temp_data[*, *, 0])
+    temp_peak_int[where(bad_pixels_mask eq 1)] = 0D     ; exclude points where gaussian fit could not be performed
 
-    int_enh = comp_intensity_enhancement(i2, headfits(gbu[ii].l1file))
-    int_enh[where(mask eq 0)] = 0D
+    temp_enh_int = comp_intensity_enhancement(i2, headfits(gbu[ii].l1file))
+    temp_enh_int[where(mask eq 0)] = 0D                           ;enhanced intensity  has only geometric masking
 
-    thresh_unmasked = where(mask eq 1 $
+     ;convert e-folding line width to FWHM and km/s   
+    temp_line_width = (reform(temp_data[*, *, 2])) *c / nominal 
+    temp_line_width_fwhm = temp_line_width *fwhm_factor  
+    temp_line_width_fwhm[where(bad_pixels_mask eq 1)] = 0D ; exclude points where gaussian fit could not be performed
+   
+    ; velocity in km/s
+    temp_velo = temp_data[*, *, 1] + rest                      ; "rest" here is the center wavelength
+    temp_velo =  temp_velo * c / nominal    
+    temp_velo[where(bad_pixels_mask eq 1)] = 0D ; exclude points where gaussian fit could not be performed
+
+      
+    ;***remove this part about the correction for rotation - is not used anymore***
+    ;pre_corr = dblarr(nx, ny, 2)
+    ;pre_corr[*, *, 0] = temp_int
+    ;pre_corr[*, *, 1] = temp_velo
+    ;comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
+    ;if (abs(temptrend) gt 0.01) then begin
+    ;  mg_log, 'potential bad doppler correction: temptrend = %f', temptrend, $
+    ;          name='comp', /warn
+    ;endif
+    ;temp_corr_velo = reform(post_corr[*, *, 1])
+    ;temp_corr_velo(bad_pixels_mask eq 1)] = 0D ;
+
+
+; rest wavelength calculation
+; added option to retun east and west values    
+    rest_wavelength = comp_compute_rest_wavelength(hdr, $
+                                                   temp_velo, $
+                                                   [[[i1]], [[i2]], [[i3]]], $
+                                                   temp_line_width_fwhm, $
+                                                   method='median', $
+                                                   indices=vel_indices, $
+                                                   med_east=med_vel_east, med_west =med_vel_west)
+
+ 
+    IF (n_elements(vel_indices) gt 0L and finite(rest_wavelength) ne 0 ) THEN BEGIN 
+    ;case in which a rest wavelength was determined 
+     temp_corr_velo[vel_indices] = temp_velo[vel_indices] - rest_wavelength
+
+     ;define masking for velocity and line widh data - less restrictive than for movies and images
+        good_vel_indices = where(mask eq 1 $
+                              and bad_pixel_mask eq 0 $ ; exclude points where gaussian fit could not be performed
+                              and abs(temp_corr_velo) lt 100 $
+                              and i1 gt 0.1 $
                               and i2 gt int_min_thresh $
-                              and i2 lt int_max_thresh $
-                              and i1 gt 0.05 $
-                              and i3 gt 0.05 $
+                              and i3 gt 0.1 $
                               and i1 lt int_max_thresh $
-                              and i3 lt int_max_thresh, $
-                            complement=thresh_masked)
-    temp_velo = temp_data[*, *, 1]
-    temp_velo[thresh_masked] = 0.0D
-
-    pre_corr = dblarr(nx, ny, 2)
-    pre_corr[*, *, 0] = temp_int
-    pre_corr[*, *, 1] = temp_velo
-    comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
-    if (abs(temptrend) gt 0.01) then begin
-      mg_log, 'potential bad doppler correction: temptrend = %f', temptrend, $
-              name='comp', /warn
-    endif
-    temp_corr_velo = reform(post_corr[*, *, 1])
-    temp_line_width = sqrt(2.0) * (reform(temp_data[*, *, 2]) / d_lambda) * vpix   ; km/s
-
-    ; convert temp_velo from wavelength to velocity
-    temp_velo = (temp_velo - rest) * c / nominal
-
-    good_vel_indices = where(mask gt 0 $
-                               and temp_velo ne 0 $
-                               and abs(temp_velo) lt 100 $
-                               and i1 gt 0.1 $
-                               and i2 gt int_min_thresh $
-                               and i3 gt 0.1 $
-                               and i1 lt 60.0 $
-                               and i2 lt 60.0 $
-                               and i3 lt 60.0 $
-                               and temp_line_width gt 22.0 $
-                               and temp_line_width lt 102.0, $
-                             ngood, $
-                             ncomplement=n_bad_vel_pixels, $
-                             complement=bad_vel_indices, $
+                              and i2 lt int_max_thresh $
+                              and i3 lt int_max_thresh $
+                              and temp_line_width_fwhm gt 36 $ 
+                              and temp_line_width_fwhm lt 170.0, $
+                              ngood, $
+                              ncomplement=n_bad_vel_pixels, $
+                              complement=bad_vel_indices, $
                              /null)
+;apply masking to velocity and line width
+         if (n_bad_vel_pixels gt 0L) then begin
+            temp_velo[bad_vel_indices] = 0.0D
+            temp_corr_velo[bad_vel_indices] = 0.0D
+            temp_line_width_fwhm[bad_vel_indices] = 0.0D
+         endif
+    ENDIF ELSE BEGIN
+;TODO    
+ ; Mike: please add a warning if this happens, so we trace these bad frames where the rest wavelength could not be computed         
+       temp_peak_int[*]=0.0D
+       temp_velo[*] = 0.0D
+       temp_corr_velo[*] = 0.0D
+       temp_line_width_fwhm[*] = 0.0D 
+    ENDELSE  
+   
+;   
+; POLARIZATION FILE
 
+   IF (qu_files[ii] eq 1) THEN BEGIN
+      
+;linear polarizattion
+        lin_pol = sqrt((stks_q)^2. + (stks_u)^2.)
+;azimuth
+       azimuth = comp_azimuth(stks_u, stks_q, radial_azimuth=radial_azimuth)      
+; average intensity for polarization file 
+       averaged_intensity = 0.3 * i1 + 0.7 * i2 + 0.3 * i3
 
-    bad_pixels = where(bad_pixels_mask, n_bad_pixels)
-    if (n_bad_vel_pixels gt 0L) then begin
-      temp_velo[bad_vel_indices] = 0.0D
-      temp_corr_velo[bad_vel_indices] = 0.0D
-      temp_line_width[bad_vel_indices] = 0.0D
-    endif
-
-    ;temp_int[thresh_masked]        = 0.0D
-    temp_corr_velo[thresh_masked]  = 0.0D
-    temp_line_width[thresh_masked] = 0.0D
-    ;int_enh[thresh_masked]         = 0.0D
-
+;apply mask less restrictive than for velocity and line with 
     good_pol_indices = where(mask gt 0 $
                                and i1 gt 0.05 $
                                and i2 gt 0.25 $
                                and i3 gt 0.05 $
-                               and i1 lt 60.0 $
-                               and i2 lt 60.0 $
-                               and i3 lt 60.0, complement=bad_pol_indices, /null)
-
-    if (qu_files[ii] eq 1) then begin
-      azimuth = comp_azimuth(stks_u, stks_q, radial_azimuth=radial_azimuth)
+                               and i1 lt int_max_thresh $
+                               and i2 lt int_max_thresh $
+                               and i3 lt int_max_thresh , $
+                             ncomplement=n_bad_pol_pixels, $
+                             complement=bad_pol_indices, /null)
+;apply masking to polarization quantities
+   if (n_bad_pol_pixels gt 0L) then begin   
+      averaged_intensity[bad_pol_index] = 0.0D
       stks_q[bad_pol_indices] = 0.0D
       stks_u[bad_pol_indices] = 0.0D
-      azimuth[bad_pol_indices] = 0.0
-    endif
+      lin_pol[bad_pol_indices] = 0.0D
+      azimuth[bad_pol_indices] = 0.0D
+      radial_azimuth[bad_pol_indices] = 0.0D
+endif
 
-    ; this is now the main rest wavelength calculation, we can remove all other
-    ; calculations when we verify we like this one
-    rest_wavelength = comp_compute_rest_wavelength(hdr, $
-                                                   temp_velo, $
-                                                   [[[i1]], [[i2]], [[i3]]], $
-                                                   temp_line_width, $
-                                                   method='median', $
-                                                   indices=vel_indices)
-    if (n_elements(vel_indices) gt 0L) then begin
-      temp_corr_velo[vel_indices] = temp_velo[vel_indices] - rest_wavelength
-    endif
+   ENDIF
+ 
 
-    ; intensity for polarization
-    averaged_intensity = 0.3 * i1 + 0.7 * i2 + 0.3 * i3
-    negative_wings_indices = where((i1 le 0.0) or (i2 le 0.1) or (i3 le 0.0), /null)
-
-    averaged_enhanced_intensity = comp_intensity_enhancement(averaged_intensity, $
-                                                             headfits(gbu[ii].l1file))
-
-    ;averaged_intensity[negative_wings_indices] = 0.0D
-    averaged_intensity[where(mask eq 0)] = 0.0D
-    ; averaged_intensity[thresh_masked]    = 0.0D
-
-    ;averaged_enhanced_intensity[negative_wings_indices] = 0.0D
-    averaged_enhanced_intensity[where(mask eq 0)] = 0.0D
-    ; averaged_enhanced_intensity[thresh_masked] = 0.0D
-
-    ;=== write out FITS files ===
+;=== WRITE OUT  FITS FILES ===
+    
     mg_log, '%d/%d @ %s: dynamics FITS', ii + 1, nt, wave_type, $
             name='comp', /info
 
@@ -325,7 +330,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                            max(int_enh)]))
     sxdelpar, extension_header, 'SIMPLE'
     sxaddpar, extension_header, 'BITPIX', 8
-    writefits, outfilename, int_enh, extension_header, /append
+    writefits, outfilename, temp_enh_int, extension_header, /append
 
     ; corrected LOS velocity
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
@@ -342,7 +347,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     sxdelpar, extension_header, 'RSTWVL'
 
     ; line width
-    temp_line_width_fwhm = temp_line_width * fwhm_factor
+    
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
@@ -410,7 +415,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                              max(int_enh)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
-      writefits, outfilename, int_enh, extension_header, /append
+      writefits, outfilename, temp_enh_int, extension_header, /append
 
       ; Stokes Q
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
@@ -433,7 +438,6 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
       writefits, outfilename, float(stks_u), extension_header, /append
 
       ; Linear Polarization
-      lin_pol = sqrt((stks_q)^2. + (stks_u)^2.)
       extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                       exten=wave_ind[1] + 1), $
                                              /exten,$
