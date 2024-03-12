@@ -210,7 +210,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ; velocity in km/s
     ; "rest" here is the center wavelength
     temp_velo = temp_data[*, *, 1] + rest
-    temp_velo =  temp_velo * c / nominal
+    temp_velo = temp_velo * c / nominal
     ; exclude points where gaussian fit could not be performed
     temp_velo[where(bad_pixels_mask eq 1)] = 0D
 
@@ -230,7 +230,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     ; rest wavelength calculation
     ; added option to return east and west values
-   rest_wavelength = comp_compute_rest_wavelength(hdr, $
+    rest_wavelength = comp_compute_rest_wavelength(hdr, $
                                                    temp_velo, $
                                                    [[[i1]], [[i2]], [[i3]]], $
                                                    temp_line_width_fwhm, $
@@ -298,7 +298,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                complement=bad_pol_indices, /null)
       ; apply masking to polarization quantities
       if (n_bad_pol_pixels gt 0L) then begin
-        averaged_intensity[bad_pol_index] = 0.0D
+        averaged_intensity[bad_pol_indices] = 0.0D
         stks_q[bad_pol_indices] = 0.0D
         stks_u[bad_pol_indices] = 0.0D
         lin_pol[bad_pol_indices] = 0.0D
@@ -324,18 +324,18 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Peak intensity', $
-                                           datminmax=[min(temp_int), $
-                                                      max(temp_int)])
+                                           datminmax=[min(temp_peak_int), $
+                                                      max(temp_peak_int)])
     sxdelpar, extension_header, 'SIMPLE'
-    writefits, outfilename, float(temp_int), extension_header, /append
+    writefits, outfilename, float(temp_peak_int), extension_header, /append
 
     ; enhanced intensity
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Enhanced Intensity', $
-                                           datminmax=long([min(int_enh), $
-                                                           max(int_enh)]))
+                                           datminmax=long([min(temp_enh_int), $
+                                                           max(temp_enh_int)]))
     sxdelpar, extension_header, 'SIMPLE'
     sxaddpar, extension_header, 'BITPIX', 8
     writefits, outfilename, temp_enh_int, extension_header, /append
@@ -424,8 +424,8 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Enhanced Intensity', $
-                                             datminmax=long([min(int_enh), $
-                                                             max(int_enh)]))
+                                             datminmax=long([min(temp_enh_int), $
+                                                             max(temp_enh_int)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
       writefits, outfilename, temp_enh_int, extension_header, /append
