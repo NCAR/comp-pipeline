@@ -68,18 +68,18 @@ function comp_l2_mask, fits_header, no_post=no_post, $
   ; look for new keyword
   fradius = sxpar(fits_header, 'FRADIUS', count=count)
 
-; if img_occulter_radius is set, use the occulter radius recorded in the header
-; if not set, uses the average value of the occulter radius 
- 
-    if  (not keyword_set(image_occulter_radius)) then begin
-      occulter_id = sxpar(fits_header, 'OCC-ID')
-      occulter_index = where(occulter_ids eq occulter_id)
-      occulter_radius = occulter_radii[occulter_index[0]]
-   endif else begin
-      occulter_radius =sxpar(fits_header, 'ORADIUS')
-   endelse
+  ; if img_occulter_radius is set, use the occulter radius recorded in the
+  ; header
+  ; if not set, uses the average value of the occulter radius
 
-  
+  if (not keyword_set(image_occulter_radius)) then begin
+    occulter_id = sxpar(fits_header, 'OCC-ID')
+    occulter_index = where(occulter_ids eq occulter_id)
+    occulter_radius = occulter_radii[occulter_index[0]]
+  endif else begin
+    occulter_radius =sxpar(fits_header, 'ORADIUS')
+  endelse
+
   if (count eq 0) then begin
     ; old keywords 
     occulter = {x:sxpar(fits_header, 'CRPIX1') , $
