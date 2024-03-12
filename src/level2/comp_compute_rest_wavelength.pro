@@ -26,13 +26,18 @@ function comp_compute_rest_wavelength, primary_header, $
                                        line_width, $
                                        method=method, $
                                        indices=indices, $
-                                       med_east=med_east, med_west=med_west
+                                       med_east=med_east, $
+                                       med_west=med_west
   compile_opt strictarr
 
   _method = n_elements(method) eq 0L ? 'median' : method
 
- ;calling comp_l2_mask with more restrictive  requirements than nornal level2  images
- mask = comp_l2_mask(primary_header, /img_occulter_radius, occulter_offset=4, field_offset=-10)
+ ; calling comp_l2_mask with more restrictive requirements than normal level 2
+ ; images
+ mask = comp_l2_mask(primary_header, $
+                     /image_occulter_radius, $
+                     occulter_offset=4, $
+                     field_offset=-10)
 
   dims = size(velocity, /dimensions)
   nx = dims[0]
@@ -40,16 +45,18 @@ function comp_compute_rest_wavelength, primary_header, $
   x = findgen(nx) - (nx - 1.0) / 2.0
   x = rebin(reform(x, nx, 1), nx, ny)
 
-;GdT revised velocity criteria 
-; it assumes: 
-; velocity is in km/s and zeros in velocity are invalid pixels
-; line width is the FWHM in km/s 
-; note the condition in velocity is NOT simmetric because the line is blue-shifted
+  ; GdT revised velocity criteria, it assumes:
+  ;
+  ; - velocity is in km/s and zeros in velocity are invalid pixels
+  ; - line width is the FWHM in km/s
+  ;
+  ; note the condition in velocity is NOT symmetric because the line is
+  ; blue-shifted
 
-;set lower maximum for 1079 - to use later
+  ; set lower maximum for 1079 - to use later
   lambda_zero=sxpar(primary_header, 'WAVE_REF')
-  rest_int_max = 2.0 if lambda_zero gt 1075 then rest_int_max = 1.0
-      
+  rest_int_max = lambda_zero gt 1075 ? 2.0 : 1.0
+
   threshold_condition = mask gt 0 $
                           and velocity ne 0 $
                           and velocity gt -30 $
@@ -85,14 +92,13 @@ function comp_compute_rest_wavelength, primary_header, $
   if (n_east eq 0L or n_west eq 0L) then return, !values.f_nan
 
   if (_method eq 'mean') then begin
-
     rest_velocity = mean([mean([velocity[east]], /nan), $
-                            mean([velocity[west]], /nan)], /nan)
+                          mean([velocity[west]], /nan)], /nan)
   endif else begin
-     med_east  =  median( [velocity[east]] )
-     med_west =  median( [velocity[west]] )
-     
-    rest_velocity = 0.5*(med_east  + med_west )
+    med_east = median([velocity[east]])
+    med_west = median([velocity[west]])
+
+    rest_velocity = 0.5 * (med_east + med_west)
   endelse
 
   return, rest_velocity
