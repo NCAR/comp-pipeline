@@ -293,7 +293,7 @@ pro comp_quick_invert, date_dir, wave_type, $
 
     ; define masking for velocity and line widh data - less restrictive than for movies and images
     good_vel_indices = where(mask eq 1 $
-                          and bad_pixel_mask eq 0 $ ; exclude points where gaussian fit could not be performed
+                          and bad_pixels_mask eq 0 $ ; exclude points where gaussian fit could not be performed
                           and abs(corr_velo) lt 100 $
                           and i1 gt 0.1 $
                           and i2 gt int_min_thresh $
