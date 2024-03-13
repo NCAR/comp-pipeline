@@ -23,7 +23,7 @@
 function comp_compute_rest_wavelength, primary_header, $
                                        velocity, $
                                        intensity, $
-                                       line_width, $
+                                       line_width_fwhm, $
                                        method=method, $
                                        indices=indices, $
                                        med_east=med_east, med_west=med_west
@@ -48,7 +48,7 @@ function comp_compute_rest_wavelength, primary_header, $
 
 ;set lower maximum for 1079 - to use later
   lambda_zero=sxpar(primary_header, 'WAVE_REF')
-  rest_int_max = 2.0 if lambda_zero gt 1075 then rest_int_max = 1.0
+  rest_int_max = 2.0 if lambda_zero gt 1076 then rest_int_max = 1.0
       
   threshold_condition = mask gt 0 $
                           and velocity ne 0 $
@@ -60,9 +60,9 @@ function comp_compute_rest_wavelength, primary_header, $
                           and intensity[*, *, 0] lt 60.0 $
                           and intensity[*, *, 1] lt 60.0 $
                           and intensity[*, *, 2] lt 60.0 $
-                          and line_width gt 35.0 $
-                          and line_width lt 120.0
-
+                          and line_width_fwhm gt 35.0 $
+                          and line_width_fwhm lt 120.0
+  
   indices = where(threshold_condition, /null)
 
   east = where(threshold_condition and x lt 0.0, n_east, /null)
@@ -87,7 +87,7 @@ function comp_compute_rest_wavelength, primary_header, $
   if (_method eq 'mean') then begin
 
     rest_velocity = mean([mean([velocity[east]], /nan), $
-                            mean([velocity[west]], /nan)], /nan)
+                            mean([velocity[west]], /nan)] )
   endif else begin
      med_east  =  median( [velocity[east]] )
      med_west =  median( [velocity[west]] )
