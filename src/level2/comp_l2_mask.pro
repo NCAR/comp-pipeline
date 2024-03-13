@@ -77,7 +77,7 @@ function comp_l2_mask, fits_header, no_post=no_post, $
     occulter_index = where(occulter_ids eq occulter_id)
     occulter_radius = occulter_radii[occulter_index[0]]
   endif else begin
-    occulter_radius =sxpar(fits_header, 'ORADIUS')
+    occulter_radius = sxpar(fits_header, 'ORADIUS')
   endelse
 
   if (count eq 0) then begin

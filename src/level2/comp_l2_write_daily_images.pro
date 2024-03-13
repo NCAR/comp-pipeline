@@ -50,16 +50,19 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
     '1074': begin
         display_min_i = dispmin1074
         display_max_i = dispmax1074
+        display_exp_i = dispexp1074
         int_min_thresh = int_min_1074_thresh
       end
     '1079': begin
         display_min_i = dispmin1079
         display_max_i = dispmax1079
+        display_exp_i = dispexp1079
         int_min_thresh = int_min_1079_thresh
       end
     '1083': begin
         display_min_i = dispmin1083
         display_max_i = dispmax1083
+        display_exp_i = dispexp1083
         int_min_thresh = int_min_1079_thresh
       end
   endcase
@@ -258,8 +261,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
 
   ; plot intensity and enhanced intensity
   comp_aia_lct, wave=193, /load
-  int = sqrt(intensity)
-  int = bytscl(int, min=display_min_i, max=display_max_i)
+  int = bytscl(intensity^display_exp_i, min=display_min_i, max=display_max_i)
   tv, int, gap, im_size + 2 * gap
   tv, enhanced_intensity, im_size + 2 * gap, im_size + 2 * gap
 
@@ -345,7 +347,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
              font=-1, divisions=4, format='(F5.1)'
   comp_aia_lct, wave=193, /load
   colorbar2, position=[0.092, 0.66, 0.092 + 0.158, 0.66 + 0.015], $
-             charsize=1.25, title='sqrt(intensity)', $
+             charsize=1.25, title=string(display_exp_i, format='intensity^%0.1f'), $
              range=[display_min_i, display_max_i], format='(F0.1)', font=-1, $
              divisions=4
   loadct, 4, /silent
@@ -500,7 +502,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   ; plot intensity
   comp_aia_lct, wave=193, /load
   tv, int
-  colorbar2, position=colbarpos, charsize=1.25, title='sqrt(intensity)', $
+  colorbar2, position=colbarpos, charsize=1.25, $
+             title=string(display_exp_i, format='intensity^%0.1f'), $
              range=[display_min_i, display_max_i], format='(F0.1)', font=-1, divisions=4
   loadct, 0, /silent
   xyouts, 310.0, 4 * 78, 'Intensity', charsize=title_charsize, /device, $
