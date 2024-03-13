@@ -270,7 +270,9 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   ; velocity in km/s
   ; "rest" here is the center wavelength
-  velo = temp_data[*, *, 1] + rest
+  ; velo = temp_data[*, *, 1] + rest
+  ; TODO: do we need to add the rest wavelength here?
+  velo = temp_data[*, *, 1]
   velo *= c / nominal
   velo[where(bad_pixels_mask eq 1)] = 0D         ; exclude points where gaussian fit could not be performed
 
