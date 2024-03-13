@@ -162,6 +162,9 @@ pro comp_quick_invert, date_dir, wave_type, $
 
   sxaddpar, primary_header, 'N_EXT', 8, /savecomment
 
+    mask = comp_l2_mask(primary_header)
+    no_post_mask = comp_l2_mask(primary_header, /no_post)
+
   case wave_type of
     '1074': begin
         rest = double(center1074)
@@ -187,12 +190,14 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; update version
   comp_l2_update_version, primary_header
 
-  ; compute parameters
-  i = comp_obs[*, *, 0, wave_indices[1]]
-  q = comp_obs[*, *, 1, wave_indices[1]]
-  u = comp_obs[*, *, 2, wave_indices[1]]
+ 
+  i1 = comp_obs[*, *, 0, wave_indices[0]] 
+  i2 = comp_obs[*, *, 0, wave_indices[1]]       ; center line intensity
+  i3 = comp_obs[*, *, 0, wave_indices[2]] 
+  q = comp_obs[*, *, 1, wave_indices[1]]        ;center line q
+  u = comp_obs[*, *, 2, wave_indices[1]]        ;center line u 
 
-  zero = where(i le 0, count)
+  zero = where(i2 le 0, count)
   if (count eq 0) then begin
     mg_log, 'no values less than 0 for %s nm intensity [%s] (%s)', $
             wave_type, _method, type, $
@@ -202,109 +207,129 @@ pro comp_quick_invert, date_dir, wave_type, $
   ; compute azimuth and adjust for p-angle, correct azimuth for quadrants
   azimuth = comp_azimuth(u, q, radial_azimuth=radial_azimuth)
 
-  i[zero] = 0.0
-  azimuth[zero] = 0.0
-  radial_azimuth[zero] = -999.0
-
-  q[zero] = !values.f_nan
-  u[zero] = !values.f_nan
-
   ; compute linear polarization
   l = sqrt(q^2 + u^2)
 
+ 
+;i1 and i3 not used in quick invert - mask criteria only based on line center
+  good_pol_indices = where(mask gt 0 $
+                                                      and i2 gt 0.25 $
+                                                      and i2 lt 60.0, complement=bad_pol_indices, /null)
+
+;mask polarization
+  i2[bad_pol_indices]     =  0D
+  q[bad_pol_indices]      =  0D
+  u[bad_pol_indices]      =  0D
+  l[bad_pol_indices]       =   0D
+  azimuth[bad_pol_indices]  =  0D
+  radial_azimuth[bad_pol_indices] = 0D
+
+  
   ; compute doppler shift and linewidth from analytic gaussian fit
-  i1 = comp_obs[*, *, 0L, wave_indices[0]]
-  i2 = comp_obs[*, *, 0L, wave_indices[1]]
-  i3 = comp_obs[*, *, 0L, wave_indices[2]]
   d_lambda = abs(wave[wave_indices[1]] - wave[wave_indices[0]])
 
-  comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, peak_intensity
-  dop += rest
+ ;changed the gaussian fit to use the same routine used in l2_analytical to catch all  bad values
+ ; comp_analytic_gauss_fit2, i1, i2, i3, d_lambda, dop, width, peak_intensity
 
-  mask = comp_l2_mask(primary_header)
-  no_post_mask = comp_l2_mask(primary_header, /no_post)
+    bad_pixels_mask = bytarr(nx, ny)
+    temp_data = dblarr(nx, ny, 3)
+    
+for xx = 0L, nx - 1L do begin
+      for yy = 0L, ny - 1L do begin
+        IF (mask[xx, yy] eq 1) THEN BEGIN
+          ; compute analytical gaussfit
+          profile = double([reform(i1[xx, yy]), reform(i2[xx, yy]), reform(i3[xx, yy])])
+         if min(profile) gt 0 then begin
+            comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
+            temp_data[xx, yy, 0] = i_cent
+            temp_data[xx, yy, 1] = doppler_shift  
+            temp_data[xx, yy, 2] = width 
+            ; if gaussian fits cannot be performed update mask of bad pixels
+            if doppler_shift eq 0 and width eq 0 and i_cent eq 0 then bad_pixels_mask[xx, yy] = 1B   ; bad_pixels_mask has 1 where gausssian fit could not be done
+         endif else begin
+            bad_pixels_mask[xx, yy] = 1B    ; bad_pixels_mask has 1 where pixels have negative intensity
+            temp_data[xx, yy, 0] = 0.0D
+            temp_data[xx, yy, 1] = 0.0D
+            temp_data[xx, yy, 2] = 0.0D
+         endelse
+      ENDIF ELSE BEGIN
+            bad_pixels_mask[xx, yy] = 1B    ; bad_pixels_mask has 1 where mask has zero
+            temp_data[xx, yy, 0] = 0.0D
+            temp_data[xx, yy, 1] = 0.0D
+            temp_data[xx, yy, 2] = 0.0D
+      ENDELSE    
+      endfor
+   endfor
 
-  good_pol_indices = where(mask gt 0 $
-                             and i1 gt 0.05 $
-                             and i2 gt 0.25 $
-                             and i3 gt 0.05 $
-                             and i1 lt 60.0 $
-                             and i2 lt 60.0 $
-                             and i3 lt 60.0, complement=bad_pol_indices, /null)
+    ;peak intensity
+    peak_intensity = reform(temp_data[*, *, 0])
+    peak_intensity[where(bad_pixels_mask eq 1)] = 0D     ; exclude points where gaussian fit could not be performed
 
-  q[bad_pol_indices]       = 0.0
-  u[bad_pol_indices]       = 0.0
-  l[bad_pol_indices]       = 0.0
-  azimuth[bad_pol_indices] = 0.0
+    ;convert e-folding line width to FWHM and km/s   
+    line_width = (reform(temp_data[*, *, 2])) *c / nominal 
+    line_width_fwhm = line_width*fwhm_factor  
+    line_width_fwhm[where(bad_pixels_mask eq 1)] =  0D        ; exclude points where gaussian fit could not be performed
+   
+    ; velocity in km/s
+    velo = temp_data[*, *, 1] + rest                      ; "rest" here is the center wavelength
+    velo =  velo * c / nominal    
+    velo[where(bad_pixels_mask eq 1)] = 0D         ; exclude points where gaussian fit could not be performed
 
-  ; TODO: should this be divided by sqrt(2.0) to give sigma?
-  width *= c / wave[wave_indices[1]]
+ ; rest wavelength calculation
+    rest_wavelength = comp_compute_rest_wavelength(hdr, $
+                                                   velo, $
+                                                   [[[i1]], [[i2]], [[i3]]], $
+                                                   line_width_fwhm, $
+                                                   method='median', $
+                                                   indices=vel_indices, $
+                                                   med_east=med_vel_east, med_west =med_vel_west)
 
-  pre_corr = dblarr(nx, ny, 2)
-  pre_corr[*, *, 0] = peak_intensity
-  pre_corr[*, *, 1] = dop
+ IF (n_elements(vel_indices) gt 0L and finite(rest_wavelength) ne 0 ) THEN BEGIN 
+    ;case in which a rest wavelength was determined 
+    corr_velo[vel_indices] = velo[vel_indices] - rest_wavelength
+    corr_velo[where(bad_pixels_mask eq 1)] = 0D 
+   
 
-  comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend, $
-                           rest_wavelength=rest_wavelength
-  if (abs(temptrend) gt 0.01) then begin
-    mg_log, 'potential bad doppler correction: temptrend = %f', temptrend, $
-            name='comp', /warn
-  endif
-  corrected_dop = reform(post_corr[*, *, 1])
-  dop[zero] = !values.f_nan
-  corrected_dop[zero] = !values.f_nan
-
-  ; convert doppler from wavelength to velocity
-  dop = (dop - rest) * c / nominal
-
-  ; this is now the main rest wavelength calculation, we can remove all other
-  ; calculations when we verify we like this one
-  rest_wavelength = comp_compute_rest_wavelength(primary_header, $
-                                                 dop, $
-                                                 [[[i1]], [[i2]], [[i3]]], $
-                                                 width, $
-                                                 method='median')
-  corrected_dop = dop - rest_wavelength
-
-  good_vel_indices = where(mask gt 0 $
-                             and dop ne 0 $
-                             and abs(dop) lt 100 $
-                             and i1 gt 0.1 $
-                             and i2 gt int_min_thresh $
-                             and i3 gt 0.1 $
-                             and i1 lt 60.0 $
-                             and i2 lt 60.0 $
-                             and i3 lt 60.0 $
-                             and width gt 22.0 $
-                             and width lt 102.0, $
-                           ngood, $
-                           ncomplement=n_bad_vel_pixels, $
-                           complement=bad_vel_indices, $
-                           /null)
-  if (n_bad_vel_pixels gt 0L) then begin
-    dop[bad_vel_indices]           = !values.f_nan
-    corrected_dop[bad_vel_indices] = !values.f_nan
-    width[bad_vel_indices]         = !values.f_nan
-  endif
+     ;define masking for velocity and line widh data - less restrictive than for movies and images
+        good_vel_indices = where(mask eq 1 $
+                              and bad_pixel_mask eq 0 $ ; exclude points where gaussian fit could not be performed
+                              and abs(corr_velo) lt 100 $
+                              and i1 gt 0.1 $
+                              and i2 gt int_min_thresh $
+                              and i3 gt 0.1 $
+                              and i1 lt int_max_thresh $
+                              and i2 lt int_max_thresh $
+                              and i3 lt int_max_thresh $
+                              and line_width_fwhm gt 36 $ 
+                              and line_width_fwhm lt 170.0, $
+                              ngood, $
+                              ncomplement=n_bad_vel_pixels, $
+                              complement=bad_vel_indices, $
+                             /null)
+  ;apply masking to velocity and line width
+         if (n_bad_vel_pixels gt 0L) then begin
+            velo[bad_vel_indices] =  0D
+            corr_velo[bad_vel_indices] =  0D
+            line_width_fwhm[bad_vel_indices] = 0D
+         endif
+    ENDIF ELSE BEGIN
+;TODO    
+ ; Mike: please add a warning if this happens, so we trace these bad frames where the rest wavelength could not be computed         
+        peak_int[*] = 0D
+        velo[*] = 0D
+        corr_velo[*] = 0D
+        line_width[*] =  0D
+        line_width_fwhm[*] =  0D
+    ENDELSE    
 
   ; difference between calculated peak intensity and measured is not too great
-  ind = where(abs(peak_intensity - i2) gt 1.5 * i2, count)
-  if (count gt 0L) then begin
-    dop[ind] = !values.f_nan
-    corrected_dop[ind] = !values.f_nan
-  endif
+  ;ind = where(abs(temp_peak_int - i2) gt 1.5 * i2, count)
+  ;if (count gt 0L) then begin
+  ;  velo[ind] = !values.f_nan
+  ;  corr_velo[ind] = !values.f_nan
+  ;endif
 
-  ; apply geometric mask to all quantities in FITS file
-  i[where(mask eq 0, /null)]              = !values.f_nan
-  q[where(mask eq 0, /null)]              = !values.f_nan
-  u[where(mask eq 0, /null)]              = !values.f_nan
-  l[where(mask eq 0, /null)]              = !values.f_nan
-  azimuth[where(mask eq 0, /null)]        = !values.f_nan
-  corrected_dop[where(mask eq 0, /null)]  = !values.f_nan
-  radial_azimuth[where(mask eq 0, /null)] = !values.f_nan
-  dop[where(mask eq 0, /null)]            = !values.f_nan
-  peak_intensity[where(mask eq 0, /null)] = !values.f_nan
-
+  
   ; write fit parameters to output file
 
   quick_invert_filename = string(date_dir, wave_type, _method, type, $
@@ -323,9 +348,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   sxaddpar, header, 'NTUNES', ntune
   sxaddpar, header, 'LEVEL   ', 'L2'
 
-  sxaddpar, header, 'DATAMIN', min(i, /nan), ' minimum data value', format='(F0.3)'
-  sxaddpar, header, 'DATAMAX', max(i, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, i, header, extname='Center wavelength intensity'
+  sxaddpar, header, 'DATAMIN', min(i2, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(i2, /nan), ' maximum data value', format='(F0.3)'
+  fits_write, fcbout, i2, header, extname='Center wavelength intensity'
 
   sxaddpar, header, 'DATAMIN', min(q, /nan), ' minimum data value', format='(F0.3)'
   sxaddpar, header, 'DATAMAX', max(q, /nan), ' maximum data value', format='(F0.3)'
@@ -347,22 +372,22 @@ pro comp_quick_invert, date_dir, wave_type, $
   fits_write, fcbout, azimuth, header, extname='Azimuth'
   sxdelpar, header, 'COMMENT'
 
-  sxaddpar, header, 'DATAMIN', min(corrected_dop, /nan), ' minimum data value', $
+  sxaddpar, header, 'DATAMIN', min(corr_velo, /nan), ' minimum data value', $
             format='(F0.3)'
-  sxaddpar, header, 'DATAMAX', max(corrected_dop, /nan), ' maximum data value', $
+  sxaddpar, header, 'DATAMAX', max(corr_velo, /nan), ' maximum data value', $
             format='(F0.3)'
 
   fxaddpar, header, 'RSTWVL', rest_wavelength, $
             ' [km/s] rest wavelength', format='(F0.3)', /null
 
-  fits_write, fcbout, corrected_dop, header, extname='Corrected LOS velocity'
+  fits_write, fcbout, corr_velo, header, extname='Corrected LOS velocity'
 
   sxdelpar, header, 'RSTWVL'
 
-  width_fwhm = width * fwhm_factor
-  sxaddpar, header, 'DATAMIN', min(width_fwhm, /nan), ' minimum data value', format='(F0.3)'
-  sxaddpar, header, 'DATAMAX', max(width_fwhm, /nan), ' maximum data value', format='(F0.3)'
-  fits_write, fcbout, width_fwhm, header, extname='Line width (FWHM)'
+  
+  sxaddpar, header, 'DATAMIN', min(line_width_fwhm, /nan), ' minimum data value', format='(F0.3)'
+  sxaddpar, header, 'DATAMAX', max(line_width_fwhm, /nan), ' maximum data value', format='(F0.3)'
+  fits_write, fcbout, line_width_fwhm, header, extname='Line width (FWHM)'
 
   sxaddpar, header, 'DATAMIN', min(radial_azimuth, /nan), ' minimum data value', $
             format='(F0.3)'
@@ -371,9 +396,9 @@ pro comp_quick_invert, date_dir, wave_type, $
   fits_write, fcbout, radial_azimuth, header, extname='Radial azimuth'
 
   if (add_uncorrected_velocity) then begin
-    sxaddpar, header, 'DATAMIN', min(dop, /nan), ' minimum data value', $
+    sxaddpar, header, 'DATAMIN', min(velo, /nan), ' minimum data value', $
               format='(F0.3)'
-    sxaddpar, header, 'DATAMAX', max(dop, /nan), ' maximum data value', $
+    sxaddpar, header, 'DATAMAX', max(velo, /nan), ' maximum data value', $
               format='(F0.3)'
     fxaddpar, header, 'RESTWVL', median_rest_wavelength, ' [km/s] rest wavelength', $
               format='(F0.3)', /null
@@ -381,7 +406,7 @@ pro comp_quick_invert, date_dir, wave_type, $
               ' [km/s] east rest wavelength', format='(F0.3)', /null
     fxaddpar, header, 'WRESTWVL', west_median_rest_wavelength, $
               ' [km/s] west rest wavelength', format='(F0.3)', /null
-    fits_write, fcbout, dop, header, extname='Uncorrected Doppler Velocity'
+    fits_write, fcbout, velo, header, extname='Uncorrected Doppler Velocity'
     sxdelpar, header, 'RESTWVL'
     sxdelpar, header, 'ERESTWVL'
     sxdelpar, header, 'WRESTWVL'
