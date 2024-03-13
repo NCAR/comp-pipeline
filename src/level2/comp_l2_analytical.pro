@@ -112,7 +112,7 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     endif
     fits_close, fcb
 
-    hdr    = headfits(gbu[ii].l1file)
+    hdr = headfits(gbu[ii].l1file)
 
     wave_ind = comp_3pt_indices(wave_type, wave, error=error)
 
@@ -160,34 +160,41 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
 
     for xx = 0L, nx - 1L do begin
       for yy = 0L, ny - 1L do begin
-        IF (mask[xx, yy] eq 1) THEN BEGIN
+        if (mask[xx, yy] eq 1) then begin
           ; compute analytical gaussfit
           profile = double([reform(i1[xx, yy]), $
                             reform(i2[xx, yy]), $
                             reform(i3[xx, yy])])
-         if min(profile) gt 0 then begin
-            comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, i_cent
+          if (min(profile) gt 0) then begin
+            comp_analytic_gauss_fit, profile, d_lambda, doppler_shift, width, $
+                                     i_cent
             temp_data[xx, yy, 0] = i_cent
             temp_data[xx, yy, 1] = doppler_shift  
             temp_data[xx, yy, 2] = width 
             ; if gaussian fits cannot be performed update mask of bad pixels
-            if doppler_shift eq 0 and width eq 0 and i_cent eq 0 then bad_pixels_mask[xx, yy] = 1B   ; bad_pixels_mask has 1 where gausssian fit could not be done
-         endif else begin
-            bad_pixels_mask[xx, yy] = 1B    ; bad_pixels_mask has 1 where pixels have negative intensity
+            if (doppler_shift eq 0 and width eq 0 and i_cent eq 0) then begin
+              ; bad_pixels_mask has 1 where gaussian fit could not be done
+              bad_pixels_mask[xx, yy] = 1B
+            endif
+          endif else begin
+            ; bad_pixels_mask has 1 where pixels have negative intensity
+            bad_pixels_mask[xx, yy] = 1B
             temp_data[xx, yy, 0] = 0.0D
             temp_data[xx, yy, 1] = 0.0D
             temp_data[xx, yy, 2] = 0.0D
-         endelse
-      ENDIF ELSE BEGIN
-            bad_pixels_mask[xx, yy] = 1B    ; bad_pixels_mask has 1 where mask has zero
+          endelse
+        endif else begin
+            ; bad_pixels_mask has 1 where mask has zero
+            bad_pixels_mask[xx, yy] = 1B
             temp_data[xx, yy, 0] = 0.0D
             temp_data[xx, yy, 1] = 0.0D
             temp_data[xx, yy, 2] = 0.0D
-      ENDELSE    
+        endelse
       endfor
     endfor
 
     ; define peak intensity and enhanced intensity image and apply minimal masking 
+
     peak_int = reform(temp_data[*, *, 0])
     peak_int[where(bad_pixels_mask eq 1)] = 0D     ; exclude points where gaussian fit could not be performed
 
@@ -211,24 +218,25 @@ pro comp_l2_analytical, date_dir, wave_type, nwl=nwl
     ;pre_corr[*, *, 1] = temp_velo
     ;comp_doppler_correction, pre_corr, post_corr, wave_type, ewtrend, temptrend
     ;if (abs(temptrend) gt 0.01) then begin
+
     ;  mg_log, 'potential bad doppler correction: temptrend = %f', temptrend, $
     ;          name='comp', /warn
-    ;endif
-    ;temp_corr_velo = reform(post_corr[*, *, 1])
-    ;temp_corr_velo(bad_pixels_mask eq 1)] = 0D ;
+    ; endif
+    ; temp_corr_velo = reform(post_corr[*, *, 1])
+    ; temp_corr_velo(bad_pixels_mask eq 1)] = 0D
 
 
-; rest wavelength calculation
-; added option to retun east and west values    
+    ; rest wavelength calculation
+    ; added option to return east and west values
     rest_wavelength = comp_compute_rest_wavelength(hdr, $
                                                    velo, $
                                                    [[[i1]], [[i2]], [[i3]]], $
                                                    line_width_fwhm, $
                                                    method='median', $
                                                    indices=vel_indices, $
-                                                   med_east=med_vel_east, med_west =med_vel_west)
+                                                   med_east=med_vel_east, $
+                                                   med_west=med_vel_west)
 
- 
     IF (n_elements(vel_indices) gt 0L and finite(rest_wavelength) ne 0 ) THEN BEGIN 
     ;case in which a rest wavelength was determined 
      corr_velo[vel_indices] = velo[vel_indices] - rest_wavelength
@@ -299,8 +307,6 @@ endif
    ENDIF
  
 
-;=== WRITE OUT  FITS FILES ===
-    
     mg_log, '%d/%d @ %s: dynamics FITS', ii + 1, nt, wave_type, $
             name='comp', /info
 
@@ -316,18 +322,22 @@ endif
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Peak intensity', $
+
                                            datminmax=[min(peak_int), $
                                                       max(peak_int)])
     sxdelpar, extension_header, 'SIMPLE'
     writefits, outfilename, float(peak_int), extension_header, /append
+
 
     ; enhanced intensity
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Enhanced Intensity', $
+
                                            datminmax=long([min(enh_int), $
                                                            max(ehn_int)]))
+
     sxdelpar, extension_header, 'SIMPLE'
     sxaddpar, extension_header, 'BITPIX', 8
     writefits, outfilename, temp_enh_int, extension_header, /append
@@ -337,17 +347,26 @@ endif
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
                                            extname='Corrected LOS velocity', $
+
                                            datminmax=[min(corr_velo), $
                                                       max(corr_velo)])
     fxaddpar, extension_header, 'RSTWVL', rest_wavelength, $
-              ' [km/s] rest wavelength', format='(F0.3)', /null
 
+              ' [km/s] rest wavelength', format='(F0.3)', /null
+    fxaddpar, header, 'ERESTWVL', med_vel_east, $
+              ' [km/s] median east rest wavelength', format='(F0.3)', /null
+    fxaddpar, header, 'WRESTWVL', med_vel_west, $
+              ' [km/s] median west rest wavelength', format='(F0.3)', /null
     sxdelpar, extension_header, 'SIMPLE'
+
     writefits, outfilename, float(corr_velo), extension_header, /append
     sxdelpar, extension_header, 'RSTWVL'
+    sxdelpar, extension_header, 'ERESTWVL'
+    sxdelpar, extension_header, 'WRESTWVL'
+
 
     ; line width
-    
+
     extension_header = comp_convert_header(headfits(gbu[ii].l1file, $
                                                     exten=wave_ind[1] + 1), $
                                            /exten, $
@@ -411,8 +430,8 @@ endif
                                                       exten=wave_ind[1] + 1), $
                                              /exten, $
                                              extname='Enhanced Intensity', $
-                                             datminmax=long([min(int_enh), $
-                                                             max(int_enh)]))
+                                             datminmax=long([min(temp_enh_int), $
+                                                             max(temp_enh_int)]))
       sxdelpar, extension_header, 'SIMPLE'
       sxaddpar, extension_header, 'BITPIX', 8
       writefits, outfilename, temp_enh_int, extension_header, /append

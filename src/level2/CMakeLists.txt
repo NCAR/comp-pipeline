@@ -7,3 +7,6 @@ install(FILES ${PRO_FILES} DESTINATION src/${DIRNAME})
 
 file(GLOB SAV_FILES "*.sav")
 install(FILES ${SAV_FILES} DESTINATION src/${DIRNAME})
+
+file(GLOB TBL_FILES "*.tbl")
+install(FILES ${TBL_FILES} DESTINATION src/${DIRNAME})

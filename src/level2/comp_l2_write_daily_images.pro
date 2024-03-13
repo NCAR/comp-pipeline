@@ -269,8 +269,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   rgb[254, *] = 0
   rgb[255, *] = 255
   tvlct, rgb
-  ; 25-55 in previous units, 42-92 in FWHM
-  line_width_range = [42, 92]
+  ; 25-55 in previous units, 54-74 now in FWHM
+  line_width_range = [54, 74]
   width_fwhm = bytscl(width_fwhm, $
                       min=line_width_range[0], $
                       max=line_width_range[1], $
@@ -548,8 +548,8 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   erase
 
   ; plot line width
-  loadct, 4, /silent
-  tvlct, rgb, /get
+  mpl_filename = filepath('mpl.tbl', root=mg_src_root())
+  loadct, 12, file=mpl_filename, rgb_table=rgb
   rgb[254, *] = 0
   rgb[255, *] = 255
   tvlct, rgb
@@ -620,7 +620,7 @@ pro comp_l2_write_daily_images, date_dir, wave_type, $
   tvlct, 0B, 0B, 0B, 254L   ; bad values are black
   tvlct, 255B, 255B, 255B, 255L   ; annotation color is white
   bad_ind = where(radial_azimuth lt -90, n_bad_ind)
-  radial_display_max = 50.0
+  radial_display_max = 90.0
   rad_azi = bytscl(radial_azimuth, min=-radial_display_max, max=radial_display_max, top=ncolors - 1)
   if (n_bad_ind gt 0L) then rad_azi[bad_ind] = 254B
   if (n_mask_ind gt 0L) then rad_azi[mask_ind] = 254B
