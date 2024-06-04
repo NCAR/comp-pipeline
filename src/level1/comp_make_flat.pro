@@ -322,7 +322,8 @@ pro comp_make_flat, date_dir, error=error
                                         bc2=background_correction_2 )
       endif
 
-      ;  normalize flats so that they are in units of millionths
+      ; normalize flats so that they are in units of millionths accounting for
+      ; the degradation of the diffuser
       image /= norm
 
       ; Check signal inside the mask which excludes the occulter, field, post, and overlap
@@ -333,8 +334,8 @@ pro comp_make_flat, date_dir, error=error
 
       ; the flat can be blocked by the dome or the sky conditions could limit
       ; the lights, which lowers the value of the flat
-      transmission_correction = comp_correct_nd(nd_filter, 8, uniq_waves[i])
-      threshold = (norm - min_flat_median_offset) * expose / 250.0 / transmission_correction
+      nd_correction = comp_correct_nd(nd_filter, 8, uniq_waves[i])
+      threshold = min_flat_median * expose / 250.0 / nd_correction
 
       if (medflat lt threshold) then begin
         mg_log, 'low flat median for %s (%0.2f):', $
