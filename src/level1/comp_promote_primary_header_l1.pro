@@ -130,8 +130,8 @@ pro comp_promote_primary_header_l1, headers, primary_header, date_dir, wave_type
   endelse
 
   sxaddpar, primary_header, 'OBJECT', 'corona', ' Coronal Emission', after='LOCATION'
-  sxaddpar, primary_header, 'BUNIT', '1.E-06 B/Bsun', $
-            ' Intensity of Millionths of solar disk brightness'
+  sxaddpar, primary_header, 'BUNIT', 'millionths of solar disk center intensity', $
+            ' ', after='OBJECT'
   sxaddpar, primary_header, 'BZERO', 0, ' offset for unsigned integer data', after='BUNIT'
   sxaddpar, primary_header, 'BSCALE', 1.00, ' physical = data * BSCALE + BZERO', $
             after='BZERO', format='(F0.2)'
