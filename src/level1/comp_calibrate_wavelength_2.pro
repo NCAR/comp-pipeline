@@ -255,7 +255,7 @@ pro comp_calibrate_wavelength_2, date_dir, wave_type, lam0, $
       ; fit continuum in order to detrend spectrum
       w = wav - lam0
   
-      ; define continuum wavelength points
+      ; define "clean" continuum wavelength points
       if (lam0 eq 1074.7) then begin
         to_fit_obs = [0, 1, 6, 10]
         ;to_fit_obs = [0, 1, 4, 10]
