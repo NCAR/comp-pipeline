@@ -77,18 +77,21 @@ pro comp_db_update_obs_plan_checkfile, filename, original_basename, $
 end
 
 
-pro comp_db_update_obs_plan
+pro comp_db_update_obs_plan, start_row=start_row, $
+                             n_rows_to_process=n_rows_to_process
   compile_opt strictarr
 
-  ; catch, error_no
-  ; if (error_no ne 0L) then begin
-  ;   catch, /cancel
-  ;   if (n_elements(sql_cmd) ne 0L) then begin
-  ;     mg_log, sql_cmd, /critical
-  ;     help, obs_plan, d.file_name
-  ;   endif
-  ;   return
-  ; endif
+  catch, error_no
+  if (error_no ne 0L) then begin
+    catch, /cancel
+    if (n_elements(sql_cmd) ne 0L) then begin
+      mg_log, sql_cmd, /critical
+      help, obs_plan, d.file_name
+    endif
+    return
+  endif
+
+  update = 1B
 
   database_config_filename = '~/.mysqldb'
   database_config_section = 'pipeline@databases'
@@ -105,13 +108,13 @@ pro comp_db_update_obs_plan
   mg_log, 'found %d comp_file rows', n_rows, /info
 
   ; [TODO]: limiting for testing purposes
-  start_row = 0L
-  n_rows = 1000000L
+  start_row = mg_default(start_row, 0L)
+  n_rows_to_process = mg_default(n_rows_to_process, n_rows - start_row)
 
   n_updated = 0L
   n_published = 0L
-  for r = start_row, start_row + n_rows - 1L do begin
-    mg_log, '%07d/%07d', r - start_row + 1, n_rows, /info
+  for r = start_row, start_row + n_rows_to_process - 1L do begin
+    mg_log, '%07d/%07d', r + 1, start_row + n_rows_to_process, /info
 
     published = 0L
     found = 0B
@@ -121,6 +124,7 @@ pro comp_db_update_obs_plan
     d_file_name = d.file_name + (strmid(d.file_name, 2, /reverse_offset) eq '.gz' ? '' : '.gz')
     date_parts = [strmid(d.obs_day, 0, 4), strmid(d.obs_day, 5, 2), strmid(d.obs_day, 8, 2)]
     filename = filepath(d_file_name, subdir=date_parts, root=archive_rootdir)
+    obs_plan = ''
     if (file_test(filename, /regular)) then begin
       published = 1L
       found = 1B
@@ -168,14 +172,20 @@ pro comp_db_update_obs_plan
       endelse
     endelse
 
+    obs_plan = n_elements(obs_plan) eq 0L ? '' : strtrim(obs_plan, 2)
+
     if (found) then begin
-    ;   cmd = 'update comp_file set file_name=''%s'', filesize=%d, obs_plan=''%s'', published=%d where file_id=%d'
-    ;   db->execute, cmd, file_name, filesize, obs_plan, published, d.file_id, $
-    ;                sql_statement=sql_cmd, status=status
-    ;   if (status ne 0L) then begin
-    ;     mg_log, 'problem with SQL command (status: %d)', status, /error
-    ;     mg_log, sql_cmd, /error
-    ;   endif
+      if (update) then begin
+        cmd = 'update comp_file set file_name=''%s'', filesize=%d, obs_plan=''%s'', published=%d where file_id=%d'
+        db->execute, cmd, file_name, filesize, obs_plan, published, d.file_id, $
+                    sql_statement=sql_cmd, status=status
+        if (status eq 0L) then begin
+          mg_log, sql_cmd, /debug
+        endif else begin
+          mg_log, 'problem with SQL command (status: %d)', status, /error
+          mg_log, sql_cmd, /error
+        endelse
+      endif
       n_updated += 1L
     endif else begin
       mg_log, 'cannot find %s', d.file_name, /error
@@ -183,8 +193,8 @@ pro comp_db_update_obs_plan
     if (published) then n_published += 1
   endfor
 
-  mg_log, '%d updated rows of %d', n_updated, n_rows, /info
-  mg_log, '%d published rows of %d', n_published, n_rows, /info
+  mg_log, '%d updated rows of %d', n_updated, n_rows_to_process, /info
+  mg_log, '%d published rows of %d', n_published, n_rows_to_process, /info
 
   obj_destroy, db
 end
